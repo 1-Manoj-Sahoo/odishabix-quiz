@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ODISHABIX - Quiz App</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        margin: 0;
+        padding: 0;
+        color: #fff;
+    }
+
+    header {
+        text-align: center;
+        padding: 20px;
+        background-color: rgba(0,0,0,0.3);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    header h1 {
+        font-size: 3rem;
+        margin: 0;
+        letter-spacing: 2px;
+        color: #ffcc00;
+    }
+
+    header p {
+        margin-top: 5px;
+        font-size: 1.2rem;
+        color: #ffee99;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .topic {
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .topic:hover {
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.02);
+    }
+
+    .topic h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .subtopics {
+        display: none;
+        margin-top: 10px;
+        padding-left: 15px;
+    }
+
+    .subtopics li {
+        list-style: none;
+        padding: 8px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        margin-bottom: 6px;
+        padding-left: 10px;
+    }
+
+    .start-btn {
+        background-color: #ffcc00;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        color: #333;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .start-btn:hover {
+        background-color: #ffaa00;
+    }
+
+    .toggle-icon {
+        font-size: 1.2rem;
+        transition: transform 0.3s;
+    }
+
+    .rotate {
+        transform: rotate(90deg);
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>ODISHABIX</h1>
+    <p>The Ultimate Odisha Quiz Platform</p>
+</header>
+
+<div class="container">
+    <!-- Current Affairs -->
+    <div class="topic" onclick="toggleSubtopics(this)">
+        <h2>Current Affairs <span class="toggle-icon">▶</span></h2>
+        <ul class="subtopics">
+            <li>Appointment <button class="start-btn" onclick="startQuiz(event,'current-affairs-appointment')">Start Quiz</button></li>
+            <li>Awards and Prizes <button class="start-btn" onclick="startQuiz(event,'current-affairs-awards')">Start Quiz</button></li>
+            <li>Obituary <button class="start-btn" onclick="startQuiz(event,'current-affairs-obituary')">Start Quiz</button></li>
+            <li>National Affairs <button class="start-btn" onclick="startQuiz(event,'current-affairs-national')">Start Quiz</button></li>
+            <li>Odisha CA <button class="start-btn" onclick="startQuiz(event,'current-affairs-odisha')">Start Quiz</button></li>
+        </ul>
+    </div>
+
+    <!-- Computer -->
+    <div class="topic" onclick="toggleSubtopics(this)">
+        <h2>Computer <span class="toggle-icon">▶</span></h2>
+        <ul class="subtopics">
+            <li>MS Word <button class="start-btn" onclick="startQuiz(event,'computer-msword')">Start Quiz</button></li>
+            <li>MS Excel <button class="start-btn" onclick="startQuiz(event,'computer-msexcel')">Start Quiz</button></li>
+            <li>MS PowerPoint <button class="start-btn" onclick="startQuiz(event,'computer-mspowerpoint')">Start Quiz</button></li>
+            <li>MS Access <button class="start-btn" onclick="startQuiz(event,'computer-msaccess')">Start Quiz</button></li>
+            <li>Internet and Networking <button class="start-btn" onclick="startQuiz(event,'computer-networking')">Start Quiz</button></li>
+        </ul>
+    </div>
+
+    <!-- History -->
+    <div class="topic" onclick="toggleSubtopics(this)">
+        <h2>History <span class="toggle-icon">▶</span></h2>
+        <ul class="subtopics">
+            <li>Ancient India History <button class="start-btn" onclick="startQuiz(event,'history-ancient-india')">Start Quiz</button></li>
+            <li>Ancient Odisha History <button class="start-btn" onclick="startQuiz(event,'history-ancient-odisha')">Start Quiz</button></li>
+            <li>Medieval India History <button class="start-btn" onclick="startQuiz(event,'history-medieval-india')">Start Quiz</button></li>
+            <li>Medieval Odisha History <button class="start-btn" onclick="startQuiz(event,'history-medieval-odisha')">Start Quiz</button></li>
+            <li>Modern India History <button class="start-btn" onclick="startQuiz(event,'history-modern-india')">Start Quiz</button></li>
+            <li>Modern Odisha History <button class="start-btn" onclick="startQuiz(event,'history-modern-odisha')">Start Quiz</button></li>
+        </ul>
+    </div>
+
+    <!-- Geography -->
+    <div class="topic" onclick="toggleSubtopics(this)">
+        <h2>Geography <span class="toggle-icon">▶</span></h2>
+        <ul class="subtopics">
+            <li>World Geography <button class="start-btn" onclick="startQuiz(event,'geography-world')">Start Quiz</button></li>
+            <li>Indian Geography <button class="start-btn" onclick="startQuiz(event,'geography-india')">Start Quiz</button></li>
+            <li>Odisha Geography <button class="start-btn" onclick="startQuiz(event,'geography-odisha')">Start Quiz</button></li>
+        </ul>
+    </div>
+
+    <!-- Polity -->
+    <div class="topic" onclick="toggleSubtopics(this)">
+        <h2>Polity <span class="toggle-icon">▶</span></h2>
+        <ul class="subtopics">
+            <li>Indian Polity <button class="start-btn" onclick="startQuiz(event,'polity-india')">Start Quiz</button></li>
+            <li>Constitution <button class="start-btn" onclick="startQuiz(event,'polity-constitution')">Start Quiz</button></li>
+            <li>Governance <button class="start-btn" onclick="startQuiz(event,'polity-governance')">Start Quiz</button></li>
+        </ul>
+    </div>
+
+    <!-- Economics -->
+    <div class="topic" onclick="toggleSubtopics(this)">
+        <h2>Economics <span class="toggle-icon">▶</span></h2>
+        <ul class="subtopics">
+            <li>Indian Economy <button class="start-btn" onclick="startQuiz(event,'economics-india')">Start Quiz</button></li>
+            <li>Global Economy <button class="start-btn" onclick="startQuiz(event,'economics-global')">Start Quiz</button></li>
+            <li>Budget & Finance <button class="start-btn" onclick="startQuiz(event,'economics-budget')">Start Quiz</button></li>
+        </ul>
+    </div>
+
+    <!-- Environment -->
+    <div class="topic" onclick="toggleSubtopics(this)">
+        <h2>Environment <span class="toggle-icon">▶</span></h2>
+        <ul class="subtopics">
+            <li>Climate Change <button class="start-btn" onclick="startQuiz(event,'environment-climate')">Start Quiz</button></li>
+            <li>Biodiversity <button class="start-btn" onclick="startQuiz(event,'environment-biodiversity')">Start Quiz</button></li>
+            <li>Environmental Policies <button class="start-btn" onclick="startQuiz(event,'environment-policies')">Start Quiz</button></li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function toggleSubtopics(topicElement) {
+        const subtopics = topicElement.querySelector('.subtopics');
+        const icon = topicElement.querySelector('.toggle-icon');
+        if (subtopics.style.display === 'block') {
+            subtopics.style.display = 'none';
+            icon.classList.remove('rotate');
+        } else {
+            subtopics.style.display = 'block';
+            icon.classList.add('rotate');
+        }
+    }
+
+    function startQuiz(event, quizId) {
+        event.stopPropagation(); 
+        window.location.href = quizId + ".html"; // Navigate to quiz page
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,3550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Indian History Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">MODERN HISTORY</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+    "question": "When did the British East India Company formally take control of Odisha?",
+    "options": ["1803", "1815", "1825", "1830"],
+    "answer": 0,
+    "explanation": "The British East India Company assumed control of Odisha after defeating the Marathas in 1803."
+  },
+  {
+    "question": "What was the administrative structure of Odisha under the British in 19th century?",
+    "options": ["Part of Bengal Presidency", "Separate province from the start", "Part of Madras Presidency", "Part of Bihar Province"],
+    "answer": 0,
+    "explanation": "Odisha was part of the Bengal Presidency before becoming a separate province in 1936."
+  },
+  {
+    "question": "Which major famine struck Odisha in the 19th century causing massive casualties?",
+    "options": ["Famine of 1866", "Famine of 1877", "Famine of 1896", "Famine of 1905"],
+    "answer": 0,
+    "explanation": "The Great Famine of 1866 (Na Anka Durvikhya) severely affected Odisha, causing widespread starvation and death."
+  },
+  {
+    "question": "The Paika Rebellion of 1817 was primarily a revolt against which policy?",
+    "options": ["British taxation system", "Religious suppression", "Land acquisition by zamindars", "Military conscription"],
+    "answer": 0,
+    "explanation": "The Paika Rebellion was a reaction to British revenue policies and land reforms."
+  },
+  {
+    "question": "Who was the leader of the Paika Rebellion?",
+    "options": ["Bakshi Jagabandhu", "Veer Surendra Sai", "Sahajbal Devi", "Gopabandhu Das"],
+    "answer": 0,
+    "explanation": "Bakshi Jagabandhu was the commander-in-chief of the Paikas and led the 1817 rebellion."
+  },
+  {
+    "question": "Which nationalist leader is known as the father of modern Odisha?",
+    "options": ["Gopabandhu Das", "Utkalamani Gopabandhu", "Madhusudan Das", "Harekrushna Mahatab"],
+    "answer": 2,
+    "explanation": "Madhusudan Das played a key role in the Odia language and statehood movements."
+  },
+  {
+    "question": "When was the province of Odisha formed as a separate linguistic state?",
+    "options": ["1936", "1947", "1950", "1956"],
+    "answer": 0,
+    "explanation": "Odisha was created as a separate province on April 1, 1936, reorganized mostly on linguistic lines."
+  },
+  {
+    "question": "Which movement was aimed at the unification of Odia-speaking regions into a single province?",
+    "options": ["Odisha State Movement", "Prajamandal Movement", "Non-Cooperation Movement", "Bhoodan Movement"],
+    "answer": 0,
+    "explanation": "The Odisha State Movement sought to merge Odia-speaking tracts from Bengal, Madras, and Bihar into one province."
+  },
+  {
+    "question": "The famine relief efforts during the 1866 famine were criticized for being:",
+    "options": ["Inadequate and tardy", "Highly effective", "Led by Indians", "Non-involvement of British"],
+    "answer": 0,
+    "explanation": "British response to the 1866 famine was widely criticized for its delays and inefficiency."
+  },
+  {
+    "question": "Veer Surendra Sai is remembered for leading which kind of struggle?",
+    "options": ["Tribal rebellion against the British", "Peasant movements", "Social reform", "Religious revival"],
+    "answer": 0,
+    "explanation": "Veer Surendra Sai led the tribal rebellion in Sambalpur against British colonial rule."
+  },
+  {
+    "question": "What was the Prajamandal Movement?",
+    "options": ["A people's movement against princely state rulers", "A cultural festival", "A trade union", "An educational reform"],
+    "answer": 0,
+    "explanation": "The Prajamandal Movement aimed at democracy and abolition of feudal privileges in princely states like Odisha's princely states."
+  },
+  {
+    "question": "Which British policy fuelling agrarian distress contributed to the Orissa famine of 1866?",
+    "options": ["Permanent Settlement", "Ryotwari System", "Burdwan Settlement", "Mahalwari System"],
+    "answer": 0,
+    "explanation": "Permanent Settlement led to harsh tax demands from landlords, worsening famine impact."
+  },
+  {
+    "question": "Which revolutionary organization was founded in Odisha in 1925?",
+    "options": ["Utkal Congress", "Praja Mandal", "Forward Block", "Rashtriya Swayamsevak Sangh"],
+    "answer": 1,
+    "explanation": "The Praja Mandal was established to fight for people's rights against princely rulers."
+  },
+  {
+    "question": "The Utkal Sammilani was established for:",
+    "options": ["Promotion of Odia language and culture", "Promotion of English education", "Industrial development", "Religious conversion"],
+    "answer": 0,
+    "explanation": "Utkal Sammilani worked towards Odia language promotion and uniting Odia-speaking areas."
+  },
+  {
+    "question": "Who was the first Chief Minister of Odisha after independence?",
+    "options": ["Harekrushna Mahatab", "Biju Patnaik", "Nilamani Routray", "Janaki Ballabh Patnaik"],
+    "answer": 0,
+    "explanation": "Harekrushna Mahatab served as the first Chief Minister of Odisha post-independence."
+  },
+  {
+    "question": "Which major socio-religious reformer was active in Odisha during the late 19th and early 20th century?",
+    "options": ["Utkalamani Gopabandhu Das", "Swami Vivekananda", "Ramakrishna Paramhansa", "Sri Aurobindo"],
+    "answer": 0,
+    "explanation": "Gopabandhu Das led social reforms and promoted education and nationalism."
+  },
+  {
+    "question": "Which uprising took place in Odisha in 1938 against princely rulers?",
+    "options": ["Praja Mandal Movement", "Salt Satyagraha", "Quit India Movement", "Non-Cooperation Movement"],
+    "answer": 0,
+    "explanation": "The Praja Mandal Movement of princely states in Odisha intensified in 1938."
+  },
+  {
+    "question": "The Bombay Presidency ceded which districts to form part of Odisha province in 1936?",
+    "options": ["Koraput and Malkangiri", "Balasore and Mayurbhanj", "Cuttack and Puri", "Sundargarh and Keonjhar"],
+    "answer": 0,
+    "explanation": "Koraput and Malkangiri districts were transferred from Madras Presidency and Bihar to Odisha in 1936."
+  },
+  {
+    "question": "The first Odia language daily newspaper was:",
+    "options": ["Utkala Deepika", "The Samaja", "Dharitri", "Kalinga Times"],
+    "answer": 0,
+    "explanation": "Utkala Deepika, started in 1866, was the first Odia daily."
+  },
+  {
+    "question": "Who played a key role in the formation of Odisha province by linguistic reorganization?",
+    "options": ["Madhusudan Das", "Gopabandhu Das", "Harekrushna Mahatab", "Biju Patnaik"],
+    "answer": 0,
+    "explanation": "Madhusudan Das was a pioneer in demanding an Odia-speaking province."
+  },
+  {
+    "question": "Which event marks the major tragic famine in Odisha during British rule?",
+    "options": ["Great Famine of 1866", "Orissa Earthquake of 1897", "Cyclone of 1942", "Plague outbreak of 1918"],
+    "answer": 0,
+    "explanation": "The Great Famine of 1866 caused widespread starvation in Odisha."
+  },
+  {
+    "question": "Which organization led the socio-religious reform in late 19th century Odisha?",
+    "options": ["Utkal Brahmo Samaj", "Theosophical Society", "Arya Samaj", "Ramakrishna Mission"],
+    "answer": 0,
+    "explanation": "Utkal Brahmo Samaj promoted social reform and modernization in Odisha."
+  },
+  {
+    "question": "Which of these movements was crucial in uniting Odia-speaking areas into a province?",
+    "options": ["Odia Unification Movement", "Praja Mandal Movement", "Bhoodan Movement", "Kalinga Liberation Movement"],
+    "answer": 0,
+    "explanation": "The Odia Unification Movement demanded creation of a linguistically unified Odisha."
+  },
+  {
+    "question": "When was Odisha officially declared a separate province by the British?",
+    "options": ["1936", "1920", "1947", "1912"],
+    "answer": 0,
+    "explanation": "Odisha province was created on April 1, 1936."
+  },
+  {
+    "question": "The major cause of the Paika Rebellion was:",
+    "options": ["Economic exploitation", "Religious persecution", "Educational reforms", "Land reforms favoring peasants"],
+    "answer": 0,
+    "explanation": "Peasants, especially Paikas, revolted against oppressive economic policies."
+  },
+  {
+    "question": "Which British act led to increased British control over Odisha in the 19th century?",
+    "options": ["Regulating Act", "Government of India Act 1858", "Partition of Bengal", "Mysore Regulation"],
+    "answer": 1,
+    "explanation": "The Government of India Act 1858 transferred power from East India Company to British Crown."
+  },
+  {
+    "question": "Which uprising in Odisha was suppressed in 1891?",
+    "options": ["Kanika Rebellion", "Paika Rebellion", "Chuar Rebellion", "Zamindari Uprising"],
+    "answer": 0,
+    "explanation": "The Kanika Rebellion was raised by local chiefs against British tax policies."
+  },
+  {
+    "question": "The Odisha Batika Movement focused primarily on:",
+    "options": ["Agricultural reform", "Forest conservation", "Cultural revival", "Educational reforms"],
+    "answer": 1,
+    "explanation": "The movement advocated for protection and management of forests."
+  },
+  {
+    "question": "Which national freedom movement had significant participation from Odisha?",
+    "options": ["Non-cooperation Movement", "Civil Disobedience Movement", "Quit India Movement", "All of the above"],
+    "answer": 3,
+    "explanation": "Odia people actively participated in all major phases of the freedom struggle."
+  },
+  {
+    "question": "Who was the first Odia to become a member of the Indian legislative council?",
+    "options": ["Radhanath Ray", "Madhusudan Das", "Gopabandhu Das", "Binayak Acharya"],
+    "answer": 1,
+    "explanation": "Madhusudan Das was the first Odia legislator in British India."
+  },
+  {
+    "question": "Which socio-religious leader inspired mass education and inspired tribal upliftment in Odisha?",
+    "options": ["Utkalamani Gopabandhu Das", "Radhanath Ray", "Sayeed Mohammed", "Gouranga Charan"],
+    "answer": 0,
+    "explanation": "Gopabandhu Das was a pioneer in social reform and education among tribals."
+  },
+  {
+    "question": "The first Odia woman to graduate from a university was:",
+    "options": ["Malati Choudhury", "Ramadevi Choudhury", "Rani Rashmoni", "Sarala Devi"],
+    "answer": 0,
+    "explanation": "Malati Choudhury was a social worker and early woman graduate."
+  },
+  {
+    "question": "Which social reformer from Odisha was a prominent leader in the non-cooperation movement?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Veer Surendra Sai", "Sarala Devi"],
+    "answer": 0,
+    "explanation": "Gopabandhu Das played a key role in the Odisha non-cooperation movement."
+  },
+  {
+    "question": "The famine of 1866 in Odisha is also known locally as:",
+    "options": ["Mahanadi Durvikhya", "Na Anka Durvikhya", "Teli Anka Durvikhya", "Mahaprarodha"],
+    "answer": 1,
+    "explanation": "‘Na Anka Durvikhya’ refers to the famine causing many deaths."
+  },
+  {
+    "question": "The first Odia literary magazine 'Utkal Deepika' was started in which year?",
+    "options": ["1866", "1881", "1895", "1901"],
+    "answer": 0,
+    "explanation": "Utkal Deepika was launched in 1866 as the first Odia newspaper."
+  },
+  {
+    "question": "Which Odia leader is known as the ‘Atma Guru’ or spiritual teacher of modern Odisha?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Harekrushna Mahatab", "Biju Patnaik"],
+    "answer": 0,
+    "explanation": "Gopabandhu Das is often called the ‘Atma Guru’ of Odisha."
+  },
+  {
+    "question": "The formation of the Odisha province in 1936 was primarily due to:",
+    "options": ["Linguistic reorganization", "Economic reasons", "Religious movements", "British political strategy"],
+    "answer": 0,
+    "explanation": "The province was formed based on unification of Odia-speaking regions."
+  },
+  {
+    "question": "Which movement was started for the unification of all Odia speaking tracts?",
+    "options": ["Odia Unification Movement", "Praja Mandal Movement", "Non-Cooperation Movement", "Bhoodan Movement"],
+    "answer": 0,
+    "explanation": "The Odia Unification Movement campaigned for Odisha’s linguistic unity."
+  },
+  {
+    "question": "The Prajamandal movements in Odisha focused on:",
+    "options": ["Ending British rule in Odisha", "Democracy in princely states", "Promoting Odia language in schools", "Eradicating untouchability"],
+    "answer": 1,
+    "explanation": "Prajamandal aimed for democratic rights in princely states like Dhenkanal."
+  },
+  {
+    "question": "Which year marks the official creation of Odisha as a separate province?",
+    "options": ["1936", "1947", "1905", "1912"],
+    "answer": 0,
+    "explanation": "Odisha was formed as a province on April 1, 1936."
+  },
+  {
+    "question": "In which uprising did Veer Surendra Sai lead tribal resistance against the British?",
+    "options": ["Kanika Rebellion", "Paika Rebellion", "Sambalpur Rebellion", "Chuar Rebellion"],
+    "answer": 2,
+    "explanation": "He led the prolonged tribal resistance in Sambalpur."
+  },
+  {
+    "question": "The first Odia woman to graduate was:",
+    "options": ["Malati Choudhury", "Sarala Devi", "Ramadevi Choudhury", "Nilima Patnaik"],
+    "answer": 0,
+    "explanation": "Malati Choudhury was the first Odia woman graduate."
+  },
+  {
+    "question": "Which social and literary organisation was founded by Madhusudan Das?",
+    "options": ["Utkal Sammilani", "Utkal Brahmo Samaj", "Prajamandal", "Odisha Sahitya Akademi"],
+    "answer": 0,
+    "explanation": "He was a founding member of Utkal Sammilani."
+  },
+  {
+    "question": "Which famine prompted the British to discuss the economic condition of Odisha in the mid-19th century?",
+    "options": ["1877", "1866", "1896", "1905"],
+    "answer": 1,
+    "explanation": "The Great Famine of 1866 alerted the British to Odisha's dire conditions."
+  },
+  {
+    "question": "Which leader spearheaded the Prajamandal movement in Odisha?",
+    "options": ["Niranjan Patnaik", "Veer Surendra Sai", "Harekrushna Mahatab", "Sarala Devi"],
+    "answer": 0,
+    "explanation": "Niranjan Patnaik was a key figure in Prajamandal assemblies."
+  },
+  {
+    "question": "The British District Collector in Odisha during the famine of 1866 was:",
+    "options": ["J. C. Marshman", "W. W. Hunter", "C. W. Hamilton", "A. T. Holcroft"],
+    "answer": 0,
+    "explanation": "J. C. Marshman oversaw Odisha during the famine period."
+  },
+  {
+    "question": "Which movement involved the boycott of foreign goods in Odisha?",
+    "options": ["Swadeshi Movement", "Quit India Movement", "Non-Cooperation Movement", "Khilafat Movement"],
+    "answer": 0,
+    "explanation": "The Swadeshi Movement encouraged using Indian goods."
+  },
+  {
+    "question": "Who was Harekrushna Mahatab?",
+    "options": ["First Chief Minister of Odisha", "Freedom fighter and social reformer", "Both A and B", "None of the above"],
+    "answer": 2,
+    "explanation": "He was Odisha’s first post-independence CM and a freedom fighter."
+  },
+  {
+    "question": "The major port of Odisha during the British period was:",
+    "options": ["Gopalpur", "Paradip", "Balasore", "Chandabali"],
+    "answer": 2,
+    "explanation": "Balasore was an important port during British Odisha."
+  },
+  {
+    "question": "Who founded the Odia daily newspaper 'The Samaja'?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Harekrushna Mahatab", "Ramadevi Choudhury"],
+    "answer": 0,
+    "explanation": "Gopabandhu Das founded 'The Samaja' newspaper."
+  },
+  {
+    "question": "Which King of Jeypore led prolonged rebellions against British annexation?",
+    "options": ["Veer Surendra Sai", "Bikram Dev", "Krushna Chandra Gajapati", "Nilakantha Pradhan"],
+    "answer": 0,
+    "explanation": "Veer Surendra Sai was a stalwart rebel leader from Jeypore."
+  },
+  {
+    "question": "The Utkal Sammilani worked primarily for:",
+    "options": ["Unification of Odia-speaking areas", "Promotion of English education", "Abolition of zamindari", "Industrialisation"],
+    "answer": 0,
+    "explanation": "It aimed to unify Odia-speaking regions into one province."
+  },
+  {
+    "question": "The famous Odia poet known as ‘Utkalamani’ is:",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Sarala Das", "Harekrushna Mahatab"],
+    "answer": 0,
+    "explanation": "Gopabandhu Das is often called 'Utkalamani', meaning Gem of Odisha."
+  },
+  {
+    "question": "The first Cooperative Society in Odisha was established in which year?",
+    "options": ["1905", "1915", "1920", "1935"],
+    "answer": 2,
+    "explanation": "Cooperative movements started gaining ground in the 1920s."
+  },
+  {
+    "question": "Which legislation finally created Odisha as a Linguistic Province?",
+    "options": ["Government of India Act 1935", "Indian Independence Act 1947", "Government of India Act 1919", "Montagu-Chelmsford Reforms"],
+    "answer": 0,
+    "explanation": "The Act of 1935 paved the way for Odisha’s creation in 1936."
+  },
+  {
+    "question": "Which famine relief commissioner worked tirelessly during 1866 famine in Odisha?",
+    "options": ["J. C. Marshman", "Frederic Growse", "Frederick Halliday", "George Campbell"],
+    "answer": 0,
+    "explanation": "Marshman was the key British officer overseeing famine relief."
+  },
+  {
+    "question": "Which festival in Odisha celebrates maritime history and boat voyages?",
+    "options": ["Boita Bandana", "Raja Festival", "Chandan Yatra", "Dola Purnima"],
+    "answer": 0,
+    "explanation": "'Boita Bandana' commemorates seafaring trade by Odia mariners."
+  },
+  {
+    "question": "The Odisha Provincial Congress Committee (OPCC) was formed in:",
+    "options": ["1920", "1931", "1942", "1947"],
+    "answer": 0,
+    "explanation": "OPCC was formed in 1920 as part of the national freedom movement."
+  },
+  {
+    "question": "Which princely state in Odisha was known for its Prajamandal rebellion?",
+    "options": ["Dhenkanal", "Mayurbhanj", "Keonjhar", "Sonepur"],
+    "answer": 0,
+    "explanation": "The Dhenkanal Prajamandal was a key movement against feudal rulers."
+  },
+  {
+    "question": "Gopabandhu Das was involved in which movement?",
+    "options": ["Salt Satyagraha", "Non-Cooperation Movement", "Quit India Movement", "Swadeshi Movement"],
+    "answer": 1,
+    "explanation": "He was active in the Non-Cooperation Movement."
+  },
+  {
+    "question": "Which Odia leader was associated with the Bhoodan Movement?",
+    "options": ["Utkalamani Gopabandhu Das", "Acharya Harihar", "Ramadevi Choudhury", "Madhusudan Das"],
+    "answer": 2,
+    "explanation": "Ramadevi Choudhury was an enthusiastic supporter of Bhoodan."
+  },
+  {
+    "question": "Which was the first zamindari abolished in Odisha under the British?",
+    "options": ["Kanika", "Dhenkanal", "Khallikote", "Kalahandi"],
+    "answer": 1,
+    "explanation": "Dhenkanal zamindari faced abolition following peasant movements."
+  },
+  {
+    "question": "The famous ‘Dola Purnima’ festival in Odisha is associated with:",
+    "options": ["Lord Jagannath", "Lord Krishna", "Lord Shiva", "Lord Rama"],
+    "answer": 1,
+    "explanation": "Dola Purnima celebrates the swing festival of Lord Krishna."
+  },
+  {
+    "question": "Which British Governor General was in charge during the 1866 famine in Odisha?",
+    "options": ["Lord Canning", "Lord Mayo", "Lord Ripon", "Lord Curzon"],
+    "answer": 1,
+    "explanation": "Lord Mayo was Governor General during 1866 famine."
+  },
+  {
+    "question": "Which movement opposed the imposition of Hindi during the formation of Odisha province?",
+    "options": ["Odia Language Movement", "Prajamandal Movement", "Swadeshi Movement", "Non-Cooperation Movement"],
+    "answer": 0,
+    "explanation": "Odia Language Movement resisted attempts to marginalize Odia."
+  },
+  {
+    "question": "Who was the leader of the Odisha Home Rule Movement?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Nilakantha Das", "Bishnu Charan Pal"],
+    "answer": 1,
+    "explanation": "Madhusudan Das led the early Home Rule Movement in Odisha."
+  },
+  {
+    "question": "The Odisha famine of 1866 led to the death of approximately how many people?",
+    "options": ["Over 1 million", "Around 500,000", "Less than 200,000", "About 2 million"],
+    "answer": 0,
+    "explanation": "Estimates place the death toll over one million during the famine."
+  },
+  {
+    "question": "The Kandhamal uprising was a movement by which group?",
+    "options": ["Tribal communities", "Peasants", "Students", "Artisans"],
+    "answer": 0,
+    "explanation": "Tribal people in Kandhamal district resisted colonial policies."
+  },
+  {
+    "question": "Which language was programmatically promoted during Odisha's formation as a province?",
+    "options": ["Bengali", "Hindi", "Odia", "English"],
+    "answer": 2,
+    "explanation": "Odia was recognized and promoted as the official language."
+  },
+  {
+    "question": "The first woman president of Orissa Pradesh Congress Committee was:",
+    "options": ["Hansa Mehta", "Malati Choudhury", "Sarala Devi", "Ramadevi Choudhury"],
+    "answer": 2,
+    "explanation": "Sarala Devi was the first woman to lead the OPCC."
+  },
+  {
+    "question": "Which leader helped in rehabilitation post-Odisha cyclone of 1999?",
+    "options": ["Naveen Patnaik", "Janaki Ballabh Patnaik", "Biju Patnaik", "Harekrushna Mahatab"],
+    "answer": 0,
+    "explanation": "Naveen Patnaik led Odisha’s trauma recovery after the super cyclone."
+  },
+  {
+    "question": "Which movement in Odisha encouraged Khadi and village industries during the freedom struggle?",
+    "options": ["Swadeshi Movement", "Quit India Movement", "Non-Cooperation Movement", "Bhoodan Movement"],
+    "answer": 0,
+    "explanation": "The Swadeshi Movement encouraged indigenous enterprise."
+  },
+  {
+    "question": "The 'Utkal University' was established in which year?",
+    "options": ["1943", "1950", "1936", "1961"],
+    "answer": 0,
+    "explanation": "Utkal University was founded in 1943 in Odisha."
+  },
+  {
+    "question": "Which reformers fought against the caste discrimination in Odisha?",
+    "options": ["Radhanath Ray", "Gopabandhu Das", "Veer Surendra Sai", "Madhusudan Das"],
+    "answer": 1,
+    "explanation": "Gopabandhu Das actively worked for social equality."
+  },
+  {
+    "question": "Which movement focused on the rights of tenant farmers in Odisha?",
+    "options": ["Prajamandal Movement", "Kisan Movement", "Bhoodan Movement", "Swadeshi Movement"],
+    "answer": 1,
+    "explanation": "The Kisan Movement advocated for tenant rights."
+  },
+  {
+    "question": "Who was the first female minister of Odisha post-independence?",
+    "options": ["Sarala Devi", "Malati Choudhury", "Nandini Satpathy", "Ramadevi Choudhury"],
+    "answer": 2,
+    "explanation": "Nandini Satpathy was Odisha’s first female minister."
+  },
+  {
+    "question": "Which was the primary cause for merging Odia-speaking tracts from Bengal, Bihar, and Madras?",
+    "options": ["Shared culture", "Linguistic identity", "Economic reasons", "Political pressure"],
+    "answer": 1,
+    "explanation": "Linguistic identity was the basis for merging."
+  },
+  {
+    "question": "Which Odia newspaper played an important role during the freedom struggle?",
+    "options": ["Utkala Deepika", "Samaja", "Bharati", "Dharitri"],
+    "answer": 1,
+    "explanation": "‘Samaja’ published nationalist literature and news."
+  },
+  {
+    "question": "The Odisha famine relief committee was set up in which year?",
+    "options": ["1866", "1880", "1900", "1915"],
+    "answer": 0,
+    "explanation": "Relief efforts were organized during the 1866 famine."
+  },
+  {
+    "question": "Which movement in Odisha protested against forced recruitment during World War I?",
+    "options": ["Khudai Khidmatgar", "Rampa Rebellion", "Non-Cooperation Movement", "Khilafat Movement"],
+    "answer": 2,
+    "explanation": "The Non-Cooperation Movement included protests against military conscription."
+  },
+  {
+    "question": "Which reformer established the 'Satyabadi Bana Vidyalaya' in Odisha?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Harekrushna Mahatab", "Radhanath Ray"],
+    "answer": 0,
+    "explanation": "Gopabandhu Das founded this educational institution."
+  },
+   {
+    "question": "Who led the Kanika Peasant Rebellion in Odisha?",
+    "options": ["Baasudev Sudhal Deb", "Narayan Birabar Samant", "Laxman Naik", "Baji Rout"],
+    "answer": 1,
+    "explanation": "Narayan Birabar Samant spearheaded the Kanika Peasant Rebellion against feudal oppression."
+  },
+  {
+    "question": "The Na Anka famine of 1866 in Odisha occurred during the reign of which British Viceroy?",
+    "options": ["Lord Mayo", "Lord Lawrence", "Lord Lytton", "Lord Ripon"],
+    "answer": 1,
+    "explanation": "Lord Lawrence was the Viceroy during the catastrophic Na Anka famine."
+  },
+  {
+    "question": "The Paika Rebellion of 1817 broke out in which region of Odisha?",
+    "options": ["Banpur", "Khordha", "Dhenkanal", "Puri"],
+    "answer": 1,
+    "explanation": "The Paika rebellion started in Khordha under Bakshi Jagabandhu."
+  },
+  {
+    "question": "Which Odia leader was sent to the Assam Legislative Council in 1921?",
+    "options": ["Madhusudan Das", "Harekrushna Mahtab", "Nilakantha Das", "Gopabandhu Das"],
+    "answer": 2,
+    "explanation": "Nilakantha Das represented Odia interests in Assam's legislature."
+  },
+  {
+    "question": "The Utkal Gourav title was conferred upon:",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Harekrushna Mahtab", "Biju Patnaik"],
+    "answer": 1,
+    "explanation": "Madhusudan Das is honoured as 'Utkal Gourav' for his service to Odisha."
+  },
+  {
+    "question": "Which princely state's Prajamandal agitation in Odisha became violent in 1938?",
+    "options": ["Keonjhar", "Dhenkanal", "Sonepur", "Nilgiri"],
+    "answer": 1,
+    "explanation": "The 1938 Dhenkanal agitation turned violent due to repression by rulers."
+  },
+  {
+    "question": "The Odisha Tenancy Act to protect tenant farmers was introduced in which year?",
+    "options": ["1910", "1913", "1920", "1925"],
+    "answer": 1,
+    "explanation": "The Odisha Tenancy Act of 1913 aimed to safeguard tenant rights."
+  },
+  {
+    "question": "Who founded the nationalistic Odia newspaper 'The Asha'?",
+    "options": ["Gopabandhu Das", "Harekrushna Mahtab", "Nilakantha Das", "Madhusudan Das"],
+    "answer": 1,
+    "explanation": "Harekrushna Mahtab started 'The Asha' newspaper to spread nationalist ideas."
+  },
+  {
+    "question": "Which tribal leader of Odisha was executed by the British in 1943?",
+    "options": ["Baji Rout", "Veer Surendra Sai", "Laxman Naik", "Raghunath Mohanty"],
+    "answer": 2,
+    "explanation": "Laxman Naik was hanged for his role in Quit India activities in Koraput."
+  },
+  {
+    "question": "The first session of Utkal Sammilani was held in:",
+    "options": ["Puri", "Cuttack", "Balasore", "Sambalpur"],
+    "answer": 0,
+    "explanation": "The inaugural session took place in Puri in 1903."
+  },
+  {
+    "question": "Which Odisha leader was also called 'Bapa of Odisha Police'?",
+    "options": ["Radhanath Rath", "Harekrushna Mahtab", "Biju Patnaik", "Kailash Chandra Mohanty"],
+    "answer": 0,
+    "explanation": "Radhanath Rath earned the affectionate title for his police reform contributions."
+  },
+  {
+    "question": "Who was the British administrator that documented the 1866 famine extensively?",
+    "options": ["W.W. Hunter", "Allan Octavian Hume", "John Beames", "Andrew Henderson Leith Fraser"],
+    "answer": 0,
+    "explanation": "W.W. Hunter’s writings exposed British failure during the famine."
+  },
+  {
+    "question": "Which Odia poet used literature as a tool for national awakening during British rule?",
+    "options": ["Radhanath Ray", "Gopabandhu Das", "Gangadhar Meher", "Madhusudan Rao"],
+    "answer": 0,
+    "explanation": "Radhanath Ray inspired national feeling through modern Odia poetry."
+  },
+  {
+    "question": "The title 'Utkalmani' refers to which personality?",
+    "options": ["Madhusudan Das", "Gopabandhu Das", "Harekrushna Mahtab", "Biju Patnaik"],
+    "answer": 1,
+    "explanation": "Gopabandhu Das is fondly called Utkalmani, 'Gem of Odisha'."
+  },
+  {
+    "question": "Which act introduced diarchy in Orissa under British rule?",
+    "options": ["Government of India Act, 1919", "Indian Councils Act, 1909", "Government of India Act, 1935", "Pitt's India Act"],
+    "answer": 0,
+    "explanation": "The 1919 Act introduced diarchy in provinces including Orissa."
+  },
+  {
+    "question": "Who established Ravenshaw College in Cuttack in 1868?",
+    "options": ["Thomas Edward Ravenshaw", "John Lawrence", "William Hunter", "Henry Cotton"],
+    "answer": 0,
+    "explanation": "T.E. Ravenshaw founded it to improve education in Odisha."
+  },
+  {
+    "question": "When was the Prajamandal of Dhenkanal founded?",
+    "options": ["1931", "1935", "1937", "1938"],
+    "answer": 2,
+    "explanation": "The Dhenkanal Prajamandal was founded in 1937 to demand reforms."
+  },
+  {
+    "question": "Baji Rout, the youngest martyr of India's freedom struggle, belonged to which district?",
+    "options": ["Dhenkanal", "Cuttack", "Balasore", "Puri"],
+    "answer": 0,
+    "explanation": "Baji Rout was from Dhenkanal and killed by police in 1938."
+  },
+  {
+    "question": "Which Odia personality was known as 'The Grand Old Man of Odisha'?",
+    "options": ["Madhusudan Das", "Gopabandhu Das", "Nilakantha Das", "Radhanath Ray"],
+    "answer": 0,
+    "explanation": "Madhusudan Das is often called the Grand Old Man for his leadership."
+  },
+  {
+    "question": "The 'Samaja' newspaper was initially founded as a weekly in which year?",
+    "options": ["1919", "1921", "1925", "1928"],
+    "answer": 1,
+    "explanation": "It began as a weekly in 1921 before becoming a daily."
+  },
+  {
+    "question": "Who was the first Premier of Odisha Province (1937) under the Government of India Act, 1935?",
+    "options": ["Madhusudan Das", "Krushna Chandra Gajapati", "Harekrushna Mahtab", "Gopabandhu Das"],
+    "answer": 1,
+    "explanation": "Maharaja Krushna Chandra Gajapati served as the first Premier."
+  },
+  {
+    "question": "Which Odisha-based movement was part of the Salt Satyagraha in 1930?",
+    "options": ["Balasore Salt March", "Cuttack Road March", "Puri Procession", "Sambalpur Protest"],
+    "answer": 0,
+    "explanation": "The Balasore Salt March mirrored Gandhi's Dandi March in spirit."
+  },
+  {
+    "question": "The Khurda uprising of 1817 is also called:",
+    "options": ["First War of Independence", "Paika Rebellion", "Sepoy Mutiny", "Praja Revolt"],
+    "answer": 1,
+    "explanation": "The Khurda uprising is popularly known as the Paika Rebellion."
+  },
+  {
+    "question": "Which Odia freedom fighter became famous for aerial relief and daring missions?",
+    "options": ["Harekrushna Mahtab", "Biju Patnaik", "Laxman Naik", "Gopabandhu Das"],
+    "answer": 1,
+    "explanation": "Biju Patnaik was known for his aviation exploits in freedom and relief work."
+  },
+  {
+    "question": "The famine of 1866 in Odisha led to the construction of which railway line for better grain transport?",
+    "options": ["Bengal-Nagpur Railway", "East Coast State Railway", "Howrah-Kharagpur Line", "Coromandel Railway"],
+    "answer": 1,
+    "explanation": "East Coast State Railway was built to improve connectivity and relief supply."
+  },
+  {
+    "question": "Who among the following was a prominent Odia woman activist during the Quit India Movement?",
+    "options": ["Ramadevi Choudhury", "Sarala Devi", "Malati Choudhury", "All of the above"],
+    "answer": 3,
+    "explanation": "Ramadevi, Sarala Devi, and Malati Choudhury all played key roles."
+  },
+  {
+    "question": "Which district was transferred to Odisha from Bihar during 1936 reorganisation?",
+    "options": ["Sundargarh", "Koraput", "Mayurbhanj", "Ganjam"],
+    "answer": 0,
+    "explanation": "Sundargarh district was carved from Odisha’s merger with princely states."
+  },
+  {
+    "question": "The Utkal Union Conference was an earlier name for which organisation?",
+    "options": ["Utkal Sammilani", "Praja Mandal", "Odisha Congress Committee", "Utkal Deepika"],
+    "answer": 0,
+    "explanation": "It later became known as Utkal Sammilani."
+  },
+  {
+    "question": "The Odia weekly 'Asha' was published from which city?",
+    "options": ["Cuttack", "Puri", "Bhubaneswar", "Balasore"],
+    "answer": 0,
+    "explanation": "Published from Cuttack, it promoted nationalist ideas."
+  },
+  {
+    "question": "In which year was the Odisha Legislative Assembly established?",
+    "options": ["1937", "1947", "1950", "1961"],
+    "answer": 0,
+    "explanation": "The Assembly was formed in 1937 under the 1935 Act."
+  },
+  {
+    "question": "Who initiated the movement to save Odia language newspapers from closure?",
+    "options": ["Madhusudan Das", "Radhanath Rath", "Nilakantha Das", "Harekrushna Mahtab"],
+    "answer": 2,
+    "explanation": "Nilakantha Das campaigned to protect Odia press."
+  },
+  {
+    "question": "Which British policy removed the privileges of the Paikas, sparking rebellion?",
+    "options": ["Abolition of rent-free land tenures", "Salt tax increase", "Forest law expansion", "Trade monopoly"],
+    "answer": 0,
+    "explanation": "The Paikas lost their rent-free lands, leading to unrest."
+  },
+  {
+    "question": "Laxman Naik was associated with which tribal community?",
+    "options": ["Gond", "Juanga", "Bonda", "Santhal"],
+    "answer": 2,
+    "explanation": "Laxman Naik was a Bonda tribal leader from Koraput."
+  },
+  {
+    "question": "Who was the first Odia to become a member of the Viceroy's Executive Council?",
+    "options": ["Madhusudan Das", "H.K. Mahtab", "Krushna Chandra Gajapati", "Biju Patnaik"],
+    "answer": 2,
+    "explanation": "Krushna Chandra Gajapati represented Odisha in the Council."
+  },
+  {
+    "question": "Which coastal town of Odisha was famous for salt production during British rule?",
+    "options": ["Balasore", "Ganjam", "Puri", "Chandbali"],
+    "answer": 0,
+    "explanation": "Balasore's salt pans were well known in colonial times."
+  },
+  {
+    "question": "The Odisha State Museum was established in which year?",
+    "options": ["1938", "1944", "1950", "1963"],
+    "answer": 1,
+    "explanation": "It was founded in 1944 to preserve Odisha’s heritage."
+  },
+  {
+    "question": "Who led the Prajamandal movement in Nilgiri?",
+    "options": ["Anant Pattnaik", "Gopabandhu Choudhury", "Raja Krushna Chandra Singh", "Banamali Das"],
+    "answer": 0,
+    "explanation": "Anant Pattnaik spearheaded the agitation in Nilgiri."
+  },
+  {
+    "question": "The Odia Language Conference of 1912 was held in which city?",
+    "options": ["Cuttack", "Balasore", "Puri", "Berhampur"],
+    "answer": 1,
+    "explanation": "It was hosted in Balasore to press linguistic unity demands."
+  },
+  {
+    "question": "Under which British Governor-General was the Bengal Presidency reorganised to include Odisha?",
+    "options": ["Lord Cornwallis", "Lord Wellesley", "Lord Hastings", "Lord Dalhousie"],
+    "answer": 3,
+    "explanation": "Lord Dalhousie’s time saw administrative reorganisation."
+  },
+  {
+    "question": "Which leader was instrumental in setting up SCB Medical College in Cuttack?",
+    "options": ["Biju Patnaik", "H.K. Mahtab", "Krushna Chandra Gajapati", "Madhusudan Das"],
+    "answer": 2,
+    "explanation": "Maharaja Krushna Chandra Gajapati played a key role in its establishment."
+  },
+  {
+    "question": "The 1930 Salt Satyagraha in Odisha was launched from which place?",
+    "options": ["Cuttack", "Inchudi", "Puri", "Balasore"],
+    "answer": 1,
+    "explanation": "Inchudi in Balasore district became a hub for the Salt Satyagraha."
+  },
+   {
+    "question": "Which Odia leader was known as the ‘Hero of Inchudi’ for his role in the Salt Satyagraha?",
+    "options": ["Gopabandhu Das", "Acharya Harihar", "Nabakrushna Choudhury", "Harekrushna Mahtab"],
+    "answer": 2,
+    "explanation": "Nabakrushna Choudhury led the famous Inchudi Salt Satyagraha in Balasore."
+  },
+  {
+    "question": "The Sambalpur Uprising was associated with which freedom fighter?",
+    "options": ["Veer Surendra Sai", "Laxman Naik", "Narayan Birabar Samant", "Gopabandhu Choudhury"],
+    "answer": 0,
+    "explanation": "Veer Surendra Sai led the Sambalpur revolt against the British from 1827 to 1864."
+  },
+  {
+    "question": "Which organisation was founded by Gopabandhu Das to promote national education in Odisha?",
+    "options": ["Utkal Sammilani", "Satyabadi Sabha", "Praja Mandal", "Odisha Vidyalaya"],
+    "answer": 1,
+    "explanation": "Gopabandhu Das founded the Satyabadi Sabha to encourage national education."
+  },
+  {
+    "question": "What was the primary occupation of the Paika community that revolted in 1817?",
+    "options": ["Cultivators and traditional militia", "Fishermen", "Salt workers", "Artisans"],
+    "answer": 0,
+    "explanation": "The Paikas were peasant-militia who also cultivated land."
+  },
+  {
+    "question": "When was the Quit India Movement launched in Odisha?",
+    "options": ["5 August 1942", "9 August 1942", "15 August 1942", "1 September 1942"],
+    "answer": 1,
+    "explanation": "Odisha leaders joined the nationwide Quit India Movement from 9 August 1942."
+  },
+  {
+    "question": "Who was the first Speaker of the Odisha Legislative Assembly?",
+    "options": ["Gouranga Charan Das", "Pandit Godavarish Mishra", "Lingaraj Panigrahi", "Krushna Chandra Gajapati"],
+    "answer": 1,
+    "explanation": "Pandit Godavarish Mishra was the first Speaker of the Odisha Assembly."
+  },
+  {
+    "question": "Which Odia social reformer was called the ‘Father of Odia Journalism’?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Radhanath Rath", "Fakir Mohan Senapati"],
+    "answer": 3,
+    "explanation": "Fakir Mohan Senapati is known as the Father of Odia Journalism."
+  },
+  {
+    "question": "Who served as the Governor of Odisha immediately after independence?",
+    "options": ["Chandulal Madhavlal Trivedi", "Asaf Ali", "Harekrushna Mahtab", "B. Pattnaik"],
+    "answer": 1,
+    "explanation": "Asaf Ali was appointed Governor of Odisha after 15 August 1947."
+  },
+  {
+    "question": "The title of ‘Utkal Keshari’ was given to:",
+    "options": ["Harekrushna Mahtab", "Biju Patnaik", "Madhusudan Das", "Nilamani Routray"],
+    "answer": 0,
+    "explanation": "Harekrushna Mahtab was honoured with the title ‘Utkal Keshari’."
+  },
+  {
+    "question": "The famine of 1866 killed what fraction of Odisha’s population?",
+    "options": ["1/3", "1/4", "1/5", "1/2"],
+    "answer": 0,
+    "explanation": "About one-third of Odisha's population died during the famine."
+  },
+  {
+    "question": "Which leader is known for mobilizing tribals in Koraput during the Quit India Movement?",
+    "options": ["Veer Surendra Sai", "Laxman Naik", "Baji Rout", "Anant Pattnaik"],
+    "answer": 1,
+    "explanation": "Laxman Naik inspired mass tribal participation in Koraput."
+  },
+  {
+    "question": "The first railway line in Odisha connected which two places?",
+    "options": ["Cuttack and Bhubaneswar", "Howrah and Cuttack", "Cuttack and Puri", "Brahmapur and Cuttack"],
+    "answer": 1,
+    "explanation": "The Howrah-Cuttack line was Odisha’s first major railway connection."
+  },
+  {
+    "question": "Which year saw the merger of princely states into Odisha province?",
+    "options": ["1947", "1948", "1949", "1950"],
+    "answer": 2,
+    "explanation": "Princely states merged into Odisha in 1949."
+  },
+  {
+    "question": "Which Odia novel by Fakir Mohan Senapati portrayed rural life under British rule?",
+    "options": ["Chha Mana Atha Guntha", "Mamu", "Lachhama", "Rebati"],
+    "answer": 0,
+    "explanation": "‘Chha Mana Atha Guntha’ depicted rural exploitation."
+  },
+  {
+    "question": "What was the main demand of the Odia Language Movement?",
+    "options": ["To make Odia the medium of instruction", "To merge with Bengal", "Abolition of English", "Promoting Hindi"],
+    "answer": 0,
+    "explanation": "The movement aimed to make Odia the official and educational medium."
+  },
+  {
+    "question": "In which year did Odisha host the National Congress session?",
+    "options": ["1927", "1930", "1933", "1938"],
+    "answer": 3,
+    "explanation": "Cuttack hosted the Congress session in 1938."
+  },
+  {
+    "question": "Who was the first woman from Odisha to be imprisoned during the freedom movement?",
+    "options": ["Ramadevi Choudhury", "Malati Choudhury", "Sarala Devi", "Annapurna Maharana"],
+    "answer": 0,
+    "explanation": "Ramadevi was jailed for her active role in the freedom struggle."
+  },
+  {
+    "question": "The pioneer of modern Odia poetry in the 19th century was:",
+    "options": ["Gangadhar Meher", "Radhanath Ray", "Madhusudan Rao", "Gopabandhu Das"],
+    "answer": 1,
+    "explanation": "Radhanath Ray introduced modern themes into Odia poetry."
+  },
+  {
+    "question": "The Odia nationalist paper 'Lokamukha' was started by:",
+    "options": ["Harekrushna Mahtab", "Nilakantha Das", "Rajendra Narayan Singh Deo", "Madhusudan Das"],
+    "answer": 1,
+    "explanation": "Nilakantha Das launched ‘Lokamukha’ to express nationalist opinion."
+  },
+  {
+    "question": "The first Chief Justice of Odisha High Court was:",
+    "options": ["Bira Kishore Ray", "Harihar Mahapatra", "P. V. B. Rao", "J. G. Gupta"],
+    "answer": 0,
+    "explanation": "Bira Kishore Ray became the first Chief Justice in 1948."
+  },
+  {
+    "question": "During British rule, Sambalpur was transferred from Nagpur Province to Bengal in:",
+    "options": ["1855", "1862", "1868", "1905"],
+    "answer": 1,
+    "explanation": "Sambalpur was transferred to Bengal Presidency in 1862."
+  },
+  {
+    "question": "The first medical college in Odisha is:",
+    "options": ["SCB Medical College", "MKCG Medical College", "VIMSAR", "Hi-Tech Medical College"],
+    "answer": 0,
+    "explanation": "SCB Medical College in Cuttack was established in 1944."
+  },
+  {
+    "question": "The founder of Prajatantra Prachar Samiti was:",
+    "options": ["Harekrushna Mahtab", "Biju Patnaik", "Nabakrushna Choudhury", "Nityananda Kanungo"],
+    "answer": 0,
+    "explanation": "Harekrushna Mahtab founded Prajatantra Prachar Samiti."
+  },
+  {
+    "question": "The title 'Utkal Ratna' was awarded to:",
+    "options": ["Madhusudan Das", "Biju Patnaik", "Harekrushna Mahtab", "Krushna Chandra Gajapati"],
+    "answer": 3,
+    "explanation": "Maharaja Krushna Chandra Gajapati was honoured as 'Utkal Ratna'."
+  },
+  {
+    "question": "The Odisha High Court was formally inaugurated in which year?",
+    "options": ["1948", "1949", "1950", "1952"],
+    "answer": 0,
+    "explanation": "The High Court was inaugurated on July 26, 1948."
+  },
+  {
+    "question": "Who led the call for inclusion of Ganjam in Odisha Province?",
+    "options": ["Madhusudan Das", "Gopabandhu Das", "Harekrushna Mahtab", "Krushna Chandra Gajapati"],
+    "answer": 3,
+    "explanation": "Krushna Chandra Gajapati lobbied for Ganjam to be part of Odisha."
+  },
+  {
+    "question": "Which British administrator was known for his survey of Orissa’s geography and economy in the 19th century?",
+    "options": ["W. W. Hunter", "Sir George Campbell", "Henry Whitehead", "Andrew Stirling"],
+    "answer": 3,
+    "explanation": "Andrew Stirling documented Odisha’s condition extensively in the 1820s."
+  },
+  {
+    "question": "During Quit India, which place in Odisha saw firing on peaceful demonstrators killing Baji Rout?",
+    "options": ["Cuttack", "Dhenkanal", "Sambalpur", "Puri"],
+    "answer": 1,
+    "explanation": "Baji Rout, a boatman boy, was shot in Dhenkanal during protests."
+  },
+  {
+    "question": "In the famine of 1866, which crop failure caused severe distress?",
+    "options": ["Rice", "Wheat", "Millets", "Pulses"],
+    "answer": 0,
+    "explanation": "A massive rice crop failure led to food shortages."
+  },
+  {
+    "question": "The first Odia graduate from Calcutta University was:",
+    "options": ["Madhusudan Das", "Radhanath Ray", "Gopabandhu Das", "Nilakantha Das"],
+    "answer": 0,
+    "explanation": "Madhusudan Das was the first Odia law graduate."
+  },
+  {
+    "question": "The foundation day of Odisha (Utkal Divas) is celebrated on:",
+    "options": ["April 1", "March 1", "May 1", "January 1"],
+    "answer": 0,
+    "explanation": "April 1 marks the creation of Odisha province in 1936."
+  },
+  {
+    "question": "Which was the first Odia-owned printing press?",
+    "options": ["Cuttack Printing Company", "Utkal Press", "Bakul Press", "Satyabadi Press"],
+    "answer": 2,
+    "explanation": "Bakul Press was Odisha's earliest Odia-owned printing press."
+  },
+  {
+    "question": "Krushna Chandra Gajapati attended the First Round Table Conference in:",
+    "options": ["1930", "1931", "1932", "1935"],
+    "answer": 1,
+    "explanation": "He represented Odisha at the 1931 conference in London."
+  },
+  {
+    "question": "In 1946, who became the Premier of Odisha under provincial autonomy?",
+    "options": ["Harekrushna Mahtab", "Krushna Chandra Gajapati", "Biju Patnaik", "Nabakrushna Choudhury"],
+    "answer": 0,
+    "explanation": "Harekrushna Mahtab was Premier during the crucial pre-independence phase."
+  },
+  {
+    "question": "During British rule, Gopalpur Port was developed mainly for trade with:",
+    "options": ["Burma", "Ceylon", "Indonesia", "Singapore"],
+    "answer": 0,
+    "explanation": "Gopalpur handled significant trade with Burma."
+  },
+  {
+    "question": "The post of Advocate General of Odisha was first held by:",
+    "options": ["Madhusudan Das", "Bira Kishore Ray", "H. K. Mahtab", "Rangnath Misra"],
+    "answer": 0,
+    "explanation": "Madhusudan Das was Odisha’s first Advocate General."
+  },
+  {
+    "question": "The Odisha State Electricity Board was established in which year?",
+    "options": ["1954", "1956", "1958", "1961"],
+    "answer": 1,
+    "explanation": "The Board was set up in 1956 for power generation and distribution."
+  },
+  {
+    "question": "The 'Satyabadi Bana Vidyalaya' was located near which place?",
+    "options": ["Cuttack", "Puri", "Bhubaneswar", "Konark"],
+    "answer": 1,
+    "explanation": "It was located at Sakhigopal near Puri."
+  },
+  {
+    "question": "Who was the Odisha CM during the reorganisation of states in 1956?",
+    "options": ["Nabakrushna Choudhury", "Biju Patnaik", "H. K. Mahtab", "Sadashiva Tripathy"],
+    "answer": 0,
+    "explanation": "Nabakrushna Choudhury was serving as CM during that period."
+  },
+  {
+    "question": "Which uprising in Ganjam district opposed the British salt monopoly?",
+    "options": ["Inchudi Satyagraha", "Chatrapur Salt Protest", "Aska Rebellion", "Kanika Salt Agitation"],
+    "answer": 1,
+    "explanation": "Chatrapur Salt Protest was significant in Ganjam against salt laws."
+  },
+  {
+    "question": "Who led the peasant agitation in Nilgiri against forced labour under the princely rulers?",
+    "options": ["Anant Pattnaik", "Harekrushna Mahatab", "Gopabandhu Choudhury", "Nabakrushna Choudhury"],
+    "answer": 0,
+    "explanation": "Anant Pattnaik organised the Prajamandal movement in Nilgiri against begar (forced labour)."
+  },
+  {
+    "question": "The merger of princely states into Odisha in 1949 added how many new districts?",
+    "options": ["6", "8", "9", "10"],
+    "answer": 1,
+    "explanation": "The integration brought eight new districts from various princely states."
+  },
+  {
+    "question": "Which Odia leader was Defence Minister of India and also twice Chief Minister of Odisha?",
+    "options": ["Biju Patnaik", "Nilamani Routray", "Nandini Satpathy", "H. K. Mahtab"],
+    "answer": 0,
+    "explanation": "Biju Patnaik served as India’s Defence Minister and twice as Odisha CM."
+  },
+  {
+    "question": "In which district did the Ghumsur uprising of 1836-37 take place?",
+    "options": ["Kandhamal", "Ganjam", "Koraput", "Sundargarh"],
+    "answer": 1,
+    "explanation": "The Ghumsur tribal revolts occurred in the Ganjam region."
+  },
+  {
+    "question": "Which Odia newspaper was founded by Madhusudan Das to promote social and political awareness?",
+    "options": ["Utkal Darpan", "Asha", "The Samaja", "Utkal Deepika"],
+    "answer": 0,
+    "explanation": "‘Utkal Darpan’ was started by Madhusudan Das to inspire Odias."
+  },
+  {
+    "question": "Who was the first woman Chief Minister of Odisha?",
+    "options": ["Sarala Devi", "Ramadevi Choudhury", "Nandini Satpathy", "Annapurna Maharana"],
+    "answer": 2,
+    "explanation": "Nandini Satpathy served as Odisha's first woman CM."
+  },
+  {
+    "question": "The Paika Rebellion of 1817 is often described as:",
+    "options": ["The first armed rebellion against the British", "A peasant uprising", "A salt protest", "A tribal revolt"],
+    "answer": 0,
+    "explanation": "It is considered the first large-scale armed revolt against British rule in India."
+  },
+  {
+    "question": "The Great Orissa Cyclone of 1885 caused severe destruction in which coastal town?",
+    "options": ["Paradeep", "Puri", "Balasore", "Gopalpur"],
+    "answer": 1,
+    "explanation": "Puri was heavily damaged by the 1885 cyclone."
+  },
+  {
+    "question": "Which act granted provincial autonomy to Odisha in 1937?",
+    "options": ["Government of India Act, 1935", "Indian Councils Act, 1909", "Morley-Minto Reforms", "Montford Reforms"],
+    "answer": 0,
+    "explanation": "Government of India Act, 1935 introduced provincial autonomy in provinces like Odisha."
+  },
+  {
+    "question": "Who headed the committee formed by Utkal Sammilani to demand a separate Odisha province?",
+    "options": ["Madhusudan Das", "H. K. Mahtab", "Gopabandhu Das", "Radhanath Rath"],
+    "answer": 0,
+    "explanation": "Madhusudan Das chaired the committee to work for Odisha statehood."
+  },
+  {
+    "question": "In which year did Baji Rout, the youngest martyr of the freedom struggle, die?",
+    "options": ["1936", "1937", "1938", "1939"],
+    "answer": 2,
+    "explanation": "Baji Rout was killed by police firing in 1938 during the Dhenkanal agitation."
+  },
+  {
+    "question": "Which tribal revolt in Odisha challenged British forest policies in 1914?",
+    "options": ["Bonda revolt", "Rampa rebellion", "Bhuyan revolt", "Savara revolt"],
+    "answer": 2,
+    "explanation": "The Bhuyan tribes revolted against restrictive forest laws."
+  },
+  {
+    "question": "The capital of Odisha was shifted from Cuttack to Bhubaneswar in which year?",
+    "options": ["1948", "1949", "1950", "1951"],
+    "answer": 1,
+    "explanation": "Bhubaneswar became the new capital in 1949."
+  },
+  {
+    "question": "Which Odia leader was popularly called 'Andhra Ratna' for his work in Andhra-Odisha border?",
+    "options": ["Biju Patnaik", "Kandukuri Veeresalingam", "Bishwanath Das", "Krushna Chandra Gajapati"],
+    "answer": 2,
+    "explanation": "Bishwanath Das earned the title 'Andhra Ratna' for his services."
+  },
+  {
+    "question": "During whose tenure as CM was the Hirakud Dam project completed?",
+    "options": ["Biju Patnaik", "H. K. Mahtab", "Nabakrushna Choudhury", "Sadashiva Tripathy"],
+    "answer": 1,
+    "explanation": "H. K. Mahtab saw the completion of the Hirakud Dam in 1957."
+  },
+  {
+    "question": "Which Odisha leader was a pilot in World War II and later CM?",
+    "options": ["Nilamani Routray", "Biju Patnaik", "H. K. Mahtab", "Nabakrushna Choudhury"],
+    "answer": 1,
+    "explanation": "Biju Patnaik was a daring pilot before his political career."
+  },
+  {
+    "question": "What was the immediate cause for the Dhenkanal Prajamandal agitation?",
+    "options": ["Increased land rent", "Forced labour and exploitation", "Salt tax", "Language suppression"],
+    "answer": 1,
+    "explanation": "Forced labour and atrocities by the ruler sparked the agitation."
+  },
+  {
+    "question": "The Odisha States People's Conference was formed in which year?",
+    "options": ["1935", "1936", "1937", "1938"],
+    "answer": 3,
+    "explanation": "It was formed in 1938 to coordinate Prajamandal activities in princely states."
+  },
+  {
+    "question": "Who was the first Governor of Odisha after it became a province in 1936?",
+    "options": ["John Austen Hubback", "Asaf Ali", "H. V. Stuart", "Chandulal M. Trivedi"],
+    "answer": 0,
+    "explanation": "Hubback was the first Governor of the new Odisha Province."
+  },
+  {
+    "question": "Which agitation in Odisha was linked to the Bengal Partition of 1905?",
+    "options": ["Anti-partition movement in Balasore", "Ganjam salt movement", "Kanika peasant revolt", "Utkal Divas celebrations"],
+    "answer": 0,
+    "explanation": "Balasore actively participated in anti-partition protests."
+  },
+  {
+    "question": "The Rajendra Narayan Singh Deo government in Odisha was formed in which decade?",
+    "options": ["1950s", "1960s", "1970s", "1980s"],
+    "answer": 1,
+    "explanation": "Rajendra Narayan Singh Deo was CM from 1967 to 1971."
+  },
+  {
+    "question": "Which ODIA leader is credited for promoting cooperative movement in Odisha post-independence?",
+    "options": ["H. K. Mahtab", "Nabakrushna Choudhury", "Biju Patnaik", "Nilamani Routray"],
+    "answer": 1,
+    "explanation": "CM Nabakrushna Choudhury emphasised cooperatives in rural development."
+  },
+  {
+    "question": "Under the 1935 Act, the Odisha Legislative Council had how many elected members initially?",
+    "options": ["32", "36", "38", "40"],
+    "answer": 2,
+    "explanation": "The Council began with 38 elected members."
+  },
+  {
+    "question": "Which movement in Odisha protested forest law curtailing tribal rights in 1930s?",
+    "options": ["Prajamandal agitation", "Bonda revolt", "Gond revolt", "Khandayat rebellion"],
+    "answer": 1,
+    "explanation": "The Bonda tribals rose against curtailment of forest rights."
+  },
+  {
+    "question": "The famous social worker Annapurna Maharana was the daughter of:",
+    "options": ["Gopabandhu Das", "Gopabandhu Choudhury", "Harekrushna Mahtab", "Krushna Chandra Gajapati"],
+    "answer": 1,
+    "explanation": "She was the daughter of freedom fighter Gopabandhu Choudhury."
+  },
+  {
+    "question": "Which scheme was launched in Odisha in 1950 for rural industrialisation?",
+    "options": ["Khadi and Village Industries Scheme", "Community Development Programme", "Integrated Rural Development", "Bhoodan Scheme"],
+    "answer": 0,
+    "explanation": "The Khadi and Village Industries Scheme promoted rural self-reliance."
+  },
+  {
+    "question": "The 1857 revolt in Odisha saw action in which cantonment?",
+    "options": ["Cuttack", "Barabati", "Berhampur", "Puri"],
+    "answer": 2,
+    "explanation": "Berhampur saw sepoy mutiny activities in 1857."
+  },
+  {
+    "question": "Who among these was NOT directly associated with the creation of Odisha province?",
+    "options": ["John Austen Hubback", "Madhusudan Das", "Gopabandhu Das", "Lala Lajpat Rai"],
+    "answer": 3,
+    "explanation": "Lala Lajpat Rai was a national leader but not linked to Odisha’s formation process."
+  },
+  {
+    "question": "The famine code in Odisha was introduced after which disaster?",
+    "options": ["Cyclone of 1831", "Famine of 1866", "Floods of 1927", "Drought of 1901"],
+    "answer": 1,
+    "explanation": "Post-1866 famine, the famine code guided relief measures."
+  },
+  {
+    "question": "Which Odia freedom fighter later became Union Minister for Steel and Mines?",
+    "options": ["Biju Patnaik", "H. K. Mahtab", "Nabakrushna Choudhury", "Kailashnath Katju"],
+    "answer": 0,
+    "explanation": "Biju Patnaik served as Union Minister for Steel and Mines."
+  },
+  {
+    "question": "The Nilgiri Prajamandal agitation merged into Odisha post which year?",
+    "options": ["1947", "1948", "1949", "1950"],
+    "answer": 2,
+    "explanation": "The merger and integration happened after 1949."
+  },
+  {
+    "question": "The Satyabadi school established by Gopabandhu Das followed which model?",
+    "options": ["Tagore’s Santiniketan", "Missionary schools", "British public schools", "Gurukul"],
+    "answer": 3,
+    "explanation": "It was run on the Gurukul system with nationalist ideals."
+  },
+  {
+    "question": "The Odisha Khadi Mandal was established in which year?",
+    "options": ["1925", "1927", "1932", "1935"],
+    "answer": 0,
+    "explanation": "Established in 1925 to promote khadi and handloom."
+  },
+  {
+    "question": "Which CM of Odisha resigned in 1956 over disputes with the central government?",
+    "options": ["Biju Patnaik", "Nabakrushna Choudhury", "H. K. Mahtab", "Sadashiva Tripathy"],
+    "answer": 1,
+    "explanation": "Nabakrushna Choudhury resigned due to policy differences."
+  },
+  {
+    "question": "The Baji Rout Children's Unit is linked to which organisation?",
+    "options": ["Banar Sena", "Seva Dal", "Praja Mandal", "Red Cross"],
+    "answer": 1,
+    "explanation": "It is part of the Congress Seva Dal to involve youth."
+  },
+  {
+    "question": "Which was the first engineering college set up in Odisha?",
+    "options": ["VSSUT Burla", "CET Bhubaneswar", "Indira Gandhi Institute of Tech", "Silicon Institute"],
+    "answer": 0,
+    "explanation": "VSSUT Burla (formerly University College of Engineering) was the first."
+  },
+  {
+    "question": "The Odisha Special Police Force was created in response to which event?",
+    "options": ["Paika Rebellion", "Prajamandal uprisings", "Dhenkanal movement", "Kanika revolt"],
+    "answer": 1,
+    "explanation": "It was formed to handle law and order during Prajamandal uprisings."
+  },
+  {
+    "question": "The Hirakud Dam was built on which river?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Hirakud Dam is constructed over the river Mahanadi."
+  },
+  {
+    "question": "The Odia short story ‘Rebati’ is notable for addressing which social issue?",
+    "options": ["Widow remarriage", "Women’s education", "Untouchability", "Child marriage"],
+    "answer": 1,
+    "explanation": "‘Rebati’ by Fakir Mohan Senapati advocated girls’ education."
+  },
+  {
+    "question": "The Surendra Sai Institute of Medical Sciences is located in which city?",
+    "options": ["Burla", "Cuttack", "Berhampur", "Balasore"],
+    "answer": 0,
+    "explanation": "It is located in Burla, named after Veer Surendra Sai."
+  },
+  {
+    "question": "Who among the following edited the Odia weekly newspaper 'Asha'?",
+    "options": ["Harekrushna Mahtab", "Madhusudan Das", "Nilakantha Das", "Radhanath Rath"],
+    "answer": 0,
+    "explanation": "Harekrushna Mahtab edited 'Asha', which was a nationalist voice in Odisha."
+  },
+  {
+    "question": "The Balasore Salt Satyagraha in 1930 was led by which Congress leader?",
+    "options": ["Nabakrushna Choudhury", "Gopabandhu Choudhury", "Harekrushna Mahtab", "Biju Patnaik"],
+    "answer": 1,
+    "explanation": "Gopabandhu Choudhury led volunteers in the Balasore Salt Satyagraha."
+  },
+  {
+    "question": "Which Odia freedom fighter is called the 'Lion of Odisha'?",
+    "options": ["Veer Surendra Sai", "Biju Patnaik", "Krushna Chandra Gajapati", "Harekrushna Mahtab"],
+    "answer": 0,
+    "explanation": "Veer Surendra Sai earned the title for his brave resistance in Sambalpur."
+  },
+  {
+    "question": "In which year was Ravenshaw Collegiate School upgraded to Ravenshaw College?",
+    "options": ["1868", "1876", "1881", "1891"],
+    "answer": 1,
+    "explanation": "Ravenshaw Collegiate School was upgraded to a full-fledged college in 1876."
+  },
+  {
+    "question": "Who founded the Odia nationalist organisation 'Jatiya Odia Sabha'?",
+    "options": ["Madhusudan Das", "Nilakantha Das", "Gopabandhu Das", "Ranganath Misra"],
+    "answer": 1,
+    "explanation": "Nilakantha Das formed the 'Jatiya Odia Sabha' for social and political awareness."
+  },
+  {
+    "question": "The 1942 Quit India Movement in Odisha faced the harshest repression in which princely state?",
+    "options": ["Nilgiri", "Talcher", "Dhenkanal", "Keonjhar"],
+    "answer": 2,
+    "explanation": "Dhenkanal saw violent suppression of Quit India protests."
+  },
+  {
+    "question": "Who was the first Odia to preside over the Indian National Congress session?",
+    "options": ["Gopabandhu Das", "Harekrushna Mahtab", "Bishwanath Das", "Madhusudan Das"],
+    "answer": 2,
+    "explanation": "Bishwanath Das presided over the Karachi session of the INC in 1950."
+  },
+  {
+    "question": "Which significant infrastructure project in Odisha was inaugurated in 1957?",
+    "options": ["Hirakud Dam", "Rourkela Steel Plant", "Biju Patnaik Airport", "Paradeep Port"],
+    "answer": 0,
+    "explanation": "Hirakud Dam, the world's longest earthen dam at the time, was inaugurated in 1957."
+  },
+  {
+    "question": "The Odisha Tenancy Amendment Act of 1946 was enacted to:",
+    "options": ["Abolish Zamindari", "Secure rights of sharecroppers", "Encourage English education", "Ban child marriage"],
+    "answer": 1,
+    "explanation": "It aimed to provide greater security to sharecroppers."
+  },
+  {
+    "question": "Which freedom fighter from Odisha was a close associate of Jayaprakash Narayan?",
+    "options": ["Annapurna Maharana", "Malati Choudhury", "Laxman Naik", "Baji Rout"],
+    "answer": 1,
+    "explanation": "Malati Choudhury worked alongside Jayaprakash Narayan in social movements."
+  },
+  {
+    "question": "Which Odia leader was instrumental in bringing together the Odia-speaking tracts into one province?",
+    "options": ["Madhusudan Das", "Krushna Chandra Gajapati", "H. K. Mahtab", "Gopabandhu Das"],
+    "answer": 0,
+    "explanation": "Madhusudan Das was the key architect in uniting Odia-speaking areas."
+  },
+  {
+    "question": "The Odisha Special Armed Police was set up in which year?",
+    "options": ["1936", "1946", "1947", "1948"],
+    "answer": 2,
+    "explanation": "It was organised soon after independence to handle law and order in difficult areas."
+  },
+  {
+    "question": "Which Odia politician served as Union Minister for Steel and Mines in the 1970s?",
+    "options": ["Biju Patnaik", "H. K. Mahtab", "Rabi Ray", "Bashir Ahmed Sayeed"],
+    "answer": 0,
+    "explanation": "Biju Patnaik held the Steel and Mines portfolio at the Union level."
+  },
+  {
+    "question": "The famine commission after the 1866 disaster was headed by:",
+    "options": ["Sir George Campbell", "T. E. Ravenshaw", "W. W. Hunter", "John Beames"],
+    "answer": 0,
+    "explanation": "Sir George Campbell was appointed to report on the famine."
+  },
+  {
+    "question": "Krupasindhu Mishra is remembered in Odisha history as a:",
+    "options": ["Freedom fighter", "Educational reformer", "Trade union leader", "All of the above"],
+    "answer": 3,
+    "explanation": "He worked for labour rights, education, and political freedom."
+  },
+  {
+    "question": "The 1930 Salt Satyagraha at Kujang was led by:",
+    "options": ["Gopabandhu Choudhury", "Anant Pattnaik", "Nabakrushna Choudhury", "Muralidhar Jena"],
+    "answer": 3,
+    "explanation": "Muralidhar Jena led the Kujang Salt Satyagraha in present-day Jagatsinghpur."
+  },
+  {
+    "question": "Which Odia writer is hailed as the 'Father of Modern Odia Prose'?",
+    "options": ["Fakir Mohan Senapati", "Radhanath Ray", "Gangadhar Meher", "Madhusudan Rao"],
+    "answer": 0,
+    "explanation": "Fakir Mohan Senapati is regarded as the father of modern Odia prose literature."
+  },
+  {
+    "question": "The Berhampur uprising during 1857 revolt was led by:",
+    "options": ["Sepoys of the 34th Infantry", "Paikas of Khordha", "Bonda tribals", "Nilgiri Prajamandal activists"],
+    "answer": 0,
+    "explanation": "Sepoys stationed at Berhampur rose in rebellion during 1857."
+  },
+  {
+    "question": "Who built the famous Annapurna Theatre in Cuttack to promote Odia drama?",
+    "options": ["Ramakrushna Nanda", "Gopal Chhotray", "Kapileswar Prasad", "Nandakishore Bal"],
+    "answer": 2,
+    "explanation": "Kapileswar Prasad was a pioneer in Odia theatre through Annapurna Theatre."
+  },
+  {
+    "question": "The Bhadrak floods of 1926 led to:",
+    "options": ["Agrarian unrest", "Formation of relief committees", "Mass migration", "A new irrigation policy"],
+    "answer": 1,
+    "explanation": "Relief committees were formed to handle the devastation of the floods."
+  },
+  {
+    "question": "The Rourkela Steel Plant was set up with assistance from which country?",
+    "options": ["USA", "USSR", "Germany", "UK"],
+    "answer": 2,
+    "explanation": "West Germany helped build the Rourkela Steel Plant in the 1950s."
+  },
+  {
+    "question": "Who was the CM of Odisha when the Biju Patnaik Airport in Bhubaneswar was inaugurated?",
+    "options": ["Biju Patnaik", "Nilamani Routray", "Nandini Satpathy", "Hemananda Biswal"],
+    "answer": 0,
+    "explanation": "Biju Patnaik was CM when the airport was named after him."
+  },
+  {
+    "question": "The All Odisha Kisan Sabha was formed in which year?",
+    "options": ["1935", "1936", "1937", "1938"],
+    "answer": 3,
+    "explanation": "The Kisan Sabha was established in 1938 to fight for peasant rights."
+  },
+  {
+    "question": "In which year was the Odisha Public Service Commission (OPSC) set up?",
+    "options": ["1949", "1950", "1951", "1952"],
+    "answer": 1,
+    "explanation": "The OPSC was constituted in 1950 for recruitment in state services."
+  },
+  {
+    "question": "Which coastal district was worst hit by the 1999 super cyclone?",
+    "options": ["Puri", "Cuttack", "Jagatsinghpur", "Kendrapara"],
+    "answer": 2,
+    "explanation": "Jagatsinghpur bore the brunt of the super cyclone’s destruction."
+  },
+  {
+    "question": "The Odisha State Cooperative Bank was first established in:",
+    "options": ["1945", "1948", "1950", "1951"],
+    "answer": 0,
+    "explanation": "It was set up in 1945 to support cooperative credit and banking."
+  },
+  {
+    "question": "Who authored the autobiography 'Mo Jeebana Smruti Lipi'?",
+    "options": ["Biju Patnaik", "H. K. Mahtab", "Nabakrushna Choudhury", "Gopabandhu Das"],
+    "answer": 1,
+    "explanation": "H. K. Mahtab wrote this autobiographical work."
+  },
+  {
+    "question": "Which Cuttack-based leader was known for his role in the labour union movement in Odisha?",
+    "options": ["Rabi Ray", "Gouranga Charan Das", "Sarat Chandra Pujari", "Aska Mohanty"],
+    "answer": 1,
+    "explanation": "Gouranga Charan Das was active in labour movements and politics."
+  },
+  {
+    "question": "The 1942 Quit India protest in Basudevpur was led by:",
+    "options": ["Akhaya Mohanty", "Kailash Chandra Mohanty", "Bhagaban Sahu", "Raj Kishore Das"],
+    "answer": 2,
+    "explanation": "Bhagaban Sahu led the Basudevpur agitation during Quit India."
+  },
+  {
+    "question": "The Ganjam School of Painting developed during whose time?",
+    "options": ["British period", "Maratha period", "Gajapati period", "Somavamsi period"],
+    "answer": 0,
+    "explanation": "The Ganjam School flourished under British patronage in the 19th century."
+  },
+  {
+    "question": "Which Odisha town was an important centre for the Indigo trade under the British?",
+    "options": ["Balasore", "Bhadrak", "Pipili", "Jajpur"],
+    "answer": 1,
+    "explanation": "Bhadrak was a significant indigo trading point."
+  },
+  {
+    "question": "In which year did the Odisha government launch the Biju Krushak Vikas Yojana?",
+    "options": ["1999", "2000", "2001", "2002"],
+    "answer": 1,
+    "explanation": "It was launched in 2000 to promote irrigation development."
+  },
+  {
+    "question": "Which Odia social reformer started the newspaper 'Sambalpur Hiteisini'?",
+    "options": ["Jhasketan Sahu", "Ghanshyam Misra", "Madhusudan Das", "Kumarendra Narayan Roy"],
+    "answer": 1,
+    "explanation": "Ghanshyam Misra started ‘Sambalpur Hiteisini’ to protect regional interests."
+  },
+  {
+    "question": "During the 1857 revolt, which Odisha princely state saw support for rebel sepoys?",
+    "options": ["Mayurbhanj", "Keonjhar", "Nilgiri", "Tigiria"],
+    "answer": 0,
+    "explanation": "Mayurbhanj chiefs provided covert support to rebels."
+  },
+  {
+    "question": "The Odisha Sahitya Akademi was established in which year?",
+    "options": ["1954", "1957", "1959", "1961"],
+    "answer": 1,
+    "explanation": "The Akademi was founded in 1957 to promote Odia literature."
+  },
+  {
+    "question": "The Lakhanpur Conference of 1936 was related to:",
+    "options": ["Peasant rights", "Tribal welfare", "Odia language protection", "Salt law protests"],
+    "answer": 0,
+    "explanation": "It discussed peasant issues and tenancy reforms."
+  },
+  {
+    "question": "Which leader is associated with the Prajamandal movement in Keonjhar?",
+    "options": ["Baishnav Charan Pattanayak", "Anant Pattnaik", "Baji Rout", "Parsuram Khuntia"],
+    "answer": 0,
+    "explanation": "Baishnav Charan Pattanayak led the Keonjhar movement."
+  },
+  {
+    "question": "During the Non-Cooperation Movement, which school in Odisha was turned into a national school by students?",
+    "options": ["Ravenshaw Collegiate School", "Zilla School", "Satyabadi Bana Vidyalaya", "Puri District School"],
+    "answer": 3,
+    "explanation": "Puri District School boys left classes to start a national school."
+  },
+  {
+    "question": "The movement for the merger of Saraikela and Kharsawan into Odisha intensified in which year?",
+    "options": ["1948", "1949", "1950", "1951"],
+    "answer": 1,
+    "explanation": "The demand peaked in 1949 after tribal unrest and policing issues in those princely states."
+  },
+  {
+    "question": "The Madhusudan Das–led Utkal Union Conference was first held in which year?",
+    "options": ["1901", "1903", "1905", "1912"],
+    "answer": 1,
+    "explanation": "The first session of the Utkal Union Conference took place in 1903 at Cuttack under Madhusudan Das."
+  },
+  {
+    "question": "Which Odia revolutionary was associated with the Hindustan Socialist Republican Association?",
+    "options": ["Baji Rout", "Laxman Naik", "Balananda Jena", "Baishnav Charan Pattanayak"],
+    "answer": 3,
+    "explanation": "Baishnav Charan Pattanayak was linked to the HSRA and worked with leaders like Bhagat Singh."
+  },
+  {
+    "question": "Who was the educationist who introduced the first Odia dictionary ‘Shabda Sagara’?",
+    "options": ["Gopal Chandra Praharaj", "Radhanath Ray", "Madhusudan Rao", "Fakir Mohan Senapati"],
+    "answer": 0,
+    "explanation": "Gopal Chandra Praharaj compiled 'Shabda Sagara', the first exhaustive Odia dictionary."
+  },
+  {
+    "question": "The Orissa Political Conference of 1920 was presided over by:",
+    "options": ["Madhusudan Das", "Gopabandhu Das", "Nilakantha Das", "Fakir Mohan Senapati"],
+    "answer": 1,
+    "explanation": "Gopabandhu Das presided and emphasized non‑cooperation with British authorities."
+  },
+  {
+    "question": "The Kodala uprising of 1817 was led by rebels from which community?",
+    "options": ["Kandha", "Koya", "Paika", "Bonda"],
+    "answer": 0,
+    "explanation": "The Kondh tribes of Ganjam led the Kodala uprising against colonial interference."
+  },
+  {
+    "question": "Which Odia woman leader was popularly called ‘Ma Odisha’?",
+    "options": ["Sarala Devi", "Ramadevi Choudhury", "Malati Choudhury", "Annapurna Maharana"],
+    "answer": 1,
+    "explanation": "Ramadevi Choudhury earned the title ‘Mother of Odisha’ for her selfless service."
+  },
+  {
+    "question": "During which movement did Odia students boycott government schools and set up national schools?",
+    "options": ["Non‑Cooperation Movement", "Quit India Movement", "Civil Disobedience Movement", "Prajamandal Movement"],
+    "answer": 0,
+    "explanation": "In the 1920‑22 Non‑Cooperation Movement, students left colonial schools."
+  },
+  {
+    "question": "The famine of 1866 in Odisha led to the setting up of which British body for relief policy?",
+    "options": ["Famine Commission", "Relief Board", "Food Security Council", "Agricultural Commission"],
+    "answer": 0,
+    "explanation": "The Famine Commission was tasked with framing relief and food distribution policies."
+  },
+  {
+    "question": "The Odisha branch of the All India States Peoples Conference was headquartered in:",
+    "options": ["Cuttack", "Sambalpur", "Balasore", "Puri"],
+    "answer": 0,
+    "explanation": "Cuttack served as the hub for coordinating Prajamandal movements."
+  },
+  {
+    "question": "Which was the first planned city built in Odisha after independence?",
+    "options": ["Rourkela", "Bhubaneswar", "Sambalpur", "Paradip"],
+    "answer": 1,
+    "explanation": "Bhubaneswar was developed as Odisha’s modern capital from 1948."
+  },
+  {
+    "question": "In 1942, the parallel government in Nilgiri was created during which movement?",
+    "options": ["Prajamandal Movement", "Quit India Movement", "Non‑Cooperation Movement", "Civil Disobedience"],
+    "answer": 1,
+    "explanation": "The Quit India Movement inspired locals to form a parallel administration."
+  },
+  {
+    "question": "Gopabandhu Choudhury resigned from the prestigious post of district magistrate to join:",
+    "options": ["Prajamandal Movement", "Khadi Movement", "Non‑Cooperation Movement", "Quit India Movement"],
+    "answer": 2,
+    "explanation": "He left his job to join Gandhi’s Non‑Cooperation Movement in 1921."
+  },
+  {
+    "question": "The Prajamandal activists of Talcher faced repression under which ruler?",
+    "options": ["Raja Krishna Chandra Deo", "Raja Birendra Pratap Singh", "Raja Kishore Chandra Deo", "Raja Shyama Chandra Bhanja"],
+    "answer": 1,
+    "explanation": "Raja Birendra Pratap Singh cracked down on the Talcher Prajamandal."
+  },
+  {
+    "question": "The Odia book ‘Matira Manisha’ is set in the period of:",
+    "options": ["Pre‑British Odisha", "British colonial Odisha", "Post‑independence Odisha", "Maratha rule"],
+    "answer": 1,
+    "explanation": "Kalindi Charan Panigrahi’s novel portrays rural Odisha under British rule."
+  },
+  {
+    "question": "When was Odisha’s first Legislative Council replaced by a unicameral Legislative Assembly?",
+    "options": ["1937", "1950", "1952", "1961"],
+    "answer": 2,
+    "explanation": "With the adoption of the Constitution, a unicameral legislature began in 1952."
+  },
+  {
+    "question": "Kandhamal’s tribal revolt of 1942 was directly linked to:",
+    "options": ["Quit India Movement", "Salt Satyagraha", "Non‑Cooperation", "Famine protests"],
+    "answer": 0,
+    "explanation": "It was aligned with nationwide Quit India calls."
+  },
+  {
+    "question": "Ravenshaw University was upgraded from which earlier institution?",
+    "options": ["Utkal University", "Ravenshaw College", "Stewart College", "Cuttack College"],
+    "answer": 1,
+    "explanation": "Ravenshaw College became Ravenshaw University in 2006."
+  },
+  {
+    "question": "Which Odia poet was conferred the title ‘Kabibara’ during the British period?",
+    "options": ["Madhusudan Rao", "Upendra Bhanja", "Radhanath Ray", "Gangadhar Meher"],
+    "answer": 3,
+    "explanation": "Gangadhar Meher was honoured as ‘Kabibara’ for his poetic contributions."
+  },
+  {
+    "question": "The Jagatsinghpur firing of 1942 occurred during which protest?",
+    "options": ["Salt Satyagraha", "Quit India Movement", "Prajamandal Agitation", "Railway Strike"],
+    "answer": 1,
+    "explanation": "Police firing occurred on Quit India protesters in Jagatsinghpur."
+  },
+  {
+    "question": "Who was the first Odia Governor of Odisha post‑independence?",
+    "options": ["Bishwanath Das", "Y. V. Chandrachud", "B. D. Jatti", "Shankar Prasad Jena"],
+    "answer": 0,
+    "explanation": "Bishwanath Das became the first Odia to serve as Governor."
+  },
+  {
+    "question": "The Bhadrak trial of 1942 was related to:",
+    "options": ["Salt Law violation", "Anti‑war propaganda", "Prajamandal activities", "Quit India arrests"],
+    "answer": 3,
+    "explanation": "It was a mass trial of Quit India arrestees."
+  },
+  {
+    "question": "Which Odisha CM launched the Kalinga Prize for popularizing science?",
+    "options": ["Biju Patnaik", "H. K. Mahtab", "Nabakrushna Choudhury", "Bishwanath Das"],
+    "answer": 0,
+    "explanation": "In 1951, Biju Patnaik initiated the Kalinga Prize, later awarded by UNESCO."
+  },
+  {
+    "question": "In which year was the Odisha Official Language Act passed?",
+    "options": ["1951", "1954", "1956", "1963"],
+    "answer": 1,
+    "explanation": "The Act of 1954 made Odia the official state language."
+  },
+  {
+    "question": "The Kendrapara cyclone of 1926 led to the setting up of:",
+    "options": ["Flood Control Board", "Odisha Relief Committee", "Public Works Division", "Cyclone Safety Fund"],
+    "answer": 1,
+    "explanation": "Local leaders formed Odisha Relief Committee to assist victims."
+  },
+  {
+    "question": "Which Odia socialist leader served as the Speaker of the Odisha Assembly in the 1960s?",
+    "options": ["Rabi Ray", "Nilamani Routray", "Biren Mitra", "Rajendra Narayan Singh Deo"],
+    "answer": 0,
+    "explanation": "Rabi Ray served as Speaker before becoming Lok Sabha Speaker decades later."
+  },
+  {
+    "question": "The Mayurbhanj Prajamandal movement was led by:",
+    "options": ["Anant Pattnaik", "Raghunath Mohanty", "Mohan Nayak", "Debendra Nath Sarangi"],
+    "answer": 3,
+    "explanation": "Debendra Nath Sarangi mobilized people under Prajamandal in Mayurbhanj."
+  },
+  {
+    "question": "Which Odisha leader advocated strongly for women’s education in the 1920s?",
+    "options": ["Sarala Devi", "Annapurna Maharana", "Ramadevi Choudhury", "Malati Choudhury"],
+    "answer": 0,
+    "explanation": "Sarala Devi promoted women’s literacy and political participation."
+  },
+  {
+    "question": "The 1939 Congress Ministry in Odisha resigned in protest against:",
+    "options": ["World War II policies", "Jute export ban", "Increase in land tax", "Execution of revolutionaries"],
+    "answer": 0,
+    "explanation": "Congress ministries resigned over British decision to enter WWII without consultation."
+  },
+  {
+    "question": "Which industrial city of Odisha was established with German collaboration in the 1950s?",
+    "options": ["Jharsuguda", "Rourkela", "Angul", "Paradeep"],
+    "answer": 1,
+    "explanation": "Rourkela was set up with German aid and expertise."
+  },
+  {
+    "question": "Veer Surendra Sai was finally captured by the British in which year?",
+    "options": ["1861", "1862", "1864", "1865"],
+    "answer": 2,
+    "explanation": "He was captured in 1864 after years of guerrilla warfare."
+  },
+  {
+    "question": "Which Odia personality started the paper ‘The Eastern Times’?",
+    "options": ["Radhanath Rath", "Gopabandhu Das", "B. C. Pattnaik", "Madhusudan Das"],
+    "answer": 2,
+    "explanation": "B. C. Pattnaik launched ‘The Eastern Times’ from Cuttack."
+  },
+  {
+    "question": "The 1921 visit of Gandhi to Odisha was primarily to:",
+    "options": ["Launch Civil Disobedience", "Promote Non‑Cooperation and Khadi", "Assess famine", "Negotiate with British"],
+    "answer": 1,
+    "explanation": "Gandhi came to mobilize for Non‑Cooperation and spread Khadi use."
+  },
+  {
+    "question": "The Odisha State Planning Board was constituted in which year?",
+    "options": ["1958", "1961", "1965", "1970"],
+    "answer": 1,
+    "explanation": "It was set up in 1961 to guide economic planning."
+  },
+  {
+    "question": "Who composed the stirring patriotic song 'Bande Utkal Janani'?",
+    "options": ["Laxmikanta Mohapatra", "Madhusudan Rao", "Haraprasad Das", "Radhanath Ray"],
+    "answer": 0,
+    "explanation": "Laxmikanta Mohapatra wrote the song that became Odisha’s state anthem."
+  },
+  {
+    "question": "In which year did Paradeep Port begin operations?",
+    "options": ["1962", "1966", "1968", "1970"],
+    "answer": 1,
+    "explanation": "Paradeep Port was commissioned in 1966 to boost maritime trade."
+  },
+  {
+    "question": "Which CM of Odisha was known as the ‘Architect of Modern Odisha’?",
+    "options": ["Biju Patnaik", "Nabakrushna Choudhury", "H. K. Mahtab", "Nandini Satpathy"],
+    "answer": 0,
+    "explanation": "Biju Patnaik earned this title for his development vision."
+  },
+   {
+    "question": "Who was the first Odia to be elected as President of the Indian National Congress?",
+    "options": ["Madhusudan Das", "Bishwanath Das", "Krushna Chandra Gajapati", "Harekrushna Mahtab"],
+    "answer": 1,
+    "explanation": "Bishwanath Das was elected Congress President in 1934, the first Odia to hold the post."
+  },
+  {
+    "question": "The Prajamandal movement in Keonjhar reached its peak during which year?",
+    "options": ["1937", "1940", "1942", "1946"],
+    "answer": 2,
+    "explanation": "The Keonjhar Prajamandal intensified around 1942 alongside the Quit India Movement."
+  },
+  {
+    "question": "Which Odia freedom fighter was popularly known as the 'Boatman Boy'?",
+    "options": ["Baji Rout", "Laxman Naik", "Baishnav Charan Pattanayak", "Anant Pattnaik"],
+    "answer": 0,
+    "explanation": "Baji Rout was the youngest martyr who refused to ferry British police across the Brahmani river."
+  },
+  {
+    "question": "Which British canal project in Odisha was initiated after the famine of 1866?",
+    "options": ["Hirakud Canal", "Orissa Canal System", "Mahanadi Delta Canal Project", "Rushikulya Canal"],
+    "answer": 2,
+    "explanation": "The Mahanadi Delta Canal Project aimed to improve irrigation to prevent future famines."
+  },
+  {
+    "question": "Who was the first woman from Odisha to become a Union Minister?",
+    "options": ["Nandini Satpathy", "Sarala Devi", "Malati Choudhury", "Annapurna Maharana"],
+    "answer": 0,
+    "explanation": "Nandini Satpathy became Union Information and Broadcasting Minister in 1972."
+  },
+  {
+    "question": "The Odisha State Tribal Advisory Council was set up in which year?",
+    "options": ["1950", "1951", "1953", "1956"],
+    "answer": 0,
+    "explanation": "The Council was created in 1950 to advise on tribal welfare policies."
+  },
+  {
+    "question": "Which leader founded the 'Odisha Congress Socialist Party'?",
+    "options": ["Nabakrushna Choudhury", "Biju Patnaik", "Harekrushna Mahtab", "Rabi Ray"],
+    "answer": 0,
+    "explanation": "Nabakrushna Choudhury formed it to promote socialist ideas within the Congress."
+  },
+  {
+    "question": "The town of Jaleswar was a centre of which anti-British activity in Odisha?",
+    "options": ["Salt Satyagraha", "Prajamandal agitation", "Quit India protest", "Tribal revolt"],
+    "answer": 0,
+    "explanation": "Jaleswar in Balasore district was active in Salt Satyagraha mobilization."
+  },
+  {
+    "question": "Which Odia writer depicted the 1866 famine in his novel ‘Chha Mana Atha Guntha’?",
+    "options": ["Fakir Mohan Senapati", "Gangadhar Meher", "Radhanath Ray", "Madhusudan Rao"],
+    "answer": 0,
+    "explanation": "Fakir Mohan Senapati’s novel captured the misery of famine and landlord exploitation."
+  },
+  {
+    "question": "The princely state of Mayurbhanj merged with Odisha in which year?",
+    "options": ["1948", "1949", "1950", "1951"],
+    "answer": 1,
+    "explanation": "Mayurbhanj merged into Odisha province on 1 January 1949."
+  },
+  {
+    "question": "The Global Odia conference held in 2010 took place in which city?",
+    "options": ["Bhubaneswar", "Cuttack", "Puri", "Sambalpur"],
+    "answer": 0,
+    "explanation": "Bhubaneswar hosted the 2010 Global Odia conference celebrating Odia culture."
+  },
+  {
+    "question": "During British rule, which Odisha port was known for exporting rice and salt to Burma?",
+    "options": ["Gopalpur", "Paradeep", "Balasore", "Chandbali"],
+    "answer": 0,
+    "explanation": "Gopalpur on Sea was a key port trading with Burma in colonial times."
+  },
+  {
+    "question": "The Odisha High Court was established in 1948 after being separated from which High Court?",
+    "options": ["Calcutta High Court", "Patna High Court", "Madras High Court", "Allahabad High Court"],
+    "answer": 1,
+    "explanation": "Before 1948, Odisha cases were under the jurisdiction of the Patna High Court."
+  },
+  {
+    "question": "Fakir Mohan Senapati served as Dewan of which princely state?",
+    "options": ["Nilgiri", "Mayurbhanj", "Keonjhar", "Kanika"],
+    "answer": 1,
+    "explanation": "Fakir Mohan Senapati served as Dewan (administrator) of Mayurbhanj state."
+  },
+  {
+    "question": "The Odisha State Cooperative Marketing Federation (MARKFED) was founded in which year?",
+    "options": ["1976", "1982", "1984", "1986"],
+    "answer": 1,
+    "explanation": "MARKFED was set up in 1982 to support farmer marketing and procurement."
+  },
+  {
+    "question": "Which Odia freedom fighter established the 'Alakashrama' at Satyabadi?",
+    "options": ["Nilakantha Das", "Gopabandhu Das", "Acharya Harihar", "Godabarish Mishra"],
+    "answer": 2,
+    "explanation": "Acharya Harihar founded the Alakashrama for training nationalist volunteers."
+  },
+  {
+    "question": "The Cuttack Chandi Mandir was used as a meeting point during which movement?",
+    "options": ["Quit India Movement", "Non-Cooperation Movement", "Civil Disobedience Movement", "Prajamandal Movement"],
+    "answer": 1,
+    "explanation": "It served as a gathering point for Congress volunteers in the Non‑Cooperation era."
+  },
+  {
+    "question": "The Odisha Administrative Tribunal was established in which year to speed up service matters?",
+    "options": ["1984", "1985", "1986", "1987"],
+    "answer": 1,
+    "explanation": "The Tribunal was constituted in 1985 for state government service disputes."
+  },
+  {
+    "question": "Who led the peasant revolt in Parlakhemundi estate in the 1920s?",
+    "options": ["Ramakrishna Reddy", "Ghasi Majhi", "Krushna Chandra Gajapati", "Rai Bahadur Harichandan"],
+    "answer": 1,
+    "explanation": "Ghasi Majhi mobilized peasants against landlord exploitation in Parlakhemundi."
+  },
+  {
+    "question": "Which important irrigation project in western Odisha began in the 1950s?",
+    "options": ["Hirakud Dam", "Indravati Project", "Salandi Project", "Rukura Project"],
+    "answer": 0,
+    "explanation": "The Hirakud Dam construction commenced in 1948 and finished in the 1950s."
+  },
+  {
+    "question": "Which leader from Odisha was conferred the Stalin Peace Prize in 1952?",
+    "options": ["Harekrushna Mahtab", "Biju Patnaik", "Nabakrushna Choudhury", "None"],
+    "answer": 3,
+    "explanation": "No leader from Odisha has received the Stalin Peace Prize; this is a trap question."
+  },
+  {
+    "question": "The first Odia film 'Sita Bibaha' was released in which year?",
+    "options": ["1934", "1936", "1938", "1941"],
+    "answer": 0,
+    "explanation": "'Sita Bibaha' directed by Mohan Sundar Deb Goswami was released in 1934."
+  },
+  {
+    "question": "Who among these was a founder member of the Odisha Branch of the Indian Red Cross Society?",
+    "options": ["H. K. Mahtab", "Nabakrushna Choudhury", "Gopabandhu Choudhury", "Krushna Chandra Gajapati"],
+    "answer": 3,
+    "explanation": "Maharaja Krushna Chandra Gajapati helped establish the state Red Cross branch."
+  },
+  {
+    "question": "The Baliapal movement of the 1980s in Odisha was against:",
+    "options": ["Industrial pollution", "Nuclear missile testing range", "Mining in forests", "Dams on Subarnarekha"],
+    "answer": 1,
+    "explanation": "It protested the proposal of a missile testing range in Baliapal, Balasore."
+  },
+  {
+    "question": "In which year did Odisha celebrate the silver jubilee of its formation as a linguistic state?",
+    "options": ["1960", "1961", "1962", "1965"],
+    "answer": 1,
+    "explanation": "The silver jubilee was celebrated in 1961."
+  },
+  {
+    "question": "Which Odia leader also served as the Governor of Maharashtra after independence?",
+    "options": ["Bishwanath Das", "H. K. Mahtab", "Biju Patnaik", "Nabakrushna Choudhury"],
+    "answer": 0,
+    "explanation": "Bishwanath Das was appointed Governor of Maharashtra."
+  },
+  {
+    "question": "The Odisha Gram Panchayat Act was passed in which year?",
+    "options": ["1948", "1949", "1950", "1961"],
+    "answer": 1,
+    "explanation": "It was enacted in 1949 to strengthen rural local government."
+  },
+  {
+    "question": "Which was the first port trust created in independent Odisha?",
+    "options": ["Paradip Port", "Gopalpur Port", "Chandbali Port", "Dhamra Port"],
+    "answer": 0,
+    "explanation": "Paradip Port Trust was formed in 1966."
+  },
+  {
+    "question": "In 1955, which commission was set up to study Odisha’s industrial potential?",
+    "options": ["Industrial Development Commission", "State Planning Committee", "Mahapatra Commission", "None of the above"],
+    "answer": 0,
+    "explanation": "The Industrial Development Commission was tasked with planning Odisha’s industrial growth."
+  },
+  {
+    "question": "Which Odia politician served as Deputy Speaker of Lok Sabha in the 1970s?",
+    "options": ["Rabi Ray", "Girish Chandra Murmu", "Girish Chandra Ghosh", "Bhairon Singh Shekhawat"],
+    "answer": 0,
+    "explanation": "Rabi Ray served as Deputy Speaker of Lok Sabha before becoming Speaker."
+  },
+  {
+    "question": "The Odisha Forest Development Corporation was established in which year?",
+    "options": ["1962", "1965", "1969", "1972"],
+    "answer": 3,
+    "explanation": "OFDC was formed in 1972 for forestry management and trade."
+  },
+  {
+    "question": "Which European country helped in establishing the Paradeep Fertilizer Plant?",
+    "options": ["UK", "France", "Japan", "USA"],
+    "answer": 2,
+    "explanation": "Japan collaborated in building Paradeep Phosphates Limited."
+  },
+  {
+    "question": "The Odia leader Rabi Ray was closely associated with which political ideology?",
+    "options": ["Socialism", "Communism", "Conservatism", "Liberalism"],
+    "answer": 0,
+    "explanation": "Rabi Ray was a staunch socialist leader."
+  },
+  {
+    "question": "Who started the monthly magazine 'Jhankar' in Odisha?",
+    "options": ["Manoj Das", "Kishori Charan Das", "Krushna Charan Behera", "Surendra Mohanty"],
+    "answer": 0,
+    "explanation": "Eminent writer Manoj Das launched 'Jhankar'."
+  },
+  {
+    "question": "The Odisha Lokayukta Act came into force in which year?",
+    "options": ["2014", "2015", "2016", "2019"],
+    "answer": 1,
+    "explanation": "The Act was notified in 2015 to establish the state Lokayukta."
+  },
+  {
+    "question": "During British rule, the Sambalpur region was merged with Odisha in which year?",
+    "options": ["1903", "1905", "1907", "1912"],
+    "answer": 1,
+    "explanation": "Sambalpur was merged into Odisha in 1905 from the Central Provinces."
+  },
+  {
+    "question": "The Odisha State Road Transport Corporation (OSRTC) was established in:",
+    "options": ["1973", "1974", "1976", "1978"],
+    "answer": 0,
+    "explanation": "OSRTC was founded in 1973 to manage public road transport."
+  },
+  {
+    "question": "Who was Odisha's Chief Minister during the emergency period (1975-77)?",
+    "options": ["Biju Patnaik", "Nandini Satpathy", "Nilamani Routray", "H. K. Mahtab"],
+    "answer": 1,
+    "explanation": "Nandini Satpathy was the CM during the Emergency."
+  },
+   {
+    "question": "The 1885 cyclone in Odisha caused maximum damage in which district?",
+    "options": ["Balasore", "Puri", "Cuttack", "Kendrapara"],
+    "answer": 1,
+    "explanation": "The 1885 cyclone devastated Puri district and caused heavy loss of life."
+  },
+  {
+    "question": "Who was the first Education Minister of Odisha after independence?",
+    "options": ["Nabakrushna Choudhury", "Nilamani Routray", "Harihar Mardaraj", "Gopabandhu Choudhury"],
+    "answer": 2,
+    "explanation": "Harihar Mardaraj was Odisha's first Education Minister in the post‑independence government."
+  },
+  {
+    "question": "Which Odia leader served as India's Railway Minister in the 1960s?",
+    "options": ["Biju Patnaik", "Rabi Ray", "Kunja Bihari Meher", "K. C. Pant"],
+    "answer": 0,
+    "explanation": "Biju Patnaik held the Railway Ministry from 1963-1964."
+  },
+  {
+    "question": "Utkal Divas is celebrated to commemorate which historical event?",
+    "options": ["Formation of Odisha province", "Victory of Paika revolt", "Quit India in Odisha", "Adoption of Odia language"],
+    "answer": 0,
+    "explanation": "Utkal Divas celebrates the formation of Odisha province on 1 April 1936."
+  },
+  {
+    "question": "The Khurda Revolt of 1817 is significant because:",
+    "options": ["It is considered the first armed resistance against the British in India", "It was a tribal uprising", "It was a salt satyagraha", "It was a student protest"],
+    "answer": 0,
+    "explanation": "The Khurda Revolt, also known as the Paika Rebellion, is viewed as the first major armed resistance to British rule."
+  },
+  {
+    "question": "Which princely state in Odisha was ruled by Raja Shyama Chandra Bhanja during Prajamandal unrest?",
+    "options": ["Keonjhar", "Nilgiri", "Talcher", "Dhenkanal"],
+    "answer": 0,
+    "explanation": "Raja Shyama Chandra Bhanja ruled Keonjhar during intense Prajamandal protests."
+  },
+  {
+    "question": "The Odisha Official Language (Amendment) Act, aiming to promote Odia in administration, was passed in which year?",
+    "options": ["2015", "2016", "2018", "2019"],
+    "answer": 1,
+    "explanation": "It was passed in 2016 to enforce greater use of Odia in official work."
+  },
+  {
+    "question": "Paradeep Port was declared as the 8th major port of India in which year?",
+    "options": ["1965", "1966", "1968", "1970"],
+    "answer": 1,
+    "explanation": "Paradeep became a major port under the Indian Ports Act in 1966."
+  },
+  {
+    "question": "Who was the first woman Speaker of the Odisha Legislative Assembly?",
+    "options": ["Nandini Satpathy", "Pramila Mallick", "Sarojini Hembram", "Halim Biwi"],
+    "answer": 1,
+    "explanation": "Pramila Mallick made history as the first woman Speaker of the state Assembly."
+  },
+  {
+    "question": "During the freedom struggle, the Odisha Students Conference was established in which year?",
+    "options": ["1912", "1915", "1920", "1928"],
+    "answer": 3,
+    "explanation": "It was established in 1928 as a platform for student activism."
+  },
+  {
+    "question": "The famine of 1866 is also remembered in Odia literature through which famous poem?",
+    "options": ["Utkal Bhraman", "Na Anka Durvikhya", "Chha Mana Atha Guntha", "Bande Utkal Janani"],
+    "answer": 1,
+    "explanation": "'Na Anka Durvikhya' literally means the famine of the no‑ank year, vividly described in literature."
+  },
+  {
+    "question": "The Sambalpur Prajamandal Conference of 1946 resolved to:",
+    "options": ["Support Quit India", "Join Odisha province", "Abolish Zamindari", "Launch Salt Satyagraha"],
+    "answer": 2,
+    "explanation": "It advocated the abolition of Zamindari and feudal land systems."
+  },
+  {
+    "question": "Which Odisha leader earned fame for airlifting Indonesian freedom fighters in 1947?",
+    "options": ["Biju Patnaik", "Rabi Ray", "Krushna Chandra Gajapati", "Nabakrushna Choudhury"],
+    "answer": 0,
+    "explanation": "Biju Patnaik flew covert missions to assist Indonesia’s independence movement."
+  },
+  {
+    "question": "Who established the Ravenshaw Girls’ School in Cuttack?",
+    "options": ["Harekrushna Mahtab", "Bishwanath Das", "Utkal Gourav Madhusudan Das", "Henry Maddicott"],
+    "answer": 3,
+    "explanation": "Henry Maddicott, a British missionary, established the school."
+  },
+  {
+    "question": "The Dhenkanal agitation in the late 1930s was sparked by construction of which palace?",
+    "options": ["Rajbati Palace", "Patha Durbar", "Balaram Palace", "Nilgiri Rajbari"],
+    "answer": 0,
+    "explanation": "Forced labour for building the Rajbati Palace triggered the movement."
+  },
+  {
+    "question": "In 1903, which Odia leader presided over the Utkal Sammilani?",
+    "options": ["Madhusudan Das", "Gopabandhu Das", "Fakir Mohan Senapati", "Nilakantha Das"],
+    "answer": 0,
+    "explanation": "Madhusudan Das presided over the first Utkal Sammilani session in Puri."
+  },
+  {
+    "question": "The Prajamandal of Talcher demanded:",
+    "options": ["Reduction of rent", "Abolition of forced labour", "Better schools", "Right to vote"],
+    "answer": 1,
+    "explanation": "The main demand was to abolish begar or forced labour."
+  },
+  {
+    "question": "Who was the first Vice‑Chancellor of Utkal University?",
+    "options": ["Madhusudan Das", "Pranakrushna Parija", "Bishwanath Das", "Godabarish Mishra"],
+    "answer": 1,
+    "explanation": "Pranakrushna Parija served as the first VC of Utkal University."
+  },
+  {
+    "question": "The Rajendra Narayan Singh Deo ministry fell in 1971 due to:",
+    "options": ["Loss of majority", "Corruption charges", "Emergency declaration", "Language dispute"],
+    "answer": 0,
+    "explanation": "The coalition government lost its majority in the Assembly."
+  },
+  {
+    "question": "The Odisha Freedom Fighters Memorial in Bhubaneswar was inaugurated in which year?",
+    "options": ["1998", "2000", "2004", "2007"],
+    "answer": 1,
+    "explanation": "It was opened in 2000 to honour the state's freedom fighters."
+  },
+  {
+    "question": "Which district was formed by merging parts of Ganjam and Puri in 1993?",
+    "options": ["Khordha", "Nayagarh", "Gajapati", "Boudh"],
+    "answer": 2,
+    "explanation": "Gajapati district was carved out in 1993."
+  },
+  {
+    "question": "The Odisha Panchayati Raj Act came into force in which year?",
+    "options": ["1948", "1950", "1961", "1965"],
+    "answer": 2,
+    "explanation": "The Panchayati Raj Act was passed in 1961 to strengthen local self‑government."
+  },
+  {
+    "question": "The key demand of the 1912 Odia Language Conference was:",
+    "options": ["Creation of Odisha province", "Merger with Bengal", "Abolishing English", "Teaching Hindi"],
+    "answer": 0,
+    "explanation": "It advocated the unification of Odia-speaking areas under one administration."
+  },
+  {
+    "question": "Which Odia cricketer captained India’s national team in the 1960s?",
+    "options": ["Rango Bapuji", "Debasis Mohanty", "Rusi Modi", "None"],
+    "answer": 3,
+    "explanation": "No Odia captained the Indian team in the 1960s; trick question to test awareness."
+  },
+  {
+    "question": "The Odisha Freedom Fighters' Welfare Fund was established in which year?",
+    "options": ["1967", "1970", "1975", "1980"],
+    "answer": 1,
+    "explanation": "The fund was set up in 1970 for the welfare of freedom fighters and their families."
+  },
+  {
+    "question": "Balasore district was separated from which older administrative unit in 1828?",
+    "options": ["Midnapore", "Cuttack", "Puri", "Ganjam"],
+    "answer": 1,
+    "explanation": "It was carved out of Cuttack district by the British."
+  },
+  {
+    "question": "In which year did Odisha host the National Games of India for the first time?",
+    "options": ["1948", "1954", "1962", "1970"],
+    "answer": 1,
+    "explanation": "Cuttack hosted the National Games in 1954."
+  },
+  {
+    "question": "The Odisha Scheduled Areas Transfer of Immovable Property Regulation was enacted in:",
+    "options": ["1955", "1956", "1957", "1958"],
+    "answer": 0,
+    "explanation": "Enacted in 1955, it restricted transfer of tribal lands to non‑tribals."
+  },
+  {
+    "question": "Who initiated the rehabilitation of refugees from East Pakistan in Odisha post‑1947?",
+    "options": ["Biju Patnaik", "Nabakrushna Choudhury", "H. K. Mahtab", "Bishwanath Das"],
+    "answer": 1,
+    "explanation": "Nabakrushna Choudhury’s government worked on their rehabilitation."
+  },
+  {
+    "question": "The Odisha Lokayukta became functional in which year?",
+    "options": ["2015", "2016", "2018", "2019"],
+    "answer": 3,
+    "explanation": "It became operational in March 2019 after the appointment of the chairperson."
+  },
+  {
+    "question": "The Prajamandal agitation in Nilgiri merged into Odisha in which year?",
+    "options": ["1948", "1949", "1950", "1951"],
+    "answer": 1,
+    "explanation": "Nilgiri was integrated into Odisha in 1949."
+  },
+  {
+    "question": "The Odisha State Electricity Regulatory Commission was established in:",
+    "options": ["1989", "1990", "1995", "1996"],
+    "answer": 3,
+    "explanation": "Established in 1996, it regulates the electricity sector in the state."
+  },
+  {
+    "question": "Kailash Chandra Mohanty is known for his contribution to:",
+    "options": ["Prajamandal literature", "Peasant uprisings", "Odia theatre", "Irrigation development"],
+    "answer": 0,
+    "explanation": "He documented and wrote extensively on Prajamandal struggles."
+  },
+  {
+    "question": "During whose chief ministership was the Odisha Mining Corporation founded?",
+    "options": ["Biju Patnaik", "Nabakrushna Choudhury", "H. K. Mahtab", "Nilamani Routray"],
+    "answer": 0,
+    "explanation": "OMC was established in 1956 during Biju Patnaik's leadership role in development."
+  },
+  {
+    "question": "The Odisha Legislative Council (upper house) was abolished in which year?",
+    "options": ["1968", "1969", "1970", "1971"],
+    "answer": 1,
+    "explanation": "It was abolished in 1969, making Odisha a unicameral legislature."
+  },
+  {
+    "question": "Who started the Odia newspaper 'Dainik Asha'?",
+    "options": ["Harekrushna Mahtab", "Nilakantha Das", "Madhusudan Das", "Gopabandhu Das"],
+    "answer": 0,
+    "explanation": "Harekrushna Mahtab edited and published 'Dainik Asha'."
+  },
+   {
+    "question": "The Odisha Handloom and Textile Directorate was established in which year?",
+    "options": ["1950", "1954", "1956", "1960"],
+    "answer": 1,
+    "explanation": "It was founded in 1954 to promote handloom products and support weavers."
+  },
+  {
+    "question": "Who became the first Mayor of Cuttack Municipal Corporation after independence?",
+    "options": ["Harekrushna Mahtab", "Sarat Chandra Das", "Madhusudan Das", "Bhagaban Sahu"],
+    "answer": 1,
+    "explanation": "Sarat Chandra Das served as the first mayor post‑independence."
+  },
+  {
+    "question": "Which Odisha princely state was last to sign the merger agreement in 1949?",
+    "options": ["Mayurbhanj", "Kalahandi", "Kanika", "Nilgiri"],
+    "answer": 1,
+    "explanation": "Kalahandi was among the last states to merge with Odisha in 1949."
+  },
+  {
+    "question": "In which year was the Odisha Staff Selection Commission (OSSC) established?",
+    "options": ["1992", "1994", "1996", "1998"],
+    "answer": 2,
+    "explanation": "OSSC was constituted in 1996 to conduct recruitment for various posts."
+  },
+  {
+    "question": "Which Odia woman leader was awarded the Padma Vibhushan for her role in social service?",
+    "options": ["Nandini Satpathy", "Sarala Devi", "Malati Choudhury", "Annapurna Maharana"],
+    "answer": 3,
+    "explanation": "Annapurna Maharana received the Padma Vibhushan for her contributions."
+  },
+  {
+    "question": "The Odisha Land Reforms Act was passed in which year?",
+    "options": ["1960", "1962", "1965", "1968"],
+    "answer": 2,
+    "explanation": "The 1965 Act aimed to limit land holdings and protect tenant farmers."
+  },
+  {
+    "question": "Who was the CM of Odisha during the 1999 super cyclone?",
+    "options": ["Biju Patnaik", "Naveen Patnaik", "Hemananda Biswal", "Giridhar Gamang"],
+    "answer": 3,
+    "explanation": "Giridhar Gamang was Chief Minister during the devastating 1999 super cyclone."
+  },
+  {
+    "question": "The first All‑Odisha Women’s Conference was held in which year?",
+    "options": ["1946", "1948", "1950", "1952"],
+    "answer": 1,
+    "explanation": "It was held in 1948 to address issues of women’s upliftment."
+  },
+  {
+    "question": "During British rule, the Paralakhemundi estate was part of which presidency?",
+    "options": ["Bengal Presidency", "Madras Presidency", "Bombay Presidency", "Central Provinces"],
+    "answer": 1,
+    "explanation": "Paralakhemundi fell under the Madras Presidency."
+  },
+  {
+    "question": "The Odisha Administrative Service (OAS) was constituted in which year?",
+    "options": ["1956", "1960", "1962", "1965"],
+    "answer": 0,
+    "explanation": "The OAS cadre was formed in 1956 for state administrative duties."
+  },
+  {
+    "question": "Who among the following was known as the 'Salt Satyagrahi of Ganjam'?",
+    "options": ["Nabakrushna Choudhury", "Sadasiva Tripathy", "Lingaraj Panigrahi", "Biswanath Patnaik"],
+    "answer": 3,
+    "explanation": "Biswanath Patnaik led salt satyagraha activities in Ganjam district."
+  },
+  {
+    "question": "Which CM of Odisha resigned in 2000 paving the way for Naveen Patnaik?",
+    "options": ["Biju Patnaik", "Hemananda Biswal", "Giridhar Gamang", "J. B. Patnaik"],
+    "answer": 2,
+    "explanation": "Giridhar Gamang resigned in 2000 before Naveen Patnaik took charge."
+  },
+  {
+    "question": "The Odisha Freedom Fighters’ Pension Scheme was launched in which year?",
+    "options": ["1968", "1970", "1973", "1975"],
+    "answer": 1,
+    "explanation": "It began in 1970 to honour and support freedom fighters."
+  },
+  {
+    "question": "Which two districts were created in Odisha in 1993?",
+    "options": ["Jagatsinghpur and Gajapati", "Boudh and Nabarangpur", "Subarnapur and Nuapada", "Kandhamal and Deogarh"],
+    "answer": 0,
+    "explanation": "Jagatsinghpur and Gajapati districts were formed in 1993."
+  },
+  {
+    "question": "The Odisha State Cashew Development Corporation was set up in:",
+    "options": ["1976", "1979", "1981", "1982"],
+    "answer": 2,
+    "explanation": "Established in 1981 to promote cashew cultivation and trade."
+  },
+  {
+    "question": "Who was the CM of Odisha when the Odisha Disaster Rapid Action Force (ODRAF) was formed?",
+    "options": ["Naveen Patnaik", "Biju Patnaik", "Giridhar Gamang", "Hemananda Biswal"],
+    "answer": 0,
+    "explanation": "ODRAF was formed under Naveen Patnaik’s tenure to handle disaster situations."
+  },
+  {
+    "question": "The Khariar Zamindari revolt was related to which cause?",
+    "options": ["Land tax hike", "Forest rights", "Anti‑British protests", "Famine relief"],
+    "answer": 1,
+    "explanation": "It arose due to restrictions on traditional forest usage by locals."
+  },
+  {
+    "question": "The Odisha State Human Rights Commission became active in which year?",
+    "options": ["2000", "2003", "2006", "2008"],
+    "answer": 2,
+    "explanation": "It became functional in 2006 to address human rights cases."
+  },
+  {
+    "question": "Who was Odisha’s CM during the imposition of President’s Rule in 1973?",
+    "options": ["Biju Patnaik", "Nandini Satpathy", "H. K. Mahtab", "Nilamani Routray"],
+    "answer": 1,
+    "explanation": "Nandini Satpathy was CM before President’s Rule was imposed in 1973."
+  },
+  {
+    "question": "Which Odia mountaineer first climbed Mount Everest?",
+    "options": ["Kalpana Dash", "Lipika Rath", "Jogeswar Naik", "Ashok Panda"],
+    "answer": 0,
+    "explanation": "Kalpana Dash became the first Odia to reach the summit of Everest in 2008."
+  },
+  {
+    "question": "The Odisha Scheduled Castes and Scheduled Tribes Development Finance Co‑operative Corporation was established in:",
+    "options": ["1975", "1979", "1981", "1985"],
+    "answer": 2,
+    "explanation": "It was set up in 1981 to promote economic upliftment of SC/ST communities."
+  },
+  {
+    "question": "During British rule, the title 'Rai Bahadur' was conferred upon which Odia industrialist?",
+    "options": ["Biju Patnaik", "Maguni Charan Das", "Jagannath Prasad Sharma", "Bishwanath Das"],
+    "answer": 2,
+    "explanation": "Jagannath Prasad Sharma, a notable businessman, received the title."
+  },
+  {
+    "question": "Who was the Governor of Odisha when Odisha High Court was inaugurated in 1948?",
+    "options": ["John Austen Hubback", "Asaf Ali", "Chandulal M. Trivedi", "Bishwanath Das"],
+    "answer": 1,
+    "explanation": "Governor Asaf Ali inaugurated the Odisha High Court on July 26, 1948."
+  },
+  {
+    "question": "The Odisha State Women’s Commission was set up in which year?",
+    "options": ["1991", "1993", "1995", "1997"],
+    "answer": 0,
+    "explanation": "Established in 1991 to safeguard and promote women's rights."
+  },
+  {
+    "question": "When was the Odisha University of Agriculture and Technology (OUAT) established?",
+    "options": ["1960", "1961", "1962", "1964"],
+    "answer": 1,
+    "explanation": "OUAT was established in 1961 in Bhubaneswar."
+  },
+  {
+    "question": "Which CM launched the 'Biju KBK Plan' for western Odisha?",
+    "options": ["Naveen Patnaik", "Biju Patnaik", "Hemananda Biswal", "Nandini Satpathy"],
+    "answer": 0,
+    "explanation": "Naveen Patnaik launched the Biju KBK Plan for the Kalahandi‑Bolangir‑Koraput region."
+  },
+  {
+    "question": "The Odisha Freedom Fighters’ Memorial Building is located in which city?",
+    "options": ["Puri", "Bhubaneswar", "Cuttack", "Sambalpur"],
+    "answer": 1,
+    "explanation": "It is located in Bhubaneswar to honour the contributions of freedom fighters."
+  },
+  {
+    "question": "Which year marked the introduction of the Odisha Reservation of Vacancies Act?",
+    "options": ["1975", "1978", "1980", "1982"],
+    "answer": 2,
+    "explanation": "Passed in 1980, it provided reservation in public employment for SC/ST/OBC groups."
+  },
+  {
+    "question": "In 1951, who inaugurated the Hirakud Dam for the first phase of operations?",
+    "options": ["Jawaharlal Nehru", "Krushna Chandra Gajapati", "Biju Patnaik", "H. K. Mahtab"],
+    "answer": 0,
+    "explanation": "Prime Minister Nehru inaugurated the first phase of the Hirakud Dam project."
+  },
+  {
+    "question": "During British rule, which Odia reformist worked to abolish the dowry system?",
+    "options": ["Madhusudan Das", "Gopabandhu Das", "Fakir Mohan Senapati", "Radhanath Ray"],
+    "answer": 0,
+    "explanation": "Madhusudan Das campaigned against dowry and for women's rights."
+  },
+  {
+    "question": "Which Odisha district was created in 1994 by bifurcating Puri?",
+    "options": ["Nayagarh", "Khordha", "Kendrapara", "Jagatsinghpur"],
+    "answer": 1,
+    "explanation": "Khordha district was carved out of Puri in 1994."
+  },
+  {
+    "question": "The Odisha Khadi and Village Industries Board was established in:",
+    "options": ["1953", "1955", "1958", "1960"],
+    "answer": 0,
+    "explanation": "It was set up in 1953 to promote rural industries."
+  },
+  {
+    "question": "Who among the following was Odisha CM thrice between 1961 and 1980?",
+    "options": ["Biju Patnaik", "H. K. Mahtab", "J. B. Patnaik", "Nilamani Routray"],
+    "answer": 2,
+    "explanation": "J. B. Patnaik held the CM office in three terms between 1961 and 1980."
+  },
+  {
+    "question": "In which year did Odisha launch the Mid-Day Meal Scheme in primary schools?",
+    "options": ["1995", "1996", "2000", "2002"],
+    "answer": 0,
+    "explanation": "Odisha introduced the scheme in 1995 to improve child nutrition and enrollment."
+  },
+  {
+    "question": "The Odisha Public Libraries Act came into force in:",
+    "options": ["2000", "2001", "2002", "2003"],
+    "answer": 3,
+    "explanation": "Implemented in 2003 to develop and regulate library services."
+  },
+  {
+    "question": "Who was the first woman Vice-Chancellor of an Odisha university?",
+    "options": ["Pramila Mallick", "S. B. Das", "Sujata Deo", "Sarla Das"],
+    "answer": 1,
+    "explanation": "Prof. S. B. Das became the first woman VC in Odisha."
+  },
+  {
+    "question": "The Odisha Handicrafts Development Corporation was established in which year?",
+    "options": ["1955", "1957", "1964", "1965"],
+    "answer": 2,
+    "explanation": "It was set up in 1964 to promote handicrafts and artisans’ livelihoods."
+  },
+  {
+    "question": "Which leader launched the 'Mission Shakti' women self-help programme in Odisha?",
+    "options": ["Biju Patnaik", "Naveen Patnaik", "Hemananda Biswal", "Nilamani Routray"],
+    "answer": 1,
+    "explanation": "CM Naveen Patnaik initiated Mission Shakti in 2001 to empower women."
+  },
+  {
+    "question": "The Odisha State Seed Corporation was set up in:",
+    "options": ["1976", "1978", "1980", "1982"],
+    "answer": 0,
+    "explanation": "It was founded in 1976 to produce and supply quality seeds to farmers."
+  },
+  {
+    "question": "Who was CM when the Odisha State Museum in Bhubaneswar was inaugurated?",
+    "options": ["Biju Patnaik", "H. K. Mahtab", "Nabakrushna Choudhury", "Nilamani Routray"],
+    "answer": 2,
+    "explanation": "Nabakrushna Choudhury oversaw its establishment in 1957."
+  },
+  {
+    "question": "Which Odisha leader served as the Provisional Chief Minister just before independence in 1946-47?",
+    "options": ["H. K. Mahtab", "Krushna Chandra Gajapati", "Biju Patnaik", "Nabakrushna Choudhury"],
+    "answer": 0,
+    "explanation": "H. K. Mahtab was Premier in the run-up to India's independence."
+  },
+  {
+    "question": "In which year did Odisha become a separate province?",
+    "options": ["1930", "1936", "1947", "1950"],
+    "answer": 1,
+    "explanation": "Odisha became a separate province on April 1, 1936."
+  },
+  {
+    "question": "Who led the Paika Rebellion of 1817?",
+    "options": ["Veer Surendra Sai", "Buxi Jagabandhu", "Laxman Naik", "Gopabandhu Das"],
+    "answer": 1,
+    "explanation": "Buxi Jagabandhu led the Paika Rebellion in Khordha."
+  },
+  {
+    "question": "The famine of 1866 in Odisha is locally known as:",
+    "options": ["Na Anka Durvikhya", "Mahadurviksha", "Panch Anka Famine", "Bada Kali"],
+    "answer": 0,
+    "explanation": "It is called 'Na Anka Durvikhya'."
+  },
+  {
+    "question": "Who is known as 'Utkalmani'?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Nilakantha Das", "Harekrushna Mahtab"],
+    "answer": 0,
+    "explanation": "Gopabandhu Das is honoured as Utkalmani ('Gem of Odisha')."
+  },
+  {
+    "question": "Who is called 'Utkal Gourav'?",
+    "options": ["Biju Patnaik", "Madhusudan Das", "Gopabandhu Das", "H. K. Mahtab"],
+    "answer": 1,
+    "explanation": "Madhusudan Das is known as Utkal Gourav ('Pride of Odisha')."
+  },
+  {
+    "question": "When was the Quit India Movement launched?",
+    "options": ["1930", "1938", "1942", "1947"],
+    "answer": 2,
+    "explanation": "Gandhi launched the Quit India Movement in August 1942."
+  },
+  {
+    "question": "Baji Rout, the youngest martyr, belonged to which district?",
+    "options": ["Cuttack", "Dhenkanal", "Balasore", "Puri"],
+    "answer": 1,
+    "explanation": "Baji Rout was from Nilakanthapur village in Dhenkanal district."
+  },
+  {
+    "question": "Who was the first Chief Minister of Odisha after independence?",
+    "options": ["Krushna Chandra Gajapati", "Harekrushna Mahtab", "Biju Patnaik", "Nabakrushna Choudhury"],
+    "answer": 1,
+    "explanation": "Harekrushna Mahtab was the first CM after independence."
+  },
+  {
+    "question": "Which leader is called the ‘Architect of Modern Odisha’?",
+    "options": ["Biju Patnaik", "H. K. Mahtab", "Madhusudan Das", "Nandini Satpathy"],
+    "answer": 0,
+    "explanation": "Biju Patnaik is known for major development works in modern Odisha."
+  },
+  {
+    "question": "Hirakud Dam is built on which river?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Hirakud Dam is built on the Mahanadi."
+  },
+  {
+    "question": "Who founded Utkal Sammilani?",
+    "options": ["Harekrushna Mahtab", "Madhusudan Das", "Gopabandhu Das", "Nilakantha Das"],
+    "answer": 1,
+    "explanation": "Madhusudan Das founded Utkal Sammilani in 1903."
+  },
+  {
+    "question": "When was the first Odia newspaper 'Utkala Deepika' published?",
+    "options": ["1866", "1903", "1920", "1936"],
+    "answer": 0,
+    "explanation": "'Utkala Deepika' was first published in 1866."
+  },
+  {
+    "question": "Veer Surendra Sai belonged to which place?",
+    "options": ["Dhenkanal", "Khordha", "Sambalpur", "Balasore"],
+    "answer": 2,
+    "explanation": "He belonged to Sambalpur and fought the British there."
+  },
+  {
+    "question": "When did the Paika Rebellion occur?",
+    "options": ["1803", "1817", "1836", "1857"],
+    "answer": 1,
+    "explanation": "The Paika Rebellion took place in 1817."
+  },
+  {
+    "question": "Who was the first woman Chief Minister of Odisha?",
+    "options": ["Nandini Satpathy", "Sarala Devi", "Ramadevi Choudhury", "Annapurna Maharana"],
+    "answer": 0,
+    "explanation": "Nandini Satpathy was the first woman CM."
+  },
+  {
+    "question": "In which year was Utkal University established?",
+    "options": ["1936", "1943", "1950", "1957"],
+    "answer": 1,
+    "explanation": "Utkal University was founded in 1943."
+  },
+  {
+    "question": "The Balasore Salt Satyagraha of 1930 was part of which national movement?",
+    "options": ["Non-Cooperation Movement", "Civil Disobedience Movement", "Quit India Movement", "Home Rule Movement"],
+    "answer": 1,
+    "explanation": "It was part of Gandhi's Civil Disobedience Movement."
+  },
+  {
+    "question": "Who wrote the song 'Bande Utkal Janani'?",
+    "options": ["Fakir Mohan Senapati", "Laxmikanta Mohapatra", "Radhanath Ray", "Gopabandhu Das"],
+    "answer": 1,
+    "explanation": "Laxmikanta Mohapatra composed 'Bande Utkal Janani', now the state song."
+  },
+  {
+    "question": "Who is known as 'Kabibara' in Odia literature?",
+    "options": ["Gangadhar Meher", "Radhanath Ray", "Upendra Bhanja", "Fakir Mohan Senapati"],
+    "answer": 0,
+    "explanation": "Gangadhar Meher is called 'Kabibara'."
+  },
+  {
+    "question": "Who established the Satyabadi Bana Vidyalaya?",
+    "options": ["Nilakantha Das", "Gopabandhu Das", "Acharya Harihar", "Godabarish Mishra"],
+    "answer": 1,
+    "explanation": "Gopabandhu Das started this nationalist school at Sakhigopal."
+  },
+  {
+    "question": "Which year marks the birth of Biju Patnaik?",
+    "options": ["1913", "1916", "1920", "1925"],
+    "answer": 1,
+    "explanation": "Biju Patnaik was born in 1916."
+  },
+  {
+    "question": "Who became the first Odia Governor of Odisha?",
+    "options": ["Bishwanath Das", "Biju Patnaik", "J. B. Patnaik", "Nilamani Routray"],
+    "answer": 0,
+    "explanation": "Bishwanath Das was the first Odia to be Governor."
+  },
+  {
+    "question": "In which year did Odisha join the Quit India Movement?",
+    "options": ["1930", "1935", "1942", "1947"],
+    "answer": 2,
+    "explanation": "Odisha took part from August 1942."
+  },
+  {
+    "question": "Who led the tribal rebellion in Koraput during Quit India?",
+    "options": ["Baji Rout", "Laxman Naik", "Annapurna Maharana", "Baishnav Charan Pattanayak"],
+    "answer": 1,
+    "explanation": "Laxman Naik was a tribal leader from Koraput."
+  },
+  {
+    "question": "Which dam project was completed in 1957 in Odisha?",
+    "options": ["Rengali Dam", "Indravati Dam", "Hirakud Dam", "Balimela Dam"],
+    "answer": 2,
+    "explanation": "Hirakud Dam was completed in 1957."
+  },
+  {
+    "question": "Who founded 'The Samaja' newspaper?",
+    "options": ["Biju Patnaik", "Gopabandhu Das", "H. K. Mahtab", "Madhusudan Das"],
+    "answer": 1,
+    "explanation": "Gopabandhu Das started 'The Samaja'."
+  },
+  {
+    "question": "What is celebrated in Odisha on April 1 every year?",
+    "options": ["Independence Day", "Utkal Divas", "Gandhi Jayanti", "Republic Day"],
+    "answer": 1,
+    "explanation": "Utkal Divas marks the formation of Odisha state."
+  },
+  {
+    "question": "Who was the Premier of Odisha in 1937?",
+    "options": ["H. K. Mahtab", "Krushna Chandra Gajapati", "Bishwanath Das", "Madhusudan Das"],
+    "answer": 1,
+    "explanation": "Maharaja Krushna Chandra Gajapati was the first Premier under the 1935 Act."
+  },
+  {
+    "question": "Which movement fought for the abolition of forced labour in Odisha’s princely states?",
+    "options": ["Prajamandal Movement", "Civil Disobedience Movement", "Quit India", "Home Rule"],
+    "answer": 0,
+    "explanation": "Prajamandal Movements sought democracy and end to begar."
+  },
+  {
+    "question": "When did Mahatma Gandhi visit Odisha for the first time?",
+    "options": ["1921", "1925", "1930", "1934"],
+    "answer": 0,
+    "explanation": "Gandhi's first visit was in 1921 during the Non-Cooperation Movement."
+  },
+  {
+    "question": "Who is called the Father of Odia prose?",
+    "options": ["Fakir Mohan Senapati", "Gangadhar Meher", "Upendra Bhanja", "Radhanath Ray"],
+    "answer": 0,
+    "explanation": "Fakir Mohan Senapati modernized Odia prose literature."
+  },
+  {
+    "question": "Which leader is remembered as 'Ma Odisha'?",
+    "options": ["Sarala Devi", "Ramadevi Choudhury", "Malati Choudhury", "Annapurna Maharana"],
+    "answer": 1,
+    "explanation": "Freedom fighter Ramadevi Choudhury is called 'Mother Odisha'."
+  },
+  {
+    "question": "Who among these was CM of Odisha in 2000 before Naveen Patnaik?",
+    "options": ["Biju Patnaik", "Giridhar Gamang", "Nandini Satpathy", "J. B. Patnaik"],
+    "answer": 1,
+    "explanation": "Giridhar Gamang stepped down in 2000 before Naveen Patnaik became CM."
+  },
+  {
+    "question": "Which year saw the merger of princely states with Odisha?",
+    "options": ["1947", "1948", "1949", "1950"],
+    "answer": 2,
+    "explanation": "Most princely states merged with Odisha in 1949."
+  },
+  {
+    "question": "Who is known as the 'Father of Odia journalism'?",
+    "options": ["Biju Patnaik", "Fakir Mohan Senapati", "Gopabandhu Das", "Nilakantha Das"],
+    "answer": 1,
+    "explanation": "Fakir Mohan Senapati pioneered modern Odia journalism."
+  },
+  {
+    "question": "The song 'Bande Utkal Janani' is now:",
+    "options": ["National Anthem", "State Anthem of Odisha", "State Song of India", "Part of Odisha University"],
+    "answer": 1,
+    "explanation": "Odisha has adopted 'Bande Utkal Janani' as its official state anthem."
+  },
+  {
+    "question": "Who headed the famine commission after 1866 famine?",
+    "options": ["W. W. Hunter", "Sir George Campbell", "T. E. Ravenshaw", "John Beames"],
+    "answer": 1,
+    "explanation": "Sir George Campbell headed the commission."
+  },
+  {
+    "question": "When did Paradeep Port officially open?",
+    "options": ["1962", "1964", "1966", "1968"],
+    "answer": 2,
+    "explanation": "Paradeep Port started operations in 1966."
+  },
+  {
+    "question": "What is 'Utkal Divas'?",
+    "options": ["Formation Day of Odisha", "Odisha Independence Day", "Language Movement Day", "Quit India Day"],
+    "answer": 0,
+    "explanation": "It marks the creation of Odisha province on linguistic basis."
+  },
+  {
+    "question": "Which movement saw women volunteers like Annapurna Maharana and Malati Choudhury?",
+    "options": ["Quit India Movement", "Non-Cooperation Movement", "Prajamandal Movement", "Swadeshi Movement"],
+    "answer": 0,
+    "explanation": "Both women actively joined the Quit India Movement."
+  },
+  {
+    "question": "Who started the Odia dictionary 'Shabda Sagara'?",
+    "options": ["Gopal Chandra Praharaj", "Madhusudan Das", "Laxmikanta Mohapatra", "Nilakantha Das"],
+    "answer": 0,
+    "explanation": "Gopal Chandra Praharaj compiled 'Shabda Sagara'."
+  },
+  {
+    "question": "Which year did Cuttack host the Indian National Congress session?",
+    "options": ["1928", "1930", "1938", "1942"],
+    "answer": 2,
+    "explanation": "The Congress session was hosted in Cuttack in 1938."
+  },
+  {
+    "question": "Harekrushna Mahtab is also known as:",
+    "options": ["Utkal Keshari", "Utkal Ratna", "Utkal Kabi", "Utkal Gourav"],
+    "answer": 0,
+    "explanation": "He was popularly called Utkal Keshari."
+  },
+  {
+    "question": "The Odisha State Museum is located in:",
+    "options": ["Cuttack", "Bhubaneswar", "Puri", "Sambalpur"],
+    "answer": 1,
+    "explanation": "The Odisha State Museum is in Bhubaneswar."
+  },
+  {
+    "question": "The Hirakud Dam completion led to submergence of how many villages?",
+    "options": ["100", "150", "200", "250"],
+    "answer": 2,
+    "explanation": "Around 200 villages were submerged in Hirakud Dam's reservoir area."
+  },
+  {
+    "question": "Which Odisha leader was called 'Bapa of Odisha Police'?",
+    "options": ["Biju Patnaik", "Harekrushna Mahtab", "Radhanath Rath", "Gopabandhu Choudhury"],
+    "answer": 2,
+    "explanation": "Radhanath Rath is fondly remembered by this title."
+  },
+  {
+    "question": "When was the Hirakud Dam inaugurated?",
+    "options": ["1955", "1957", "1960", "1962"],
+    "answer": 1,
+    "explanation": "Hirakud Dam was inaugurated in 1957."
+  },
+  {
+    "question": "Who was the first woman CM of Odisha?",
+    "options": ["Nandini Satpathy", "Sarala Devi", "Ramadevi Choudhury", "Annapurna Maharana"],
+    "answer": 0,
+    "explanation": "Nandini Satpathy became Odisha’s first woman chief minister in 1972."
+  },
+  {
+    "question": "Which year did Odisha join the Non‑Cooperation Movement?",
+    "options": ["1919", "1921", "1925", "1930"],
+    "answer": 1,
+    "explanation": "Odisha joined the Non‑Cooperation Movement in 1921."
+  },
+  {
+    "question": "Who was the leader of Sambalpur revolt against the British?",
+    "options": ["Veer Surendra Sai", "Buxi Jagabandhu", "Laxman Naik", "Narayan Birabar Samant"],
+    "answer": 0,
+    "explanation": "Veer Surendra Sai led the Sambalpur revolt."
+  },
+  {
+    "question": "Utkal Divas is celebrated on:",
+    "options": ["March 25", "April 1", "May 1", "August 15"],
+    "answer": 1,
+    "explanation": "April 1 is celebrated as Utkal Divas, the state’s formation day."
+  },
+  {
+    "question": "When was Utkal Sammilani formed?",
+    "options": ["1901", "1903", "1905", "1912"],
+    "answer": 1,
+    "explanation": "Utkal Sammilani was formed in 1903 under Madhusudan Das."
+  },
+  {
+    "question": "Who composed 'Bande Utkal Janani'?",
+    "options": ["Radhanath Ray", "Laxmikanta Mohapatra", "Gangadhar Meher", "Fakir Mohan Senapati"],
+    "answer": 1,
+    "explanation": "It was composed by Laxmikanta Mohapatra."
+  },
+  {
+    "question": "Who is known as the father of modern Odia prose?",
+    "options": ["Fakir Mohan Senapati", "Radhanath Ray", "Madhusudan Rao", "Upendra Bhanja"],
+    "answer": 0,
+    "explanation": "Fakir Mohan Senapati is the father of modern Odia prose."
+  },
+  {
+    "question": "Which year did the Quit India Movement start?",
+    "options": ["1930", "1935", "1940", "1942"],
+    "answer": 3,
+    "explanation": "Quit India was launched in August 1942."
+  },
+  {
+    "question": "Who founded the Satyabadi School?",
+    "options": ["Nilakantha Das", "Gopabandhu Das", "Acharya Harihar", "Godabarish Mishra"],
+    "answer": 1,
+    "explanation": "Gopabandhu Das established the Satyabadi Bana Vidyalaya at Sakhigopal."
+  },
+  {
+    "question": "The famine of 1866 is also called:",
+    "options": ["Na Anka Durvikhya", "No Year Famine", "Great Orissa Famine", "All of the above"],
+    "answer": 3,
+    "explanation": "It is known by all these names."
+  },
+  {
+    "question": "Who was the Premier of Odisha in 1937?",
+    "options": ["Bishwanath Das", "H. K. Mahtab", "Krushna Chandra Gajapati", "Biju Patnaik"],
+    "answer": 2,
+    "explanation": "Maharaja Krushna Chandra Gajapati was the Premier."
+  },
+  {
+    "question": "When was Utkal University established?",
+    "options": ["1936", "1943", "1950", "1957"],
+    "answer": 1,
+    "explanation": "It was founded in 1943."
+  },
+  {
+    "question": "Buxi Jagabandhu led which uprising?",
+    "options": ["Paika Rebellion", "Quit India Movement", "Salt Satyagraha", "Kanika Rebellion"],
+    "answer": 0,
+    "explanation": "Buxi Jagabandhu led the Paika Rebellion of 1817."
+  },
+  {
+    "question": "Hirakud Dam is built on which river?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "It is built across the Mahanadi River."
+  },
+  {
+    "question": "Veer Surendra Sai fought against British in which region?",
+    "options": ["Khordha", "Sambalpur", "Koraput", "Balasore"],
+    "answer": 1,
+    "explanation": "Surendra Sai fought in Sambalpur."
+  },
+  {
+    "question": "Who was the first woman CM of Odisha?",
+    "options": ["Nandini Satpathy", "Sarala Devi", "Ramadevi Choudhury", "Annapurna Maharana"],
+    "answer": 0,
+    "explanation": "Nandini Satpathy became CM in 1972."
+  },
+  {
+    "question": "The Balasore Salt Satyagraha was part of which movement?",
+    "options": ["Civil Disobedience", "Quit India", "Non‑Cooperation", "Prajamandal"],
+    "answer": 0,
+    "explanation": "It was part of the Civil Disobedience Movement in 1930."
+  },
+  {
+    "question": "Who is called ‘Kabibara’?",
+    "options": ["Gangadhar Meher", "Radhanath Ray", "Laxmikanta Mohapatra", "Upendra Bhanja"],
+    "answer": 0,
+    "explanation": "Gangadhar Meher is popularly called ‘Kabibara’."
+  },
+  {
+    "question": "When was the Odisha High Court established?",
+    "options": ["1947", "1948", "1950", "1952"],
+    "answer": 1,
+    "explanation": "It was established in 1948."
+  },
+  {
+    "question": "Who was the first Governor of Odisha?",
+    "options": ["Asaf Ali", "John Austen Hubback", "Bishwanath Das", "Krushna Chandra Gajapati"],
+    "answer": 1,
+    "explanation": "John Austen Hubback was the first Governor after 1936."
+  },
+  {
+    "question": "When was Paradeep Port opened?",
+    "options": ["1960", "1964", "1966", "1970"],
+    "answer": 2,
+    "explanation": "Paradeep Port began operations in 1966."
+  },
+  {
+    "question": "Who was the first Odia to climb Mount Everest?",
+    "options": ["Kalpana Dash", "Lipika Rath", "Debasis Mohanty", "Rajendra Kumar"],
+    "answer": 0,
+    "explanation": "Kalpana Dash scaled Mount Everest in 2008."
+  },
+  {
+    "question": "Harekrushna Mahtab is called:",
+    "options": ["Utkal Keshari", "Utkal Ratna", "Utkal Gourav", "Utkalmani"],
+    "answer": 0,
+    "explanation": "Harekrushna Mahtab was given the title 'Utkal Keshari'."
+  },
+  {
+    "question": "The Prajamandal Movement opposed which practice in princely states?",
+    "options": ["Begar or forced labour", "English education", "Railway expansion", "Irrigation taxes"],
+    "answer": 0,
+    "explanation": "It aimed to abolish begar and win democratic rights."
+  },
+  {
+    "question": "When did Odisha join the Civil Disobedience Movement?",
+    "options": ["1929", "1930", "1931", "1932"],
+    "answer": 1,
+    "explanation": "Civil Disobedience began in 1930 and Odisha joined actively."
+  },
+  {
+    "question": "Bande Utkal Janani is now the:",
+    "options": ["State Anthem of Odisha", "National Anthem", "School Song", "Patriotic Poem only"],
+    "answer": 0,
+    "explanation": "Official state anthem of Odisha."
+  },
+  {
+    "question": "Which year saw the creation of Gajapati district?",
+    "options": ["1991", "1992", "1993", "1994"],
+    "answer": 2,
+    "explanation": "Gajapati district was formed in 1993."
+  },
+  {
+    "question": "Who led the Nilgiri Prajamandal agitation?",
+    "options": ["Anant Pattnaik", "Baishnav Charan Pattanayak", "Baji Rout", "Sarala Devi"],
+    "answer": 0,
+    "explanation": "Anant Pattnaik led the Nilgiri agitation."
+  },
+  {
+    "question": "In which year was the Odisha Public Service Commission established?",
+    "options": ["1947", "1948", "1949", "1950"],
+    "answer": 3,
+    "explanation": "OPSC was set up in 1950."
+  },
+  {
+    "question": "Laxman Naik was associated with which tribal group?",
+    "options": ["Bonda", "Santal", "Koya", "Kandha"],
+    "answer": 0,
+    "explanation": "He was a Bonda tribal leader from Koraput."
+  },
+  {
+    "question": "Who was CM during the reorganization of states in 1956?",
+    "options": ["Biju Patnaik", "Nilamani Routray", "Nabakrushna Choudhury", "H. K. Mahtab"],
+    "answer": 2,
+    "explanation": "Nabakrushna Choudhury was CM in 1956."
+  },
+  {
+    "question": "Hirakud Dam submergence led to relocation of how many villages?",
+    "options": ["100", "150", "200", "250"],
+    "answer": 2,
+    "explanation": "200 villages were submerged in the reservoir."
+  },
+  {
+    "question": "The first Odia film 'Sita Bibaha' was released in:",
+    "options": ["1934", "1935", "1936", "1938"],
+    "answer": 0,
+    "explanation": "'Sita Bibaha' was released in 1934."
+  },
+  {
+    "question": "Which CM launched Mission Shakti in 2001?",
+    "options": ["Biju Patnaik", "Naveen Patnaik", "Hemananda Biswal", "Giridhar Gamang"],
+    "answer": 1,
+    "explanation": "Naveen Patnaik launched Mission Shakti for women SHGs."
+  },
+  {
+    "question": "Veer Surendra Sai was imprisoned in which jail?",
+    "options": ["Asirgarh Fort", "Hazaribagh Jail", "Nagpur Jail", "Andaman Jail"],
+    "answer": 0,
+    "explanation": "He was jailed at Asirgarh Fort until his death."
+  },
+  {
+    "question": "The Odisha Official Language Act was passed in:",
+    "options": ["1952", "1954", "1956", "1962"],
+    "answer": 1,
+    "explanation": "Passed in 1954 to promote Odia language in official work."
+  },
+  {
+    "question": "Baji Rout died resisting the police in which year?",
+    "options": ["1936", "1938", "1940", "1942"],
+    "answer": 1,
+    "explanation": "He was shot dead in 1938."
+  },
+  {
+    "question": "Hirakud Dam is the world's longest:",
+    "options": ["Earthen dam", "Concrete dam", "Arch dam", "Barrage"],
+    "answer": 0,
+    "explanation": "It is the world’s longest earthen dam."
+  },
+  {
+    "question": "Which Odia leader was instrumental in Indonesia's freedom struggle?",
+    "options": ["H. K. Mahtab", "Biju Patnaik", "Gopabandhu Das", "Madhusudan Das"],
+    "answer": 1,
+    "explanation": "Biju Patnaik flew rescue missions for Indonesian leaders."
+  },
+  {
+    "question": "The Paika Rebellion took place in which British administrative division?",
+    "options": ["Bengal Presidency", "Madras Presidency", "Bombay Presidency", "Central Provinces"],
+    "answer": 0,
+    "explanation": "It happened under Bengal Presidency."
+  },
+  {
+    "question": "Odisha's state song was adopted in which year?",
+    "options": ["2020", "2021", "2022", "2023"],
+    "answer": 1,
+    "explanation": "'Bande Utkal Janani' was officially adopted as state song in 2021."
+  },
+  {
+    "question": "Who was the first Premier of Odisha Province in 1937?",
+    "options": ["Bishwanath Das", "Krushna Chandra Gajapati", "H. K. Mahtab", "Madhusudan Das"],
+    "answer": 1,
+    "explanation": "Maharaja Krushna Chandra Gajapati was the first Premier under the 1935 Act."
+  },
+  {
+    "question": "Which year marks the formation of Odisha as a separate province?",
+    "options": ["1935", "1936", "1937", "1947"],
+    "answer": 1,
+    "explanation": "Odisha was formed as a separate province on 1 April 1936."
+  },
+  {
+    "question": "Buxi Jagabandhu led which revolt?",
+    "options": ["Paika Rebellion", "Kanika Revolt", "Quit India Movement", "Non‑Cooperation Movement"],
+    "answer": 0,
+    "explanation": "He led the Paika Rebellion against British rule in 1817."
+  },
+  {
+    "question": "Who is known as 'Ma Odisha'?",
+    "options": ["Ramadevi Choudhury", "Sarala Devi", "Annapurna Maharana", "Malati Choudhury"],
+    "answer": 0,
+    "explanation": "Ramadevi Choudhury is lovingly called 'Mother Odisha'."
+  },
+  {
+    "question": "Which Odia leader wrote 'Bande Utkal Janani'?",
+    "options": ["Gangadhar Meher", "Laxmikanta Mohapatra", "Radhanath Ray", "Madhusudan Rao"],
+    "answer": 1,
+    "explanation": "Laxmikanta Mohapatra composed the patriotic song 'Bande Utkal Janani'."
+  },
+  {
+    "question": "When was the Quit India Movement launched?",
+    "options": ["1940", "1941", "1942", "1943"],
+    "answer": 2,
+    "explanation": "It started on 8–9 August 1942 across India."
+  },
+  {
+    "question": "Hirakud Dam is located in which district?",
+    "options": ["Sambalpur", "Sundargarh", "Angul", "Bargarh"],
+    "answer": 0,
+    "explanation": "Hirakud Dam is built across the Mahanadi in Sambalpur district."
+  },
+  {
+    "question": "Which leader is known as Utkal Gourav?",
+    "options": ["Madhusudan Das", "Gopabandhu Das", "Nilakantha Das", "Biju Patnaik"],
+    "answer": 0,
+    "explanation": "Madhusudan Das is remembered as 'Pride of Odisha'."
+  },
+  {
+    "question": "Who was the youngest martyr of India’s freedom struggle from Odisha?",
+    "options": ["Baji Rout", "Laxman Naik", "Anant Pattnaik", "Baishnav Charan Pattanayak"],
+    "answer": 0,
+    "explanation": "Baji Rout, a boatman boy, was shot dead in 1938."
+  },
+  {
+    "question": "When did Mahatma Gandhi first visit Odisha?",
+    "options": ["1920", "1921", "1923", "1925"],
+    "answer": 1,
+    "explanation": "He visited in 1921 during the Non‑Cooperation Movement."
+  },
+  {
+    "question": "Laxman Naik was associated with which movement?",
+    "options": ["Salt Satyagraha", "Quit India Movement", "Non‑Cooperation Movement", "Prajamandal"],
+    "answer": 1,
+    "explanation": "Laxman Naik led the tribal mobilisation in Koraput during Quit India."
+  },
+  {
+    "question": "The famine of 1866 is referred to in Odisha as:",
+    "options": ["Na Anka Durvikhya", "Great Orissa Famine", "No Year famine", "All of the above"],
+    "answer": 3,
+    "explanation": "It is known by all these names."
+  },
+  {
+    "question": "Which year did Paradeep Port start operations?",
+    "options": ["1964", "1965", "1966", "1967"],
+    "answer": 2,
+    "explanation": "Paradeep Port began operations in 1966."
+  },
+  {
+    "question": "Who was the first CM of Odisha after independence?",
+    "options": ["H. K. Mahtab", "Biju Patnaik", "Krushna Chandra Gajapati", "Nabakrushna Choudhury"],
+    "answer": 0,
+    "explanation": "H. K. Mahtab was the first CM post-independence."
+  },
+  {
+    "question": "Where was the Satyabadi Bana Vidyalaya located?",
+    "options": ["Puri district", "Cuttack district", "Ganjam district", "Balasore district"],
+    "answer": 0,
+    "explanation": "It was set up at Sakhigopal in Puri district."
+  },
+  {
+    "question": "Who is called the Father of Modern Odisha?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Biju Patnaik", "Nilakantha Das"],
+    "answer": 1,
+    "explanation": "Madhusudan Das is considered the Father of Modern Odisha."
+  },
+  {
+    "question": "'Kabibara' is the title given to which Odia poet?",
+    "options": ["Gangadhar Meher", "Radhanath Ray", "Upendra Bhanja", "Fakir Mohan Senapati"],
+    "answer": 0,
+    "explanation": "Gangadhar Meher is known as 'Kabibara'."
+  },
+  {
+    "question": "What does Utkal Divas commemorate?",
+    "options": ["Formation of Odisha province", "Independence of Odisha", "Gandhi’s visit to Odisha", "Famine relief day"],
+    "answer": 0,
+    "explanation": "It marks the day Odisha became a separate province in 1936."
+  },
+  {
+    "question": "Bishwanath Das served in which important post after independence?",
+    "options": ["Governor of Maharashtra", "Chief Minister of Odisha", "Governor of Odisha", "Both 1 and 2"],
+    "answer": 3,
+    "explanation": "He served as CM and also as Governor of Maharashtra."
+  },
+  {
+    "question": "In which district is Veer Surendra Sai Airport located?",
+    "options": ["Jharsuguda", "Sambalpur", "Balangir", "Bhubaneswar"],
+    "answer": 0,
+    "explanation": "It is located in Jharsuguda district."
+  },
+  {
+    "question": "Who started the Odia newspaper 'The Samaja'?",
+    "options": ["Madhusudan Das", "Biju Patnaik", "Gopabandhu Das", "H. K. Mahtab"],
+    "answer": 2,
+    "explanation": "Gopabandhu Das founded 'The Samaja'."
+  },
+  {
+    "question": "When was the Odisha High Court inaugurated?",
+    "options": ["1947", "1948", "1949", "1950"],
+    "answer": 1,
+    "explanation": "Inaugurated on 26 July 1948."
+  },
+  {
+    "question": "Which title is given to Harekrushna Mahtab?",
+    "options": ["Utkal Gourav", "Utkal Keshari", "Utkalmani", "Utkal Ratna"],
+    "answer": 1,
+    "explanation": "He is called Utkal Keshari."
+  },
+  {
+    "question": "Who led the Nilgiri Prajamandal agitation?",
+    "options": ["Anant Pattnaik", "Baishnav Charan Pattanayak", "Sarala Devi", "Laxman Naik"],
+    "answer": 0,
+    "explanation": "Anant Pattnaik led the Nilgiri agitation against princely rule."
+  },
+  {
+    "question": "Which district was created in 1993 along with Jagatsinghpur?",
+    "options": ["Gajapati", "Kalahandi", "Boudh", "Kendrapara"],
+    "answer": 0,
+    "explanation": "Gajapati was created in 1993."
+  },
+  {
+    "question": "What was the main cause of the 1866 famine?",
+    "options": ["Cyclone damage", "Crop failure", "Drought", "Flooding"],
+    "answer": 1,
+    "explanation": "Failure of the rice crop led to the famine."
+  },
+  {
+    "question": "Baji Rout was from which community?",
+    "options": ["Kandha", "Keonjhar boatmen", "Paika", "Santal"],
+    "answer": 1,
+    "explanation": "He was a young boatman from Dhenkanal."
+  },
+  {
+    "question": "Who was the first Odia to become Chief Justice of Odisha High Court?",
+    "options": ["Bira Kishore Ray", "Bishwanath Das", "H. K. Mahtab", "Nilamani Routray"],
+    "answer": 0,
+    "explanation": "Bira Kishore Ray was the first Odia Chief Justice."
+  },
+  {
+    "question": "Paika Rebellion was mainly against which policy of the British?",
+    "options": ["Abolition of rent‑free land", "Salt tax", "Railway tax", "English education"],
+    "answer": 0,
+    "explanation": "Removal of rent‑free lands from Paikas triggered the revolt."
+  },
+  {
+    "question": "What is the other name for the Odisha famine of 1866?",
+    "options": ["Na Anka Durvikhya", "Bada Kali", "No‑Anka famine", "All of the above"],
+    "answer": 3,
+    "explanation": "It is remembered by all these names."
+  },
+  {
+    "question": "Who among the following was NOT part of Panchasakha of Satyabadi School?",
+    "options": ["Gopabandhu Das", "Nilakantha Das", "Acharya Harihar", "Harekrushna Mahtab"],
+    "answer": 3,
+    "explanation": "Harekrushna Mahtab was not part of the original Panchasakha."
+  },
+  {
+    "question": "In which year was the Civil Disobedience Movement launched?",
+    "options": ["1928", "1930", "1931", "1932"],
+    "answer": 1,
+    "explanation": "It began in 1930 with the Salt March."
+  },
+  {
+    "question": "Where did the Inchudi Salt Satyagraha take place?",
+    "options": ["Puri", "Balasore", "Ganjam", "Cuttack"],
+    "answer": 1,
+    "explanation": "It took place in Inchudi village of Balasore."
+  },
+  {
+    "question": "What does 'Prajamandal' refer to?",
+    "options": ["People’s Assembly in princely states", "British court", "Relief committee", "Village council"],
+    "answer": 0,
+    "explanation": "It was a political organisation fighting for rights in princely states."
+  },
+  {
+    "question": "When did Odisha become a linguistic state?",
+    "options": ["1936", "1950", "1956", "1961"],
+    "answer": 0,
+    "explanation": "It was formed on language basis in 1936."
+  },
+  {
+    "question": "Who resigned as CM in 1956 over policy disputes?",
+    "options": ["Biju Patnaik", "Nabakrushna Choudhury", "H. K. Mahtab", "Sadashiva Tripathy"],
+    "answer": 1,
+    "explanation": "Nabakrushna Choudhury resigned in 1956."
+  },
+  {
+    "question": "What is the title of Fakir Mohan Senapati as a writer?",
+    "options": ["Father of Odia Prose", "Kabibara", "Kabi Samrat", "Utkal Gourav"],
+    "answer": 0,
+    "explanation": "He is called the Father of Modern Odia Prose."
+  },
+  {
+    "question": "Who was known as 'Bapa of Odisha Police'?",
+    "options": ["Biju Patnaik", "Nilamani Routray", "Radhanath Rath", "Gopabandhu Choudhury"],
+    "answer": 2,
+    "explanation": "Radhanath Rath was called Bapa of Odisha Police."
+  },
+  {
+    "question": "Which year did Mayurbhanj merge with Odisha?",
+    "options": ["1948", "1949", "1950", "1951"],
+    "answer": 1,
+    "explanation": "Mayurbhanj merged with Odisha in January 1949."
+  },
+  {
+    "question": "When was the Odisha Legislative Council abolished?",
+    "options": ["1967", "1968", "1969", "1970"],
+    "answer": 2,
+    "explanation": "It was abolished in 1969."
+  },
+  {
+    "question": "Who was the first Odia to become Governor of Odisha?",
+    "options": ["Bishwanath Das", "Harekrushna Mahtab", "Nilamani Routray", "Biju Patnaik"],
+    "answer": 0,
+    "explanation": "Bishwanath Das was the first Odia to hold the Governor's post."
+  },
+  {
+    "question": "In which year did Sambalpur merge with Odisha province?",
+    "options": ["1903", "1905", "1910", "1920"],
+    "answer": 1,
+    "explanation": "Sambalpur district was merged into Odisha in 1905."
+  },
+  {
+    "question": "Who was known as the ‘Hero of Inchudi’ Salt Satyagraha?",
+    "options": ["Biju Patnaik", "Gopabandhu Das", "Nabakrushna Choudhury", "Harekrushna Mahtab"],
+    "answer": 2,
+    "explanation": "Nabakrushna Choudhury led the Inchudi Salt Satyagraha."
+  },
+  {
+    "question": "The Paika Rebellion was against the rule of which power?",
+    "options": ["Marathas", "British East India Company", "Mughals", "Afghans"],
+    "answer": 1,
+    "explanation": "It was against the British East India Company rule."
+  },
+  {
+    "question": "When was the Odisha Official Language Act passed?",
+    "options": ["1952", "1954", "1956", "1960"],
+    "answer": 1,
+    "explanation": "The Act was passed in 1954 making Odia the official language."
+  },
+  {
+    "question": "Who is called Utkal Keshari?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Harekrushna Mahtab", "Biju Patnaik"],
+    "answer": 2,
+    "explanation": "Harekrushna Mahtab was given the title Utkal Keshari."
+  },
+  {
+    "question": "Which Odia woman took part in the Bhoodan Movement?",
+    "options": ["Sarala Devi", "Malati Choudhury", "Ramadevi Choudhury", "All of the above"],
+    "answer": 3,
+    "explanation": "All three—Sarala Devi, Malati Choudhury, and Ramadevi—were active in the movement."
+  },
+  {
+    "question": "When was the first legislative assembly of Odisha formed?",
+    "options": ["1936", "1937", "1947", "1950"],
+    "answer": 1,
+    "explanation": "The first Odisha Legislative Assembly was formed in 1937."
+  },
+  {
+    "question": "Which district of Odisha is known for the Kanika peasant revolt?",
+    "options": ["Cuttack", "Puri", "Kendrapara", "Balasore"],
+    "answer": 2,
+    "explanation": "The Kanika revolt happened in present-day Kendrapara district."
+  },
+  {
+    "question": "The Odisha High Court was separated from which High Court?",
+    "options": ["Calcutta", "Patna", "Madras", "Bombay"],
+    "answer": 1,
+    "explanation": "It was originally under Patna High Court before 1948."
+  },
+  {
+    "question": "Who started the Odia dictionary 'Shabda Sagara'?",
+    "options": ["Laxmikanta Mohapatra", "Gopal Chandra Praharaj", "Madhusudan Das", "Fakir Mohan Senapati"],
+    "answer": 1,
+    "explanation": "Gopal Chandra Praharaj compiled the monumental 'Shabda Sagara'."
+  },
+  {
+    "question": "Baji Rout was shot dead in which year?",
+    "options": ["1936", "1938", "1940", "1942"],
+    "answer": 1,
+    "explanation": "Baji Rout was killed by police in 1938 during the Prajamandal protest."
+  },
+  {
+    "question": "Who was the first woman to be a minister in Odisha?",
+    "options": ["Sarala Devi", "Nandini Satpathy", "Ramadevi Choudhury", "Annapurna Maharana"],
+    "answer": 1,
+    "explanation": "Nandini Satpathy was the first woman minister before becoming CM."
+  },
+  {
+    "question": "Where did Mahatma Gandhi address a large gathering in Odisha in 1921?",
+    "options": ["Cuttack", "Puri", "Bhubaneswar", "Berhampur"],
+    "answer": 0,
+    "explanation": "Gandhi addressed people at the Kathajodi river bank in Cuttack."
+  },
+  {
+    "question": "Odisha became part of Bengal Presidency in which year?",
+    "options": ["1803", "1827", "1848", "1856"],
+    "answer": 0,
+    "explanation": "The British annexed Odisha in 1803 and made it part of Bengal Presidency."
+  },
+  {
+    "question": "Who was known as 'The Grand Old Man of Odisha'?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Biju Patnaik", "Nilakantha Das"],
+    "answer": 1,
+    "explanation": "Madhusudan Das was called 'The Grand Old Man of Odisha'."
+  },
+  {
+    "question": "Which leader was called 'Utkal Ratna'?",
+    "options": ["Biju Patnaik", "Krushna Chandra Gajapati", "Nilamani Routray", "Harekrushna Mahtab"],
+    "answer": 1,
+    "explanation": "Maharaja Krushna Chandra Gajapati was given the title Utkal Ratna."
+  },
+  {
+    "question": "When was Biju Patnaik born?",
+    "options": ["1914", "1916", "1918", "1920"],
+    "answer": 1,
+    "explanation": "Biju Patnaik was born in 1916."
+  },
+  {
+    "question": "The Odisha State Museum is in which city?",
+    "options": ["Cuttack", "Puri", "Bhubaneswar", "Sambalpur"],
+    "answer": 2,
+    "explanation": "It is located in Bhubaneswar."
+  },
+  {
+    "question": "Which port in Odisha was developed with Japanese collaboration?",
+    "options": ["Paradeep", "Gopalpur", "Dhamra", "Chandbali"],
+    "answer": 0,
+    "explanation": "Paradeep Port received Japanese assistance for expansion."
+  },
+  {
+    "question": "In which year was Ravenshaw College founded?",
+    "options": ["1868", "1876", "1881", "1886"],
+    "answer": 1,
+    "explanation": "Ravenshaw College was founded in 1876."
+  },
+  {
+    "question": "Who wrote 'Rebati', a story about women's education?",
+    "options": ["Radhanath Ray", "Fakir Mohan Senapati", "Gangadhar Meher", "Madhusudan Rao"],
+    "answer": 1,
+    "explanation": "Fakir Mohan Senapati wrote 'Rebati'."
+  },
+  {
+    "question": "Where did the 1930 Salt Satyagraha start in Odisha?",
+    "options": ["Inchudi", "Puri", "Ganjam", "Sunabeda"],
+    "answer": 0,
+    "explanation": "Inchudi in Balasore district."
+  },
+  {
+    "question": "Which leader was called the 'Lion of Odisha'?",
+    "options": ["Veer Surendra Sai", "Biju Patnaik", "Krushna Chandra Gajapati", "H. K. Mahtab"],
+    "answer": 0,
+    "explanation": "Veer Surendra Sai earned this title for his bravery."
+  },
+  {
+    "question": "When did Hirakud Dam construction start?",
+    "options": ["1946", "1947", "1948", "1949"],
+    "answer": 1,
+    "explanation": "Construction began in 1947."
+  },
+  {
+    "question": "Which odia leader rescued Indonesian PM in 1947?",
+    "options": ["Biju Patnaik", "Nabakrushna Choudhury", "H. K. Mahtab", "Nilamani Routray"],
+    "answer": 0,
+    "explanation": "Biju Patnaik flew a daring mission to rescue Indonesia's leaders."
+  },
+  {
+    "question": "Which Odia leader started 'The Eastern Times'?",
+    "options": ["B. C. Pattnaik", "Biju Patnaik", "Radhanath Rath", "Madhusudan Das"],
+    "answer": 0,
+    "explanation": "B. C. Pattnaik started the newspaper 'The Eastern Times'."
+  },
+  {
+    "question": "In which district is the Veer Surendra Sai Institute of Medical Sciences located?",
+    "options": ["Cuttack", "Bhubaneswar", "Sambalpur", "Burla"],
+    "answer": 3,
+    "explanation": "It is located in Burla, Sambalpur."
+  },
+  {
+    "question": "What was the main crop failure in the 1866 famine?",
+    "options": ["Wheat", "Rice", "Millets", "Pulses"],
+    "answer": 1,
+    "explanation": "The failure of the rice crop caused the famine."
+  },
+  {
+    "question": "Who headed the 1866 Famine Commission?",
+    "options": ["Sir George Campbell", "T. E. Ravenshaw", "W. W. Hunter", "Henry Cotton"],
+    "answer": 0,
+    "explanation": "Sir George Campbell headed the commission."
+  },
+  {
+    "question": "When was Utkal University shifted to Bhubaneswar?",
+    "options": ["1955", "1958", "1962", "1966"],
+    "answer": 2,
+    "explanation": "It was shifted to Bhubaneswar in 1962."
+  },
+  {
+    "question": "Which CM started Mission Shakti?",
+    "options": ["Biju Patnaik", "Naveen Patnaik", "Giridhar Gamang", "Hemananda Biswal"],
+    "answer": 1,
+    "explanation": "Naveen Patnaik launched it in 2001."
+  },
+  {
+    "question": "When did the Odisha Legislative Council get abolished?",
+    "options": ["1967", "1968", "1969", "1970"],
+    "answer": 2,
+    "explanation": "It was abolished in 1969."
+  },
+  {
+    "question": "Which leader is called the 'Pride of Odisha'?",
+    "options": ["Gopabandhu Das", "Madhusudan Das", "Biju Patnaik", "H. K. Mahtab"],
+    "answer": 1,
+    "explanation": "Madhusudan Das is called the 'Pride of Odisha'."
+  },
+  {
+    "question": "The Odisha Freedom Fighters’ Pension Scheme started in which year?",
+    "options": ["1965", "1970", "1975", "1980"],
+    "answer": 1,
+    "explanation": "It was started in 1970."
+  },
+  {
+    "question": "Who established Ravenshaw College?",
+    "options": ["Thomas Edward Ravenshaw", "John Beames", "W. W. Hunter", "Henry Cotton"],
+    "answer": 0,
+    "explanation": "T. E. Ravenshaw set it up to promote higher education."
+  },
+  {
+    "question": "When did Kalpana Dash climb Mount Everest?",
+    "options": ["2006", "2007", "2008", "2009"],
+    "answer": 2,
+    "explanation": "She became the first Odia to summit in 2008."
+  },
+  {
+    "question": "Paradeep Port became a major port in which year?",
+    "options": ["1965", "1966", "1968", "1970"],
+    "answer": 1,
+    "explanation": "It became the 8th major port of India in 1966."
+  },
+  {
+    "question": "Which leader founded the Odisha Congress Socialist Party?",
+    "options": ["Nabakrushna Choudhury", "Biju Patnaik", "H. K. Mahtab", "Rabi Ray"],
+    "answer": 0,
+    "explanation": "He founded it to promote socialism within the Congress."
+  },
+  {
+    "question": "When was the Odisha Staff Selection Commission set up?",
+    "options": ["1994", "1995", "1996", "1997"],
+    "answer": 2,
+    "explanation": "The OSSC was set up in 1996."
+  }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>
