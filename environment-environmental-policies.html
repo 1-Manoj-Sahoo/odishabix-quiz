@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment policies Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">ENVIRONMENTAL POLICIES</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+ {
+        "question": "Which act serves as the umbrella legislation for environmental protection in India?",
+        "options": [
+            "Wildlife Protection Act, 1972",
+            "Environment Protection Act, 1986",
+            "Air (Prevention and Control of Pollution) Act, 1981",
+            "Water (Prevention and Control of Pollution) Act, 1974"
+        ],
+        "answer": 1,
+        "explanation": "The Environment Protection Act, 1986 is the comprehensive law for environmental protection in India."
+    },
+    {
+        "question": "The National Green Tribunal (NGT) was established in which year?",
+        "options": ["2010", "2012", "2006", "2002"],
+        "answer": 0,
+        "explanation": "NGT was formed in 2010 as a specialized body for environmental justice."
+    },
+    {
+        "question": "Which Indian ministry implements most environment-related acts and policies?",
+        "options": [
+            "Ministry of Earth Sciences",
+            "Ministry of Jal Shakti",
+            "Ministry of Environment, Forest and Climate Change",
+            "Ministry of Rural Development"
+        ],
+        "answer": 2,
+        "explanation": "MoEFCC is the nodal ministry for environment and forests."
+    },
+    {
+        "question": "The Wildlife Protection Act in India was introduced in which year?",
+        "options": ["1972", "1986", "1974", "1991"],
+        "answer": 0,
+        "explanation": "The Wildlife Protection Act was enacted in 1972."
+    },
+    {
+        "question": "Which Indian state was first to launch a Green Corridor Initiative for wildlife?",
+        "options": [
+            "Odisha",
+            "Maharashtra",
+            "Gujarat",
+            "Madhya Pradesh"
+        ],
+        "answer": 0,
+        "explanation": "Odisha has actively promoted green corridors for elephant migration."
+    },
+    {
+        "question": "The Forest (Conservation) Act was passed in which year?",
+        "options": ["1980", "1972", "2000", "1986"],
+        "answer": 0,
+        "explanation": "The Forest Conservation Act came into effect in 1980."
+    },
+    {
+        "question": "India's first comprehensive policy focused on renewable energy is called?",
+        "options": [
+            "National Action Plan on Climate Change",
+            "National Renewable Energy Policy",
+            "Jawaharlal Nehru National Solar Mission",
+            "National Green Policy"
+        ],
+        "answer": 2,
+        "explanation": "The Jawaharlal Nehru National Solar Mission promotes solar energy."
+    },
+    {
+        "question": "Under which mission does India promote afforestation and ecosystem restoration?",
+        "options": [
+            "National Solar Mission",
+            "National Mission for a Green India",
+            "National Water Mission",
+            "National Mission on Sustainable Habitat"
+        ],
+        "answer": 1,
+        "explanation": "Green India Mission is focused on afforestation and restoration."
+    },
+    {
+        "question": "The National Clean Air Programme (NCAP), launched in 2019, aims to:",
+        "options": [
+            "Improve water quality",
+            "Monitor air quality and reduce air pollution",
+            "Increase forest cover",
+            "Protect wildlife"
+        ],
+        "answer": 1,
+        "explanation": "NCAP targets reduction in air pollution, especially in non-attainment cities."
+    },
+    {
+        "question": "Which policy aims at 100% functional tap connections in rural India by 2024?",
+        "options": [
+            "Swachh Bharat Mission",
+            "Jal Jeevan Mission",
+            "Namami Gange",
+            "Nirmal Bharat Abhiyan"
+        ],
+        "answer": 1,
+        "explanation": "Jal Jeevan Mission provides functional household tap connections."
+    },
+    {
+        "question": "The Environment Protection Act, 1986 was enacted after which major incident?",
+        "options": [
+            "Bhopal Gas Tragedy",
+            "Floods in Bihar",
+            "Tsunami in 2004",
+            "Chennai Water Crisis"
+        ],
+        "answer": 0,
+        "explanation": "The 1984 Bhopal disaster led to the comprehensive Environment Protection Act."
+    },
+    {
+        "question": "Which initiative focuses on cleaning and rejuvenating rivers in India?",
+        "options": [
+            "Namami Gange Mission",
+            "Project Tiger",
+            "Operation Sagar Rani",
+            "Blue Revolution"
+        ],
+        "answer": 0,
+        "explanation": "Namami Gange aims at cleaning the Ganga and other rivers."
+    },
+    {
+        "question": "Which Indian Act specifically regulates the pollution of water sources?",
+        "options": [
+            "Air Act 1981",
+            "Water (Prevention and Control of Pollution) Act 1974",
+            "Wildlife Protection Act",
+            "Waste Management Act"
+        ],
+        "answer": 1,
+        "explanation": "The Water Act of 1974 regulates and prevents water pollution."
+    },
+    {
+        "question": "What is the key objective of the National River Conservation Plan (NRCP)?",
+        "options": [
+            "Industrial waste management",
+            "Conservation of Indian river systems",
+            "Expansion of mining",
+            "Promotion of inland ports"
+        ],
+        "answer": 1,
+        "explanation": "NRCP aims to conserve and improve the quality of rivers across India."
+    },
+    {
+        "question": "Which act was enacted to protect and improve the air quality in India?",
+        "options": [
+            "Air (Prevention and Control of Pollution) Act, 1981",
+            "Forest Act, 1980",
+            "Environment Protection Act, 1986",
+            "National Green Tribunal Act"
+        ],
+        "answer": 0,
+        "explanation": "The Air Act of 1981 focuses on prevention of air pollution."
+    },
+    {
+        "question": "The 'Mo Jungle Jami Yojana' is an afforestation initiative of which state?",
+        "options": ["Odisha", "Bihar", "Madhya Pradesh", "Gujarat"],
+        "answer": 0,
+        "explanation": "‘Mo Jungle Jami Yojana’ is a community-driven forest scheme by Odisha."
+    },
+    {
+        "question": "India's National Action Plan on Climate Change includes how many core missions?",
+        "options": ["6", "8", "10", "12"],
+        "answer": 1,
+        "explanation": "There are 8 core missions under the NAPCC."
+    },
+    {
+        "question": "Which policy aims to combat marine plastic litter from reaching the sea?",
+        "options": [
+            "Swachh Sagar, Surakshit Sagar Campaign",
+            "Blue Revolution",
+            "Green India Mission",
+            "Project Dolphin"
+        ],
+        "answer": 0,
+        "explanation": "Swachh Sagar Surakshit Sagar is focused on marine plastic clean-up."
+    },
+    {
+        "question": "Which legislation in India requires a 10 km eco-sensitive zone around protected areas?",
+        "options": [
+            "Air (Prevention and Control of Pollution) Act, 1981",
+            "Forest Conservation Act, 1980",
+            "Environment Protection Act, 1986",
+            "Biodiversity Act, 2002"
+        ],
+        "answer": 2,
+        "explanation": "Eco-sensitive zones are notified under the Environment Protection Act."
+    },
+    {
+        "question": "Which of these focuses on clean energy mobility in India?",
+        "options": [
+            "FAME India Scheme",
+            "Swachh Bharat Mission",
+            "Sagarmala Project",
+            "Project Lion"
+        ],
+        "answer": 0,
+        "explanation": "FAME (Faster Adoption and Manufacturing of Hybrid & Electric Vehicles) promotes e-mobility."
+    },
+    {
+        "question": "Which Odisha government policy addresses air pollution?",
+        "options": [
+            "Odisha Clean Air Action Plan",
+            "Green Odisha Abhiyan",
+            "Mission Plants",
+            "Urban Biodiversity Programme"
+        ],
+        "answer": 0,
+        "explanation": "Odisha launched a Clean Air Action Plan for urban centers."
+    },
+    {
+        "question": "Jal Shakti Abhiyan targets improvement in which sector?",
+        "options": [
+            "Air quality",
+            "Water conservation",
+            "Soil health",
+            "Forest plantations"
+        ],
+        "answer": 1,
+        "explanation": "Jal Shakti Abhiyan focuses on water conservation and rainwater harvesting."
+    },
+    {
+        "question": "Which Indian scheme promotes efficient irrigation practices in agriculture?",
+        "options": [
+            "Pradhan Mantri Krishi Sinchai Yojana",
+            "Atal Mission for Rejuvenation and Urban Transformation",
+            "Unnat Bharat Abhiyan",
+            "Mission Kakatiya"
+        ],
+        "answer": 0,
+        "explanation": "PM Krishi Sinchai Yojana aims for ‘Har Khet Ko Pani’ – water for every field."
+    },
+    {
+        "question": "Under which act are Coastal Regulation Zones (CRZ) protected?",
+        "options": [
+            "Indian Forest Act, 1927",
+            "Water (Prevention and Control of Pollution) Act",
+            "Environment Protection Act, 1986",
+            "Biodiversity Act, 2002"
+        ],
+        "answer": 2,
+        "explanation": "CRZ notifications are under the Environment Protection Act."
+    },
+    {
+        "question": "The National Afforestation Programme (NAP) is implemented by which agency?",
+        "options": [
+            "Indian Council of Forestry Research and Education",
+            "National Afforestation & Eco-development Board",
+            "Central Pollution Control Board",
+            "Forest Survey of India"
+        ],
+        "answer": 1,
+        "explanation": "The National Afforestation and Eco-development Board (NAEB) oversees NAP."
+    },
+    {
+        "question": "Which Indian Government policy targets electronic waste management?",
+        "options": [
+            "E-Waste (Management and Handling) Rules, 2011",
+            "Green Energy Mission",
+            "Clean Environment Initiative",
+            "Zero Waste Policy"
+        ],
+        "answer": 0,
+        "explanation": "E-Waste Management Rules regulate collection and recycling of e-waste."
+    },
+    {
+        "question": "Which act regulates hazardous waste in India?",
+        "options": [
+            "Environment Protection Act, 1986",
+            "Hazardous and Other Wastes (Management & Transboundary Movement) Rules, 2016",
+            "Motor Vehicle Act, 1988",
+            "Forest Act, 1980"
+        ],
+        "answer": 1,
+        "explanation": "The 2016 Hazardous Wastes Rules regulate hazardous waste generation and disposal."
+    },
+    {
+        "question": "Which flagship program aims to improve climate resilience and disaster management in Odisha?",
+        "options": [
+            "Odisha Disaster Recovery Project",
+            "Odisha Green Highway",
+            "Cyclone Mitigation Scheme",
+            "Odisha Clean Energy Program"
+        ],
+        "answer": 0,
+        "explanation": "The Disaster Recovery Project has enhanced Odisha’s resilience to floods and cyclones."
+    },
+    {
+        "question": "Which central government scheme increases urban tree coverage and develops green spaces?",
+        "options": [
+            "AMRUT (Atal Mission for Rejuvenation and Urban Transformation)",
+            "Mission Indradhanush",
+            "Mission Kakatiya",
+            "Pradhan Mantri Awas Yojana"
+        ],
+        "answer": 0,
+        "explanation": "AMRUT funds parks, open green spaces, and tree plantation in cities."
+    },
+    {
+        "question": "What is the main aim of the Odisha Wetlands Mission?",
+        "options": [
+            "Increase mining",
+            "Conservation and restoration of wetlands",
+            "Promote industrialization",
+            "Urban road development"
+        ],
+        "answer": 1,
+        "explanation": "Odisha Wetlands Mission protects, restores, and manages critical wetland habitats."
+    },
+    {
+        "question": "Which act mandates Environment Impact Assessment (EIA) before project clearances?",
+        "options": [
+            "Environment Protection Act, 1986",
+            "Water Act, 1974",
+            "Air Act, 1981",
+            "Odisha Forest Rights Act"
+        ],
+        "answer": 0,
+        "explanation": "EPA, 1986 includes the EIA Notification for major development projects."
+    },
+    {
+        "question": "The Sagarmala Project is associated with which sector?",
+        "options": [
+            "Coastal area development and port-led growth",
+            "Forest plantation",
+            "Clean air initiative",
+            "Rural sanitation"
+        ],
+        "answer": 0,
+        "explanation": "Sagarmala focuses on integrated port and coastal area development."
+    },
+    {
+        "question": "Which Indian policy explicitly targets eradicating single-use plastics?",
+        "options": [
+            "Plastic Waste Management Amendment Rules, 2021",
+            "Zero Waste Policy",
+            "E-Waste Rules",
+            "Forest Act"
+        ],
+        "answer": 0,
+        "explanation": "The 2021 Rules ban certain single-use plastics nationwide."
+    },
+    {
+        "question": "Which program in Odisha promotes community-managed forest protection?",
+        "options": [
+            "Joint Forest Management Programme",
+            "Swachh Bharat Mission",
+            "Pradhan Mantri Fasal Bima Yojana",
+            "Project Tiger"
+        ],
+        "answer": 0,
+        "explanation": "Joint Forest Management involves local people in forest protection."
+    },
+    {
+        "question": "Which initiative aims to promote sustainable rice production and reduce methane emissions in Odisha?",
+        "options": [
+            "System of Rice Intensification (SRI)",
+            "Paddy Procurement Scheme",
+            "Green Odisha Abhiyan",
+            "Project Rice"
+        ],
+        "answer": 0,
+        "explanation": "SRI increases yield, saves water, and reduces GHG emissions."
+    },
+    {
+        "question": "Which central program focuses on conservation of mangroves and coral reefs?",
+        "options": [
+            "Integrated Coastal Zone Management (ICZM)",
+            "Project Blue Revolution",
+            "Odisha Wetland Mission",
+            "CRZ Project"
+        ],
+        "answer": 0,
+        "explanation": "ICZM includes conservation and restoration of fragile coastal ecosystems."
+    },
+    {
+        "question": "What is the main goal of Odisha’s ‘Ban on Single-use Plastics’ policy?",
+        "options": [
+            "Increase plastic manufacturing",
+            "Reduce environmental pollution",
+            "Promote plastic exports",
+            "Strengthen mining sector"
+        ],
+        "answer": 1,
+        "explanation": "Odisha banned single-use plastic to reduce pollution and protect environment."
+    },
+	{
+        "question": "Which Indian act deals primarily with the conservation of biological diversity?",
+        "options": [
+            "Biodiversity Act, 2002",
+            "Environment Protection Act, 1986",
+            "Wildlife Protection Act, 1972",
+            "Water Act, 1974"
+        ],
+        "answer": 0,
+        "explanation": "The Biodiversity Act, 2002 provides for conservation and sustainable use of biodiversity."
+    },
+    {
+        "question": "Which scheme aims to protect coastal areas from sea erosion and promote sustainable livelihoods in Odisha?",
+        "options": [
+            "Integrated Coastal Zone Management Project",
+            "Pradhan Mantri Awas Yojana",
+            "Smart City Mission",
+            "AMRUT"
+        ],
+        "answer": 0,
+        "explanation": "The ICZM Project addresses both environmental and livelihood needs in coastal Odisha."
+    },
+    {
+        "question": "Atal Bhujal Yojana is focused on which sector?",
+        "options": [
+            "Forest resources",
+            "Groundwater management",
+            "Solid waste management",
+            "Wildlife protection"
+        ],
+        "answer": 1,
+        "explanation": "Atal Bhujal Yojana is a groundwater management scheme."
+    },
+    {
+        "question": "Which Odisha scheme rewards panchayats for best solid waste management practices?",
+        "options": [
+            "Nirmal Gram Puraskar",
+            "Mo Swachh Gaon",
+            "Mission Shakti",
+            "Mo Jungle Jami"
+        ],
+        "answer": 1,
+        "explanation": "Mo Swachh Gaon incentivizes rural panchayats for good solid waste management."
+    },
+    {
+        "question": "The National Biofuel Policy was announced by India in which year?",
+        "options": ["2018", "2015", "1999", "2021"],
+        "answer": 0,
+        "explanation": "The updated National Biofuel Policy was released in 2018."
+    },
+    {
+        "question": "Which Indian policy supports 'Ecomark' labelling for eco-friendly products?",
+        "options": [
+            "Environment (Protection) Act",
+            "Eco Mark Scheme",
+            "Green Rating Project",
+            "Zero Waste Policy"
+        ],
+        "answer": 1,
+        "explanation": "Eco Mark Scheme recognizes products with minimal environmental impact."
+    },
+    {
+        "question": "Which Ministry is responsible for implementing Swachh Bharat Mission?",
+        "options": [
+            "Ministry of Urban Development",
+            "Ministry of Jal Shakti",
+            "Ministry of Environment, Forest and Climate Change",
+            "Ministry of Housing and Urban Affairs"
+        ],
+        "answer": 3,
+        "explanation": "Swachh Bharat Mission is implemented by Ministry of Housing and Urban Affairs."
+    },
+    {
+        "question": "The Odisha Renewable Energy Policy encourages the use of which energy source?",
+        "options": [
+            "Thermal energy",
+            "Solar and wind energy",
+            "Diesel generators",
+            "Nuclear power"
+        ],
+        "answer": 1,
+        "explanation": "Odisha promotes renewable energy like solar and wind."
+    },
+    {
+        "question": "Which central government program aims to make India free from open defecation?",
+        "options": [
+            "Namami Gange",
+            "Swachh Bharat Mission",
+            "Clean Energy Mission",
+            "Make in India"
+        ],
+        "answer": 1,
+        "explanation": "Swachh Bharat Mission aimed for ODF status across the country."
+    },
+    {
+        "question": "The ‘Mo Parivesh’ mobile app launched in Odisha is for?",
+        "options": [
+            "Online environmental clearance and monitoring",
+            "Plant disease identification",
+            "Weather forecasting",
+            "Fisheries support"
+        ],
+        "answer": 0,
+        "explanation": "Mo Parivesh app streamlines environmental clearances in Odisha."
+    },
+    {
+        "question": "Which scheme targets the revival of traditional water bodies in India?",
+        "options": [
+            "Atal Bhujal Yojana",
+            "Jal Shakti Abhiyan",
+            "National River Conservation Plan",
+            "Mission Kakatiya"
+        ],
+        "answer": 3,
+        "explanation": "Mission Kakatiya is focused on restoring traditional tanks and water bodies."
+    },
+    {
+        "question": "The Air Quality Index (AQI) in India is officially monitored by which agency?",
+        "options": [
+            "Ministry of Health",
+            "Central Pollution Control Board",
+            "ISRO",
+            "Indian Meteorological Department"
+        ],
+        "answer": 1,
+        "explanation": "The CPCB maintains and publishes India’s Air Quality Index."
+    },
+    {
+        "question": "Which program in Odisha enhances green cover via massive plantation drives?",
+        "options": [
+            "Green Odisha Mission",
+            "Mo Jungle Jami Yojana",
+            "Odisha Plantation Drive",
+            "Plant Odisha Abhiyan"
+        ],
+        "answer": 1,
+        "explanation": "Mo Jungle Jami Yojana focuses on forest and tree cover enhancement."
+    },
+    {
+        "question": "The Energy Conservation Building Code (ECBC) is part of which Indian policy area?",
+        "options": [
+            "Urban transport",
+            "Green construction",
+            "Forest management",
+            "Waste management"
+        ],
+        "answer": 1,
+        "explanation": "ECBC specifies energy efficiency standards for large buildings."
+    },
+    {
+        "question": "What is the primary aim of the National Hydrology Project?",
+        "options": [
+            "Enhance flood forecasting",
+            "Soil conservation",
+            "Air pollution monitoring",
+            "Wildlife census"
+        ],
+        "answer": 0,
+        "explanation": "The project upgrades India's hydrological observation and forecasting systems."
+    },
+    {
+        "question": "The Pradhan Mantri Ujjwala Yojana targets reduction in which form of indoor pollution?",
+        "options": [
+            "Cement dust",
+            "Household plastic waste",
+            "Cooking smoke from solid fuels",
+            "Lead acid batteries"
+        ],
+        "answer": 2,
+        "explanation": "The scheme provides LPG connections to avoid indoor air pollution from solid fuels."
+    },
+    {
+        "question": "Which legal instrument mandates Environment Impact Assessment (EIA) for major projects in India?",
+        "options": [
+            "Environment Protection Act, 1986",
+            "Forest Conservation Act",
+            "Air Act",
+            "Biodiversity Act"
+        ],
+        "answer": 0,
+        "explanation": "EIA Notifications under EPA 1986 make EIA mandatory."
+    },
+    {
+        "question": "Which Odisha river is the focus of multiple state water conservation and pollution control programs?",
+        "options": [
+            "Brahmani",
+            "Budhabalanga",
+            "Mahanadi",
+            "Subarnarekha"
+        ],
+        "answer": 2,
+        "explanation": "Mahanadi is critical for Odisha's irrigation, drinking, and industry."
+    },
+    {
+        "question": "Which program aims at achieving land degradation neutrality in India?",
+        "options": [
+            "Green India Mission",
+            "National Afforestation Programme",
+            "Soil Health Card Scheme",
+            "Bharatmala Pariyojana"
+        ],
+        "answer": 0,
+        "explanation": "The Green India Mission supports sustainable land management and afforestation."
+    },
+    {
+        "question": "The Wildlife Crime Control Bureau (WCCB) works under which Ministry?",
+        "options": [
+            "Ministry of Home Affairs",
+            "Ministry of Railways",
+            "Ministry of Environment, Forest and Climate Change",
+            "Ministry of Rural Development"
+        ],
+        "answer": 2,
+        "explanation": "WCCB combats wildlife crime under MoEFCC."
+    },
+    {
+        "question": "Which Odisha scheme focuses on integrated management of coastal eco-sensitive zones?",
+        "options": [
+            "Swachh Coast Mission",
+            "Odisha Coastal Zone Management Plan",
+            "Mission Blue Coast",
+            "Sagar Suraksha Yojana"
+        ],
+        "answer": 1,
+        "explanation": "The Odisha CZMP plans protection and sustainable management of coastal areas."
+    },
+    {
+        "question": "Which Indian initiative promotes solar pumps in agriculture?",
+        "options": [
+            "PM-KUSUM",
+            "Jal Jeevan Mission",
+            "Soil Health Card Scheme",
+            "Ujjwala Yojana"
+        ],
+        "answer": 0,
+        "explanation": "PM-KUSUM supports solarization of pumps for irrigation."
+    },
+    {
+        "question": "Which is India's first city to adopt the Climate-Smart City Assessment Framework?",
+        "options": [
+            "Bhubaneswar",
+            "Indore",
+            "Surat",
+            "Kochi"
+        ],
+        "answer": 2,
+        "explanation": "Surat pioneered the Climate-Smart City Assessment."
+    },
+    {
+        "question": "The Forest Rights Act, 2006, provides which of the following to forest dwellers?",
+        "options": [
+            "RTI about forests",
+            "Legal rights over forest land and resources",
+            "Employment opportunities",
+            "Urban housing"
+        ],
+        "answer": 1,
+        "explanation": "It recognizes legal rights of Scheduled Tribes and other traditional forest dwellers."
+    },
+    {
+        "question": "Which program aims to control and reduce air pollution from brick kilns in Odisha?",
+        "options": [
+            "Brick Kiln Reform Scheme",
+            "Cleaner Bricks Project",
+            "Odisha Brick Sector Emission Reduction Initiative",
+            "Pradhan Mantri Clean Air Campaign"
+        ],
+        "answer": 2,
+        "explanation": "Odisha’s targeted initiative reduces emissions from brick manufacturing."
+    },
+    {
+        "question": "Which scheme provides incentives for industries to set up zero liquid discharge (ZLD) systems in India?",
+        "options": [
+            "National Clean Energy Fund",
+            "ZLD Promotion Scheme",
+            "Integrated Pollution Control Scheme",
+            "Zero Waste Policy"
+        ],
+        "answer": 1,
+        "explanation": "ZLD Promotion Scheme encourages industries to treat and reuse all wastewater."
+    },
+    {
+        "question": "Which government plan links water, forest, and animal resources in Odisha?",
+        "options": [
+            "Integrated Watershed Management Programme",
+            "Mo Swachh Gaon",
+            "Mahanadi Link Project",
+            "Sustainable Odisha Vision"
+        ],
+        "answer": 0,
+        "explanation": "IWMP uses an ecosystem approach for interlinked resource management."
+    },
+    {
+        "question": "Who is the nodal agency for the Clean Ganga Mission?",
+        "options": [
+            "National Mission for Clean Ganga",
+            "Central Pollution Control Board",
+            "Ministry of Jal Shakti",
+            "Swachh Ganga Abhiyan"
+        ],
+        "answer": 0,
+        "explanation": "NMCG is the nodal body under MoJS for Ganga Mission implementation."
+    },
+    {
+        "question": "Which scheme in Odisha targets natural disaster preparedness and resilient infrastructure?",
+        "options": [
+            "Odisha Disaster Recovery Project",
+            "Green Odisha Mission",
+            "Mission Shakti",
+            "Odisha Clean Energy Fund"
+        ],
+        "answer": 0,
+        "explanation": "The Disaster Recovery Project strengthens disaster resilience."
+    },
+    {
+        "question": "Which initiative aims at transforming urban waste into energy?",
+        "options": [
+            "Waste-to-Energy Policy",
+            "Mo Swachh Gaon",
+            "Clean India Fund",
+            "Energy for All Programme"
+        ],
+        "answer": 0,
+        "explanation": "The Waste-to-Energy Policy converts waste into usable energy."
+    },
+    {
+        "question": "Which forest type is the focus for protection under the Similipal Biosphere Reserve in Odisha?",
+        "options": [
+            "Tropical moist deciduous forest",
+            "Mangrove",
+            "Dry thorny scrub",
+            "Pine forest"
+        ],
+        "answer": 0,
+        "explanation": "Similipal is known for its moist deciduous and semi-evergreen forests."
+    },
+    {
+        "question": "Which Indian scheme promotes decentralized solid waste management in small towns?",
+        "options": [
+            "Swachh Bharat Mission (Urban)",
+            "Smart City Mission",
+            "AMRUT",
+            "Pradhan Mantri Awas Yojana"
+        ],
+        "answer": 0,
+        "explanation": "SBM(U) encourages decentralized solid waste solutions."
+    },
+    {
+        "question": "Who is primarily responsible for the Odisha State Action Plan on Climate Change (SAPCC)?",
+        "options": [
+            "Odisha State Pollution Control Board",
+            "Odisha Forest Department",
+            "Odisha Climate Change Cell, Department of Forest & Environment",
+            "Odisha Energy Development Agency"
+        ],
+        "answer": 2,
+        "explanation": "The Climate Change Cell coordinates SAPCC implementation."
+    },
+	{
+        "question": "Which policy launched by India focuses specifically on water conservation?",
+        "options": [
+            "Jal Shakti Abhiyan",
+            "National Solar Mission",
+            "Clean Ganga Mission",
+            "National Water Mission"
+        ],
+        "answer": 3,
+        "explanation": "National Water Mission under NAPCC focuses on conservation and sustainable use of water."
+    },
+    {
+        "question": "Which Odisha government initiative targets solid waste management specifically in urban areas?",
+        "options": [
+            "Mo Swachhata Abhiyan",
+            "Mo Jungle Jami",
+            "Mo Sarkar",
+            "Krushak Assistance"
+        ],
+        "answer": 0,
+        "explanation": "Mo Swachhata Abhiyan focuses on urban cleanliness and solid waste management."
+    },
+    {
+        "question": "Under which act is the 'Polluter Pays Principle' implemented in India?",
+        "options": [
+            "Environment Protection Act, 1986",
+            "Water Act, 1974",
+            "Wildlife Protection Act, 1972",
+            "Air Act, 1981"
+        ],
+        "answer": 0,
+        "explanation": "The principle is incorporated under the Environment Protection Act."
+    },
+    {
+        "question": "Which act governs the control and prevention of water pollution in India?",
+        "options": [
+            "Environment Protection Act, 1986",
+            "Water (Prevention and Control of Pollution) Act, 1974",
+            "Forest Conservation Act, 1980",
+            "Air (Prevention and Control of Pollution) Act, 1981"
+        ],
+        "answer": 1,
+        "explanation": "The Water Act, 1974, deals with water pollution."
+    },
+    {
+        "question": "What is the focus of the ‘Odisha State Action Plan on Climate Change’ (SAPCC)?",
+        "options": [
+            "Climate adaptation and mitigation specific to Odisha",
+            "National urban development",
+            "River cleaning in Odisha",
+            "Indigenous people's welfare"
+        ],
+        "answer": 0,
+        "explanation": "SAPCC outlines state-specific climate change responses for Odisha."
+    },
+    {
+        "question": "Which Odisha program is aimed at afforestation and eco-development with public participation?",
+        "options": [
+            "Mo Jungle Jami Yojana",
+            "Jal Jeevan Mission",
+            "Mission Shakti",
+            "Odisha Green Mission"
+        ],
+        "answer": 0,
+        "explanation": "Mo Jungle Jami emphasizes community-based forest protection and afforestation."
+    },
+    {
+        "question": "Which central government initiative promotes electric mobility to reduce pollution?",
+        "options": [
+            "Faster Adoption and Manufacturing of Hybrid & Electric Vehicles (FAME)",
+            "Smart Cities Mission",
+            "National Electric Mobility Mission",
+            "Clean Energy Fund"
+        ],
+        "answer": 0,
+        "explanation": "FAME scheme promotes electric and hybrid vehicles."
+    },
+    {
+        "question": "The Biomass-Based Power Generation policy promotes the use of:",
+        "options": [
+            "Solar energy",
+            "Wind energy",
+            "Organic fuel energy from waste and agriculture residue",
+            "Nuclear power"
+        ],
+        "answer": 2,
+        "explanation": "Biomass policy encourages power generation from agricultural and organic waste."
+    },
+    {
+        "question": "Which Odisha government environmental policy targets the conservation of mangroves?",
+        "options": [
+            "Odisha Mangrove Mission",
+            "Green Odisha Initiative",
+            "Blue Odisha Project",
+            "Odisha Coastal Conservation Plan"
+        ],
+        "answer": 0,
+        "explanation": "The Odisha Mangrove Mission conserves and restores mangrove ecosystems."
+    },
+    {
+        "question": "Which environment-related act requires industries to obtain 'Consent to Operate' from pollution control boards?",
+        "options": [
+            "Water Act, 1974",
+            "Air Act, 1981",
+            "Environment Protection Act, 1986",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "Consent to Operate is mandated under Water, Air, and Environment Protection Acts."
+    },
+    {
+        "question": "The ‘National Bio-Energy Mission’ promotes:",
+        "options": [
+            "Solar energy",
+            "Energy from biomass and biofuels",
+            "Nuclear energy",
+            "Wind energy"
+        ],
+        "answer": 1,
+        "explanation": "This mission focuses on producing energy from biomass and related biofuels."
+    },
+    {
+        "question": "Which Odisha mission focuses on climate-resilient agriculture?",
+        "options": [
+            "Krushak Assistance Yojana",
+            "Climate Resilient Agriculture Mission",
+            "Mo Kheda",
+            "Haritha Hara"
+        ],
+        "answer": 1,
+        "explanation": "The Climate Resilient Agriculture Mission aims to improve agricultural sustainability."
+    },
+    {
+        "question": "Which scheme is Odisha’s flagship initiative for rural sanitation aligned with Swachh Bharat Mission?",
+        "options": [
+            "Mo Swachh Gaon",
+            "Mo Sarkar",
+            "Ama Gaon",
+            "Odisha Clean Village"
+        ],
+        "answer": 0,
+        "explanation": "Mo Swachh Gaon mirrors the objectives of Swachh Bharat Mission in rural Odisha."
+    },
+    {
+        "question": "Under which policy is the National Electric Mobility Mission launched?",
+        "options": [
+            "National Action Plan on Climate Change",
+            "Smart Cities Mission",
+            "National Energy Policy",
+            "Renewable Energy Policy"
+        ],
+        "answer": 0,
+        "explanation": "It is one of the eight missions under the National Action Plan on Climate Change."
+    },
+    {
+        "question": "Which act regulates management of hazardous and other wastes in India?",
+        "options": [
+            "Hazardous and Other Wastes (Management and Transboundary Movement) Rules, 2016",
+            "Water Act, 1974",
+            "Forest Conservation Act",
+            "Environment Protection Act"
+        ],
+        "answer": 0,
+        "explanation": "These rules regulate hazardous waste to protect environment and public health."
+    },
+    {
+        "question": "Which Odisha government policy focuses on reducing vehicular pollution?",
+        "options": [
+            "Odisha Clean Air Action Plan",
+            "Mo Parivesh",
+            "Mo Safe Drive",
+            "Green Odisha Yojana"
+        ],
+        "answer": 0,
+        "explanation": "Clean Air Action Plan targets sources including vehicles."
+    },
+    {
+        "question": "Which year was the National Electric Mobility Mission launched?",
+        "options": ["2011", "2015", "2017", "2019"],
+        "answer": 0,
+        "explanation": "The mission was launched in 2011 to promote hybrid and electric vehicles."
+    },
+    {
+        "question": "Which Indian policy is aimed at recharging groundwater?",
+        "options": [
+            "Atal Bhujal Yojana",
+            "National River Conservation Plan",
+            "Swachh Bharat Mission",
+            "National Solar Mission"
+        ],
+        "answer": 0,
+        "explanation": "Atal Bhujal Yojana focuses on groundwater management and recharge."
+    },
+    {
+        "question": "Which Odisha government policy promotes renewable energy adoption?",
+        "options": [
+            "Odisha Renewable Energy Policy, 2016",
+            "Mo Udaya",
+            "Odisha Clean City Mission",
+            "Paryavaran Sanrakshan"
+        ],
+        "answer": 0,
+        "explanation": "Policy encourages solar, wind, and other renewables in Odisha."
+    },
+    {
+        "question": "Which act mandates regular environmental impact assessments for industrial projects?",
+        "options": [
+            "Water Act, 1974",
+            "Environment Protection Act, 1986",
+            "Wildlife Protection Act",
+            "Air Act, 1981"
+        ],
+        "answer": 1,
+        "explanation": "Environmental clearance and assessments come under Environment Protection Act."
+    },
+    {
+        "question": "The Odisha ‘Mo Parivesh’ web portal is used for:",
+        "options": [
+            "Environment clearances and monitoring",
+            "Water quality testing",
+            "Agriculture subsidies",
+            "Tourism promotion"
+        ],
+        "answer": 0,
+        "explanation": "It digitizes environment clearance processes for Odisha."
+    },
+    {
+        "question": "Which Indian initiative is a global effort to promote solar energy?",
+        "options": [
+            "International Solar Alliance",
+            "National Solar Mission",
+            "National Wind Mission",
+            "National Bio-Energy Mission"
+        ],
+        "answer": 0,
+        "explanation": "India spearheaded the International Solar Alliance."
+    },
+    {
+        "question": "Which Indian environment legislation protects mangroves and coastal ecosystems?",
+        "options": [
+            "Coastal Regulation Zone Notification under EPA",
+            "Forest Conservation Act",
+            "Water Act",
+            "Air Act"
+        ],
+        "answer": 0,
+        "explanation": "CRZ Notification under Environment Protection Act safeguards coastal zones."
+    },
+	{
+        "question": "The Swachh Bharat Mission focuses primarily on:",
+        "options": [
+            "Clean drinking water",
+            "Sanitation and waste management",
+            "Forest conservation",
+            "Renewable energy"
+        ],
+        "answer": 1,
+        "explanation": "Swachh Bharat Mission aims to improve sanitation and eliminate open defecation."
+    },
+    {
+        "question": "Which Odisha government scheme promotes renewable energy generation through solar pumps for agriculture?",
+        "options": [
+            "Mo Sarkar",
+            "PM-KUSUM Odisha",
+            "Mission Shakti",
+            "Haritha Hara"
+        ],
+        "answer": 1,
+        "explanation": "PM-KUSUM supports solar pump installations for irrigation."
+    },
+    {
+        "question": "Which Indian act governs the conservation of forests and regulation of forest land diversion?",
+        "options": [
+            "Wildlife Protection Act, 1972",
+            "Forest Conservation Act, 1980",
+            "Environment Protection Act, 1986",
+            "Water Prevention and Control of Pollution Act, 1974"
+        ],
+        "answer": 1,
+        "explanation": "The Forest Conservation Act regulates diversion of forest lands for non-forest use."
+    },
+    {
+        "question": "Which Odisha initiative focuses on conservation of marine biodiversity and fishery resources?",
+        "options": [
+            "Odisha Blue Revolution Mission",
+            "Mo Jungle Jami",
+            "Mo Swachh Gaon",
+            "Mo Sarkar"
+        ],
+        "answer": 0,
+        "explanation": "The Blue Revolution Mission aims at sustainable fishery resource management."
+    },
+    {
+        "question": "Which Indian policy aims to promote energy efficiency in industries and buildings?",
+        "options": [
+            "Perform Achieve Trade (PAT) Scheme",
+            "National Electric Mobility Mission",
+            "National Solar Mission",
+            "Jawaharlal Nehru National Urban Renewal Mission"
+        ],
+        "answer": 0,
+        "explanation": "PAT Scheme promotes energy efficiency and market-based mechanisms."
+    },
+    {
+        "question": "Which policy aims at development and promotion of electric vehicles in India?",
+        "options": [
+            "Faster Adoption and Manufacturing of Hybrid & Electric Vehicles (FAME)",
+            "Smart Cities Mission",
+            "National Electric Mobility Mission",
+            "Jal Jeevan Mission"
+        ],
+        "answer": 0,
+        "explanation": "FAME Scheme supports electric vehicle adoption."
+    },
+    {
+        "question": "The National Bio-Energy Mission aims to:",
+        "options": [
+            "Promote solar energy only",
+            "Utilize biomass for energy production",
+            "Develop hydroelectricity",
+            "Build nuclear power plants"
+        ],
+        "answer": 1,
+        "explanation": "Focus on generating clean energy from biomass resources."
+    },
+    {
+        "question": "Which Odisha government policy promotes green urban planning and development?",
+        "options": [
+            "Mo Swachhata Abhiyan",
+            "Smart City Mission Odisha",
+            "Haritha Hara",
+            "Mo Parivesh"
+        ],
+        "answer": 1,
+        "explanation": "Smart City Mission includes sustainable urban development."
+    },
+    {
+        "question": "The National River Conservation Plan (NRCP) started in India during which decade?",
+        "options": [
+            "1980s",
+            "1990s",
+            "2000s",
+            "2010s"
+        ],
+        "answer": 1,
+        "explanation": "NRCP started in the 1990s for cleaning major rivers like Ganga."
+    },
+    {
+        "question": "Odisha State Pollution Control Board (OSPCB) functions under which ministry?",
+        "options": [
+            "Ministry of Environment, Forest and Climate Change Odisha",
+            "Ministry of Industries",
+            "Ministry of Water Resources",
+            "Ministry of Urban Development"
+        ],
+        "answer": 0,
+        "explanation": "OSPCB functions under Odisha’s Environment, Forest & Climate Change Department."
+    },
+    {
+        "question": "Which is the legal authority for declaring Eco-Sensitive Zones (ESZ) in Odisha?",
+        "options": [
+            "National Green Tribunal",
+            "MoEFCC and Odisha Government",
+            "Central Pollution Control Board",
+            "Odisha Forest Department only"
+        ],
+        "answer": 1,
+        "explanation": "State and Central governments jointly notify ESZs."
+    },
+    {
+        "question": "Which mission under NAPCC targets sustainable agriculture?",
+        "options": [
+            "National Mission on Sustainable Agriculture",
+            "National Solar Mission",
+            "National Water Mission",
+            "National Electric Mobility Mission"
+        ],
+        "answer": 0,
+        "explanation": "This mission promotes climate-resilient agricultural practices."
+    },
+    {
+        "question": "Which Odisha forest policy focuses on rights and participation of local communities?",
+        "options": [
+            "Forest Rights Act Implementation",
+            "Mo Jungle Jami Program",
+            "Odisha Forest Protection Rules",
+            "People’s Forest Act"
+        ],
+        "answer": 1,
+        "explanation": "Mo Jungle Jami emphasizes community stewardship of forest lands."
+    },
+    {
+        "question": "The National Environment Policy, 2006 aims to integrate:",
+        "options": [
+            "Environment and human development",
+            "Agriculture and transport activities",
+            "Only industrial development",
+            "Urban migration"
+        ],
+        "answer": 0,
+        "explanation": "NEP 2006 promotes integration of environment conservation with economic growth."
+    },
+    {
+        "question": "Which Odisha state government program encourages zero-waste villages?",
+        "options": [
+            "Mo Swachhata Gaon",
+            "Haritha Hara",
+            "Mo Sarkar",
+            "Mana Gaon"
+        ],
+        "answer": 0,
+        "explanation": "It promotes solid waste management in rural areas."
+    },
+    {
+        "question": "Which Indian government program aims at large scale renewable energy expansion, particularly solar and wind?",
+        "options": [
+            "National Solar Mission",
+            "National Bio-Energy Mission",
+            "Unnat Jyoti by Affordable LEDs",
+            "Energy Conservation Building Code"
+        ],
+        "answer": 0,
+        "explanation": "The solar mission is a landmark policy under NAPCC."
+    },
+    {
+        "question": "Under which scheme is the Botanic Gardens set for biodiversity conservation in Odisha?",
+        "options": [
+            "State Biodiversity Board Program",
+            "Haritha Hara",
+            "Mo Jungle Jami",
+            "Green Odisha Mission"
+        ],
+        "answer": 0,
+        "explanation": "The state board manages flora conservation efforts."
+    },
+    {
+        "question": "The Plastic Waste Management Rules, 2016 are applicable to which states?",
+        "options": [
+            "Only metropolitan cities",
+            "All states including Odisha",
+            "Only industrial zones",
+            "Only union territories"
+        ],
+        "answer": 1,
+        "explanation": "These rules are implemented across all states in India."
+    },
+    {
+        "question": "Which Odisha government policy targets conservation of water bodies?",
+        "options": [
+            "Mo Jal Jivan Mission",
+            "Mo Swachhata Abhiyan",
+            "Haritha Hara Mission",
+            "Sustainable Odisha Program"
+        ],
+        "answer": 0,
+        "explanation": "Odisha aligns Jal Jeevan mission targets for rural water supply."
+    },
+    {
+        "question": "Which Indian environmental law regulates the handling of municipal solid waste?",
+        "options": [
+            "Municipal Solid Waste (Management and Handling) Rules, 2000",
+            "Environment Protection Act, 1986",
+            "Air Act, 1981",
+            "Water Act, 1974"
+        ],
+        "answer": 0,
+        "explanation": "MSW Rules set standards for waste collection and processing."
+    },
+	 {
+        "question": "Which policy focuses on promoting energy efficiency in India?",
+        "options": [
+            "National Energy Policy",
+            "Perform, Achieve and Trade (PAT) scheme",
+            "National Solar Mission",
+            "National Electric Mobility Mission"
+        ],
+        "answer": 1,
+        "explanation": "The PAT scheme promotes energy efficiency through market-based mechanisms."
+    },
+    {
+        "question": "Which Odisha government initiative aims to plant more trees and increase green cover?",
+        "options": [
+            "Haritha Hara Mission",
+            "Mo Jungle Jami",
+            "Mo Sarkar",
+            "Mo Parivesh"
+        ],
+        "answer": 0,
+        "explanation": "Haritha Hara focuses on plantation drives and afforestation."
+    },
+    {
+        "question": "Odisha State Pollution Control Board (OSPCB) was constituted under which act?",
+        "options": [
+            "Air (Prevention and Control of Pollution) Act, 1981",
+            "Environment Protection Act, 1986",
+            "Water (Prevention and Control of Pollution) Act, 1974",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "OSPCB was established under these acts to regulate pollution control."
+    },
+    {
+        "question": "Which Indian policy focuses on the promotion of biofuels to reduce vehicular emissions?",
+        "options": [
+            "National Biofuel Policy",
+            "National Electric Mobility Mission",
+            "FAME",
+            "Clean Energy Fund"
+        ],
+        "answer": 0,
+        "explanation": "National Biofuel Policy promotes biofuels for cleaner transportation fuels."
+    },
+    {
+        "question": "Which act empowers the Indian government to take necessary actions for environmental protection?",
+        "options": [
+            "Environment Protection Act, 1986",
+            "Wildlife Protection Act",
+            "Forest Conservation Act",
+            "Air Act"
+        ],
+        "answer": 0,
+        "explanation": "Environment Protection Act authorizes government to implement environmental safeguards."
+    },
+    {
+        "question": "Under Odisha's environmental initiatives, what does 'Odisha Parivesh' denote?",
+        "options": [
+            "State-level environmental clearance system",
+            "Afforestation drive",
+            "Urban sanitation program",
+            "Wildlife protection scheme"
+        ],
+        "answer": 0,
+        "explanation": "Odisha Parivesh is an online system for environmental clearance applications."
+    },
+    {
+        "question": "The National Bio-Energy Mission aims for:",
+        "options": [
+            "Increased coal mining",
+            "Energy from biomass and biofuels",
+            "Hydroelectric power generation",
+            "Nuclear power expansion"
+        ],
+        "answer": 1,
+        "explanation": "It promotes energy generation from biomass sources."
+    },
+    {
+        "question": "Which Indian initiative promotes electric vehicles for reducing vehicular pollution?",
+        "options": [
+            "FAME Scheme",
+            "Swachh Bharat Mission",
+            "Namami Gange",
+            "Jal Shakti Abhiyan"
+        ],
+        "answer": 0,
+        "explanation": "FAME aims at the faster adoption of electric and hybrid vehicles."
+    },
+    {
+        "question": "The 'Mo Sarkar' initiative of Odisha aims at:",
+        "options": [
+            "Good governance and citizen services",
+            "Environmental protection",
+            "Renewable energy production",
+            "Wildlife protection"
+        ],
+        "answer": 0,
+        "explanation": "Mo Sarkar is about public service delivery and transparency."
+    },
+    {
+        "question": "Which policy was introduced to control and reduce plastic usage in Odisha?",
+        "options": [
+            "Odisha Plastic Waste Management Rules",
+            "Clean Odisha Mission",
+            "Green Energy Policy",
+            "Water Conservation Rules"
+        ],
+        "answer": 0,
+        "explanation": "Odisha has its own plastic waste management rules aligning with central guidelines."
+    },
+    {
+        "question": "Which initiative targets reducing indoor air pollution in rural India?",
+        "options": [
+            "Pradhan Mantri Ujjwala Yojana",
+            "National Bio-Energy Mission",
+            "Clean Ganga Mission",
+            "Swachh Bharat Mission"
+        ],
+        "answer": 0,
+        "explanation": "Ujjwala Yojana distributes LPG connections to reduce indoor smoke pollution."
+    },
+    {
+        "question": "The key aim of ‘Swachh Sagar, Surakshit Sagar’ campaign is:",
+        "options": [
+            "Coastal and marine pollution control",
+            "Forest conservation",
+            "Air pollution reduction",
+            "Wastewater management"
+        ],
+        "answer": 0,
+        "explanation": "This campaign focuses on protecting oceans and coastal areas."
+    },
+    {
+        "question": "Which major Indian water scheme plans to recharge and manage groundwater sustainably?",
+        "options": [
+            "Atal Bhujal Yojana",
+            "Jal Jeevan Mission",
+            "National River Conservation Plan",
+            "Smart Cities Mission"
+        ],
+        "answer": 0,
+        "explanation": "Atal Bhujal Yojana emphasizes groundwater recharge and sustainable use."
+    },
+    {
+        "question": "National Electric Mobility Mission launched in India aims to:",
+        "options": [
+            "Promote electric vehicles",
+            "Ban coal mining",
+            "Increase nuclear power production",
+            "Clean rivers"
+        ],
+        "answer": 0,
+        "explanation": "The mission supports electric and hybrid vehicle adoption."
+    },
+    {
+        "question": "The Odisha Green Odisha Mission primarily focuses on:",
+        "options": [
+            "Urban waste management",
+            "Forest protection and afforestation",
+            "Water resource development",
+            "Clean energy"
+        ],
+        "answer": 1,
+        "explanation": "This mission supports sustainable forest management and greening Odisha."
+    },
+    {
+        "question": "Which central government scheme is aimed at expanding renewable energy capacity?",
+        "options": [
+            "National Solar Mission",
+            "Faster Adoption of Farms Scheme",
+            "Swachh Bharat Mission",
+            "Clean Ganga Mission"
+        ],
+        "answer": 0,
+        "explanation": "The National Solar Mission targets solar power expansion."
+    },
+    {
+        "question": "Which environmental law requires the implementation of Environmental Impact Assessments (EIA) in India?",
+        "options": [
+            "Environment Protection Act, 1986",
+            "Forest Conservation Act, 1980",
+            "Air Prevention Act, 1981",
+            "Wildlife Protection Act, 1972"
+        ],
+        "answer": 0,
+        "explanation": "The EPA mandates EIA for project approvals."
+    },
+    {
+        "question": "Odisha’s 'Mo Swachhata Abhiyan' contributes primarily to:",
+        "options": [
+            "Sanitation and cleanliness",
+            "Forest management",
+            "Solar energy promotion",
+            "Water conservation"
+        ],
+        "answer": 0,
+        "explanation": "This state-level cleanliness initiative aligns with Swachh Bharat Mission."
+    },
+    {
+        "question": "The Water (Prevention and Control of Pollution) Act was enacted in:",
+        "options": [
+            "1974",
+            "1981",
+            "1986",
+            "1993"
+        ],
+        "answer": 0,
+        "explanation": "This Act was passed in 1974 to prevent and control water pollution."
+    },
+    {
+        "question": "Which Indian policy promotes afforestation and eco-development as a climate strategy?",
+        "options": [
+            "National Afforestation Programme",
+            "National Electric Mobility Mission",
+            "National Bio-Energy Mission",
+            "National Solar Mission"
+        ],
+        "answer": 0,
+        "explanation": "NAP supports increasing forest cover and environmental conservation."
+    },
+	 {
+        "question": "Which central policy targets the elimination of open defecation and waste management in rural India?",
+        "options": [
+            "Swachh Bharat Mission (Gramin)",
+            "Jal Jeevan Mission",
+            "Green India Mission",
+            "Mission Clean India"
+        ],
+        "answer": 0,
+        "explanation": "Swachh Bharat Mission (Gramin) aims to make rural India open defecation free and improve waste management."
+    },
+    {
+        "question": "Which policy focuses on increasing India's share of non-fossil fuel energy?",
+        "options": [
+            "National Energy Policy",
+            "National Solar Mission",
+            "FAME India Scheme",
+            "National Biofuel Policy"
+        ],
+        "answer": 1,
+        "explanation": "The National Solar Mission targets increased use of solar and other non-fossil fuel energy in India."
+    },
+    {
+        "question": "Who is the nodal agency for implementation of the Green Skill Development Programme (GSDP)?",
+        "options": [
+            "MoEFCC",
+            "Ministry of Labour",
+            "Ministry of Skill Development",
+            "Ministry of Education"
+        ],
+        "answer": 0,
+        "explanation": "MoEFCC runs skill development programs for jobs in the green sector."
+    },
+    {
+        "question": "Which Odisha government scheme addresses forest fire prevention and management?",
+        "options": [
+            "Odisha Forest Fire Management Scheme",
+            "Green Odisha Mission",
+            "Mo Jungle Jami",
+            "Climate Adaptation Project"
+        ],
+        "answer": 0,
+        "explanation": "Odisha Forest Fire Management Scheme takes a multi-pronged approach to forest fire prevention."
+    },
+    {
+        "question": "Which Indian national program aims to restore and develop urban wetlands?",
+        "options": [
+            "National Plan for Conservation of Aquatic Ecosystems",
+            "Wetland Conservation and Management Rules",
+            "AMRUT Mission",
+            "Smart Cities Mission"
+        ],
+        "answer": 0,
+        "explanation": "NPCAC supports restoration and sustainable management of lakes and wetlands."
+    },
+    {
+        "question": "What is the aim of the Pradhan Mantri Krishi Sinchayi Yojana (PMKSY)?",
+        "options": [
+            "Animal husbandry growth",
+            "Increasing irrigation coverage and water efficiency",
+            "Boosting fertilizers",
+            "Microcredit for farmers"
+        ],
+        "answer": 1,
+        "explanation": "PMKSY aims for “Har Khet Ko Pani” (water to every field) and water use efficiency in agriculture."
+    },
+    {
+        "question": "Which scheme was launched for the conservation and rejuvenation of small rivers and streams in Odisha?",
+        "options": [
+            "Ama Nadi Yojana",
+            "Jal Jeevan Mission",
+            "Odisha Wetlands Program",
+            "Green Odisha Mission"
+        ],
+        "answer": 0,
+        "explanation": "Ama Nadi Yojana is Odisha’s scheme to rejuvenate small rivers and catchments."
+    },
+    {
+        "question": "Which government scheme will phase out dangerous hydrofluorocarbons (HFCs) in cooling devices?",
+        "options": [
+            "India Cooling Action Plan (ICAP)",
+            "National Solar Mission",
+            "Plastic Waste Management Policy",
+            "Forest Conservation Act"
+        ],
+        "answer": 0,
+        "explanation": "ICAP is the national roadmap for eco-friendly cooling and HFC reduction."
+    },
+    {
+        "question": "Which central law enforces afforestation as mandatory compensation for development projects using forest land?",
+        "options": [
+            "Compensatory Afforestation Fund Act (CAMPA), 2016",
+            "Forest Rights Act, 2006",
+            "Forest Conservation Act, 1980",
+            "Environment Protection Act, 1986"
+        ],
+        "answer": 0,
+        "explanation": "CAMPA Act creates a fund for compulsory tree planting whenever forest is diverted."
+    },
+    {
+        "question": "Which Odisha scheme works to promote the conservation of medicinal plants?",
+        "options": [
+            "State Medicinal Plants Board Program",
+            "Green Odisha Healthcare Mission",
+            "Mo Swachhata Abhiyan",
+            "Mo Sarkar"
+        ],
+        "answer": 0,
+        "explanation": "The State Medicinal Plants Board supports conservation and cultivation of medicinal plants."
+    },
+    {
+        "question": "Which policy addresses climate change adaptation in urban India?",
+        "options": [
+            "National Mission on Sustainable Habitat",
+            "Swachh Bharat Mission",
+            "E-vehicle Policy",
+            "PMKSY"
+        ],
+        "answer": 0,
+        "explanation": "This mission covers climate-adapted urban planning, transport, and infrastructure."
+    },
+    {
+        "question": "Which national program promotes LED light adoption for energy conservation?",
+        "options": [
+            "UJALA Scheme",
+            "FAME",
+            "Green India Mission",
+            "Unnat Bharat Abhiyan"
+        ],
+        "answer": 0,
+        "explanation": "UJALA distributes low-cost LED bulbs to save energy in India."
+    },
+    {
+        "question": "Which Indian initiative supports the development of biodiversity parks in municipal limits?",
+        "options": [
+            "Urban Biodiversity Initiative",
+            "Smart Green Parks Scheme",
+            "Mo Jungle Jami",
+            "Urban Green Cover Project"
+        ],
+        "answer": 0,
+        "explanation": "The Urban Biodiversity Initiative encourages nature parks in cities."
+    },
+    {
+        "question": "Which Odisha coastal town is a focus of coastal zone management and restoration projects?",
+        "options": [
+            "Puri",
+            "Gopalpur",
+            "Paradeep",
+            "Chandipur"
+        ],
+        "answer": 1,
+        "explanation": "Gopalpur benefits from ICZM and coastal climate adaptation efforts."
+    },
+    {
+        "question": "What is the ‘Eco Clubs’ program?",
+        "options": [
+            "Environmental education clubs in Indian schools",
+            "Clubs for industrial pollution management",
+            "Coastal protection committees",
+            "Tribal forest user groups"
+        ],
+        "answer": 0,
+        "explanation": "Eco Clubs spread environment awareness in schools."
+    },
+    {
+        "question": "Which Indian state is a pilot for the National Adaptation Fund on Climate Change (NAFCC)?",
+        "options": [
+            "Odisha",
+            "Rajasthan",
+            "Maharashtra",
+            "Goa"
+        ],
+        "answer": 0,
+        "explanation": "Odisha is a pilot for several NAFCC adaptation demonstration projects."
+    },
+    {
+        "question": "Pradhan Mantri Ujjwala Yojana helps reduce which type of pollution?",
+        "options": [
+            "Marine plastic pollution",
+            "Indoor air pollution from solid fuel",
+            "Urban noise pollution",
+            "Vehicle emissions"
+        ],
+        "answer": 1,
+        "explanation": "Ujjwala Yojana provides clean LPG to women, cutting dangerous cooking smoke."
+    },
+    {
+        "question": "Which policy promotes a four-fold increase in India's forest-based livelihoods?",
+        "options": [
+            "National Policy for Farmers",
+            "Green India Mission",
+            "Afforestation and Eco-development Scheme",
+            "Joint Forest Management"
+        ],
+        "answer": 1,
+        "explanation": "Green India Mission increases forest-based incomes and livelihoods."
+    },
+    {
+        "question": "Who leads Odisha’s climate change planning and SAPCC implementation?",
+        "options": [
+            "Odisha State Climate Change Cell",
+            "Ministry of Environment, Forest and Climate Change",
+            "Odisha Pollution Control Board",
+            "Department of Water Resources"
+        ],
+        "answer": 0,
+        "explanation": "The State Climate Change Cell handles Odisha's SAPCC monitoring and planning."
+    },
+    {
+        "question": "Which central government policy targets a complete ban on the import of plastic waste?",
+        "options": [
+            "Plastic Waste Management Amendment Rules, 2019",
+            "Clean Energy Rules",
+            "Solid Waste Management Policy",
+            "Plastic Ban Campaign"
+        ],
+        "answer": 0,
+        "explanation": "The 2019 amendment fully bans the import of plastic waste into India."
+    },
+    {
+        "question": "Which Odisha scheme provides support for community participation in wetland conservation?",
+        "options": [
+            "Odisha Wetland Mission",
+            "Jal Jeevan Mission",
+            "AMA Nadi Programme",
+            "Mo Jungle Jami"
+        ],
+        "answer": 0,
+        "explanation": "The Wetland Mission involves local communities in protection activities."
+    },
+    {
+        "question": "Who governs the National Mission for a Green India (GIM)?",
+        "options": [
+            "Ministry of Environment, Forest and Climate Change",
+            "Ministry of Renewable Energy",
+            "Central Pollution Control Board",
+            "Ministry of Agriculture"
+        ],
+        "answer": 0,
+        "explanation": "The MoEFCC runs the Green India Mission."
+    },
+    {
+        "question": "Which Indian initiative is a collaborative disaster management and resilience-building platform?",
+        "options": [
+            "Coalition for Disaster Resilient Infrastructure (CDRI)",
+            "National Disaster Response Force",
+            "Smart Cities Mission",
+            "Odisha Disaster Management Cell"
+        ],
+        "answer": 0,
+        "explanation": "CDRI is a global partnership led by India for resilient infrastructure."
+    },
+    {
+        "question": "What is the focus of Odisha’s ‘Ama Jungle Yojana’?",
+        "options": [
+            "Community-led forest protection and restoration",
+            "City waste management",
+            "Solar park development",
+            "Fisheries promotion"
+        ],
+        "answer": 0,
+        "explanation": "‘Ama Jungle Yojana’ is a participatory forest protection scheme."
+    },
+    {
+        "question": "Which national program funds and supports the protection of tigers?",
+        "options": [
+            "Project Tiger",
+            "Project Lion",
+            "Project Elephant",
+            "National Rhino Conservation Plan"
+        ],
+        "answer": 0,
+        "explanation": "Project Tiger is India's oldest large mammal conservation scheme."
+    },
+    {
+        "question": "Which central mission includes the Atal Mission for Rejuvenation and Urban Transformation (AMRUT)?",
+        "options": [
+            "Urban renewal and water supply improvement",
+            "Bioenergy production",
+            "Solid waste management only",
+            "Eco-restoration"
+        ],
+        "answer": 0,
+        "explanation": "AMRUT funds water, green spaces, and urban upgrades."
+    },
+    {
+        "question": "Which Indian regulation is designed to address air pollution in cities through graded response?", 
+        "options": [
+            "Graded Response Action Plan (GRAP)",
+            "Swachh Bharat Mission",
+            "AMRUT",
+            "Mo Swachhata Abhiyan"
+        ],
+        "answer": 0,
+        "explanation": "GRAP is enforced in cities like Delhi during high air pollution episodes."
+    },
+    {
+        "question": "Which Odisha Forest Department initiative distributes saplings free to citizens during monsoon?",
+        "options": [
+            "Free Sapling Scheme",
+            "Haritha Hara",
+            "Mo Jungle Jami",
+            "Van Mahotsav"
+        ],
+        "answer": 2,
+        "explanation": "Mo Jungle Jami often organizes sapling distribution drives."
+    },
+    {
+        "question": "Which central government program maps and regulates conservation of wetlands in India?",
+        "options": [
+            "National Plan for Conservation of Aquatic Ecosystem",
+            "Central Wetland Regulatory Scheme",
+            "NAMAMI GANGE",
+            "AMRUT"
+        ],
+        "answer": 0,
+        "explanation": "The National Plan supports identification and protection of wetlands."
+    },
+    {
+        "question": "Which government scheme focuses on modernization and upgrading of fishing harbours in Odisha?",
+        "options": [
+            "Blue Revolution Scheme",
+            "Haritha Hara",
+            "Mo Jungle Jami",
+            "Odisha Clean Harbour Mission"
+        ],
+        "answer": 0,
+        "explanation": "Blue Revolution includes modernizing fishery infrastructure in coastal Odisha."
+    },
+	{
+        "question": "Under which policy is the ‘National Electric Mobility Mission’ launched?",
+        "options": [
+            "National Energy Policy",
+            "National Action Plan on Climate Change",
+            "National Solar Mission",
+            "National Biodiversity Act"
+        ],
+        "answer": 1,
+        "explanation": "The National Electric Mobility Mission is part of the National Action Plan on Climate Change."
+    },
+    {
+        "question": "Which Odisha government policy scheme aims to improve energy efficiency in the industrial sector?",
+        "options": [
+            "Odisha Energy Conservation Policy",
+            "Energy Efficiency Mission Odisha",
+            "Green Odisha Mission",
+            "Mo Sarkar"
+        ],
+        "answer": 1,
+        "explanation": "Energy Efficiency Mission Odisha promotes reduction of energy consumption in industries."
+    },
+    {
+        "question": "The National Electric Mobility Mission was launched by India in which year?",
+        "options": [
+            "2012",
+            "2010",
+            "2015",
+            "2018"
+        ],
+        "answer": 0,
+        "explanation": "This mission was launched in 2012 to promote hybrid and electric vehicles."
+    },
+    {
+        "question": "Which Indian law ensures constitution of the State Pollution Control Boards including Odisha's SPCB?",
+        "options": [
+            "Water (Prevention and Control of Pollution) Act, 1974",
+            "Environment Protection Act, 1986",
+            "Forest Conservation Act, 1980",
+            "Wildlife Protection Act, 1972"
+        ],
+        "answer": 0,
+        "explanation": "The Water Act mandates the constitution of State Pollution Control Boards."
+    },
+    {
+        "question": "Which mission of Indian government promotes compact fluorescent lamps and LED bulbs for energy saving?",
+        "options": [
+            "UJALA Scheme",
+            "National Energy Policy",
+            "Energy Conservation Act",
+            "Solar Mission"
+        ],
+        "answer": 0,
+        "explanation": "UJALA promotes CFL and LED bulbs to reduce electricity usage."
+    },
+    {
+        "question": "The Odisha State Action Plan on Climate Change (SAPCC) was approved in which year?",
+        "options": [
+            "2013",
+            "2015",
+            "2017",
+            "2019"
+        ],
+        "answer": 2,
+        "explanation": "Odisha SAPCC received approval in 2017."
+    },
+    {
+        "question": "Which program in Odisha promotes afforestation and forest landscape restoration involving local communities?",
+        "options": [
+            "Mo Jungle Jami Yojana",
+            "Haritha Hara",
+            "Mo Swachhata Abhiyan",
+            "Green Odisha Mission"
+        ],
+        "answer": 0,
+        "explanation": "Mo Jungle Jami involves community participation for forest protection."
+    },
+    {
+        "question": "Which Indian act regulates the use and trade of hazardous substances and requires their proper disposal?",
+        "options": [
+            "Hazardous Waste (Management, Handling and Transboundary Movement) Rules, 2016",
+            "Environment Protection Act, 1986",
+            "Water Act, 1974",
+            "Air Act, 1981"
+        ],
+        "answer": 0,
+        "explanation": "These rules govern hazardous and other wastes."
+    },
+    {
+        "question": "Which Odisha state government scheme focuses on climate-resilient agricultural practices?",
+        "options": [
+            "Climate Resilient Odisha Mission",
+            "Krushak Assistance Scheme",
+            "Haritha Hara",
+            "Pradhan Mantri Fasal Bima Yojana"
+        ],
+        "answer": 0,
+        "explanation": "This mission aligns with climate adaptation in agriculture."
+    },
+    {
+        "question": "Which of these is a key objective of the National Bio-Energy Mission?",
+        "options": [
+            "Promoting biofuels and bioenergy",
+            "Reducing coal mining",
+            "Increasing hydroelectricity",
+            "Expanding nuclear energy"
+        ],
+        "answer": 0,
+        "explanation": "The mission promotes energy from biomass and biofuels."
+    },
+    {
+        "question": "Under which scheme does Odisha support production and use of solar power among rural households?",
+        "options": [
+            "Odisha Solar Energy Mission",
+            "Mo Parivesh",
+            "Mo Sarkar",
+            "Haritha Hara"
+        ],
+        "answer": 0,
+        "explanation": "This state scheme promotes solar electrification in rural Odisha."
+    },
+    {
+        "question": "National Biofuel Policy aims to achieve what percentage of ethanol blending in petrol by 2025?",
+        "options": [
+            "10%",
+            "15%",
+            "20%",
+            "25%"
+        ],
+        "answer": 1,
+        "explanation": "The policy targets 20% ethanol blending but had initial target of 15% by 2025."
+    },
+    {
+        "question": "Which Indian program incentivizes industries to improve energy efficiency using trade of energy saving certificates?",
+        "options": [
+            "Perform Achieve and Trade (PAT) Scheme",
+            "UJALA",
+            "Green Energy Corridor",
+            "National Electric Mobility Mission"
+        ],
+        "answer": 0,
+        "explanation": "PAT Scheme uses market-based instruments to encourage efficiency."
+    },
+    {
+        "question": "Which law governs urban solid waste management in India?",
+        "options": [
+            "Municipal Solid Waste (Management and Handling) Rules, 2000",
+            "Environment Protection Act, 1986",
+            "Forest Conservation Act, 1980",
+            "Air Act, 1981"
+        ],
+        "answer": 0,
+        "explanation": "These rules regulate municipal solid waste management nationwide."
+    },
+    {
+        "question": "Which Odisha government scheme works toward conservation and afforestation in urban areas?",
+        "options": [
+            "Haritha Hara Urban Mission",
+            "Urban Clean Energy Program",
+            "City Green Areas Plan",
+            "Odisha Smart City Mission"
+        ],
+        "answer": 0,
+        "explanation": "Haritha Hara includes urban as well as rural afforestation initiatives."
+    },
+    {
+        "question": "Atal Bhujal Yojana (ABHY) was launched to:",
+        "options": [
+            "Promote forest conservation",
+            "Improve groundwater management",
+            "Reduce air pollution",
+            "Conserve wildlife"
+        ],
+        "answer": 1,
+        "explanation": "ABHY addresses groundwater recharge and sustainable use."
+    },
+    {
+        "question": "Which Odisha initiative aligns with the National Electric Mobility Mission to promote electric vehicles?",
+        "options": [
+            "Odisha EV Policy",
+            "Mo Swachhata Abhiyan",
+            "Odisha Green Solar Mission",
+            "Haritha Hara"
+        ],
+        "answer": 0,
+        "explanation": "Odisha EV Policy supports electric vehicle adoption in state."
+    },
+    {
+        "question": "Which Indian policy highlighted the ‘Perform, Achieve and Trade’ scheme?",
+        "options": [
+            "National Clean Energy Policy",
+            "National Action Plan on Climate Change",
+            "National Solar Mission",
+            "Energy Conservation Act"
+        ],
+        "answer": 1,
+        "explanation": "PAT is one of the eight missions under the NAPCC."
+    },
+    {
+        "question": "Which Odisha urban mission includes focus on sustainable environment and waste management?",
+        "options": [
+            "AMRUT Odisha",
+            "Smart City Project",
+            "Odisha Swachh Sagar",
+            "Mo Sarkar Urban"
+        ],
+        "answer": 0,
+        "explanation": "AMRUT promotes sustainable urban infrastructure including environment."
+    },
+    {
+        "question": "Which policy includes the promotion of electric and hybrid vehicle manufacturing in India?",
+        "options": [
+            "FAME",
+            "National Biofuel Policy",
+            "National Solar Mission",
+            "Bio-energy Mission"
+        ],
+        "answer": 0,
+        "explanation": "FAME supports manufacturing and adoption of electric vehicles."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

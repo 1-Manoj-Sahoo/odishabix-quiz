@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MS Access Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">MS Access</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+ {
+        "question": "In MS Access, which object is used to store data?",
+        "options": ["Table", "Query", "Form", "Report"],
+        "answer": 0,
+        "explanation": "Tables are used to store data in rows and columns in MS Access."
+    },
+    {
+        "question": "What does the primary key ensure in a table?",
+        "options": ["No duplicate values", "Sorted data", "No empty fields", "No calculations"],
+        "answer": 0,
+        "explanation": "Primary key ensures that each record in the table has a unique identifier."
+    },
+    {
+        "question": "Which view in Access is used to enter data into a table?",
+        "options": ["Datasheet View", "Design View", "SQL View", "Layout View"],
+        "answer": 0,
+        "explanation": "Datasheet View is used to enter, view, and edit data in a table."
+    },
+    {
+        "question": "In MS Access, a query is used to?",
+        "options": ["Store data", "Retrieve and analyze data", "Design forms", "Print reports"],
+        "answer": 1,
+        "explanation": "Queries retrieve specific data by applying criteria and conditions."
+    },
+    {
+        "question": "Which field property ensures that a field always has a value?",
+        "options": ["Validation Rule", "Input Mask", "Required", "Indexed"],
+        "answer": 2,
+        "explanation": "'Required' property prevents a field from being left blank."
+    },
+    {
+        "question": "Which data type stores Yes/No values in Access?",
+        "options": ["Boolean", "Text", "Number", "Currency"],
+        "answer": 0,
+        "explanation": "Boolean data type stores logical values Yes/No, True/False."
+    },
+    {
+        "question": "Which key combination saves a record in MS Access?",
+        "options": ["Ctrl+S", "Shift+S", "Alt+S", "F12"],
+        "answer": 0,
+        "explanation": "Ctrl+S saves the current record or changes made."
+    },
+    {
+        "question": "In MS Access, reports are primarily used for?",
+        "options": ["Data input", "Data analysis", "Printing formatted output", "Database design"],
+        "answer": 2,
+        "explanation": "Reports present data in a formatted manner for printing and sharing."
+    },
+    {
+        "question": "Which view allows you to change the structure of a table?",
+        "options": ["Design View", "Datasheet View", "Layout View", "PivotTable View"],
+        "answer": 0,
+        "explanation": "Design View allows you to define and modify the structure of a table."
+    },
+    {
+        "question": "In MS Access, which object can be used to enter data conveniently?",
+        "options": ["Form", "Table", "Query", "Report"],
+        "answer": 0,
+        "explanation": "Forms are used as an interface for entering and editing data more easily."
+    },
+    {
+        "question": "Which type of relationship is set when a record in one table relates to many in another?",
+        "options": ["One-to-One", "One-to-Many", "Many-to-One", "Many-to-Many"],
+        "answer": 1,
+        "explanation": "One-to-Many relates one record in the first table to multiple in another."
+    },
+    {
+        "question": "Which symbol is used for wildcard searches in Access queries?",
+        "options": ["%", "*", "#", "@"],
+        "answer": 1,
+        "explanation": "The asterisk (*) is used as a wildcard to represent multiple characters."
+    },
+    {
+        "question": "What is the purpose of the Lookup Wizard in MS Access?",
+        "options": ["Create queries", "Create lookup fields", "Design reports", "Back up database"],
+        "answer": 1,
+        "explanation": "Lookup Wizard helps create a field that pulls values from another table or list."
+    },
+    {
+        "question": "Which Access tool allows you to create tables, queries, forms, and reports quickly?",
+        "options": ["Database Wizard", "Table Wizard", "Report Wizard", "Form Wizard"],
+        "answer": 0,
+        "explanation": "Database Wizard can help build all main database objects quickly."
+    },
+    {
+        "question": "What does 'Compact and Repair Database' do in MS Access?",
+        "options": ["Deletes unused tables", "Reduces file size and fixes errors", "Removes duplicates", "Changes database format"],
+        "answer": 1,
+        "explanation": "It optimizes the database size and repairs minor corruption issues."
+    },
+    {
+        "question": "Which Access view shows raw SQL statements?",
+        "options": ["SQL View", "Design View", "Datasheet View", "Layout View"],
+        "answer": 0,
+        "explanation": "SQL View is used to see and write the underlying SQL code for queries."
+    },
+    {
+        "question": "Which Access object retrieves specific data based on criteria?",
+        "options": ["Table", "Report", "Query", "Macro"],
+        "answer": 2,
+        "explanation": "Queries select and present data meeting specified conditions."
+    },
+    {
+        "question": "In MS Access, calculated fields are created in?",
+        "options": ["Tables", "Queries", "Forms", "Reports"],
+        "answer": 1,
+        "explanation": "Calculated fields are created in queries to derive new data."
+    },
+    {
+        "question": "What does the 'Validation Rule' property do?",
+        "options": ["Restricts user input based on a condition", "Prevents blank fields", "Formats text", "Sorts data"],
+        "answer": 0,
+        "explanation": "Validation Rule defines a condition that data entered must satisfy."
+    },
+    {
+        "question": "Which macro action opens a form in MS Access?",
+        "options": ["OpenForm", "ShowForm", "DisplayForm", "FormView"],
+        "answer": 0,
+        "explanation": "The OpenForm macro action displays the specified form."
+    },
+    {
+        "question": "What is the default file extension for Access databases in newer versions?",
+        "options": [".mdb", ".accdb", ".dbf", ".sqlite"],
+        "answer": 1,
+        "explanation": "From Access 2007 onwards, the default database file extension is .accdb."
+    },
+    {
+        "question": "Which Access feature lets you automate tasks?",
+        "options": ["Macro", "Module", "Query", "Form"],
+        "answer": 0,
+        "explanation": "Macros in Access are used to automate repetitive tasks."
+    },
+    {
+        "question": "Which query type allows you to update data in tables?",
+        "options": ["Select Query", "Update Query", "Crosstab Query", "Append Query"],
+        "answer": 1,
+        "explanation": "Update Query modifies existing records in a table."
+    },
+    {
+        "question": "Which relationship type requires a junction table?",
+        "options": ["Many-to-Many", "One-to-One", "One-to-Many", "Self-Join"],
+        "answer": 0,
+        "explanation": "Many-to-Many relationships are implemented using a junction table."
+    },
+    {
+        "question": "Which data type is suitable for storing currency values?",
+        "options": ["Number", "Currency", "Text", "Float"],
+        "answer": 1,
+        "explanation": "Currency data type is used to store monetary values precisely."
+    },
+    {
+        "question": "Which property sets the default value for a field?",
+        "options": ["Default Value", "Value Rule", "AutoValue", "Initial Entry"],
+        "answer": 0,
+        "explanation": "Default Value property sets an automatic value for new records."
+    },
+    {
+        "question": "Which query summarises data by counting and averaging?",
+        "options": ["Select Query", "Aggregate Query", "Make Table Query", "Update Query"],
+        "answer": 1,
+        "explanation": "Aggregate Queries use functions like COUNT, AVG, SUM to summarise data."
+    },
+    {
+        "question": "Which property makes a field automatically number records?",
+        "options": ["AutoNumber", "Counter", "Serial", "Identity"],
+        "answer": 0,
+        "explanation": "AutoNumber automatically generates unique sequential numbers."
+    },
+    {
+        "question": "Which button is used to run a query in Design View?",
+        "options": ["Run (!)", "Go", "Execute", "Start"],
+        "answer": 0,
+        "explanation": "The Run button (with !) executes the query and displays results."
+    },
+    {
+        "question": "Which form view allows you to change its design?",
+        "options": ["Design View", "Form View", "Layout View", "Datasheet View"],
+        "answer": 0,
+        "explanation": "Design View lets you modify the structure and controls of a form."
+    },
+    {
+        "question": "Which property can make a field only accept unique values?",
+        "options": ["Indexed (Yes, No Duplicates)", "Unique Only", "Distinct", "Exclusive"],
+        "answer": 0,
+        "explanation": "Indexed (Yes, No Duplicates) ensures no duplicate values in that field."
+    },
+    {
+        "question": "Which query type adds new records to a table?",
+        "options": ["Append Query", "Update Query", "Delete Query", "Crosstab Query"],
+        "answer": 0,
+        "explanation": "Append Query inserts new records into an existing table."
+    },
+    {
+        "question": "What does the Relationships window show?",
+        "options": ["Form connections", "Table relationships", "Report sources", "Macro actions"],
+        "answer": 1,
+        "explanation": "The Relationships window displays links between database tables."
+    },
+    {
+        "question": "Which form control displays a list allowing multiple selections?",
+        "options": ["List Box", "Combo Box", "Check Box", "Option Group"],
+        "answer": 0,
+        "explanation": "List Boxes can be configured to allow multiple item selection."
+    },
+    {
+        "question": "Which data type stores large amounts of text in Access?",
+        "options": ["Short Text", "Long Text", "Memo", "Both 2 and 3"],
+        "answer": 3,
+        "explanation": "'Long Text' in newer versions, previously called 'Memo', stores large text blocks."
+    },
+    {
+        "question": "Which query creates a new table from query results?",
+        "options": ["Make Table Query", "Append Query", "Select Query", "Update Query"],
+        "answer": 0,
+        "explanation": "Make Table Query outputs results into a new table."
+    },
+    {
+        "question": "In a form, which control is used for selecting one of several options?",
+        "options": ["Option Button", "Text Box", "Combo Box", "List Box"],
+        "answer": 0,
+        "explanation": "Option Buttons in an Option Group allow choosing one option."
+    },
+    {
+        "question": "Which key shortcut closes an open table or form?",
+        "options": ["Ctrl+W", "Ctrl+F4", "Ctrl+X", "Alt+Q"],
+        "answer": 1,
+        "explanation": "Ctrl+F4 closes the active database object window."
+    },
+    {
+        "question": "Which action permanently removes records matching a condition?",
+        "options": ["Delete Query", "Remove Query", "Purge Query", "Erase Query"],
+        "answer": 0,
+        "explanation": "A Delete Query removes all records that meet the condition."
+    },
+    {
+        "question": "Which field type can be set to store web links?",
+        "options": ["Hyperlink", "Text", "Attachment", "OLE Object"],
+        "answer": 0,
+        "explanation": "Hyperlink fields store URLs or email links."
+    },
+    {
+        "question": "What does Referential Integrity do in relationships?",
+        "options": ["Keeps related data consistent", "Locks tables", "Sorts tables", "Hides data"],
+        "answer": 0,
+        "explanation": "Referential Integrity ensures changes in related tables remain valid and consistent."
+    },
+    {
+        "question": "Which Access object displays data in a printer-friendly format?",
+        "options": ["Report", "Form", "Query", "Table"],
+        "answer": 0,
+        "explanation": "Reports are designed for formatted printed output."
+    },
+    {
+        "question": "In query criteria, what does BETWEEN do?",
+        "options": ["Selects values in a range", "Excludes a range", "Matches partial text", "Checks duplicates"],
+        "answer": 0,
+        "explanation": "BETWEEN selects records where a field's value falls within a range."
+    },
+    {
+        "question": "Which Access object is used to automate tasks with VBA code?",
+        "options": ["Module", "Macro", "Report", "Table"],
+        "answer": 0,
+        "explanation": "Modules store procedures and functions written in VBA."
+    },
+    {
+        "question": "Which wizard helps create a form quickly?",
+        "options": ["Form Wizard", "Report Wizard", "Table Wizard", "Query Wizard"],
+        "answer": 0,
+        "explanation": "The Form Wizard guides step-by-step creation of a form."
+    },
+    {
+        "question": "Which join displays all records from both tables with matching and non-matching rows?",
+        "options": ["Inner Join", "Outer Join", "Full Outer Join", "Cross Join"],
+        "answer": 2,
+        "explanation": "Full Outer Join returns all records from both tables, matching where possible."
+    },
+    {
+        "question": "Which function counts the number of records in a field?",
+        "options": ["COUNT()", "SUM()", "AVG()", "TOTAL()"],
+        "answer": 0,
+        "explanation": "COUNT() returns the number of non-null records."
+    },
+    {
+        "question": "Which view lets you modify a report’s section arrangement?",
+        "options": ["Design View", "Layout View", "Print Preview", "Report View"],
+        "answer": 0,
+        "explanation": "Design View allows changing the placement of report sections."
+    },
+	{
+        "question": "Which Access query type is used to delete specific records from a table?",
+        "options": ["Delete Query", "Remove Query", "Update Query", "Purge Query"],
+        "answer": 0,
+        "explanation": "A Delete Query permanently removes records that match specified criteria."
+    },
+    {
+        "question": "Which Access feature allows you to restrict data entry in a field to a specific format?",
+        "options": ["Input Mask", "Validation Rule", "Default Value", "Format Property"],
+        "answer": 0,
+        "explanation": "Input Mask forces data entry in a predefined pattern."
+    },
+    {
+        "question": "Which data type should be used to store photographs in Access?",
+        "options": ["Attachment", "OLE Object", "Binary", "Image"],
+        "answer": 0,
+        "explanation": "Attachment type is used to store files like images, spreadsheets inside Access."
+    },
+    {
+        "question": "What does the 'Enforce Referential Integrity' option do?",
+        "options": ["Prevents deletion of related records", "Sorts tables", "Indexes keys", "Encrypts database"],
+        "answer": 0,
+        "explanation": "It ensures foreign key values match primary key values in related tables."
+    },
+    {
+        "question": "Which function in Access returns the current date?",
+        "options": ["Now()", "Today()", "Date()", "CurDate()"],
+        "answer": 2,
+        "explanation": "Date() returns the current system date without time."
+    },
+    {
+        "question": "When creating a relationship in Access, the related fields must have?",
+        "options": ["Same name", "Same data type and related purpose", "Same size", "Same format only"],
+        "answer": 1,
+        "explanation": "The data type must match to ensure relationship integrity."
+    },
+    {
+        "question": "In Access, what does the Indexed property 'Yes (No Duplicates)' ensure?",
+        "options": ["Allows duplicates", "Prevents duplicate values", "Ignores duplicates", "Sorts automatically"],
+        "answer": 1,
+        "explanation": "It ensures a field contains only unique values."
+    },
+    {
+        "question": "What type of query displays data grouped and summarized by an aggregate function?",
+        "options": ["Crosstab Query", "Select Query", "Update Query", "Delete Query"],
+        "answer": 0,
+        "explanation": "Crosstab Query summarizes data in a matrix layout using aggregate functions."
+    },
+    {
+        "question": "Which view allows entry of the first records into a newly created table?",
+        "options": ["Datasheet View", "Design View", "SQL View", "Pivot View"],
+        "answer": 0,
+        "explanation": "Datasheet View allows immediate data entry in table rows and columns."
+    },
+    {
+        "question": "Which Access object is used to automate tasks using VBA?",
+        "options": ["Module", "Macro", "Form", "Table"],
+        "answer": 0,
+        "explanation": "Modules contain VBA code and allow custom programming."
+    },
+    {
+        "question": "What is the purpose of the Input Mask Wizard?",
+        "options": ["Set allowed values", "Set default value", "Force entering data in specific format", "Format numbers only"],
+        "answer": 2,
+        "explanation": "It creates a template for data entry formatting."
+    },
+    {
+        "question": "Which type of report section appears only once at the end of the report?",
+        "options": ["Report Header", "Report Footer", "Page Footer", "Group Footer"],
+        "answer": 1,
+        "explanation": "Report Footer appears once at the end and can show totals or summaries."
+    },
+    {
+        "question": "In Access, which type of query creates duplicates of matching records in another table?",
+        "options": ["Append Query", "Make Table Query", "Update Query", "Cross Join Query"],
+        "answer": 0,
+        "explanation": "Append Query adds records from one table/query into another table."
+    },
+    {
+        "question": "Which JET database file format extension was used in Access 2003?",
+        "options": [".mdb", ".accdb", ".db", ".sqlite"],
+        "answer": 0,
+        "explanation": ".mdb was the standard file extension before Access 2007."
+    },
+    {
+        "question": "Which field property in Access restricts the range of permissible values?",
+        "options": ["Validation Rule", "Input Mask", "Default Value", "Allow Zero Length"],
+        "answer": 0,
+        "explanation": "Validation Rule enforces conditions on entered data."
+    },
+    {
+        "question": "In MS Access, the Primary key field cannot contain?",
+        "options": ["Zero", "Duplicate Values", "Numbers", "Text"],
+        "answer": 1,
+        "explanation": "Primary keys must always be unique, with no duplicates."
+    },
+    {
+        "question": "Which part of an Access database is used to view current data without storing it separately?",
+        "options": ["Query", "Report", "Form", "Macro"],
+        "answer": 0,
+        "explanation": "Queries display results dynamically without storing them separately."
+    },
+    {
+        "question": "Which Access view helps in changing a form's controls and layout together?",
+        "options": ["Layout View", "Form View", "Design View", "Datasheet View"],
+        "answer": 0,
+        "explanation": "Layout View allows simultaneous structure and data modifications."
+    },
+    {
+        "question": "What does the 'Caption' field property do?",
+        "options": ["Specifies alternate display name for the field", "Masks data", "Sets max field length", "Sets required status"],
+        "answer": 0,
+        "explanation": "Caption displays a more friendly name for a field instead of the actual field name."
+    },
+    {
+        "question": "Which query modifies the values of fields using specified criteria?",
+        "options": ["Update Query", "Delete Query", "Make Table Query", "Append Query"],
+        "answer": 0,
+        "explanation": "Update Query changes data of existing records."
+    },
+    {
+        "question": "Which property specifies whether a field must always contain a value?",
+        "options": ["Required", "Default Value", "Validation Rule", "Allow Zero Length"],
+        "answer": 0,
+        "explanation": "Required property ensures the field cannot be left blank."
+    },
+    {
+        "question": "What is the default 'Join' when creating a query involving two tables?",
+        "options": ["Inner Join", "Left Join", "Right Join", "Outer Join"],
+        "answer": 0,
+        "explanation": "Access uses Inner Join by default to return matching values only."
+    },
+    {
+        "question": "Which Access macro action is used to open a report?",
+        "options": ["OpenReport", "PrintReport", "ShowReport", "ViewReport"],
+        "answer": 0,
+        "explanation": "OpenReport macro action displays a report in a chosen view."
+    },
+    {
+        "question": "Which key combination is used to switch between open Access objects?",
+        "options": ["Ctrl+F6", "Ctrl+Tab", "Alt+Tab", "Shift+F6"],
+        "answer": 0,
+        "explanation": "Ctrl+F6 cycles through open database object windows."
+    },
+    {
+        "question": "Which tool in Access creates database diagrams of tables and relationships?",
+        "options": ["Relationships Window", "Design View", "Layout View", "Navigation Pane"],
+        "answer": 0,
+        "explanation": "Relationships Window graphically displays tables and their links."
+    },
+    {
+        "question": "Which of these is not a valid Access object type?",
+        "options": ["Table", "Macro", "Slide", "Form"],
+        "answer": 2,
+        "explanation": "Slide is an object from MS PowerPoint, not MS Access."
+    },
+    {
+        "question": "Which option restricts a form so it can only display existing records?",
+        "options": ["Allow Additions = No", "Allow Edits = No", "Record Locks = Yes", "Data Entry = Yes"],
+        "answer": 0,
+        "explanation": "Allow Additions set to No stops inserting new records."
+    },
+    {
+        "question": "Which data type is most suited for phone numbers?",
+        "options": ["Short Text", "Number", "Long Integer", "Currency"],
+        "answer": 0,
+        "explanation": "Short Text stores phone numbers, which are not used in calculations."
+    },
+    {
+        "question": "Which aggregate function finds the largest field value?",
+        "options": ["MAX()", "MIN()", "TOP()", "BIG()"],
+        "answer": 0,
+        "explanation": "MAX() returns the highest numerical or date value in a field."
+    },
+    {
+        "question": "When importing data from Excel, what must match between Excel and Access fields?",
+        "options": ["Field names", "Data types", "Primary keys", "Indexes"],
+        "answer": 1,
+        "explanation": "Matching data types help avoid import errors."
+    },
+    {
+        "question": "Which property determines how text is aligned in a text box?",
+        "options": ["Text Align", "Text Control", "Alignment", "Position"],
+        "answer": 0,
+        "explanation": "Text Align property specifies text placement in text boxes or fields."
+    },
+    {
+        "question": "What is the use of a 'Switchboard' in Access?",
+        "options": ["Navigation menu for database objects", "Report header page", "Query editor", "Form view only"],
+        "answer": 0,
+        "explanation": "Switchboard provides buttons or links to open forms, reports, and queries."
+    },
+    {
+        "question": "Which Access add-in can generate ER diagrams?",
+        "options": ["Relationships Window", "Query Wizard", "Diagram View", "Layout View"],
+        "answer": 0,
+        "explanation": "The Relationships Window visually illustrates entity relationships."
+    },
+    {
+        "question": "Which SQL keyword is used in Access queries to sort results?",
+        "options": ["ORDER BY", "SORT BY", "ARRANGE", "GROUP BY"],
+        "answer": 0,
+        "explanation": "ORDER BY is used in SQL to order results ascending or descending."
+    },
+    {
+        "question": "Which chart type can you directly insert inside an Access report?",
+        "options": ["Column", "Pie", "Bar", "All of these"],
+        "answer": 3,
+        "explanation": "All major chart types can be inserted into Access reports."
+    },
+    {
+        "question": "Which option in the Print Preview tab prints the report without prompt?",
+        "options": ["Quick Print", "Print Dialog", "Print Options", "Fast Print"],
+        "answer": 0,
+        "explanation": "Quick Print sends the print job to the default printer with no dialog."
+    },
+    {
+        "question": "What is the main advantage of a split database?",
+        "options": ["Faster queries", "Better multi-user performance", "Larger file size", "Single-file backup"],
+        "answer": 1,
+        "explanation": "Split databases improve performance and allow multiple users to share data."
+    },
+    {
+        "question": "Which Access pane lists all database objects?",
+        "options": ["Navigation Pane", "Task Pane", "Object Pane", "Explorer Pane"],
+        "answer": 0,
+        "explanation": "Navigation Pane shows all tables, queries, forms, reports, and macros."
+    },
+    {
+        "question": "What does an Access macro NOT do?",
+        "options": ["Automate tasks", "Run SQL queries", "Display forms", "Compile VBA code"],
+        "answer": 3,
+        "explanation": "VBA code is compiled in modules, not by macros."
+    },
+    {
+        "question": "Which file format supports password encryption in Access?",
+        "options": [".accdb", ".mdb", "Both 1 and 2", "None"],
+        "answer": 2,
+        "explanation": "Both .accdb and .mdb formats can be password protected."
+    },
+    {
+        "question": "Which option ensures that related records are updated automatically in child tables?",
+        "options": ["Cascade Update", "Cascade Delete", "Enforce Integrity", "Auto Update"],
+        "answer": 0,
+        "explanation": "Cascade Update changes foreign key values when the primary key is updated."
+    },
+    {
+        "question": "Which key combination refreshes the active Access window?",
+        "options": ["F5", "Ctrl+R", "Shift+F5", "Alt+F5"],
+        "answer": 0,
+        "explanation": "F5 refreshes data in the current view."
+    },
+	{
+        "question": "Which Access object is used to present data for printing with custom formatting?",
+        "options": ["Report", "Form", "Query", "Table"],
+        "answer": 0,
+        "explanation": "Reports allow you to design and print data in a formatted, professional way."
+    },
+    {
+        "question": "In Access, what does a 'One-to-One' relationship mean?",
+        "options": ["One record in a table relates to many in another", "One record in a table relates to one in another", "Many records relate to many records", "No relation exists"],
+        "answer": 1,
+        "explanation": "In One-to-One, each record in the first table relates to only one in the second table."
+    },
+    {
+        "question": "Which data type in Access stores whole numbers only?",
+        "options": ["Short Text", "Long Integer", "Currency", "Date/Time"],
+        "answer": 1,
+        "explanation": "Long Integer data type stores whole numbers without decimal places."
+    },
+    {
+        "question": "Which property specifies a predefined value for new records in a field?",
+        "options": ["Required", "Format", "Default Value", "Validation Rule"],
+        "answer": 2,
+        "explanation": "The Default Value property fills new records with a pre-specified value."
+    },
+    {
+        "question": "Which dialog box allows setting field size and data type in a table?",
+        "options": ["Field Properties", "Format Cells", "Design Options", "Data Entry"],
+        "answer": 0,
+        "explanation": "Field Properties dialog is used in Design View to set size, data type and other properties."
+    },
+    {
+        "question": "In a parameter query, how does Access prompt the user?",
+        "options": ["Using a form", "Using a dialog box", "Using a message box", "Using SQL editor"],
+        "answer": 1,
+        "explanation": "A parameter query uses a pop-up dialog box to collect input from the user."
+    },
+    {
+        "question": "Which Access option lets you duplicate the structure of a table without data?",
+        "options": ["Copy and Paste Structure Only", "Make Table Query", "Design Duplicate", "Export Structure"],
+        "answer": 0,
+        "explanation": "Copy and Paste Structure Only creates an empty table based on the existing structure."
+    },
+    {
+        "question": "Which function finds the lowest numeric value in a field?",
+        "options": ["MIN()", "MAX()", "SMALL()", "LOW()"],
+        "answer": 0,
+        "explanation": "MIN() returns the smallest value in a specified field."
+    },
+    {
+        "question": "In Access, which control is used for entering free-form text?",
+        "options": ["Text Box", "Label", "Combo Box", "Option Group"],
+        "answer": 0,
+        "explanation": "Text Box controls allow users to type text directly."
+    },
+    {
+        "question": "Which report view displays the layout changes without printing?",
+        "options": ["Layout View", "Design View", "Print Preview", "Report View"],
+        "answer": 0,
+        "explanation": "Layout View allows you to adjust design while seeing live data."
+    },
+    {
+        "question": "Which Access query type finds and displays unique values only?",
+        "options": ["Select Query with DISTINCT", "Find Duplicates Query", "Find Unmatched Query", "Aggregate Query"],
+        "answer": 0,
+        "explanation": "Adding DISTINCT displays only unique values in query results."
+    },
+    {
+        "question": "What happens when you set a field’s 'Required' property to Yes?",
+        "options": ["Allows blank fields", "Prevents null values", "Auto-fills data", "Sorts data automatically"],
+        "answer": 1,
+        "explanation": "Required = Yes ensures every record must have a value in that field."
+    },
+    {
+        "question": "Which join type shows all records from the left table and matching ones from the right table?",
+        "options": ["Inner Join", "Left Join", "Right Join", "Outer Join"],
+        "answer": 1,
+        "explanation": "A Left Join returns all rows from the left table, with matching from right."
+    },
+    {
+        "question": "Which Access object is best for entering data into related tables simultaneously?",
+        "options": ["Form with Subform", "Query", "Report", "Macro"],
+        "answer": 0,
+        "explanation": "A Form with Subform allows you to enter master and related detail data together."
+    },
+    {
+        "question": "Which property controls the display format of dates in a Date/Time field?",
+        "options": ["Format", "Input Mask", "Default Value", "Validation Rule"],
+        "answer": 0,
+        "explanation": "Format property defines how dates are displayed, independent of how they are stored."
+    },
+    {
+        "question": "Which option allows creating a calculated control in a form?",
+        "options": ["Expression Builder", "Macro Builder", "Query Wizard", "Form Wizard"],
+        "answer": 0,
+        "explanation": "Expression Builder helps create formulas for calculated controls."
+    },
+    {
+        "question": "Which feature ensures any changes in primary key reflect in related tables?",
+        "options": ["Cascade Update", "Cascade Delete", "Referential Integrity", "Auto Update"],
+        "answer": 0,
+        "explanation": "Cascade Update updates all matching foreign keys when the primary key changes."
+    },
+    {
+        "question": "Which function in Access returns the system date and time?",
+        "options": ["Now()", "Date()", "Time()", "CurrentDateTime()"],
+        "answer": 0,
+        "explanation": "Now() returns both current date and time."
+    },
+    {
+        "question": "Which feature prevents entering values in a field that do not exist in another table?",
+        "options": ["Lookup Field with Referential Integrity", "Validation Rule", "Field Size", "Required"],
+        "answer": 0,
+        "explanation": "Using a Lookup Field with Referential Integrity enforces valid references."
+    },
+    {
+        "question": "In Datasheet View, how can you quickly sort records by a field?",
+        "options": ["Right-click the field and choose Sort", "Go to Design View", "Set Default Sort in Table Properties", "Use Query Design"],
+        "answer": 0,
+        "explanation": "Right-click on the field header and choose ascending or descending sort."
+    },
+    {
+        "question": "Which query is used to summarize values for each category?",
+        "options": ["Totals Query", "Select Query", "Parameter Query", "Delete Query"],
+        "answer": 0,
+        "explanation": "A Totals Query groups data and performs calculations like SUM or AVG."
+    },
+    {
+        "question": "Which control is used to display a non-editable descriptive label?",
+        "options": ["Label", "Text Box", "Combo Box", "List Box"],
+        "answer": 0,
+        "explanation": "Labels are static text elements used for descriptions."
+    },
+    {
+        "question": "Which function returns the number of records that match criteria?",
+        "options": ["Count()", "Sum()", "Avg()", "Total()"],
+        "answer": 0,
+        "explanation": "Count() returns the number of records matching a condition."
+    },
+    {
+        "question": "Which Access object is best suited for performing calculations before printing?",
+        "options": ["Report", "Form", "Query", "Table"],
+        "answer": 0,
+        "explanation": "Reports can calculate totals or summaries before printing."
+    },
+    {
+        "question": "What is the function of 'Find Unmatched Query Wizard'?",
+        "options": ["Locate duplicates", "Find records without related entries in another table", "Count records", "Delete missing records"],
+        "answer": 1,
+        "explanation": "It identifies records that do not have a corresponding match in another table."
+    },
+    {
+        "question": "Which type of key uniquely identifies each row in a table?",
+        "options": ["Primary Key", "Foreign Key", "Candidate Key", "Composite Key"],
+        "answer": 0,
+        "explanation": "Primary Key uniquely identifies each record in a table."
+    },
+    {
+        "question": "What is a composite key?",
+        "options": ["Multiple foreign keys", "Two or more fields used as primary key", "Duplicate keys", "Alternate key"],
+        "answer": 1,
+        "explanation": "Composite Key combines multiple fields to uniquely identify a record."
+    },
+    {
+        "question": "Which datatype allows storing long paragraphs in Access?",
+        "options": ["Long Text", "Short Text", "Memo", "Both 1 and 3"],
+        "answer": 3,
+        "explanation": "Long Text is the new name for Memo field type to store long paragraphs."
+    },
+    {
+        "question": "Which Access tool helps set database passwords?",
+        "options": ["File -> Info -> Encrypt with Password", "Database Tools", "Options Menu", "Macro Menu"],
+        "answer": 0,
+        "explanation": "Encrypt with Password in File -> Info secures the database."
+    },
+    {
+        "question": "Which function returns the current system time?",
+        "options": ["Time()", "Now()", "Date()", "SysTime()"],
+        "answer": 0,
+        "explanation": "Time() returns only the current time."
+    },
+    {
+        "question": "To delete a relationship between tables, you must first?",
+        "options": ["Remove all queries", "Close all tables involved", "Remove table indexes", "Delete primary key"],
+        "answer": 1,
+        "explanation": "Tables involved must be closed before deleting a relationship."
+    },
+    {
+        "question": "In a subform, related records are linked using?",
+        "options": ["Link Master Fields and Link Child Fields", "Primary Key", "Foreign Key only", "Form Control"],
+        "answer": 0,
+        "explanation": "Subforms use Link Master and Link Child properties to maintain relationships."
+    },
+    {
+        "question": "Which option in Access exports data into Excel format?",
+        "options": ["External Data -> Export -> Excel", "File -> Save As -> Excel", "Design -> Export", "Tools -> Send to Excel"],
+        "answer": 0,
+        "explanation": "External Data tab contains Export to Excel."
+    },
+    {
+        "question": "Which function adds the values of a numeric field?",
+        "options": ["Sum()", "Add()", "Total()", "Count()"],
+        "answer": 0,
+        "explanation": "Sum() adds all the numeric values in a field."
+    },
+    {
+        "question": "Which Access object can contain buttons to run macros?",
+        "options": ["Form", "Query", "Table", "Field"],
+        "answer": 0,
+        "explanation": "Forms can have controls like buttons to execute macros."
+    },
+    {
+        "question": "What is the purpose of setting a field as a foreign key?",
+        "options": ["To uniquely identify table records", "To link to primary key in another table", "To enforce indexes", "To store duplicates only"],
+        "answer": 1,
+        "explanation": "Foreign key links current table's data to another table's primary key."
+    },
+    {
+        "question": "Which join retrieves only records with matching values in both tables?",
+        "options": ["Inner Join", "Full Outer Join", "Left Join", "Right Join"],
+        "answer": 0,
+        "explanation": "Inner Join returns only matching records from both tables."
+    },
+    {
+        "question": "Which type of query prompts the user for input when executed?",
+        "options": ["Parameter Query", "Select Query", "Make Table Query", "Update Query"],
+        "answer": 0,
+        "explanation": "Parameter Query asks the user for criteria at runtime."
+    },
+    {
+        "question": "Which component of a report repeats at the top of every page?",
+        "options": ["Page Header", "Report Header", "Group Header", "Detail Section"],
+        "answer": 0,
+        "explanation": "Page Header appears at the top of each report page."
+    },
+    {
+        "question": "Which Access view lets you change both the layout and data?",
+        "options": ["Layout View", "Design View", "Datasheet View", "SQL View"],
+        "answer": 0,
+        "explanation": "Layout View allows live editing of layout and data."
+    },
+    {
+        "question": "Which index type allows duplicate values?",
+        "options": ["Yes (Duplicates OK)", "Yes (No Duplicates)", "Unique", "Primary"],
+        "answer": 0,
+        "explanation": "Yes (Duplicates OK) allows repeating values while still indexing."
+    },
+	 {
+        "question": "Which Access feature allows you to prevent incorrect data entry by providing a dropdown list of valid values?",
+        "options": ["Lookup Field", "Validation Rule", "Input Mask", "Default Value"],
+        "answer": 0,
+        "explanation": "Lookup Field provides a dropdown of permissible values from another table or list."
+    },
+    {
+        "question": "In Access, which type of key enforces link between two tables?",
+        "options": ["Foreign Key", "Primary Key", "Composite Key", "Candidate Key"],
+        "answer": 0,
+        "explanation": "A foreign key in one table links to the primary key in another table."
+    },
+    {
+        "question": "Which button would you click to run a query from Design View?",
+        "options": ["Run (!)", "Execute", "Go", "Start"],
+        "answer": 0,
+        "explanation": "The Run button with an exclamation mark executes the query."
+    },
+    {
+        "question": "Which property defines the number of characters a Short Text field can hold?",
+        "options": ["Field Size", "Character Limit", "Length", "Width"],
+        "answer": 0,
+        "explanation": "Field Size sets the maximum character limit for a Short Text field."
+    },
+    {
+        "question": "Which Access object is best for creating a user interface for data entry?",
+        "options": ["Form", "Report", "Query", "Macro"],
+        "answer": 0,
+        "explanation": "Forms allow users to input and edit records in a structured layout."
+    },
+    {
+        "question": "What is the purpose of the Compact and Repair Database tool?",
+        "options": ["Reduce file size and fix errors", "Format tables", "Update queries", "Split database"],
+        "answer": 0,
+        "explanation": "It reduces database size and repairs minor corruption issues."
+    },
+    {
+        "question": "Which Access tool quickly creates a form based on a selected table or query?",
+        "options": ["Form Wizard", "AutoForm", "Quick Form", "Form Builder"],
+        "answer": 1,
+        "explanation": "AutoForm instantly generates a form from the chosen data source."
+    },
+    {
+        "question": "Which query type deletes records permanently from a table?",
+        "options": ["Delete Query", "Remove Query", "Purge Query", "Update Query"],
+        "answer": 0,
+        "explanation": "Delete Query permanently removes rows that meet the criteria provided."
+    },
+    {
+        "question": "In Access, which type of relationship is most common between tables?",
+        "options": ["One-to-Many", "One-to-One", "Many-to-Many", "Self Join"],
+        "answer": 0,
+        "explanation": "One-to-Many is most common, where a record in one table relates to many in another."
+    },
+    {
+        "question": "Which property controls whether duplicate values are allowed in an indexed field?",
+        "options": ["Indexed", "Required", "Allow Null", "Unique"],
+        "answer": 0,
+        "explanation": "Setting Indexed to 'Yes (No Duplicates)' ensures unique values."
+    },
+    {
+        "question": "Which key combination moves to the next field when entering data in Access?",
+        "options": ["Tab", "Enter", "Arrow Keys", "Ctrl+Tab"],
+        "answer": 0,
+        "explanation": "Tab moves the cursor to the next field in Datasheet or Form view."
+    },
+    {
+        "question": "What does enforcing referential integrity prevent?",
+        "options": ["Orphan records", "Duplicate primary keys", "Null values", "Data export"],
+        "answer": 0,
+        "explanation": "It prevents orphan records by ensuring foreign key values match a valid primary key."
+    },
+    {
+        "question": "Which query type can be used to create a backup table from current data?",
+        "options": ["Make Table Query", "Append Query", "Update Query", "CrossTab Query"],
+        "answer": 0,
+        "explanation": "Make Table Query creates a new table with the query results."
+    },
+    {
+        "question": "Which wildcard character in Access replaces a single character in a query?",
+        "options": ["?", "*", "%", "#"],
+        "answer": 0,
+        "explanation": "The question mark (?) represents a single wildcard character in Access."
+    },
+    {
+        "question": "Which section of an Access report appears at the bottom of every printed page?",
+        "options": ["Page Footer", "Report Footer", "Group Footer", "Detail"],
+        "answer": 0,
+        "explanation": "Page Footer appears on every page, usually containing page numbers."
+    },
+    {
+        "question": "Which action query is used to insert records from one table into another?",
+        "options": ["Append Query", "Make Table Query", "Update Query", "Delete Query"],
+        "answer": 0,
+        "explanation": "Append Query adds records to an existing table."
+    },
+    {
+        "question": "Which setting can hide a field from appearing in a query result?",
+        "options": ["Show checkbox in Query Design", "Validation Rule", "Field Size", "Indexed"],
+        "answer": 0,
+        "explanation": "Clearing the Show checkbox in Query Design prevents the field from appearing."
+    },
+    {
+        "question": "Which Access feature allows predefined formatting applied to forms and reports?",
+        "options": ["Themes", "Templates", "Design Ideas", "Auto Style"],
+        "answer": 0,
+        "explanation": "Themes provide consistent colors, fonts, and formatting."
+    },
+    {
+        "question": "Which SQL clause in Access is used to retrieve unique rows only?",
+        "options": ["DISTINCT", "UNIQUE", "SINGLE", "NO DUPLICATE"],
+        "answer": 0,
+        "explanation": "DISTINCT removes duplicate rows from query results."
+    },
+    {
+        "question": "In Datasheet View, which icon signifies a record is being edited?",
+        "options": ["Pencil", "Arrow", "Star", "Lock"],
+        "answer": 0,
+        "explanation": "A small pencil icon appears in the row selector when editing a record."
+    },
+    {
+        "question": "Which property specifies the alignment of text in a form’s text box?",
+        "options": ["Text Align", "Align", "Orientation", "Font Align"],
+        "answer": 0,
+        "explanation": "Text Align specifies left, right, or center text alignment."
+    },
+    {
+        "question": "Which Access feature changes a flat database into multiple related tables?",
+        "options": ["Normalization", "Referential Integrity", "Indexing", "Query Optimization"],
+        "answer": 0,
+        "explanation": "Normalization organizes data into related tables to avoid redundancy."
+    },
+    {
+        "question": "Which action query modifies field values based on given criteria?",
+        "options": ["Update Query", "Append Query", "Delete Query", "Make Table Query"],
+        "answer": 0,
+        "explanation": "Update Query changes existing values according to conditions."
+    },
+    {
+        "question": "Which wizard helps you create a form based on multiple tables and queries?",
+        "options": ["Form Wizard", "Report Wizard", "Database Wizard", "Query Wizard"],
+        "answer": 0,
+        "explanation": "Form Wizard can pull fields from multiple tables and queries."
+    },
+    {
+        "question": "Which control would be most appropriate for a Yes/No field in a form?",
+        "options": ["Check Box", "List Box", "Text Box", "Option Group"],
+        "answer": 0,
+        "explanation": "A Check Box allows toggling between Yes and No values."
+    },
+    {
+        "question": "Which option in Access is used to attach binary files to records?",
+        "options": ["Attachment Data Type", "OLE Object", "Binary Field", "Link Object"],
+        "answer": 0,
+        "explanation": "Attachment data type is specifically meant for files like images and docs."
+    },
+    {
+        "question": "Which expression in Access returns the current year?",
+        "options": ["Year(Date())", "Now(Year)", "CurrYear()", "GetYear()"],
+        "answer": 0,
+        "explanation": "Year(Date()) extracts the year from the current date."
+    },
+    {
+        "question": "Which menu option allows you to export a table as a PDF file?",
+        "options": ["External Data -> Export -> PDF", "File -> Save As -> PDF", "Database Tools -> Export", "Table Tools -> Export"],
+        "answer": 0,
+        "explanation": "Export to PDF is found under the External Data tab."
+    },
+    {
+        "question": "What does Cascade Delete enforce?",
+        "options": ["Deletes related records automatically", "Blocks delete", "Deletes only one record", "Deletes unrelated records"],
+        "answer": 0,
+        "explanation": "Cascade Delete removes related records when a primary record is deleted."
+    },
+    {
+        "question": "Which query type is best for summarizing total sales per region?",
+        "options": ["Totals Query", "Find Duplicates", "Append", "Parameter"],
+        "answer": 0,
+        "explanation": "Totals Query groups by field(s) and calculates sums or averages."
+    },
+    {
+        "question": "Which format property displays numbers as currency?",
+        "options": ["Currency", "Number", "Accounting", "Money"],
+        "answer": 0,
+        "explanation": "Setting Format to 'Currency' adds currency symbols and decimals."
+    },
+    {
+        "question": "Which Access control creates a drop-down list for data entry?",
+        "options": ["Combo Box", "List Box", "Check Box", "Option Button"],
+        "answer": 0,
+        "explanation": "Combo Box offers a drop-down list plus the ability to enter new data."
+    },
+    {
+        "question": "Which of these is not an Access data type?",
+        "options": ["Hyperlink", "Attachment", "Memo", "Varchar"],
+        "answer": 3,
+        "explanation": "Varchar is used in SQL databases but not as a named type in Access."
+    },
+    {
+        "question": "Which relationship type is valid in Access?",
+        "options": ["One-to-One", "One-to-Many", "Many-to-Many via junction table", "All of these"],
+        "answer": 3,
+        "explanation": "Access supports all these relationship types, with Many-to-Many requiring a junction table."
+    },
+    {
+        "question": "Which operator checks for empty fields in a query?",
+        "options": ["IS NULL", "IS EMPTY", "NULL()", "BLANK()"],
+        "answer": 0,
+        "explanation": "IS NULL is used to filter records with no value in the field."
+    },
+    {
+        "question": "Which Access object is designed purely for printing output?",
+        "options": ["Report", "Form", "Query", "Macro"],
+        "answer": 0,
+        "explanation": "Reports present and print data in a formatted way."
+    },
+    {
+        "question": "Which command in Design View sets the display text for a field different from its name?",
+        "options": ["Caption", "Format", "Alias", "Label"],
+        "answer": 0,
+        "explanation": "Caption property sets an alternate display label for the field."
+    },
+    {
+        "question": "Which tool checks a database for potential issues or inefficiencies?",
+        "options": ["Database Documenter", "Performance Analyzer", "Compact Tool", "Relationship Checker"],
+        "answer": 1,
+        "explanation": "Performance Analyzer suggests ways to improve database efficiency."
+    },
+    {
+        "question": "What does the 'Allow Zero Length' property control?",
+        "options": ["If text fields can be empty strings", "If numeric fields can be zero", "If a field can be null", "If duplicates allowed"],
+        "answer": 0,
+        "explanation": "Allow Zero Length decides if a Text field can store an empty string."
+    },
+    {
+        "question": "Which tool creates predefined Access database templates?",
+        "options": ["Application Parts", "Form Wizard", "Report Wizard", "Query Wizard"],
+        "answer": 0,
+        "explanation": "Application Parts insert quick-start database templates."
+    },
+    {
+        "question": "Which aggregate function returns the average of numeric values?",
+        "options": ["Avg()", "Mean()", "Average()", "Mid()"],
+        "answer": 0,
+        "explanation": "Avg() calculates the arithmetic mean of a set of values."
+    },
+	{
+        "question": "In MS Access, which object is used to store raw data in rows and columns?",
+        "options": ["Table", "Form", "Query", "Report"],
+        "answer": 0,
+        "explanation": "Tables are the primary storage objects for raw data in Access."
+    },
+    {
+        "question": "Which view is generally used to enter and view data in a table?",
+        "options": ["Datasheet View", "Design View", "Form View", "SQL View"],
+        "answer": 0,
+        "explanation": "Datasheet View allows you to directly enter and see data in rows and columns."
+    },
+    {
+        "question": "What is the main purpose of a primary key in a table?",
+        "options": ["To uniquely identify each record", "To link two tables", "To sort data", "To store images"],
+        "answer": 0,
+        "explanation": "A primary key ensures that each record is unique and can be identified easily."
+    },
+    {
+        "question": "Which Access object is best suited for printing nicely formatted information?",
+        "options": ["Report", "Form", "Table", "Query"],
+        "answer": 0,
+        "explanation": "Reports are designed for professional and printable display of data."
+    },
+    {
+        "question": "Which data type should you choose for fields storing whole numbers?",
+        "options": ["Number", "Text", "Currency", "Hyperlink"],
+        "answer": 0,
+        "explanation": "Number type can store integers or decimals depending on the Field Size."
+    },
+    {
+        "question": "Which MS Access object is used to simplify data entry for users?",
+        "options": ["Form", "Report", "Query", "Module"],
+        "answer": 0,
+        "explanation": "Forms provide a user-friendly interface for entering and editing data."
+    },
+    {
+        "question": "Which data type allows storing long text paragraphs in Access?",
+        "options": ["Long Text", "Short Text", "Memo", "Both 1 and 3"],
+        "answer": 3,
+        "explanation": "Long Text, earlier called Memo, allows large blocks of text."
+    },
+    {
+        "question": "In Datasheet View, what does the asterisk (*) symbol in a row indicate?",
+        "options": ["Current record", "A new blank record", "Primary key", "Deleted record"],
+        "answer": 1,
+        "explanation": "The asterisk indicates a row where you can add a new record."
+    },
+    {
+        "question": "Which toolbar in Access lists all database objects such as tables and queries?",
+        "options": ["Navigation Pane", "Object List", "Tools Pane", "Database Window"],
+        "answer": 0,
+        "explanation": "Navigation Pane shows all database objects for easy access."
+    },
+    {
+        "question": "Which feature allows you to filter table data to show only matching records?",
+        "options": ["Filter", "Sort", "Macro", "Format"],
+        "answer": 0,
+        "explanation": "The Filter feature displays only rows that meet the set criteria."
+    },
+    {
+        "question": "Which key moves to the next field when entering data in a datasheet?",
+        "options": ["Tab", "Enter", "Ctrl+Arrow", "F2"],
+        "answer": 0,
+        "explanation": "Pressing Tab moves the cursor to the next field."
+    },
+    {
+        "question": "Which query type is used to display specific fields and records?",
+        "options": ["Select Query", "Update Query", "Delete Query", "Append Query"],
+        "answer": 0,
+        "explanation": "Select Queries are used to view selected data without changing it."
+    },
+    {
+        "question": "In Access, what is the smallest unit of data entry called?",
+        "options": ["Field", "Record", "Cell", "Byte"],
+        "answer": 0,
+        "explanation": "A field holds one piece of data (like Name or Date) for a record."
+    },
+    {
+        "question": "Which of these is an Access data type?",
+        "options": ["Number", "Text", "Date/Time", "All of these"],
+        "answer": 3,
+        "explanation": "Number, Text, and Date/Time are common data types in Access."
+    },
+    {
+        "question": "Which field property automatically generates a unique number for each record?",
+        "options": ["AutoNumber", "Default Value", "Primary Key", "Counter"],
+        "answer": 0,
+        "explanation": "AutoNumber generates a unique number for new records automatically."
+    },
+    {
+        "question": "Which control is typically used for Yes/No fields in forms?",
+        "options": ["Check Box", "Combo Box", "Text Box", "List Box"],
+        "answer": 0,
+        "explanation": "Check Boxes are commonly used for Yes/No fields."
+    },
+    {
+        "question": "Which view is used to change the structure of a table?",
+        "options": ["Design View", "Datasheet View", "Pivot View", "SQL View"],
+        "answer": 0,
+        "explanation": "Design View allows you to add, remove, and configure fields."
+    },
+    {
+        "question": "Which object can store instructions to automate Access operations?",
+        "options": ["Macro", "Module", "Both 1 and 2", "Form"],
+        "answer": 2,
+        "explanation": "Both Macros and Modules can store automation instructions."
+    },
+    {
+        "question": "Which Access object is used to retrieve and display specific data by criteria?",
+        "options": ["Query", "Report", "Table", "Form"],
+        "answer": 0,
+        "explanation": "Queries are used to retrieve filtered data according to conditions."
+    },
+    {
+        "question": "Which key deletes the selected record in Datasheet View?",
+        "options": ["Delete", "Backspace", "F5", "Shift+Delete"],
+        "answer": 0,
+        "explanation": "The Delete key removes the currently selected record."
+    },
+    {
+        "question": "Which field property is used to set a predefined format for entered values?",
+        "options": ["Format", "Input Mask", "Required", "Default Value"],
+        "answer": 0,
+        "explanation": "Format defines how the field value is displayed without affecting storage."
+    },
+    {
+        "question": "In a table, what does each row represent?",
+        "options": ["Field", "Record", "Cell", "Form"],
+        "answer": 1,
+        "explanation": "Each row or record represents one complete set of related data."
+    },
+    {
+        "question": "Which data type is most suited for storing currency values?",
+        "options": ["Currency", "Number", "Short Text", "Decimal"],
+        "answer": 0,
+        "explanation": "Currency data type stores money values with fixed decimal precision."
+    },
+    {
+        "question": "What is the default extension for Access database files from version 2007 onward?",
+        "options": [".mdb", ".accdb", ".dbf", ".sqlite"],
+        "answer": 1,
+        "explanation": "Access 2007 and later use the .accdb file format."
+    },
+    {
+        "question": "Which option is used to sort data from smallest to largest?",
+        "options": ["Ascending Sort", "Descending Sort", "Filter", "Arrange"],
+        "answer": 0,
+        "explanation": "Ascending Sort organizes data from smallest to largest or A–Z."
+    },
+    {
+        "question": "Which form view lets you enter data into the table?",
+        "options": ["Form View", "Design View", "Layout View", "Report View"],
+        "answer": 0,
+        "explanation": "Form View is used to enter and view records via the form interface."
+    },
+    {
+        "question": "Which is NOT a valid object type in Access?",
+        "options": ["Table", "Form", "Slide", "Query"],
+        "answer": 2,
+        "explanation": "Slides are used in PowerPoint, not Access."
+    },
+    {
+        "question": "Which button in query design runs the query?",
+        "options": ["Run (!)", "Start", "Execute", "Go"],
+        "answer": 0,
+        "explanation": "Run executes the query and displays the result set."
+    },
+    {
+        "question": "Which query type simply pulls and displays data from tables?",
+        "options": ["Select Query", "Update Query", "Append Query", "Delete Query"],
+        "answer": 0,
+        "explanation": "A Select Query retrieves data without making any changes."
+    },
+    {
+        "question": "Which Access object is ideal for entering repeating similar data?",
+        "options": ["Form", "Report", "Macro", "Module"],
+        "answer": 0,
+        "explanation": "Forms simplify repetitive data entry with easy-to-use controls."
+    },
+    {
+        "question": "Which data type is used for storing URLs or email addresses?",
+        "options": ["Hyperlink", "Text", "Attachment", "Memo"],
+        "answer": 0,
+        "explanation": "Hyperlink type stores clickable links for URLs or emails."
+    },
+    {
+        "question": "Which feature in Access displays only certain fields or records temporarily?",
+        "options": ["Filter", "Format", "Sort", "Layout View"],
+        "answer": 0,
+        "explanation": "Filter hides records not matching specified criteria."
+    },
+    {
+        "question": "Which function will quickly count the number of records in a table?",
+        "options": ["COUNT()", "SUM()", "AVERAGE()", "RECORDS()"],
+        "answer": 0,
+        "explanation": "COUNT() is used in aggregate queries to count records."
+    },
+    {
+        "question": "Which Access view is used to define or change a query's structure?",
+        "options": ["Design View", "Datasheet View", "SQL View", "Layout View"],
+        "answer": 0,
+        "explanation": "Design View enables adding tables, fields, and criteria to queries."
+    },
+    {
+        "question": "In Datasheet View, which symbol marks the current record?",
+        "options": ["Right arrow in row selector", "Pencil icon", "Asterisk", "Star symbol"],
+        "answer": 0,
+        "explanation": "A right arrow in the row selector indicates the current record."
+    },
+    {
+        "question": "Which tab in Access contains the 'Relationships' tool?",
+        "options": ["Database Tools", "Create", "External Data", "Home"],
+        "answer": 0,
+        "explanation": "Database Tools tab contains the Relationships button."
+    },
+    {
+        "question": "Which dialog box can guide you in creating a calculated field?",
+        "options": ["Expression Builder", "Formula Box", "Function Wizard", "Macro Builder"],
+        "answer": 0,
+        "explanation": "Expression Builder assists in creating calculated fields."
+    },
+    {
+        "question": "Which Access object provides a printable output of data with formatting?",
+        "options": ["Report", "Query", "Table", "Module"],
+        "answer": 0,
+        "explanation": "Reports are intended for printing and have detailed formatting."
+    },
+    {
+        "question": "Which property in a text field sets the display name in datasheet view?",
+        "options": ["Caption", "Format", "Title", "Alias"],
+        "answer": 0,
+        "explanation": "Caption changes the label shown at the top of a column."
+    },
+    {
+        "question": "Which Access object is used for storing VBA code?",
+        "options": ["Module", "Macro", "Table", "Form"],
+        "answer": 0,
+        "explanation": "Modules store VBA code for customized automation."
+    },
+	 {
+        "question": "Which MS Access object is used to store data permanently?",
+        "options": ["Table", "Report", "Form", "Macro"],
+        "answer": 0,
+        "explanation": "Tables are the main objects used to store data permanently in a database."
+    },
+    {
+        "question": "Which view displays data in rows and columns for editing?",
+        "options": ["Datasheet View", "Design View", "Form View", "SQL View"],
+        "answer": 0,
+        "explanation": "Datasheet View shows data in a tabular format for easy editing."
+    },
+    {
+        "question": "What ensures no duplicate values exist in a field?",
+        "options": ["Primary Key", "Caption", "Default Value", "Alias"],
+        "answer": 0,
+        "explanation": "A field set as Primary Key ensures uniqueness of values."
+    },
+    {
+        "question": "Which Access object is used to print structured and formatted information?",
+        "options": ["Report", "Query", "Form", "Module"],
+        "answer": 0,
+        "explanation": "Reports format and print data in a professional way."
+    },
+    {
+        "question": "Which data type is best for storing addresses?",
+        "options": ["Short Text", "Long Text", "Memo", "Both 2 and 3"],
+        "answer": 3,
+        "explanation": "Addresses can be stored in Long Text (Memo in older versions)."
+    },
+    {
+        "question": "Which object is meant to make data entry easier for users?",
+        "options": ["Form", "Query", "Macro", "Report"],
+        "answer": 0,
+        "explanation": "Forms provide a user-friendly interface for adding or editing data."
+    },
+    {
+        "question": "In Access, a field is:",
+        "options": ["A column in a table", "A row in a table", "A complete set of data", "A database file"],
+        "answer": 0,
+        "explanation": "A field is a single column that holds one type of data across records."
+    },
+    {
+        "question": "Which symbol in a new row indicates you can add a new record?",
+        "options": ["Asterisk (*)", "Plus (+)", "Arrow (→)", "Hash (#)"],
+        "answer": 0,
+        "explanation": "The asterisk in the row selector means 'new record'."
+    },
+    {
+        "question": "Which tab contains the tool to create a new table in Access?",
+        "options": ["Create", "Home", "Database Tools", "External Data"],
+        "answer": 0,
+        "explanation": "The Create tab contains the Table option."
+    },
+    {
+        "question": "Which property changes how dates appear in a Date/Time field?",
+        "options": ["Format", "Default Value", "Caption", "Input Mask"],
+        "answer": 0,
+        "explanation": "The Format property specifies how the date is displayed."
+    },
+    {
+        "question": "Which type of query retrieves data from one or more tables?",
+        "options": ["Select Query", "Append Query", "Update Query", "Delete Query"],
+        "answer": 0,
+        "explanation": "Select Queries are used to view and filter data."
+    },
+    {
+        "question": "What is a record in Access?",
+        "options": ["A row of related data", "A single value", "A column", "A field type"],
+        "answer": 0,
+        "explanation": "A record is a complete row of data in a table."
+    },
+    {
+        "question": "Which key moves the cursor to the next field in Datasheet View?",
+        "options": ["Tab", "Enter", "Arrow Keys", "Shift+Tab"],
+        "answer": 0,
+        "explanation": "Tab moves the cursor to the next cell to the right."
+    },
+    {
+        "question": "Which data type should be used for Yes/No choices?",
+        "options": ["Yes/No", "Text", "Number", "Short Text"],
+        "answer": 0,
+        "explanation": "Yes/No data type stores Boolean values."
+    },
+    {
+        "question": "What is the purpose of a Hyperlink field?",
+        "options": ["To store clickable links", "To store images", "To store macros", "To store passwords"],
+        "answer": 0,
+        "explanation": "Hyperlink fields store clickable links to web pages or files."
+    },
+    {
+        "question": "Which view of a form allows entering new data?",
+        "options": ["Form View", "Design View", "Layout View", "Print Preview"],
+        "answer": 0,
+        "explanation": "Form View is used to enter and display data through forms."
+    },
+    {
+        "question": "What does the 'Default Value' property do in a field?",
+        "options": ["Specifies an automatic value for new records", "Forces input", "Hides the field", "Sorts the data"],
+        "answer": 0,
+        "explanation": "The Default Value property automatically inserts a predefined value in new records."
+    },
+    {
+        "question": "Which property forces a field to always have data?",
+        "options": ["Required", "Format", "Input Mask", "Caption"],
+        "answer": 0,
+        "explanation": "Required property ensures that the field is not left empty."
+    },
+    {
+        "question": "Which data type is best for phone numbers?",
+        "options": ["Short Text", "Number", "Date/Time", "Currency"],
+        "answer": 0,
+        "explanation": "Phone numbers are stored as Short Text to preserve formatting."
+    },
+    {
+        "question": "Which field type automatically assigns unique numbers to records?",
+        "options": ["AutoNumber", "Number", "Counter", "Primary Key"],
+        "answer": 0,
+        "explanation": "AutoNumber generates unique values for each record."
+    },
+    {
+        "question": "Which feature displays only rows matching certain conditions?",
+        "options": ["Filter", "Sort", "Group", "Arrange"],
+        "answer": 0,
+        "explanation": "Filter hides rows that don’t meet specific criteria."
+    },
+    {
+        "question": "Which bar shows navigation arrows in Datasheet View?",
+        "options": ["Record Navigation Bar", "Title Bar", "Status Bar", "Toolbar"],
+        "answer": 0,
+        "explanation": "The Record Navigation Bar shows record count and navigation arrows."
+    },
+    {
+        "question": "Which option sorts A–Z or smallest to largest?",
+        "options": ["Ascending", "Descending", "Filter", "Sort By Color"],
+        "answer": 0,
+        "explanation": "Ascending sort arranges text A–Z or numbers low to high."
+    },
+    {
+        "question": "In Access, what is a field?",
+        "options": ["A column of data", "A row of data", "A table", "A macro"],
+        "answer": 0,
+        "explanation": "A field is a single column in a table that stores one type of data."
+    },
+    {
+        "question": "Which object can be created using the Report Wizard?",
+        "options": ["Report", "Form", "Query", "Macro"],
+        "answer": 0,
+        "explanation": "The Report Wizard guides users to create a new report."
+    },
+    {
+        "question": "Which data type is used for storing date values?",
+        "options": ["Date/Time", "Short Text", "Number", "Currency"],
+        "answer": 0,
+        "explanation": "Date/Time stores date and time information."
+    },
+    {
+        "question": "Which property determines the width of a field in table datasheet view?",
+        "options": ["Column Width", "Field Size", "Width Property", "Data Length"],
+        "answer": 0,
+        "explanation": "Column Width sets how wide the column appears in Datasheet View."
+    },
+    {
+        "question": "Which option in the Home tab finds specific values in a table?",
+        "options": ["Find", "Replace", "Filter", "Go To"],
+        "answer": 0,
+        "explanation": "The Find feature locates specific text or values within the table."
+    },
+    {
+        "question": "Which Access view allows viewing data and adjusting layout at the same time?",
+        "options": ["Layout View", "Design View", "Datasheet View", "SQL View"],
+        "answer": 0,
+        "explanation": "Layout View combines live data with layout modifications."
+    },
+    {
+        "question": "What does a check mark in the 'Show' row in Query Design mean?",
+        "options": ["The field will appear in results", "The field is hidden", "The field is sorted", "The field is required"],
+        "answer": 0,
+        "explanation": "A check mark in 'Show' row displays that field in query results."
+    },
+    {
+        "question": "Which object lets you save a search for specific information?",
+        "options": ["Query", "Form", "Report", "Macro"],
+        "answer": 0,
+        "explanation": "Queries save search criteria to retrieve matching records."
+    },
+    {
+        "question": "What is the default view for a table when you open it?",
+        "options": ["Datasheet View", "Design View", "Pivot View", "SQL View"],
+        "answer": 0,
+        "explanation": "By default, tables open in Datasheet View showing all records."
+    },
+    {
+        "question": "Which Access feature contains 'Compact & Repair Database'?",
+        "options": ["Database Tools", "Home", "View", "External Data"],
+        "answer": 0,
+        "explanation": "Database Tools tab provides Compact & Repair to optimize databases."
+    },
+    {
+        "question": "Which data type stores True/False values?",
+        "options": ["Yes/No", "Boolean", "Bit", "All of these"],
+        "answer": 3,
+        "explanation": "Yes/No (Boolean/Bit) stores True/False values."
+    },
+    {
+        "question": "Which query changes data in a table?",
+        "options": ["Update Query", "Select Query", "Append Query", "Make Table Query"],
+        "answer": 0,
+        "explanation": "Update Queries modify existing table records."
+    },
+    {
+        "question": "Which element of an Access form is used for headings?",
+        "options": ["Label", "Text Box", "Combo Box", "Option Button"],
+        "answer": 0,
+        "explanation": "Labels are static text controls often used for headings."
+    },
+    {
+        "question": "Which view lets you change structural design of a form?",
+        "options": ["Design View", "Form View", "Layout View", "Datasheet View"],
+        "answer": 0,
+        "explanation": "Design View allows you to adjust form controls and layout."
+    },
+    {
+        "question": "Which Access data type is used for large attachments like documents?",
+        "options": ["Attachment", "OLE Object", "File", "Binary"],
+        "answer": 0,
+        "explanation": "Attachment type stores external files within the database."
+    },
+    {
+        "question": "Which control shows a drop-down list in a form?",
+        "options": ["Combo Box", "List Box", "Text Box", "Option Group"],
+        "answer": 0,
+        "explanation": "Combo Box combines a drop-down with data entry capability."
+    },
+    {
+        "question": "Which wild card is used to match multiple characters in Access?",
+        "options": ["*", "?", "%", "#"],
+        "answer": 0,
+        "explanation": "The asterisk (*) wildcard represents any number of characters."
+    },
+    {
+        "question": "Which part of a report repeats at the bottom of each page?",
+        "options": ["Page Footer", "Report Footer", "Detail", "Title Band"],
+        "answer": 0,
+        "explanation": "Page Footer appears at the bottom of every report page."
+    },
+    {
+        "question": "Which command is used to create a duplicate of a table’s structure?",
+        "options": ["Copy & Paste Structure Only", "Save As Template", "Clone Table", "Duplicate Table"],
+        "answer": 0,
+        "explanation": "Copy & Paste Structure Only duplicates the table design without data."
+    },
+	 {
+        "question": "Which MS Access object is used for creating a simple user interface to input data?",
+        "options": ["Form", "Query", "Report", "Table"],
+        "answer": 0,
+        "explanation": "Forms are designed to help users enter and manage data easily."
+    },
+    {
+        "question": "In Access, which object stores data in a structured format?",
+        "options": ["Table", "Form", "Macro", "Module"],
+        "answer": 0,
+        "explanation": "Tables store data in fields (columns) and records (rows)."
+    },
+    {
+        "question": "Which view lets you add new records to a table directly?",
+        "options": ["Datasheet View", "Design View", "SQL View", "Layout View"],
+        "answer": 0,
+        "explanation": "Datasheet View allows direct data entry into a table."
+    },
+    {
+        "question": "What is a record in MS Access?",
+        "options": ["A row of data", "A column of data", "A data type", "A property setting"],
+        "answer": 0,
+        "explanation": "A record is one complete row of related data in a table."
+    },
+    {
+        "question": "Which data type is suitable for storing birth dates?",
+        "options": ["Date/Time", "Short Text", "Number", "Currency"],
+        "answer": 0,
+        "explanation": "Date/Time is the appropriate data type for storing dates."
+    },
+    {
+        "question": "Which toolbar displays all MS Access objects?",
+        "options": ["Navigation Pane", "Task Pane", "Object Pane", "Action Pane"],
+        "answer": 0,
+        "explanation": "The Navigation Pane lists all objects stored in the database."
+    },
+    {
+        "question": "Which key is used to move to the next field when entering data?",
+        "options": ["Tab", "Enter", "Arrow Key", "Shift"],
+        "answer": 0,
+        "explanation": "Pressing Tab moves the cursor to the next field in a record."
+    },
+    {
+        "question": "Which property forces a field to have some data entered before saving?",
+        "options": ["Required", "Format", "Allow Zero Length", "Caption"],
+        "answer": 0,
+        "explanation": "Required property ensures that data cannot be left blank."
+    },
+    {
+        "question": "Which Access feature shows only matching records based on your criteria?",
+        "options": ["Filter", "Sort", "Macro", "Format"],
+        "answer": 0,
+        "explanation": "Filters are used to display records matching specific conditions."
+    },
+    {
+        "question": "Which object is used to print formatted database information?",
+        "options": ["Report", "Form", "Query", "Table"],
+        "answer": 0,
+        "explanation": "Reports are formatted output for printing or sharing data."
+    },
+    {
+        "question": "Which data type stores long paragraphs of text?",
+        "options": ["Long Text", "Short Text", "Memo", "Both 1 and 3"],
+        "answer": 3,
+        "explanation": "Long Text (Memo in earlier versions) stores large text entries."
+    },
+    {
+        "question": "Which property changes how numerical values are displayed?",
+        "options": ["Format", "Caption", "Input Mask", "Default Value"],
+        "answer": 0,
+        "explanation": "Format property determines how values appear to the user."
+    },
+    {
+        "question": "Which query simply displays selected data without modifying it?",
+        "options": ["Select Query", "Update Query", "Delete Query", "Append Query"],
+        "answer": 0,
+        "explanation": "Select Queries retrieve data without making any changes to it."
+    },
+    {
+        "question": "In Access, what is a field?",
+        "options": ["A column of data", "A row of data", "A database", "An entire record"],
+        "answer": 0,
+        "explanation": "A field is a single column that contains the same type of data for all records."
+    },
+    {
+        "question": "Which button is used to save changes in Access?",
+        "options": ["Save", "OK", "Apply", "Export"],
+        "answer": 0,
+        "explanation": "The Save button commits changes made to the database object."
+    },
+    {
+        "question": "Which default file extension is used for Access 2016 databases?",
+        "options": [".accdb", ".mdb", ".dbf", ".xlsx"],
+        "answer": 0,
+        "explanation": ".accdb is the default file type for Access 2007 and later."
+    },
+    {
+        "question": "Which control is suitable for displaying Yes/No values in a Form?",
+        "options": ["Check Box", "Text Box", "Combo Box", "Label"],
+        "answer": 0,
+        "explanation": "Check Boxes represent binary Yes/No values effectively."
+    },
+    {
+        "question": "Which action in query design retrieves unique records only?",
+        "options": ["Select Unique Records", "Distinct Values", "Filter Unique", "Hide Duplicates"],
+        "answer": 1,
+        "explanation": "Turning on Distinct Values in the query properties retrieves unique rows."
+    },
+    {
+        "question": "Which field type should you use for storing website links?",
+        "options": ["Hyperlink", "Text", "Attachment", "Long Text"],
+        "answer": 0,
+        "explanation": "Hyperlink data type is designed for storing clickable links."
+    },
+    {
+        "question": "Which Access view lets you modify the design of a table?",
+        "options": ["Design View", "Datasheet View", "Form View", "SQL View"],
+        "answer": 0,
+        "explanation": "Design View allows you to add, remove, and change properties of fields."
+    },
+    {
+        "question": "Which property sets an automatic value for new records in a field?",
+        "options": ["Default Value", "Required", "Format", "Caption"],
+        "answer": 0,
+        "explanation": "Default Value fills in a specified value for each new record."
+    },
+    {
+        "question": "What is the function of the Caption field property?",
+        "options": ["Sets an alternate display name", "Sorts data", "Sets maximum length", "Types data automatically"],
+        "answer": 0,
+        "explanation": "Caption provides a user-friendly label instead of the field name."
+    },
+    {
+        "question": "Which part of a table contains the field names?",
+        "options": ["Header Row", "Data Row", "Footer Row", "Form Row"],
+        "answer": 0,
+        "explanation": "The header row displays the names of all fields in the table."
+    },
+    {
+        "question": "Which MS Access object is ideal for data entry on related tables?",
+        "options": ["Form with Subform", "Report", "Macro", "Switchboard"],
+        "answer": 0,
+        "explanation": "Forms with subforms allow entering master and detail records together."
+    },
+    {
+        "question": "Which option sorts records from Z to A?",
+        "options": ["Descending", "Ascending", "Filter", "Randomize"],
+        "answer": 0,
+        "explanation": "Descending sort orders text from Z to A and numbers from highest to lowest."
+    },
+    {
+        "question": "Which wild card symbol matches any single character?",
+        "options": ["?", "*", "#", "%"],
+        "answer": 0,
+        "explanation": "The ? wildcard matches exactly one character in the search."
+    },
+    {
+        "question": "In a table, each column is called a:",
+        "options": ["Field", "Record", "Sheet", "Form"],
+        "answer": 0,
+        "explanation": "Columns in a table are referred to as fields."
+    },
+    {
+        "question": "Which object can create a printable summary of filtered records?",
+        "options": ["Report", "Form", "Query", "Macro"],
+        "answer": 0,
+        "explanation": "Reports can be based on filtered data to produce a clean printout."
+    },
+    {
+        "question": "Which data type stores whole numbers only?",
+        "options": ["Number", "Short Text", "Yes/No", "Date/Time"],
+        "answer": 0,
+        "explanation": "Number type can store integers when field size is set accordingly."
+    },
+    {
+        "question": "Which Access object displays data visually for user input?",
+        "options": ["Form", "Table", "Query", "Module"],
+        "answer": 0,
+        "explanation": "Forms allow interactive data entry and navigation."
+    },
+    {
+        "question": "Which tool is used to improve a database file’s performance and fix minor issues?",
+        "options": ["Compact and Repair", "Data Formatter", "Reindex", "Optimizer"],
+        "answer": 0,
+        "explanation": "Compact and Repair reduces file size and repairs corruption."
+    },
+    {
+        "question": "Which view shows how a report will look when printed?",
+        "options": ["Print Preview", "Design View", "Layout View", "Report View"],
+        "answer": 0,
+        "explanation": "Print Preview displays exactly how a report will appear on paper."
+    },
+    {
+        "question": "Which Access query type is used for calculations and summaries?",
+        "options": ["Totals Query", "Select Query", "Delete Query", "Append Query"],
+        "answer": 0,
+        "explanation": "Totals Query groups records and calculates aggregates like SUM or AVG."
+    },
+    {
+        "question": "Which form control allows users to choose from a list?",
+        "options": ["Combo Box", "List Box", "Option Group", "Check Box"],
+        "answer": 0,
+        "explanation": "Combo Boxes allow choosing from a drop-down list or typing a value."
+    },
+    {
+        "question": "Which MS Access feature would you use to quickly find specific records?",
+        "options": ["Find", "Replace", "Filter", "Sort"],
+        "answer": 0,
+        "explanation": "The Find tool searches for data within the current object."
+    },
+    {
+        "question": "Which control in a form can be linked to another table for lookup?",
+        "options": ["Combo Box", "Text Box", "Label", "Check Box"],
+        "answer": 0,
+        "explanation": "Combo Box can display values from another table for selection."
+    },
+    {
+        "question": "Which field property specifies the maximum characters for Short Text?",
+        "options": ["Field Size", "Max Length", "Character Limit", "Width"],
+        "answer": 0,
+        "explanation": "The Field Size property limits the length of Short Text entries."
+    },
+    {
+        "question": "Which feature temporarily hides records that don't match conditions?",
+        "options": ["Filter", "Hide", "Sort", "Format"],
+        "answer": 0,
+        "explanation": "Filtering hides records you don’t want to see at the moment."
+    },
+    {
+        "question": "Which type of key uniquely identifies each record in a table?",
+        "options": ["Primary Key", "Foreign Key", "Composite Key", "Unique Index"],
+        "answer": 0,
+        "explanation": "The Primary Key is a unique field that identifies each record."
+    },
+    {
+        "question": "Which Access tool lets you define relationships between tables?",
+        "options": ["Relationships Window", "Navigation Pane", "Query Designer", "Link Manager"],
+        "answer": 0,
+        "explanation": "Relationships Window displays and sets links between tables."
+    },
+    {
+        "question": "Which Access object runs predefined actions automatically?",
+        "options": ["Macro", "Form", "Table", "Report"],
+        "answer": 0,
+        "explanation": "Macros automate tasks and commands in Access."
+    },
+    {
+        "question": "Which view allows creating a table by specifying fields and data types?",
+        "options": ["Design View", "Datasheet View", "SQL View", "Layout View"],
+        "answer": 0,
+        "explanation": "Design View is used to create or modify table structure."
+    },
+    {
+        "question": "Which Join type shows all records from both tables with matched and unmatched data?",
+        "options": ["Outer Join", "Inner Join", "Left Join", "Right Join"],
+        "answer": 0,
+        "explanation": "An Outer Join includes all records from both tables."
+    },
+	 {
+        "question": "In MS Access, which object is used to store data?",
+        "options": ["Table", "Form", "Report", "Macro"],
+        "answer": 0,
+        "explanation": "Tables are used to store data in rows (records) and columns (fields)."
+    },
+    {
+        "question": "Which view allows direct data entry into a table?",
+        "options": ["Datasheet View", "Design View", "SQL View", "Layout View"],
+        "answer": 0,
+        "explanation": "Datasheet View is used for entering and editing data directly in a table."
+    },
+    {
+        "question": "What is a column in an MS Access table called?",
+        "options": ["Field", "Record", "Attribute", "Cell"],
+        "answer": 0,
+        "explanation": "A column in Access is called a field which stores a specific type of data."
+    },
+    {
+        "question": "What does each row in an Access table represent?",
+        "options": ["Field", "Record", "Column", "Database"],
+        "answer": 1,
+        "explanation": "Each row in a table is a record containing related information."
+    },
+    {
+        "question": "Which object is used to format and print information from the database?",
+        "options": ["Report", "Table", "Form", "Macro"],
+        "answer": 0,
+        "explanation": "Reports display and print data in a formatted manner."
+    },
+    {
+        "question": "Which data type is used to store True/False values?",
+        "options": ["Yes/No", "Text", "Number", "Date/Time"],
+        "answer": 0,
+        "explanation": "Yes/No data type stores Boolean values either as True/False or Yes/No."
+    },
+    {
+        "question": "Which Access object is commonly used to make data entry easier for users?",
+        "options": ["Form", "Macro", "Report", "Module"],
+        "answer": 0,
+        "explanation": "Forms provide a user-friendly interface for entering and editing records."
+    },
+    {
+        "question": "Which tab contains the Relationships tool in Access?",
+        "options": ["Database Tools", "Home", "Create", "View"],
+        "answer": 0,
+        "explanation": "Database Tools tab has the button for setting table relationships."
+    },
+    {
+        "question": "Which key moves to the next field when entering data?",
+        "options": ["Tab", "Enter", "Arrow Key", "Shift"],
+        "answer": 0,
+        "explanation": "Pressing Tab moves the cursor to the next field in the same record."
+    },
+    {
+        "question": "Which data type is best for names or short text entries?",
+        "options": ["Short Text", "Long Text", "Memo", "Hyperlink"],
+        "answer": 0,
+        "explanation": "Short Text is used for entries up to 255 characters long."
+    },
+    {
+        "question": "Which property makes a text field store more than 255 characters?",
+        "options": ["Long Text", "Short Text", "Caption", "Memo"],
+        "answer": 0,
+        "explanation": "Long Text can store large text such as paragraphs."
+    },
+    {
+        "question": "Which icon in a new row indicates where to add a new record?",
+        "options": ["Asterisk (*)", "Plus (+)", "Arrow", "Hash (#)"],
+        "answer": 0,
+        "explanation": "An asterisk in the row selector means a new record can be entered there."
+    },
+    {
+        "question": "Which property prevents leaving a field empty?",
+        "options": ["Required", "Format", "Default Value", "Caption"],
+        "answer": 0,
+        "explanation": "Required property ensures the field cannot be left blank."
+    },
+    {
+        "question": "Which feature temporarily hides records not matching conditions?",
+        "options": ["Filter", "Sort", "Macro", "Format"],
+        "answer": 0,
+        "explanation": "Filter shows only the records that match specified criteria."
+    },
+    {
+        "question": "Which Access feature quickly finds a particular word or value?",
+        "options": ["Find", "Search", "Locate", "Seek"],
+        "answer": 0,
+        "explanation": "The Find option searches for specific data within an object."
+    },
+    {
+        "question": "Which field property sets a predefined value for new records?",
+        "options": ["Default Value", "Required", "Input Mask", "Format"],
+        "answer": 0,
+        "explanation": "Default Value inserts a preset value into new records automatically."
+    },
+    {
+        "question": "What is a 'Primary Key' used for in a table?",
+        "options": ["To uniquely identify each record", "To format data", "To store text", "To link databases"],
+        "answer": 0,
+        "explanation": "Primary Key uniquely identifies each record in a table."
+    },
+    {
+        "question": "Which key deletes the selected record in Datasheet View?",
+        "options": ["Delete", "Backspace", "Ctrl+D", "Shift+Delete"],
+        "answer": 0,
+        "explanation": "Press Delete to remove the selected record permanently."
+    },
+    {
+        "question": "Which object helps create a printable report from query or table data?",
+        "options": ["Report", "Form", "Macro", "Module"],
+        "answer": 0,
+        "explanation": "Reports format data for printing from tables or queries."
+    },
+    {
+        "question": "Which query type is best to display certain fields and records?",
+        "options": ["Select Query", "Delete Query", "Make Table Query", "Append Query"],
+        "answer": 0,
+        "explanation": "Select Query retrieves and displays specified data without changing it."
+    },
+    {
+        "question": "Which Access view allows changing table structure by adding fields?",
+        "options": ["Design View", "Datasheet View", "SQL View", "Form View"],
+        "answer": 0,
+        "explanation": "Design View lets you set up and modify a table's fields and properties."
+    },
+    {
+        "question": "Which field property changes how stored values are shown?",
+        "options": ["Format", "Default Value", "Required", "Field Size"],
+        "answer": 0,
+        "explanation": "The Format property decides how the value is displayed, without altering the stored data."
+    },
+    {
+        "question": "Which Access object stores VBA code?",
+        "options": ["Module", "Macro", "Form", "Query"],
+        "answer": 0,
+        "explanation": "Modules store VBA code for custom database programming."
+    },
+    {
+        "question": "Which command optimizes the database and repairs corruption?",
+        "options": ["Compact and Repair", "Refresh", "Backup", "Optimize"],
+        "answer": 0,
+        "explanation": "Compact and Repair organizes storage and fixes minor corruption."
+    },
+    {
+        "question": "Which Access view lets you see how a report will look when printed?",
+        "options": ["Print Preview", "Design View", "Layout View", "Report View"],
+        "answer": 0,
+        "explanation": "Print Preview shows the report exactly as it will appear on paper."
+    },
+    {
+        "question": "Which key shortcut saves the current object in Access?",
+        "options": ["Ctrl+S", "Ctrl+P", "Ctrl+Shift+S", "F5"],
+        "answer": 0,
+        "explanation": "Ctrl+S saves your current changes to the object."
+    },
+    {
+        "question": "Which data type is best for storing website URLs?",
+        "options": ["Hyperlink", "Long Text", "Short Text", "Attachment"],
+        "answer": 0,
+        "explanation": "Hyperlink type is intended for URLs or email addresses."
+    },
+    {
+        "question": "Which tab in Access contains the option to create queries?",
+        "options": ["Create", "Home", "Database Tools", "External Data"],
+        "answer": 0,
+        "explanation": "Create tab provides tools to start queries, forms, and reports."
+    },
+    {
+        "question": "Which query type simply selects and shows data?",
+        "options": ["Select Query", "Update Query", "Append Query", "Delete Query"],
+        "answer": 0,
+        "explanation": "Select Queries return results without modifying data."
+    },
+    {
+        "question": "What is the default file extension for Access databases in recent versions?",
+        "options": [".accdb", ".mdb", ".dbf", ".sqlite"],
+        "answer": 0,
+        "explanation": "Access 2007 and onward uses .accdb format by default."
+    },
+    {
+        "question": "Which wild card in Access represents multiple unknown characters?",
+        "options": ["*", "?", "%", "#"],
+        "answer": 0,
+        "explanation": "The asterisk (*) wildcard matches any number of characters."
+    },
+    {
+        "question": "Which view is used to adjust both layout and data at the same time?",
+        "options": ["Layout View", "Design View", "Datasheet View", "SQL View"],
+        "answer": 0,
+        "explanation": "Layout View allows modifying design while viewing data."
+    },
+    {
+        "question": "Which Yes/No field display is used in Datasheet View?",
+        "options": ["Check Box", "Radio Button", "Drop-down", "Text"],
+        "answer": 0,
+        "explanation": "Yes/No fields are shown as check boxes."
+    },
+    {
+        "question": "Which toolbar allows switching between Access objects like tables and forms?",
+        "options": ["Navigation Pane", "Quick Access Toolbar", "Task Pane", "Status Bar"],
+        "answer": 0,
+        "explanation": "The Navigation Pane lists all objects so you can switch between them."
+    },
+    {
+        "question": "Which Access object retrieves data based on user-defined criteria?",
+        "options": ["Query", "Table", "Report", "Macro"],
+        "answer": 0,
+        "explanation": "Queries filter and retrieve data according to criteria."
+    },
+    {
+        "question": "Which part of a report prints once at the end?",
+        "options": ["Report Footer", "Page Footer", "Detail", "Header"],
+        "answer": 0,
+        "explanation": "Report Footer appears only once, usually for totals."
+    },
+    {
+        "question": "Which button is used to run a query in Design View?",
+        "options": ["Run (!)", "Start", "Execute", "Go"],
+        "answer": 0,
+        "explanation": "The Run button with (!) executes the query."
+    },
+    {
+        "question": "Which Access feature helps to quickly navigate to a specific record?",
+        "options": ["Search Box in Record Navigation Bar", "Query", "Filter", "Sort"],
+        "answer": 0,
+        "explanation": "The Search Box at the bottom helps locate records quickly."
+    },
+    {
+        "question": "What is the basic building block of an Access database?",
+        "options": ["Table", "Form", "Query", "Report"],
+        "answer": 0,
+        "explanation": "All database information is stored in tables."
+    },
+    {
+        "question": "Which join type shows only matching records from two tables?",
+        "options": ["Inner Join", "Outer Join", "Left Join", "Right Join"],
+        "answer": 0,
+        "explanation": "Inner Join includes only rows that match in both tables."
+    },
+    {
+        "question": "Which MS Access object is mainly used for data printing?",
+        "options": ["Report", "Macro", "Table", "Form"],
+        "answer": 0,
+        "explanation": "Reports are designed for formatted printing."
+    },
+    {
+        "question": "Which keyboard key refreshes the active window in Access?",
+        "options": ["F5", "F9", "Ctrl+R", "Alt+F5"],
+        "answer": 0,
+        "explanation": "F5 refreshes the active view or window."
+    },
+    {
+        "question": "Which field property ensures unique values in a field?",
+        "options": ["Indexed (No Duplicates)", "Primary Key", "Unique", "Required"],
+        "answer": 0,
+        "explanation": "Indexed (No Duplicates) prevents duplicate entries in that field."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

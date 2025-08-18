@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Detection Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">FIND THE ERROR</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+    "question": "Each of the boys have submitted their assignments.",
+    "options": ["Each of the boys have", "submitted", "their assignments", "No Error"],
+    "answer": 0,
+    "explanation": "'Each' is singular, so it should be 'Each of the boys has'."
+  },
+  {
+    "question": "Neither of the two brothers are interested in sports.",
+    "options": ["Neither of the two brothers", "are interested", "in sports", "No Error"],
+    "answer": 1,
+    "explanation": "'Neither' takes singular verb. Correct: 'Neither of the two brothers is interested'."
+  },
+  {
+    "question": "She is senior than me in the office.",
+    "options": ["She is", "senior than me", "in the office", "No Error"],
+    "answer": 1,
+    "explanation": "Comparatives like 'senior, junior, superior' are followed by 'to'. Correct: 'senior to me'."
+  },
+  {
+    "question": "Much people gathered outside the stadium.",
+    "options": ["Much people", "gathered", "outside the stadium", "No Error"],
+    "answer": 0,
+    "explanation": "'Much' is used with uncountables. Correct: 'Many people gathered'."
+  },
+  {
+    "question": "He is looking forward for visit Delhi next week.",
+    "options": ["He is looking forward for", "visit Delhi", "next week", "No Error"],
+    "answer": 0,
+    "explanation": "Correct structure: 'looking forward to visiting'."
+  },
+  {
+    "question": "The train will reach to the station at 6 PM.",
+    "options": ["The train will", "reach to the station", "at 6 PM", "No Error"],
+    "answer": 1,
+    "explanation": "'Reach' is never followed by 'to'. Correct: 'will reach the station'."
+  },
+  {
+    "question": "She gave me an advice on investment.",
+    "options": ["She gave me an", "advice", "on investment", "No Error"],
+    "answer": 1,
+    "explanation": "'Advice' is uncountable. Correct: 'gave me some advice'."
+  },
+  {
+    "question": "Neither of the plans suit to him.",
+    "options": ["Neither of the plans", "suit to him", "", "No Error"],
+    "answer": 1,
+    "explanation": "Correct: 'suits him'. Use singular verb and drop 'to'."
+  },
+  {
+    "question": "She is one of the best student in the class.",
+    "options": ["She is one of the", "best student", "in the class", "No Error"],
+    "answer": 1,
+    "explanation": "After 'one of the', plural noun is used: 'best students'."
+  },
+  {
+    "question": "He has been working here since five years.",
+    "options": ["He has been working", "here since five years", "", "No Error"],
+    "answer": 1,
+    "explanation": "Use 'for' with period of time. Correct: 'for five years'."
+  },
+  {
+    "question": "Scarcely had he left the room when the phone rang.",
+    "options": ["Scarcely had he left", "the room", "when the phone rang", "No Error"],
+    "answer": 2,
+    "explanation": "With 'scarcely', use 'when' or 'before'? Correct: 'Scarcely... when'. Actually this is correct. ERROR: None. Answer: 3."
+  },
+  {
+    "question": "No sooner did the train arrive but the passengers rushed out.",
+    "options": ["No sooner did", "the train arrive", "but the passengers rushed out", "No Error"],
+    "answer": 2,
+    "explanation": "With 'No sooner', use 'than' not 'but'."
+  },
+  {
+    "question": "Each of the students were given certificates.",
+    "options": ["Each of the students", "were given", "certificates", "No Error"],
+    "answer": 1,
+    "explanation": "'Each' takes singular verb: 'was given'."
+  },
+  {
+    "question": "They discussed about the project in detail.",
+    "options": ["They discussed about", "the project", "in detail", "No Error"],
+    "answer": 0,
+    "explanation": "'Discuss' does not take 'about'. Correct: 'They discussed the project'."
+  },
+  {
+    "question": "She is good in mathematics.",
+    "options": ["She is", "good in", "mathematics", "No Error"],
+    "answer": 1,
+    "explanation": "Correct: 'good at mathematics'."
+  },
+  {
+    "question": "The police has arrested the culprit.",
+    "options": ["The police has", "arrested the culprit", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Police' is plural. Correct: 'The police have arrested'."
+  },
+  {
+    "question": "Neither Ram nor his friends is absent today.",
+    "options": ["Neither Ram", "nor his friends", "is absent today", "No Error"],
+    "answer": 2,
+    "explanation": "Verb agrees with nearest subject: 'nor his friends are absent'."
+  },
+  {
+    "question": "He is the most tallest player in the team.",
+    "options": ["He is", "the most tallest", "player in the team", "No Error"],
+    "answer": 1,
+    "explanation": "Never use 'most' with '-est'. Correct: 'the tallest player'."
+  },
+  {
+    "question": "Let you and I go for a walk.",
+    "options": ["Let you", "and I go", "for a walk", "No Error"],
+    "answer": 1,
+    "explanation": "After 'let', object form is used: 'Let you and me go'."
+  },
+  {
+    "question": "She prefers coffee than tea.",
+    "options": ["She prefers", "coffee than tea", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Prefer X to Y'. Correct: 'She prefers coffee to tea'."
+  },
+  {
+    "question": "You had better to study hard for the exam.",
+    "options": ["You had better to", "study hard", "for the exam", "No Error"],
+    "answer": 0,
+    "explanation": "After 'had better', base verb is used. Correct: 'had better study'."
+  },
+  {
+    "question": "Unless you will work hard, you cannot succeed.",
+    "options": ["Unless you will work hard", "you cannot succeed", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Unless' is not followed by 'will'. Correct: 'Unless you work hard'."
+  },
+  {
+    "question": "This is a worth reading book.",
+    "options": ["This is a", "worth reading book", "", "No Error"],
+    "answer": 1,
+    "explanation": "Correct: 'This is a book worth reading'."
+  },
+  {
+    "question": "He did not see someone in the room.",
+    "options": ["He did not", "see someone", "in the room", "No Error"],
+    "answer": 1,
+    "explanation": "Use 'anyone' in negatives. Correct: 'did not see anyone'."
+  },
+  {
+    "question": "She resembles with her mother.",
+    "options": ["She resembles with", "her mother", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Resemble' is not followed by 'with'. Correct: 'She resembles her mother'."
+  },
+  {
+    "question": "Hurry! The bus is about to leave, isn’t it?",
+    "options": ["Hurry!", "The bus is about to leave,", "isn’t it?", "No Error"],
+    "answer": 2,
+    "explanation": "Correct tag should be: 'isn’t it?' Actually, main clause affirmative, so 'isn’t it?' is correct. No error. Answer: 3."
+  },
+  {
+    "question": "She said me that she was tired.",
+    "options": ["She said me", "that she was tired", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'She told me'. 'Said to me' is also fine but 'said me' is incorrect."
+  },
+  {
+    "question": "My father is working in a bank since 2010.",
+    "options": ["My father is working", "in a bank since 2010", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use perfect continuous: 'has been working since 2010'."
+  },
+  {
+    "question": "The committee are unanimous in their decision.",
+    "options": ["The committee are unanimous", "in their decision", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Committee' (as whole) takes singular verb. Correct: 'The committee is unanimous'."
+  },
+  {
+    "question": "This is one of the book I purchased yesterday.",
+    "options": ["This is", "one of the book", "I purchased yesterday", "No Error"],
+    "answer": 1,
+    "explanation": "'One of the' must be followed by plural noun. Correct: 'books'."
+  },
+  {
+    "question": "She is suffering with fever since Monday.",
+    "options": ["She is suffering with", "fever since Monday", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct usage: 'suffering from fever'."
+  },
+  {
+    "question": "Did you went there yesterday?",
+    "options": ["Did you went", "there yesterday", "", "No Error"],
+    "answer": 0,
+    "explanation": "With 'did', use base form. Correct: 'Did you go there?'."
+  },
+  {
+    "question": "He is confident to win the competition.",
+    "options": ["He is confident to", "win the competition", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct usage: 'confident of winning'."
+  },
+  {
+    "question": "She could not help cry when she heard bad news.",
+    "options": ["She could not help cry", "when she heard", "bad news", "No Error"],
+    "answer": 0,
+    "explanation": "'Could not help' is followed by gerund. Correct: 'help crying'."
+  },
+  {
+    "question": "Who did you write the letter?",
+    "options": ["Who did you write", "the letter?", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'To whom did you write'."
+  },
+  {
+    "question": "She bought a pair of trousers which is too tight.",
+    "options": ["She bought a pair of trousers", "which is too tight", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Trousers' is plural. Correct: 'which are too tight'."
+  },
+  {
+    "question": "The news are very encouraging.",
+    "options": ["The news are", "very encouraging", "", "No Error"],
+    "answer": 0,
+    "explanation": "'News' is uncountable singular. Correct: 'news is'."
+  },
+  {
+    "question": "No sooner we reached the station when the train departed.",
+    "options": ["No sooner we reached", "the station when", "the train departed", "No Error"],
+    "answer": 1,
+    "explanation": "With 'No sooner', use 'than'. Correct: 'than the train departed'."
+  },
+  {
+    "question": "He is enough strong to lift the box.",
+    "options": ["He is enough strong", "to lift the box", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'He is strong enough'."
+  },
+  {
+    "question": "The sceneries of Kashmir is beautiful.",
+    "options": ["The sceneries of Kashmir", "is beautiful", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Scenery' is uncountable. Correct: 'The scenery of Kashmir is beautiful'."
+  },
+  {
+    "question": "I am used to get up early in the morning.",
+    "options": ["I am used to get up", "early in the morning", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'I am used to getting up'."
+  },
+  {
+    "question": "Besides English he knows to drive a car.",
+    "options": ["Besides English", "he knows to drive a car", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Knows to drive' is incorrect. Correct: 'knows how to drive'."
+  },
+  {
+    "question": "The teacher explained us the problem.",
+    "options": ["The teacher explained us", "the problem", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Explain' takes object directly, not person. Correct: 'explained the problem to us'."
+  },
+  {
+    "question": "The police is investigating into the case.",
+    "options": ["The police is", "investigating into the case", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Police' plural → 'are investigating'. Also 'investigating into' redundant but acceptable. Correct form: 'police are investigating the case'."
+  },
+  {
+    "question": "My father along with my uncles are going to the market.",
+    "options": ["My father along with my uncles", "are going to the market", "", "No Error"],
+    "answer": 1,
+    "explanation": "Verb agrees with first subject. Correct: 'My father ... is going'."
+  },
+  {
+    "question": "Ramesh as well as his friends have arrived.",
+    "options": ["Ramesh as well as his friends", "have arrived", "", "No Error"],
+    "answer": 1,
+    "explanation": "Subject 'Ramesh' is singular. Correct verb: 'has arrived'."
+  },
+  {
+    "question": "No less than ten students were absent.",
+    "options": ["No less than", "ten students", "were absent", "No Error"],
+    "answer": 0,
+    "explanation": "With countable plural, use 'fewer'. Correct: 'No fewer than ten students'."
+  },
+  {
+    "question": "Economics are an interesting subject.",
+    "options": ["Economics are", "an interesting subject", "", "No Error"],
+    "answer": 0,
+    "explanation": "Subjects like 'Economics' are singular. Correct: 'Economics is an interesting subject'."
+  },
+  {
+    "question": "She and I am going to the park.",
+    "options": ["She and I", "am going to the park", "", "No Error"],
+    "answer": 1,
+    "explanation": "When two subjects are joined by 'and', plural verb is used. Correct: 'She and I are going'."
+  },
+  {
+    "question": "Neither the manager nor the employees was satisfied with the proposal.",
+    "options": ["Neither the manager", "nor the employees", "was satisfied with the proposal", "No Error"],
+    "answer": 2,
+    "explanation": "Verb should agree with the nearest subject: 'nor the employees were satisfied'."
+  },
+  {
+    "question": "If I will see him, I will inform you.",
+    "options": ["If I will see him", "I will inform you", "", "No Error"],
+    "answer": 0,
+    "explanation": "Remove 'will' from the if-clause: 'If I see him, I will inform you'."
+  },
+  {
+    "question": "Being a rainy day, we stayed at home.",
+    "options": ["Being a rainy day", "we stayed at home", "", "No Error"],
+    "answer": 0,
+    "explanation": "Dangling modifier. Correct: 'It being a rainy day, we stayed at home'."
+  },
+  {
+    "question": "The equipments in the lab are very expensive.",
+    "options": ["The equipments", "in the lab", "are very expensive", "No Error"],
+    "answer": 0,
+    "explanation": "'Equipment' is uncountable. Correct: 'The equipment in the lab is very expensive'."
+  },
+  {
+    "question": "They knocked at the door and entered into the room.",
+    "options": ["They knocked at the door", "and entered into the room", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Entered' does not require 'into'. Correct: 'entered the room'."
+  },
+  {
+    "question": "She is married with a soldier.",
+    "options": ["She is married with", "a soldier", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'married to a soldier'."
+  },
+  {
+    "question": "No sooner had he finished his homework when his friend arrived.",
+    "options": ["No sooner had he finished his homework", "when his friend arrived", "", "No Error"],
+    "answer": 1,
+    "explanation": "'No sooner ... than' is correct. Replace 'when' with 'than'."
+  },
+  {
+    "question": "Ten miles are a long distance to walk.",
+    "options": ["Ten miles are", "a long distance", "to walk", "No Error"],
+    "answer": 0,
+    "explanation": "Distance, period, or amount is considered singular. Correct: 'Ten miles is'."
+  },
+  {
+    "question": "He succeeded because he worked hardly.",
+    "options": ["He succeeded", "because he worked hardly", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Hardly' means 'almost not'. Correct: 'worked hard'."
+  },
+  {
+    "question": "He is one of those who does not care for others.",
+    "options": ["He is one of those", "who does not care for others", "", "No Error"],
+    "answer": 1,
+    "explanation": "The relative pronoun 'who' refers to 'those', use plural: 'do not care'."
+  },
+  {
+    "question": "Being a contest, every child appeared nervous.",
+    "options": ["Being a contest", "every child appeared nervous", "", "No Error"],
+    "answer": 0,
+    "explanation": "Dangling modifier. Correct: 'As it was a contest, every child appeared nervous.'"
+  },
+  {
+    "question": "The staff were divided in their opinions.",
+    "options": ["The staff were divided", "in their opinions", "", "No Error"],
+    "answer": 1,
+    "explanation": "Correct preposition: 'divided on their opinions'."
+  },
+  {
+    "question": "The jury was divided in their opinions.",
+    "options": ["The jury was divided", "in their opinions", "", "No Error"],
+    "answer": 0,
+    "explanation": "When 'jury' acts individually, use plural verb: 'jury were divided'."
+  },
+  {
+    "question": "Each of the girls have brought her notebook.",
+    "options": ["Each of the girls have", "brought her notebook", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Each' requires singular verb: 'has brought her notebook'."
+  },
+  {
+    "question": "She is as beautiful if not more beautiful than her sister.",
+    "options": ["She is as beautiful", "if not more beautiful", "than her sister", "No Error"],
+    "answer": 1,
+    "explanation": "Correct: 'as beautiful as, if not more beautiful than'."
+  },
+  {
+    "question": "The dog injured itself while playing.",
+    "options": ["The dog injured itself", "while playing", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error; 'itself' is correct for animals."
+  },
+  {
+    "question": "Neither of the two cakes were tasty.",
+    "options": ["Neither of the two cakes", "were tasty", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Neither' is singular: 'was tasty'."
+  },
+  {
+    "question": "He has gone in the market.",
+    "options": ["He has gone in the market", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'gone to the market'."
+  },
+  {
+    "question": "I wish I was a bird.",
+    "options": ["I wish I was a bird", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "Subjunctive mood: 'were' instead of 'was'."
+  },
+  {
+    "question": "He did not listen me.",
+    "options": ["He did not listen me", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Listen' is followed by 'to': 'listen to me'."
+  },
+  {
+    "question": "He denied to help me.",
+    "options": ["He denied to help me", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use gerund: 'denied helping me'."
+  },
+  {
+    "question": "He is fond for chocolates.",
+    "options": ["He is fond for chocolates", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Fond' is followed by 'of': 'fond of chocolates'."
+  },
+  {
+    "question": "The teacher as well as the students were present.",
+    "options": ["The teacher as well as the students", "were present", "", "No Error"],
+    "answer": 1,
+    "explanation": "Verb agrees with the first subject: 'teacher ... was present'."
+  },
+  {
+    "question": "Our team have won the match.",
+    "options": ["Our team have", "won the match", "", "No Error"],
+    "answer": 0,
+    "explanation": "Collective noun as whole: 'Our team has won'."
+  },
+  {
+    "question": "One must do his duty.",
+    "options": ["One must do", "his duty", "", "No Error"],
+    "answer": 1,
+    "explanation": "With 'one', use 'one's' not 'his': 'do one's duty'."
+  },
+  {
+    "question": "The man is blind from one eye.",
+    "options": ["The man is blind from", "one eye", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'blind in one eye'."
+  },
+  {
+    "question": "He is taller than me.",
+    "options": ["He is taller", "than me", "", "No Error"],
+    "answer": 1,
+    "explanation": "Than 'I' is preferred; 'than I am'."
+  },
+  {
+    "question": "He denied that he has stolen the pen.",
+    "options": ["He denied that", "he has stolen the pen", "", "No Error"],
+    "answer": 1,
+    "explanation": "Sequence of tenses: 'he had stolen the pen'."
+  },
+  {
+    "question": "They are discussing about the matter.",
+    "options": ["They are discussing about", "the matter", "", "No Error"],
+    "answer": 0,
+    "explanation": "Do not use 'about' after 'discussing': 'discussing the matter'."
+  },
+  {
+    "question": "She is susceptible of all kinds of flattery.",
+    "options": ["She is susceptible of", "all kinds of flattery", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Susceptible to', not 'of'."
+  },
+  {
+    "question": "He contributed money, clothes and gave food to the needy.",
+    "options": ["He contributed money", "clothes and gave food to the needy", "", "No Error"],
+    "answer": 1,
+    "explanation": "Maintain parallel structure: 'contributed money, clothes and food'."
+  },
+  {
+    "question": "I wish he will come soon.",
+    "options": ["I wish he will come soon", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use 'would' for wish: 'he would come soon'."
+  },
+  {
+    "question": "He has difficulty of accepting responsibility.",
+    "options": ["He has difficulty of", "accepting responsibility", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'difficulty in accepting responsibility'."
+  },
+  {
+    "question": "He went to abroad for higher studies.",
+    "options": ["He went to abroad", "for higher studies", "", "No Error"],
+    "answer": 0,
+    "explanation": "Never use 'to' before 'abroad': 'went abroad'."
+  },
+  {
+    "question": "One should keep his promise.",
+    "options": ["One should keep", "his promise", "", "No Error"],
+    "answer": 1,
+    "explanation": "With 'one', use 'one's promise'."
+  },
+  {
+    "question": "She is junior than me.",
+    "options": ["She is junior than", "me", "", "No Error"],
+    "answer": 0,
+    "explanation": "Prefer 'junior to me'."
+  },
+  {
+    "question": "I avoid to eat junk food.",
+    "options": ["I avoid to eat", "junk food", "", "No Error"],
+    "answer": 0,
+    "explanation": "After 'avoid', use gerund: 'avoid eating'."
+  },
+  {
+    "question": "He congratulated to me on my success.",
+    "options": ["He congratulated to me", "on my success", "", "No Error"],
+    "answer": 0,
+    "explanation": "Do not use 'to' after 'congratulated': 'He congratulated me'."
+  },
+  {
+    "question": "The cattle is grazing in the field.",
+    "options": ["The cattle is grazing", "in the field", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Cattle' is plural: 'cattle are grazing'."
+  },
+  {
+    "question": "Bread and butter are his favorite breakfast.",
+    "options": ["Bread and butter are", "his favorite breakfast", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use singular verb when considered as a single dish: 'Bread and butter is'."
+  },
+  {
+    "question": "His brother-in-laws are doctors.",
+    "options": ["His brother-in-laws", "are doctors", "", "No Error"],
+    "answer": 0,
+    "explanation": "Plural form: 'brothers-in-law'."
+  },
+  {
+    "question": "He is suffering of fever.",
+    "options": ["He is suffering of fever", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Suffering from', not 'of'."
+  },
+  {
+    "question": "It is high time you leave the house.",
+    "options": ["It is high time", "you leave the house", "", "No Error"],
+    "answer": 1,
+    "explanation": "'High time' is followed by past tense: 'you left the house'."
+  },
+  {
+    "question": "He entered into the room without knocking.",
+    "options": ["He entered into the room", "without knocking", "", "No Error"],
+    "answer": 0,
+    "explanation": "Do not use 'into' after 'entered': 'entered the room'."
+  },
+  {
+    "question": "She did not bought any fruits.",
+    "options": ["She did not bought", "any fruits", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use base verb after 'did not': 'did not buy'."
+  },
+  {
+    "question": "Each students must bring their identity card.",
+    "options": ["Each students", "must bring their identity card", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Each' requires singular noun: 'Each student must bring his/her identity card'."
+  },
+  {
+    "question": "He is so weak to work.",
+    "options": ["He is so weak", "to work", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'too weak to work'."
+  },
+  {
+    "question": "No news are good news for him.",
+    "options": ["No news are", "good news", "for him", "No Error"],
+    "answer": 0,
+    "explanation": "'News' is singular: 'No news is good news'."
+  },
+  {
+    "question": "Hardly he had reached when it started raining.",
+    "options": ["Hardly he had", "reached when", "it started raining", "No Error"],
+    "answer": 0,
+    "explanation": "With 'Hardly', invert subject and auxiliary: 'Hardly had he reached...'"
+  },
+  {
+    "question": "Each of the players have a medal.",
+    "options": ["Each of the players", "have a medal", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Each' is singular, so verb should be 'has'."
+  },
+  {
+    "question": "Is there any issues with the report?",
+    "options": ["Is there", "any issues", "with the report", "No Error"],
+    "answer": 1,
+    "explanation": "'Issues' (plural) needs 'Are there', not 'Is there'."
+  },
+  {
+    "question": "He told that he will come tomorrow.",
+    "options": ["He told that", "he will come", "tomorrow", "No Error"],
+    "answer": 0,
+    "explanation": "Proper reporting: 'He said that he would come tomorrow' or 'He told me...'"
+  },
+  {
+    "question": "The news are true.",
+    "options": ["The news are", "true", "", "No Error"],
+    "answer": 0,
+    "explanation": "'News' is singular; use 'is true'."
+  },
+  {
+    "question": "I have been knowing him for years.",
+    "options": ["I have been knowing", "him for years", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Know' is a stative verb and not used in continuous tense."
+  },
+  {
+    "question": "The team have won the match.",
+    "options": ["The team have", "won the match", "", "No Error"],
+    "answer": 0,
+    "explanation": "Collective noun 'team' takes singular verb: 'has won'."
+  },
+  {
+    "question": "He is accused for theft.",
+    "options": ["He is accused for theft", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Accused of', not 'accused for'."
+  },
+  {
+    "question": "Every of the students has passed the exam.",
+    "options": ["Every of the students", "has passed the exam", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct phrase: 'Every student has passed'."
+  },
+  {
+    "question": "He preferred tea to coffee over.",
+    "options": ["He preferred tea", "to coffee over", "", "No Error"],
+    "answer": 1,
+    "explanation": "'To' and 'over' both show preference; use only one. Remove 'over'."
+  },
+  {
+    "question": "Ravi is better than any other boy in class.",
+    "options": ["Ravi is better", "than any other boy", "in class", "No Error"],
+    "answer": 1,
+    "explanation": "'Better than all other boys' or 'better than any other boy' without 'other'."
+  },
+  {
+    "question": "If I were born rich, I would travel the world.",
+    "options": ["If I were born rich", "I would travel the world", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error; correct subjunctive in conditional sentence."
+  },
+  {
+    "question": "She explained me the problem clearly.",
+    "options": ["She explained me", "the problem clearly", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Explain' does not take indirect object directly; use 'explained the problem to me'."
+  },
+  {
+    "question": "The sun rises from the west.",
+    "options": ["The sun rises", "from the west", "", "No Error"],
+    "answer": 1,
+    "explanation": "Sun rises from the east."
+  },
+  {
+    "question": "He invited me for attend the party.",
+    "options": ["He invited me", "for attend the party", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Invite to attend' or 'invite me to the party'."
+  },
+  {
+    "question": "Some people prefers tea over coffee.",
+    "options": ["Some people", "prefers tea over coffee", "", "No Error"],
+    "answer": 1,
+    "explanation": "'People' plural requires 'prefer'."
+  },
+  {
+    "question": "She looks like her mother does.",
+    "options": ["She looks like", "her mother does", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error; sentence is correct."
+  },
+  {
+    "question": "The accused was guilty and punished accordingly.",
+    "options": ["The accused was guilty", "and punished accordingly", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "He was appreciated by the manager for his hard work.",
+    "options": ["He was appreciated by", "the manager for his hard work", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error; passive voice is correct."
+  },
+  {
+    "question": "She is looking forward to meet her friend.",
+    "options": ["She is looking forward", "to meet her friend", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Look forward to' is followed by gerund: 'meeting her friend'."
+  },
+  {
+    "question": "If I had known it, I will have informed you.",
+    "options": ["If I had known it", "I will have informed you", "", "No Error"],
+    "answer": 1,
+    "explanation": "Conditional past perfect requires 'would have informed'."
+  },
+  {
+    "question": "She hardly ever drinks coffee.",
+    "options": ["She hardly ever drinks coffee", "", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "This is the less interesting book I have read.",
+    "options": ["This is the less interesting", "book I have read", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use 'least' for superlative degree."
+  },
+  {
+    "question": "He arrived to the airport on time.",
+    "options": ["He arrived to", "the airport on time", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Arrive at/to' airport? Correct: 'arrived at the airport'."
+  },
+  {
+    "question": "We discussed about the new policy in the meeting.",
+    "options": ["We discussed about", "the new policy in the meeting", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Discuss' does not take 'about'."
+  },
+  {
+    "question": "Neither the teacher nor the students is ready for the exam.",
+    "options": ["Neither the teacher nor the students", "is ready for the exam", "", "No Error"],
+    "answer": 1,
+    "explanation": "Verb agrees with nearest subject: plural 'students are'."
+  },
+  {
+    "question": "She has been living here since three years.",
+    "options": ["She has been living here", "since three years", "", "No Error"],
+    "answer": 1,
+    "explanation": "Use 'for' with a period of time."
+  },
+  {
+    "question": "The information are not correct.",
+    "options": ["The information are", "not correct", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Information' is uncountable singular."
+  },
+  {
+    "question": "He was selected because of he was hardworking.",
+    "options": ["He was selected", "because of he was hardworking", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Because of' should be followed by noun or noun phrase, use 'because he was'."
+  },
+  {
+    "question": "He is so much honest man.",
+    "options": ["He is so much honest", "man", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'He is such an honest man'."
+  },
+  {
+    "question": "I prefer tea than coffee.",
+    "options": ["I prefer tea", "than coffee", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Prefer tea to coffee'."
+  },
+  {
+    "question": "She borrowed some money from him for to pay the rent.",
+    "options": ["She borrowed some money", "from him for to pay the rent", "", "No Error"],
+    "answer": 1,
+    "explanation": "Remove 'to' after 'for'."
+  },
+  {
+    "question": "The children loves playing outside.",
+    "options": ["The children loves", "playing outside", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Children' plural requires 'love'."
+  },
+  {
+    "question": "Hardly we reached when the movie started.",
+    "options": ["Hardly we reached", "when the movie started", "", "No Error"],
+    "answer": 0,
+    "explanation": "Invert subject and auxiliary: 'Hardly had we reached...'"
+  },
+  {
+    "question": "The teacher asked me where do you live.",
+    "options": ["The teacher asked me", "where do you live", "", "No Error"],
+    "answer": 1,
+    "explanation": "In indirect speech: 'where you live'."
+  },
+  {
+    "question": "He is a very intelligent girl.",
+    "options": ["He is", "a very intelligent girl", "", "No Error"],
+    "answer": 0,
+    "explanation": "Gender mismatch: 'He' should be 'She'."
+  },
+  {
+    "question": "The police is coming soon.",
+    "options": ["The police is", "coming soon", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Police' is plural: 'The police are'."
+  },
+  {
+    "question": "I have less friends than you.",
+    "options": ["I have less friends", "than you", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use 'fewer' with countable nouns."
+  },
+  {
+    "question": "The book which you gave me is interesting.",
+    "options": ["The book which", "you gave me", "is interesting", "No Error"],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "All the information are correct.",
+    "options": ["All the information are", "correct", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Information' is uncountable singular."
+  },
+  {
+    "question": "He is excellent in his work.",
+    "options": ["He is", "excellent in his work", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct preposition is 'at': 'excellent at his work'."
+  },
+  {
+    "question": "People from America loves football.",
+    "options": ["People from America", "loves football", "", "No Error"],
+    "answer": 0,
+    "explanation": "'People' plural requires 'love'."
+  },
+  {
+    "question": "None of the boys know the answer.",
+    "options": ["None of the boys", "know the answer", "", "No Error"],
+    "answer": 3,
+    "explanation": "'None' can be singular or plural here 'know' is acceptable."
+  },
+  {
+    "question": "I cannot but agree with you.",
+    "options": ["I cannot but agree", "with you", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "He did not came to the party.",
+    "options": ["He did not came", "to the party", "", "No Error"],
+    "answer": 0,
+    "explanation": "Base verb after 'did not': 'come'."
+  },
+  {
+    "question": "Is she knowing the answer?",
+    "options": ["Is she knowing", "the answer", "", "No Error"],
+    "answer": 0,
+    "explanation": "Stative verbs like 'know' not used in continuous tense."
+  },
+  {
+    "question": "He has been worked here for five years.",
+    "options": ["He has been worked", "here for five years", "", "No Error"],
+    "answer": 0,
+    "explanation": "Present perfect continuous tense requires 'has been working'."
+  },
+  {
+    "question": "She enjoys to read novels in her free time.",
+    "options": ["She enjoys to read", "novels in her free time", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Enjoy' is followed by gerund: 'enjoys reading'."
+  },
+  {
+    "question": "The population of the city have increased rapidly.",
+    "options": ["The population of the city", "have increased rapidly", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Population' is singular, so 'has increased' is correct."
+  },
+  {
+    "question": "He gave me many useful advices.",
+    "options": ["He gave me many", "useful advices", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Advice' is uncountable; no plural form. Use 'much advice' or 'pieces of advice'."
+  },
+  {
+    "question": "She is better than me in basketball.",
+    "options": ["She is better", "than me", "in basketball", "No Error"],
+    "answer": 1,
+    "explanation": "Use 'than I' or 'than I am' in comparison."
+  },
+  {
+    "question": "If I will be free tomorrow, I will help you.",
+    "options": ["If I will be free", "tomorrow, I will help you", "", "No Error"],
+    "answer": 0,
+    "explanation": "Do not use 'will' in if-clause; use present tense: 'If I am free'."
+  },
+  {
+    "question": "The teacher along with the students are coming.",
+    "options": ["The teacher along with the students", "are coming", "", "No Error"],
+    "answer": 1,
+    "explanation": "Subject is singular; verb should be 'is coming'."
+  },
+  {
+    "question": "He laid down on the bed and slept.",
+    "options": ["He laid down", "on the bed and slept", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Lie down' means to recline; 'laid' is past tense of 'lay' (to put something down). Correct: 'He lay down'."
+  },
+  {
+    "question": "She broke the glass and cuted her finger.",
+    "options": ["She broke the glass", "and cuted her finger", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Cut' is irregular verb; past tense is 'cut'."
+  },
+  {
+    "question": "The children was playing in the park.",
+    "options": ["The children", "was playing", "in the park", "No Error"],
+    "answer": 1,
+    "explanation": "'Children' is plural; use 'were playing'."
+  },
+  {
+    "question": "She is so beautiful that she wins every heart.",
+    "options": ["She is so beautiful", "that she wins every heart", "No Error", ""],
+    "answer": 3,
+    "explanation": "Sentence is correct."
+  },
+  {
+    "question": "John and his brother is coming to the party.",
+    "options": ["John and his brother", "is coming to the party", "", "No Error"],
+    "answer": 1,
+    "explanation": "Two subjects connected by 'and' require plural verb: 'are coming'."
+  },
+  {
+    "question": "She don't like spicy food.",
+    "options": ["She don't like", "spicy food", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use 'doesn't' for singular third person: 'She doesn't like'."
+  },
+  {
+    "question": "The data is being analyzed by the scientists.",
+    "options": ["The data", "is being analyzed", "by the scientists", "No Error"],
+    "answer": 3,
+    "explanation": "'Data' can be singular or plural; both accepted."
+  },
+  {
+    "question": "He did not knew the truth.",
+    "options": ["He did not knew", "the truth", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use base verb after 'did not': 'did not know'."
+  },
+  {
+    "question": "The teacher asked to write an essay.",
+    "options": ["The teacher asked to write", "an essay", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'asked us to write' or 'asked me to write'."
+  },
+  {
+    "question": "I am interesting in learning new languages.",
+    "options": ["I am interesting", "in learning new languages", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Interesting' describes something else; use 'I am interested in...'."
+  },
+  {
+    "question": "He arrived to the station late.",
+    "options": ["He arrived to", "the station late", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Arrive' is followed by 'at' or 'in' depending on place: 'arrived at'."
+  },
+  {
+    "question": "The team was playing good cricket.",
+    "options": ["The team was playing", "good cricket", "", "No Error"],
+    "answer": 0,
+    "explanation": "Adverb needed: 'playing well'."
+  },
+  {
+    "question": "She behaves more better than her sister.",
+    "options": ["She behaves", "more better than her sister", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Better' is comparative; do not use 'more' with it."
+  },
+  {
+    "question": "He often goes to gym every morning.",
+    "options": ["He often goes", "to gym every morning", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use article: 'to the gym'."
+  },
+  {
+    "question": "She speaks good English.",
+    "options": ["She speaks", "good English", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Good' is adjective; adverb needed: 'speaks English well'."
+  },
+  {
+    "question": "We have met since many years.",
+    "options": ["We have met", "since many years", "", "No Error"],
+    "answer": 1,
+    "explanation": "Use 'for' with duration: 'for many years'."
+  },
+  {
+    "question": "There is many options available.",
+    "options": ["There is", "many options available", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Many options' plural requires 'are'."
+  },
+  {
+    "question": "She suggested me to go early.",
+    "options": ["She suggested me", "to go early", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Suggest' is followed by gerund or 'that' clause: 'She suggested going early' or 'She suggested that I go early'."
+  },
+  {
+    "question": "The girl whose father is a teacher, is my friend.",
+    "options": ["The girl", "whose father is a teacher,", "is my friend", "No Error"],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "I have seen him yesterday.",
+    "options": ["I have seen", "him yesterday", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use simple past with specific time: 'I saw him yesterday'."
+  },
+  {
+    "question": "He was accused for stealing the money.",
+    "options": ["He was accused for", "stealing the money", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use 'accused of'."
+  },
+  {
+    "question": "She can sings very well.",
+    "options": ["She can sings", "very well", "", "No Error"],
+    "answer": 0,
+    "explanation": "Modal verb 'can' is followed by base form: 'can sing'."
+  },
+  {
+    "question": "None of the information were correct.",
+    "options": ["None of the information", "were correct", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Information' is uncountable singular; use 'was'."
+  },
+  {
+    "question": "He speaks English very good.",
+    "options": ["He speaks English", "very good", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use adverb: 'very well'."
+  },
+  {
+    "question": "She arrived at 10 o'clock and is waiting for you.",
+    "options": ["She arrived at 10 o'clock", "and is waiting for you", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "He explained me the problem.",
+    "options": ["He explained me", "the problem", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Explain' takes object directly without indirect object; correct: 'explained the problem to me'."
+  },
+  {
+    "question": "I have less money than you.",
+    "options": ["I have less money", "than you", "", "No Error"],
+    "answer": 3,
+    "explanation": "'Less' is used with uncountable nouns. Correct usage for money."
+  },
+  {
+    "question": "He works hardly every day.",
+    "options": ["He works hardly", "every day", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Hardly' means 'barely'; correct: 'works hard'."
+  },
+  {
+    "question": "I am afraid of dogs.",
+    "options": ["I am afraid of", "dogs", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "She is a more intelligent than her brother.",
+    "options": ["She is", "a more intelligent", "than her brother", "No Error"],
+    "answer": 1,
+    "explanation": "Remove 'a' before comparative adjective: 'She is more intelligent'."
+  },
+  {
+    "question": "The number of students are increasing.",
+    "options": ["The number of students", "are increasing", "", "No Error"],
+    "answer": 1,
+    "explanation": "'The number of' takes singular verb: 'is increasing'."
+  },
+  {
+    "question": "He returned back home late.",
+    "options": ["He returned back", "home late", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Return' itself means 'come back'; 'back' is redundant."
+  },
+  {
+    "question": "Many a man have succeeded by hard work.",
+    "options": ["Many a man", "have succeeded", "by hard work", "No Error"],
+    "answer": 1,
+    "explanation": "'Many a man' takes singular verb: 'has succeeded'."
+  },
+  {
+    "question": "Had I knew about the meeting, I would have attended it.",
+    "options": ["Had I knew about the meeting", "I would have attended it", "", "No Error"],
+    "answer": 0,
+    "explanation": "In the third conditional inversion, use past perfect: 'Had I known...'."
+  },
+  {
+    "question": "No sooner had he reached home than he was went to rest.",
+    "options": ["No sooner had he reached home", "than he was went to rest", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Was went' is incorrect; simple past 'went' should be used."
+  },
+  {
+    "question": "She insisted that he comes early to the office.",
+    "options": ["She insisted that", "he comes early to the office", "", "No Error"],
+    "answer": 1,
+    "explanation": "In subjunctive mood after verbs like 'insist', base form without 's' is used: 'he come'."
+  },
+  {
+    "question": "The committee have taken their decision unanimously.",
+    "options": ["The committee have taken", "their decision unanimously", "", "No Error"],
+    "answer": 0,
+    "explanation": "When the committee acts as a unit, singular verb is used: 'has taken its decision'."
+  },
+  {
+    "question": "He acted as though he was the owner of the company.",
+    "options": ["He acted as though", "he was the owner of the company", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error; past form used correctly for hypothetical situation."
+  },
+  {
+    "question": "Were he to accept the offer, things would have been easier.",
+    "options": ["Were he to accept the offer", "things would have been easier", "", "No Error"],
+    "answer": 3,
+    "explanation": "Correct inversion for hypothetical conditional."
+  },
+  {
+    "question": "It is high time that they leave for the airport.",
+    "options": ["It is high time that", "they leave for the airport", "", "No Error"],
+    "answer": 1,
+    "explanation": "After expressions like 'high time', use past tense: 'they left'."
+  },
+  {
+    "question": "He should have told me the truth if he would have trusted me.",
+    "options": ["He should have told me the truth", "if he would have trusted me", "", "No Error"],
+    "answer": 1,
+    "explanation": "In third conditional, use past perfect in both clauses: 'if he had trusted me'."
+  },
+  {
+    "question": "The explanation given by him were very confusing.",
+    "options": ["The explanation given by him", "were very confusing", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Explanation' is singular; verb should be 'was'."
+  },
+  {
+    "question": "She has been knowing him since childhood.",
+    "options": ["She has been knowing", "him since childhood", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Know' is stative verb; not used in continuous tense."
+  },
+  {
+    "question": "Each of the boys are responsible for the mistake.",
+    "options": ["Each of the boys", "are responsible", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Each' is singular, use 'is responsible'."
+  },
+  {
+    "question": "The number of students are increasing rapidly.",
+    "options": ["The number of students", "are increasing rapidly", "", "No Error"],
+    "answer": 1,
+    "explanation": "'The number' is singular; verb should be 'is increasing'."
+  },
+  {
+    "question": "All he wanted was to be success.",
+    "options": ["All he wanted", "was to be success", "", "No Error"],
+    "answer": 1,
+    "explanation": "Use noun form: 'to be successful'."
+  },
+  {
+    "question": "It is not because he is ill but because he is tired that he did not come.",
+    "options": ["It is not because he is ill", "but because he is tired", "that he did not come", "No Error"],
+    "answer": 3,
+    "explanation": "No error; correct emphasis structure."
+  },
+  {
+    "question": "Unless you will apologize, they will not forgive you.",
+    "options": ["Unless you will apologize", "they will not forgive you", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Unless' clause cannot have 'will'; use present tense."
+  },
+  {
+    "question": "She suggested that he should be joining the meeting on time.",
+    "options": ["She suggested that", "he should be joining the meeting", "", "No Error"],
+    "answer": 1,
+    "explanation": "After 'suggested that', use base form: 'he join the meeting'."
+  },
+  {
+    "question": "Not only she sings well but also dances beautifully.",
+    "options": ["Not only she sings well", "but also dances beautifully", "", "No Error"],
+    "answer": 0,
+    "explanation": "In 'not only... but also' structure, invert subject and auxiliary: 'Not only does she sing well...'."
+  },
+  {
+    "question": "Hardly had he reached the station when the train left.",
+    "options": ["Hardly had he reached the station", "when the train left", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error; correct inversion and usage."
+  },
+  {
+    "question": "She is better that her sister in academics.",
+    "options": ["She is better", "that her sister", "in academics", "No Error"],
+    "answer": 1,
+    "explanation": "Use 'than' for comparison, not 'that'."
+  },
+  {
+    "question": "I prefer tea more than coffee.",
+    "options": ["I prefer tea", "more than coffee", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Prefer' is followed by 'to' not 'more than'."
+  },
+  {
+    "question": "He behaves as if he is the boss.",
+    "options": ["He behaves as if", "he is the boss", "", "No Error"],
+    "answer": 3,
+    "explanation": "No error; correct present tense usage."
+  },
+  {
+    "question": "If he will study hard, he can pass the exam.",
+    "options": ["If he will study hard", "he can pass the exam", "", "No Error"],
+    "answer": 0,
+    "explanation": "Do not use 'will' in if-clause; use present tense."
+  },
+  {
+    "question": "There is a lot of informations available on the topic.",
+    "options": ["There is a lot of", "informations available on the topic", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Information' is uncountable; no plural form."
+  },
+  {
+    "question": "Neither of the solutions are acceptable.",
+    "options": ["Neither of the solutions", "are acceptable", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Neither' takes singular verb: 'is acceptable'."
+  },
+  {
+    "question": "This is the most unique opportunity I have ever got.",
+    "options": ["This is the most unique opportunity", "I have ever got", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Unique' is an absolute adjective; 'most' should not be used."
+  },
+  {
+    "question": "The amount of work have increased recently.",
+    "options": ["The amount of work", "have increased recently", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Amount' is singular; verb should be 'has increased'."
+  },
+  {
+    "question": "She has been living here since five years.",
+    "options": ["She has been living here", "since five years", "", "No Error"],
+    "answer": 1,
+    "explanation": "Use 'for' with period of time."
+  },
+  {
+    "question": "He boils the water before to drink it.",
+    "options": ["He boils the water", "before to drink it", "", "No Error"],
+    "answer": 1,
+    "explanation": "Use gerund after 'before': 'before drinking it'."
+  },
+  {
+    "question": "The teacher made the students to write the test again.",
+    "options": ["The teacher made the students", "to write the test again", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Made' is followed by base verb without 'to'."
+  },
+  {
+    "question": "I look forward to meet you soon.",
+    "options": ["I look forward", "to meet you soon", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Look forward to' is followed by gerund: 'meeting you'."
+  },
+  {
+    "question": "They accused him of steal the money.",
+    "options": ["They accused him of", "steal the money", "", "No Error"],
+    "answer": 1,
+    "explanation": "Use gerund after 'of': 'stealing the money'."
+  },
+  {
+    "question": "Each of the player was given a trophy.",
+    "options": ["Each of the player", "was given a trophy", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Player' should be plural: 'players'."
+  },
+  {
+    "question": "The population of the city are increasing every year.",
+    "options": ["The population of the city", "are increasing every year", "", "No Error"],
+    "answer": 1,
+    "explanation": "'Population' is singular; verb should be 'is increasing'."
+  },
+  {
+    "question": "It was the bestest performance of the season.",
+    "options": ["It was the bestest", "performance of the season", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Bestest' is incorrect; superlative form is 'best'."
+  },
+  {
+    "question": "He doesn't knows the answer.",
+    "options": ["He doesn't knows", "the answer", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use base verb after 'doesn't': 'know'."
+  },
+  {
+    "question": "She is too much intelligent to fail the exam.",
+    "options": ["She is too much intelligent", "to fail the exam", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'too intelligent'. 'Much' is not used with adjectives."
+  },
+  {
+    "question": "He works hardly to meet the deadline.",
+    "options": ["He works hardly", "to meet the deadline", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Hardly' means 'barely'; use 'hard' as adverb."
+  },
+  {
+    "question": "The team are going to win the match.",
+    "options": ["The team are going", "to win the match", "", "No Error"],
+    "answer": 1,
+    "explanation": "Collective noun 'team' takes singular verb: 'is going'."
+  },
+  {
+    "question": "He go to school every day.",
+    "options": ["He go", "to school", "every day", "No Error"],
+    "answer": 0,
+    "explanation": "Subject-verb agreement error. Correct: 'He goes'."
+  },
+  {
+    "question": "I am going to market tomorrow.",
+    "options": ["I am going", "to market", "tomorrow", "No Error"],
+    "answer": 1,
+    "explanation": "Use article before singular countable noun: 'to the market'."
+  },
+  {
+    "question": "She have finished her homework.",
+    "options": ["She have", "finished her homework", "", "No Error"],
+    "answer": 0,
+    "explanation": "Subject-verb agreement error. Correct: 'She has finished'."
+  },
+  {
+    "question": "The children plays in the park.",
+    "options": ["The children plays", "in the park", "", "No Error"],
+    "answer": 0,
+    "explanation": "'Children' is plural; verb should be 'play'."
+  },
+  {
+    "question": "He can sings well.",
+    "options": ["He can sings", "well", "", "No Error"],
+    "answer": 0,
+    "explanation": "Modal verb 'can' is followed by base form: 'can sing'."
+  },
+  {
+    "question": "We was watching a movie last night.",
+    "options": ["We was", "watching a movie last night", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use plural verb for 'we': 'were watching'."
+  },
+  {
+    "question": "I has a new bicycle.",
+    "options": ["I has", "a new bicycle", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct: 'I have a new bicycle'."
+  },
+  {
+    "question": "She is more taller than her brother.",
+    "options": ["She is more taller", "than her brother", "", "No Error"],
+    "answer": 0,
+    "explanation": "Do not use 'more' with comparative '-er' forms. Correct: 'taller'."
+  },
+  {
+    "question": "My father work in a bank.",
+    "options": ["My father work", "in a bank", "", "No Error"],
+    "answer": 0,
+    "explanation": "Subject-verb agreement. Use 'works'."
+  },
+  {
+    "question": "They doesn't know the answer.",
+    "options": ["They doesn't", "know the answer", "", "No Error"],
+    "answer": 0,
+    "explanation": "For plural 'they', use 'don't'."
+  },
+  {
+    "question": "The sun rise in the east.",
+    "options": ["The sun rise", "in the east", "", "No Error"],
+    "answer": 0,
+    "explanation": "Correct verb form: 'rises'."
+  },
+  {
+    "question": "She have been waiting for you.",
+    "options": ["She have been waiting", "for you", "", "No Error"],
+    "answer": 0,
+    "explanation": "Singular subject 'she' requires 'has'."
+  },
+  {
+    "question": "I am go to the market.",
+    "options": ["I am go", "to the market", "", "No Error"],
+    "answer": 0,
+    "explanation": "Present continuous verb form: 'am going'."
+  },
+  {
+    "question": "He don't like apples.",
+    "options": ["He don't", "like apples", "", "No Error"],
+    "answer": 0,
+    "explanation": "Third person singular requires 'doesn't'."
+  },
+  {
+    "question": "She plays football good.",
+    "options": ["She plays football", "good", "", "No Error"],
+    "answer": 0,
+    "explanation": "Use adverb: 'well'."
+  },
+  {
+    "question": "Where he lives?",
+    "options": ["Where he lives?", "", "", "No Error"],
+    "answer": 0,
+    "explanation": "Question form requires auxiliary: 'Where does he live?'."
+  },
+  {
+    "question": "He is more intelligent than me.",
+    "options": ["He is more intelligent", "than me", "", "No Error"],
+    "answer": 1,
+    "explanation": "Use subject pronoun: 'than I' or 'than I am'."
+  },
+  {
+    "question": "They has a new car.",
+    "options": ["They has", "a new car", "", "No Error"],
+    "answer": 0,
+    "explanation": "Plural subject needs 'have'."
+  },
+  {
+    "question": "She can to swim very fast.",
+    "options": ["She can to swim", "very fast", "", "No Error"],
+    "answer": 0,
+    "explanation": "Modal verb 'can' is followed by base verb without 'to'."
+  },
+  {
+    "question": "I have saw him yesterday.",
+    "options": ["I have saw", "him yesterday", "", "No Error"],
+    "answer": 0,
+    "explanation": "Present perfect uses past participle: 'have seen'."
+  },
+  {
+    "question": "She is tallest in the class.",
+    "options": ["She is tallest", "in the class", "", "No Error"],
+    "answer": 0,
+    "explanation": "Superlative adjective requires 'the': 'the tallest'."
+  },
+  {
+    "question": "He is more happier now.",
+    "options": ["He is more happier", "now", "", "No Error"],
+    "answer": 0,
+    "explanation": "Do not use 'more' with '-er' adjective; 'happier' is enough."
+  },
+  {
+    "question": "He doesn't knows the answer.",
+    "options": ["He doesn't knows", "the answer", "", "No Error"],
+    "answer": 0,
+    "explanation": "Base verb follows 'doesn't': 'know'."
+  },
+  {
+    "question": "You was late for the meeting.",
+    "options": ["You was", "late for the meeting", "", "No Error"],
+    "answer": 0,
+    "explanation": "Plural subject requires 'were'."
+  },
+  {
+    "question": "Neither the manager nor the employees was aware of the changes.",
+    "options": ["Neither the manager", "nor the employees", "was aware of the changes", "No Error"],
+    "answer": 2,
+    "explanation": "Verb agrees with the nearer subject: 'employees' (plural) → 'were aware'."
+  },
+  {
+    "question": "If I was you, I would reconsider the decision.",
+    "options": ["If I was you", "I would reconsider", "the decision", "No Error"],
+    "answer": 0,
+    "explanation": "Subjunctive mood requires 'were' for hypothetical situations: 'If I were you'."
+  },
+  {
+    "question": "Each of the students have submitted their assignments.",
+    "options": ["Each of the students", "have submitted", "their assignments", "No Error"],
+    "answer": 1,
+    "explanation": "'Each' is singular and takes singular verb: 'has submitted'."
+  },
+  {
+    "question": "The team have played well and showed great spirit.",
+    "options": ["The team have played well", "and showed great spirit", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Team' acting as a unit takes singular verb: 'has played'."
+  },
+  {
+    "question": "He is as much intelligent than his brother.",
+    "options": ["He is as much intelligent", "than his brother", "No Error", ""],
+    "answer": 0,
+    "explanation": "Correct structure is 'as intelligent as', not 'as much intelligent than'."
+  },
+  {
+    "question": "Both the teacher and the student agree with the policy.",
+    "options": ["Both the teacher", "and the student agree", "with the policy", "No Error"],
+    "answer": 3,
+    "explanation": "No error; plural subject requires plural verb."
+  },
+  {
+    "question": "All of the information are available online.",
+    "options": ["All of the information", "are available online", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Information' is uncountable singular, so 'is available' is correct."
+  },
+  {
+    "question": "He acts as if he knows everything about the project.",
+    "options": ["He acts as if", "he knows everything", "about the project", "No Error"],
+    "answer": 3,
+    "explanation": "No error; correct use of present tense for real possibility."
+  },
+  {
+    "question": "She said that she will come tomorrow.",
+    "options": ["She said that", "she will come tomorrow", "No Error", ""],
+    "answer": 0,
+    "explanation": "In reported speech, change future 'will' to 'would'."
+  },
+  {
+    "question": "The police is investigating the case thoroughly.",
+    "options": ["The police is", "investigating the case thoroughly", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Police' is collective noun and takes plural verb: 'are investigating'."
+  },
+  {
+    "question": "Scarcely had we started when it began to rain.",
+    "options": ["Scarcely had we started", "when it began to rain", "No Error", ""],
+    "answer": 3,
+    "explanation": "No error; correct inversion and usage."
+  },
+  {
+    "question": "She insisted that he should attend the meeting.",
+    "options": ["She insisted that", "he should attend the meeting", "No Error", ""],
+    "answer": 0,
+    "explanation": "In subjunctive mood after verbs like 'insist', use base verb: 'he attend'."
+  },
+  {
+    "question": "He is one of those who has been selected for the job.",
+    "options": ["He is one of those", "who has been selected", "for the job", "No Error"],
+    "answer": 1,
+    "explanation": "Relative pronoun 'who' refers to plural 'those': verb should be plural 'have'."
+  },
+  {
+    "question": "If I will be elected, I will bring about changes.",
+    "options": ["If I will be elected", "I will bring about changes", "No Error", ""],
+    "answer": 0,
+    "explanation": "Do not use 'will' in if-clause; use simple present: 'If I am elected'."
+  },
+  {
+    "question": "She is too clever for to be caught in a lie.",
+    "options": ["She is too clever", "for to be caught in a lie", "No Error", ""],
+    "answer": 0,
+    "explanation": "Remove 'to' after preposition 'for': 'too clever to be caught'."
+  },
+  {
+    "question": "The number of mistakes are troubling him.",
+    "options": ["The number of mistakes", "are troubling him", "No Error", ""],
+    "answer": 0,
+    "explanation": "'The number' is singular, so 'is troubling' is correct."
+  },
+  {
+    "question": "Everyone should do their duty honestly.",
+    "options": ["Everyone should do", "their duty honestly", "No Error", ""],
+    "answer": 1,
+    "explanation": "'Everyone' is singular; pronoun should be 'his or her'."
+  },
+  {
+    "question": "The dress she bought are expensive.",
+    "options": ["The dress she bought", "are expensive", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Dress' is singular, verb should be 'is expensive'."
+  },
+  {
+    "question": "He behaves like he is the boss.",
+    "options": ["He behaves like", "he is the boss", "No Error", ""],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "She looks more prettier than her sister.",
+    "options": ["She looks", "more prettier than her sister", "No Error", ""],
+    "answer": 0,
+    "explanation": "Do not use 'more' with comparative adjective ending in '-er'."
+  },
+  {
+    "question": "Neither the teacher nor the students was present in the class.",
+    "options": ["Neither the teacher nor", "the students was present", "No Error", ""],
+    "answer": 1,
+    "explanation": "Verb agrees with nearest subject: plural 'students' → 'were'."
+  },
+  {
+    "question": "He was accused of stealing the money.",
+    "options": ["He was accused", "of stealing the money", "No Error", ""],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "Ravi and Suresh is playing cricket.",
+    "options": ["Ravi and Suresh is", "playing cricket", "No Error", ""],
+    "answer": 0,
+    "explanation": "Compound subject requires plural verb: 'are playing'."
+  },
+  {
+    "question": "Each of the players have a medal.",
+    "options": ["Each of the players", "have a medal", "No Error", ""],
+    "answer": 1,
+    "explanation": "'Each' takes singular verb: 'has a medal'."
+  },
+  {
+    "question": "The scissors is on the table.",
+    "options": ["The scissors is", "on the table", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Scissors' is plural and takes plural verb: 'are'."
+  },
+  {
+    "question": "She didn't told me about the party.",
+    "options": ["She didn't told", "me about the party", "No Error", ""],
+    "answer": 0,
+    "explanation": "Use base verb after 'didn't': 'tell'."
+  },
+  {
+    "question": "I wish I was a millionaire.",
+    "options": ["I wish I was", "a millionaire", "No Error", ""],
+    "answer": 0,
+    "explanation": "Subjunctive mood requires 'were' for hypothetical. Correct: 'I wish I were'."
+  },
+  {
+    "question": "She gave me a valuable advices.",
+    "options": ["She gave me", "a valuable advices", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Advice' is uncountable and has no plural form."
+  },
+  {
+    "question": "Less people turned up than expected.",
+    "options": ["Less people", "turned up than expected", "No Error", ""],
+    "answer": 0,
+    "explanation": "Use 'fewer' for countable nouns: 'Fewer people'."
+  },
+  {
+    "question": "He said me that he was busy.",
+    "options": ["He said me", "that he was busy", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Say' is not followed directly by indirect object. Use 'told me'."
+  },
+  {
+    "question": "She is very good in dancing.",
+    "options": ["She is very good", "in dancing", "No Error", ""],
+    "answer": 0,
+    "explanation": "Correct preposition is 'at': 'good at dancing'."
+  },
+  {
+    "question": "It is one of the most easiest questions.",
+    "options": ["It is one of the most easiest questions", "No Error", ""],
+    "answer": 0,
+    "explanation": "Do not use both 'most' and '-est' together. Use 'easiest' only."
+  },
+  {
+    "question": "I look forward to see you soon.",
+    "options": ["I look forward", "to see you soon", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Look forward to' is followed by gerund: 'seeing you soon'."
+  },
+  {
+    "question": "He demanded that she apologizes immediately.",
+    "options": ["He demanded that", "she apologizes immediately", "No Error", ""],
+    "answer": 0,
+    "explanation": "In subjunctive mood, use base form: 'she apologize'."
+  },
+  {
+    "question": "Not only the students but also the teacher are arriving late.",
+    "options": ["Not only the students", "but also the teacher are arriving late", "No Error", ""],
+    "answer": 1,
+    "explanation": "Verb agrees with nearer subject 'teacher' (singular): 'is arriving'."
+  },
+  {
+    "question": "The group of players is winning the match.",
+    "options": ["The group of players", "is winning the match", "No Error", ""],
+    "answer": 3,
+    "explanation": "No error; 'group' as collective noun takes singular verb."
+  },
+  {
+    "question": "She has less books than her friend.",
+    "options": ["She has less books", "than her friend", "No Error", ""],
+    "answer": 0,
+    "explanation": "Use 'fewer' with countable nouns: 'fewer books'."
+  },
+  {
+    "question": "He is very worse today than yesterday.",
+    "options": ["He is very worse", "today than yesterday", "No Error", ""],
+    "answer": 0,
+    "explanation": "Use 'much' or 'far' with comparative adjective: 'much worse'."
+  },
+  {
+    "question": "She can speaks three languages fluently.",
+    "options": ["She can speaks", "three languages fluently", "No Error", ""],
+    "answer": 0,
+    "explanation": "Modal verb 'can' is followed by base verb: 'speak'."
+  },
+  {
+    "question": "The data is accurate and reliable.",
+    "options": ["The data is accurate", "and reliable", "No Error", ""],
+    "answer": 3,
+    "explanation": "'Data' may be singular or plural depending on context; singular acceptable here."
+  },
+  {
+    "question": "He was standing there when the accident happened.",
+    "options": ["He was standing there", "when the accident happened", "No Error", ""],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "I wish I was going with you.",
+    "options": ["I wish I was going", "with you", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Were' is correct for subjunctive mood: 'I wish I were going'."
+  },
+  {
+    "question": "She is better in swimming than dancing.",
+    "options": ["She is better in swimming", "than dancing", "No Error", ""],
+    "answer": 0,
+    "explanation": "Use 'better at' with activities: 'better at swimming'."
+  },
+  {
+    "question": "None of the answers are correct.",
+    "options": ["None of the answers", "are correct", "No Error", ""],
+    "answer": 3,
+    "explanation": "'None' can take singular or plural verb depending on context; plural here is acceptable."
+  },
+  {
+    "question": "The scissors is sharp enough to cut the paper.",
+    "options": ["The scissors is sharp", "enough to cut the paper", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Scissors' is plural; use 'are sharp'."
+  },
+  {
+    "question": "He plays chess quiet well.",
+    "options": ["He plays chess", "quiet well", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Quite' should be used instead of 'quiet'."
+  },
+  {
+    "question": "She is one of the smartest student in the class.",
+    "options": ["She is one of the smartest", "student in the class", "No Error", ""],
+    "answer": 0,
+    "explanation": "Use plural noun after 'one of the': 'students'."
+  },
+  {
+    "question": "He was punished because he did not come to school.",
+    "options": ["He was punished", "because he did not come to school", "No Error", ""],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "There is many reasons for his failure.",
+    "options": ["There is many reasons", "for his failure", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Reasons' is plural; use 'There are many reasons'."
+  },
+  {
+    "question": "She advised me to not go there alone.",
+    "options": ["She advised me", "to not go there alone", "No Error", ""],
+    "answer": 0,
+    "explanation": "Split infinitive awkward here; better: 'not to go there alone'."
+  },
+  {
+    "question": "He is as good a player as anyone else.",
+    "options": ["He is as good a player", "as anyone else", "No Error", ""],
+    "answer": 3,
+    "explanation": "No error."
+  },
+  {
+    "question": "Either he or his friends is responsible for the error.",
+    "options": ["Either he or his friends", "is responsible for the error", "No Error", ""],
+    "answer": 1,
+    "explanation": "Verb agrees with nearest subject; plural 'friends' → 'are'."
+  },
+  {
+    "question": "She couldn’t hardly believe what she saw.",
+    "options": ["She couldn’t hardly believe", "what she saw", "No Error", ""],
+    "answer": 0,
+    "explanation": "'Couldn’t hardly' is a double negative; correct: 'could hardly believe'."
+  }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

@@ -1,0 +1,2842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">PHYSICS</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+  {
+        "question": "Which of the following is not a base unit in the SI system?",
+        "options": ["Meter", "Second", "Gram", "Ampere"],
+        "answer": 2,
+        "explanation": "The SI base unit of mass is kilogram, not gram."
+    },
+    {
+        "question": "Which instrument is commonly used to measure atmospheric pressure?",
+        "options": ["Barometer", "Thermometer", "Hygrometer", "Voltmeter"],
+        "answer": 0,
+        "explanation": "Barometer is used to measure atmospheric pressure."
+    },
+    {
+        "question": "What is the speed of sound in air at 20°C?",
+        "options": ["343m/s", "300m/s", "365m/s", "273m/s"],
+        "answer": 0,
+        "explanation": "At 20°C, sound travels at approximately 343m/s in air."
+    },
+    {
+        "question": "Which wave is not a mechanical wave?",
+        "options": ["Sound wave", "Water wave", "Radio wave", "Seismic wave"],
+        "answer": 2,
+        "explanation": "Radio waves are electromagnetic waves, not mechanical."
+    },
+    {
+        "question": "Which property of a wave determines its loudness?",
+        "options": ["Frequency", "Amplitude", "Velocity", "Wavelength"],
+        "answer": 1,
+        "explanation": "Amplitude determines the loudness of a sound wave."
+    },
+    {
+        "question": "Which of the following is an example of a transverse wave?",
+        "options": ["Sound in air", "Light", "Seismic P-wave", "Pressure wave in a liquid"],
+        "answer": 1,
+        "explanation": "Light is an electromagnetic transverse wave."
+    },
+    {
+        "question": "Which force keeps the planets in orbit around the Sun?",
+        "options": ["Electromagnetic force", "Gravitational force", "Nuclear force", "Frictional force"],
+        "answer": 1,
+        "explanation": "Gravitational force holds the planets in orbit."
+    },
+    {
+        "question": "Which device converts electrical energy into mechanical energy?",
+        "options": ["Motor", "Generator", "Transformer", "Capacitor"],
+        "answer": 0,
+        "explanation": "A motor converts electrical energy to mechanical energy."
+    },
+    {
+        "question": "Which unit is used to measure power?",
+        "options": ["Watt", "Joule", "Newton", "Volt"],
+        "answer": 0,
+        "explanation": "Power is measured in watts (W)."
+    },
+    {
+        "question": "Which of the following is a scalar quantity?",
+        "options": ["Velocity", "Force", "Displacement", "Energy"],
+        "answer": 3,
+        "explanation": "Energy is a scalar quantity."
+    },
+    {
+        "question": "Who developed the law of universal gravitation?",
+        "options": ["Albert Einstein", "Isaac Newton", "James Clerk Maxwell", "Galileo Galilei"],
+        "answer": 1,
+        "explanation": "Sir Isaac Newton formulated the law of universal gravitation."
+    },
+    {
+        "question": "Which one is not a fundamental force in nature?",
+        "options": ["Electromagnetic", "Gravitational", "Frictional", "Strong nuclear"],
+        "answer": 2,
+        "explanation": "Frictional force is not a fundamental force."
+    },
+    {
+        "question": "What is the value of acceleration due to gravity (g) on Earth's surface?",
+        "options": ["9.8m/s²", "8.9m/s²", "10.5m/s²", "7.2m/s²"],
+        "answer": 0,
+        "explanation": "g is approximately 9.8m/s² near Earth’s surface."
+    },
+    {
+        "question": "Which law states that current through a conductor is proportional to the voltage across it?",
+        "options": ["Faraday's Law", "Ohm's Law", "Kirchhoff's Law", "Ampere's Law"],
+        "answer": 1,
+        "explanation": "Ohm’s Law explains the relationship between current and voltage."
+    },
+    {
+        "question": "The unit of electric charge is:",
+        "options": ["Farad", "Coulomb", "Henry", "Watt"],
+        "answer": 1,
+        "explanation": "Coulomb is the SI unit of electric charge."
+    },
+    {
+        "question": "Which physical quantity is measured in volt?",
+        "options": ["Resistance", "Potential difference", "Current", "Power"],
+        "answer": 1,
+        "explanation": "Potential difference is measured in volts."
+    },
+    {
+        "question": "Which is the best conductor of electricity?",
+        "options": ["Gold", "Copper", "Silver", "Aluminum"],
+        "answer": 2,
+        "explanation": "Silver is the best conductor of electricity."
+    },
+    {
+        "question": "Which phenomenon proves the wave nature of light?",
+        "options": ["Photoelectric effect", "Diffraction", "Compton effect", "Nuclear fusion"],
+        "answer": 1,
+        "explanation": "Diffraction proves light’s wave nature."
+    },
+    {
+        "question": "Which type of mirror is used in a car's rear view mirror?",
+        "options": ["Concave", "Plane", "Convex", "Cylindrical"],
+        "answer": 2,
+        "explanation": "Convex mirrors give a wider field of view."
+    },
+    {
+        "question": "What is the frequency range of human hearing?",
+        "options": ["20Hz to 20,000Hz", "40Hz to 40,000Hz", "10Hz to 10,000Hz", "100Hz to 100,000Hz"],
+        "answer": 0,
+        "explanation": "Humans hear sound from 20Hz to 20,000Hz."
+    },
+    {
+        "question": "Semiconductors are most commonly made from:",
+        "options": ["Aluminum", "Silicon", "Lead", "Copper"],
+        "answer": 1,
+        "explanation": "Silicon is a widely used semiconductor material."
+    },
+    {
+        "question": "Who discovered the electron?",
+        "options": ["Ernest Rutherford", "J.J. Thomson", "Marie Curie", "Niels Bohr"],
+        "answer": 1,
+        "explanation": "J.J. Thomson discovered the electron in 1897."
+    },
+    {
+        "question": "Which instrument is used to measure current?",
+        "options": ["Voltmeter", "Ammeter", "Galvanometer", "Potentiometer"],
+        "answer": 1,
+        "explanation": "Ammeter is used to measure electric current."
+    },
+    {
+        "question": "Who invented the electric bulb?",
+        "options": ["Benjamin Franklin", "Thomas Edison", "Nikola Tesla", "Michael Faraday"],
+        "answer": 1,
+        "explanation": "Thomas Edison is credited with inventing the electric bulb."
+    },
+    {
+        "question": "Which process converts nuclear energy into electrical energy?",
+        "options": ["Photosynthesis", "Thermonuclear fusion", "Nuclear fission", "Combustion"],
+        "answer": 2,
+        "explanation": "Nuclear fission in reactors converts nuclear energy into electrical energy."
+    },
+    {
+        "question": "Which of the following is a renewable source of energy?",
+        "options": ["Coal", "Petroleum", "Solar energy", "Natural gas"],
+        "answer": 2,
+        "explanation": "Solar energy is renewable."
+    },
+    {
+        "question": "Which sub-atomic particle carries no charge?",
+        "options": ["Proton", "Neutron", "Electron", "Positron"],
+        "answer": 1,
+        "explanation": "Neutrons are electrically neutral."
+    },
+    {
+        "question": "Which color of light travels fastest in glass?",
+        "options": ["Red", "Blue", "Green", "Violet"],
+        "answer": 0,
+        "explanation": "Red light travels fastest in glass due to lower refractive index."
+    },
+    {
+        "question": "Which term expresses the rate of doing work?",
+        "options": ["Energy", "Force", "Power", "Momentum"],
+        "answer": 2,
+        "explanation": "Power is the rate of doing work."
+    },
+    {
+        "question": "Which of the following converts AC to DC?",
+        "options": ["Transformer", "Rectifier", "Transistor", "Generator"],
+        "answer": 1,
+        "explanation": "A rectifier converts alternating current to direct current."
+    },
+    {
+        "question": "How many electron pairs are shared in a triple covalent bond?",
+        "options": ["One", "Two", "Three", "Four"],
+        "answer": 2,
+        "explanation": "Three electron pairs are shared in a triple bond."
+    },
+    {
+        "question": "Which device is used to detect radioactivity?",
+        "options": ["Potentiometer", "Geiger-Muller counter", "Oscilloscope", "Micrometer"],
+        "answer": 1,
+        "explanation": "Geiger-Muller counter detects radioactive particles."
+    },
+    {
+        "question": "Which is the most penetrating radiation?",
+        "options": ["Alpha", "Beta", "Gamma", "Neutron"],
+        "answer": 2,
+        "explanation": "Gamma rays have the highest penetration ability."
+    },
+    {
+        "question": "Which quantity remains unchanged in a nuclear reaction?",
+        "options": ["Mass number", "Atomic number", "Energy", "Proton number"],
+        "answer": 0,
+        "explanation": "Mass number is conserved in a nuclear reaction."
+    },
+    {
+        "question": "What is the unit of magnetic flux?",
+        "options": ["Tesla", "Weber", "Henry", "Farad"],
+        "answer": 1,
+        "explanation": "Magnetic flux is measured in Weber (Wb)."
+    },
+    {
+        "question": "Which process showed dual nature of light?",
+        "options": ["Diffraction", "Interference", "Photoelectric effect", "Reflection"],
+        "answer": 2,
+        "explanation": "Photoelectric effect proved light has particle nature."
+    },
+    {
+        "question": "Which phenomenon occurs due to reflection of sound?",
+        "options": ["Echo", "Refraction", "Diffraction", "Absorption"],
+        "answer": 0,
+        "explanation": "Echo is caused by reflection of sound."
+    },
+    {
+        "question": "Which instrument measures a small length accurately?",
+        "options": ["Vernier calipers", "Barometer", "Hydrometer", "Hot wire ammeter"],
+        "answer": 0,
+        "explanation": "Vernier calipers measure small lengths precisely."
+    },
+    {
+        "question": "Which law governs the motion of planets?",
+        "options": ["Boyle's Law", "Kepler's Laws", "Newton's Law", "Archimedes' Principle"],
+        "answer": 1,
+        "explanation": "Kepler’s Laws describe planetary motion."
+    },
+    {
+        "question": "What is the SI unit of temperature?",
+        "options": ["Celsius", "Kelvin", "Fahrenheit", "Calorie"],
+        "answer": 1,
+        "explanation": "The SI unit of temperature is Kelvin."
+    },
+    {
+        "question": "Which physical quantity is measured using a screw gauge?",
+        "options": ["Time", "Temperature", "Length", "Mass"],
+        "answer": 2,
+        "explanation": "Screw gauge is used to measure small lengths."
+    },
+    {
+        "question": "Which rule determines the direction of induced current?",
+        "options": ["Right hand rule", "Fleming’s left hand rule", "Fleming’s right hand rule", "Ampere’s rule"],
+        "answer": 2,
+        "explanation": "Fleming’s right hand rule gives current direction in generators."
+    },
+    {
+        "question": "Which metal has the lowest resistivity?",
+        "options": ["Silver", "Copper", "Gold", "Aluminum"],
+        "answer": 0,
+        "explanation": "Silver has lowest electrical resistivity."
+    },
+    {
+        "question": "What is the unit of pressure?",
+        "options": ["Pascal", "Bar", "Joule", "Henry"],
+        "answer": 0,
+        "explanation": "Pressure is measured in pascal (Pa)."
+    },
+    {
+        "question": "Which energy is stored in a stretched spring?",
+        "options": ["Heat", "Potential", "Kinetic", "Chemical"],
+        "answer": 1,
+        "explanation": "A stretched spring stores potential energy."
+    },
+    {
+        "question": "Which device is used for measuring blood pressure?",
+        "options": ["Hygrometer", "Manometer", "Sphygmomanometer", "Barometer"],
+        "answer": 2,
+        "explanation": "Sphygmomanometer measures blood pressure."
+    },
+    {
+        "question": "Which principle is used in swimming?",
+        "options": ["Archimedes’ principle", "Bernoulli’s principle", "Pascal’s law", "Hooke’s law"],
+        "answer": 0,
+        "explanation": "Swimming is based on Archimedes’ principle."
+    },
+    {
+        "question": "Who invented the laser?",
+        "options": ["Charles Townes", "Albert Einstein", "Theodore Maiman", "Thomas Edison"],
+        "answer": 2,
+        "explanation": "Theodore Maiman built the first laser."
+    },
+    {
+        "question": "Magnetic field inside a long solenoid is:",
+        "options": ["Non-uniform", "Zero", "Uniform", "Strongly variable"],
+        "answer": 2,
+        "explanation": "Inside a long solenoid, field is uniform."
+    },
+    {
+        "question": "The kinetic energy of a body depends on:",
+        "options": ["Mass and velocity", "Height", "Area", "Volume"],
+        "answer": 0,
+        "explanation": "Kinetic energy depends on both mass and velocity."
+    },
+    {
+        "question": "What is used to tune a radio to a particular frequency?",
+        "options": ["Resistor", "Capacitor", "Inductor", "All of these"],
+        "answer": 1,
+        "explanation": "Capacitor helps tune to radio frequencies."
+    },
+	 {
+        "question": "Which of the following is responsible for the blue color of the sky?",
+        "options": ["Reflection", "Refraction", "Scattering", "Diffraction"],
+        "answer": 2,
+        "explanation": "Scattering of sunlight by air molecules causes the blue color of the sky."
+    },
+    {
+        "question": "Which is the fastest mode of heat transfer?",
+        "options": ["Conduction", "Convection", "Radiation", "Insulation"],
+        "answer": 2,
+        "explanation": "Radiation is the fastest among these modes of heat transfer."
+    },
+    {
+        "question": "Which device is used to stop or allow the flow of electric current?",
+        "options": ["Diode", "Resistor", "Switch", "Capacitor"],
+        "answer": 2,
+        "explanation": "A switch is used to start/stop the electric current."
+    },
+    {
+        "question": "Which type of lens is used to correct short-sightedness (myopia)?",
+        "options": ["Convex lens", "Concave lens", "Bifocal lens", "Cylindrical lens"],
+        "answer": 1,
+        "explanation": "Concave lenses are used to correct myopia."
+    },
+    {
+        "question": "Which substance is a good insulator of electricity?",
+        "options": ["Silver", "Copper", "Plastic", "Gold"],
+        "answer": 2,
+        "explanation": "Plastic is an insulator of electricity."
+    },
+    {
+        "question": "Which of the following does not have units?",
+        "options": ["Relative density", "Force", "Velocity", "Work"],
+        "answer": 0,
+        "explanation": "Relative density is a ratio and unitless."
+    },
+    {
+        "question": "What is used to measure electric potential difference?",
+        "options": ["Ammeter", "Voltmeter", "Galvanometer", "Potentiometer"],
+        "answer": 1,
+        "explanation": "Voltmeter measures electric potential difference."
+    },
+    {
+        "question": "Which of the following is a vector quantity?",
+        "options": ["Momentum", "Energy", "Time", "Pressure"],
+        "answer": 0,
+        "explanation": "Momentum has both magnitude and direction; it is a vector."
+    },
+    {
+        "question": "Which phenomenon is the cause of mirage?",
+        "options": ["Total internal reflection", "Diffraction", "Dispersion", "Interference"],
+        "answer": 0,
+        "explanation": "Mirage occurs due to total internal reflection of light."
+    },
+    {
+        "question": "What is the SI unit of frequency?",
+        "options": ["Hertz", "Decibel", "Watt", "Joule"],
+        "answer": 0,
+        "explanation": "Hertz (Hz) is the SI unit of frequency."
+    },
+    {
+        "question": "Which particles are emitted during radioactive alpha decay?",
+        "options": ["Electron", "Neutron", "Helium nucleus", "Photon"],
+        "answer": 2,
+        "explanation": "Alpha decay emits a helium nucleus (2 protons + 2 neutrons)."
+    },
+    {
+        "question": "What is the resistance offered by a superconductor at absolute zero?",
+        "options": ["Zero", "Infinity", "One ohm", "Ten ohms"],
+        "answer": 0,
+        "explanation": "Superconductors have zero resistance at absolute zero."
+    },
+    {
+        "question": "In a vacuum, which color of light has the highest speed?",
+        "options": ["Red", "Blue", "All travel at same speed", "Green"],
+        "answer": 2,
+        "explanation": "All colors of light travel at same speed in vacuum."
+    },
+    {
+        "question": "Which of the following is NOT a unit of energy?",
+        "options": ["Joule", "Electronvolt", "Watt-hour", "Ampere"],
+        "answer": 3,
+        "explanation": "Ampere is a unit of current, not energy."
+    },
+    {
+        "question": "Which physical quantity is indicated by the slope of velocity-time graph?",
+        "options": ["Acceleration", "Displacement", "Distance", "Speed"],
+        "answer": 0,
+        "explanation": "Slope of velocity-time graph indicates acceleration."
+    },
+    {
+        "question": "Which element is used in making solar cells?",
+        "options": ["Silicon", "Iron", "Aluminum", "Copper"],
+        "answer": 0,
+        "explanation": "Silicon is used in solar cells."
+    },
+    {
+        "question": "Which device stores electrical energy?",
+        "options": ["Resistor", "Capacitor", "Inductor", "Galvanometer"],
+        "answer": 1,
+        "explanation": "Capacitor is used to store electrical energy."
+    },
+    {
+        "question": "A transformer works on which principle?",
+        "options": ["Electromagnetic induction", "Conservation of energy", "Ohm’s law", "Electrolysis"],
+        "answer": 0,
+        "explanation": "Transformers operate via electromagnetic induction."
+    },
+    {
+        "question": "Which force is centripetal in planetary motion?",
+        "options": ["Frictional force", "Gravitational force", "Nuclear force", "Electrostatic force"],
+        "answer": 1,
+        "explanation": "Gravitational force acts as centripetal force."
+    },
+    {
+        "question": "What does a refractive index measure?",
+        "options": ["Speed of light in vacuum", "Bending of light", "Mass of substance", "Density of medium"],
+        "answer": 1,
+        "explanation": "Refractive index measures bending of light in medium."
+    },
+    {
+        "question": "Which law states that like charges repel, unlike charges attract?",
+        "options": ["Coulomb’s law", "Ohm’s law", "Faraday’s law", "Lenz’s law"],
+        "answer": 0,
+        "explanation": "Coulomb’s law explains the force between charges."
+    },
+    {
+        "question": "Which device is used for converting solar energy into electrical energy?",
+        "options": ["Thermocouple", "Solar cell", "Battery", "Transformer"],
+        "answer": 1,
+        "explanation": "Solar cell converts light energy into electrical energy."
+    },
+    {
+        "question": "Which is an example of an exothermic nuclear reaction?",
+        "options": ["Nuclear fission", "Electrolysis", "Photosynthesis", "Evaporation"],
+        "answer": 0,
+        "explanation": "Nuclear fission releases energy (exothermic)."
+    },
+    {
+        "question": "Which of the following is NOT a type of nuclear radiation?",
+        "options": ["Alpha", "Beta", "Gamma", "X-ray"],
+        "answer": 3,
+        "explanation": "X-rays are electromagnetic, not nuclear radiation."
+    },
+    {
+        "question": "What is the distance travelled by light in one year called?",
+        "options": ["Astronomical unit", "Parsec", "Light year", "Meter"],
+        "answer": 2,
+        "explanation": "The correct term is 'light year.'"
+    },
+    {
+        "question": "Which instrument is used to measure humidity?",
+        "options": ["Barometer", "Hygrometer", "Manometer", "Electroscope"],
+        "answer": 1,
+        "explanation": "Hygrometer measures humidity."
+    },
+    {
+        "question": "Which effect produces electricity by using two different metals?",
+        "options": ["Photoelectric effect", "Thermoelectric effect", "Electrolysis", "Piezoelectric effect"],
+        "answer": 1,
+        "explanation": "Thermoelectric effect creates voltage by heat with two metals."
+    },
+    {
+        "question": "Which law describes the conservation of energy?",
+        "options": ["First law of thermodynamics", "Second law of motion", "Faraday’s law", "Ohm’s law"],
+        "answer": 0,
+        "explanation": "First law of thermodynamics deals with energy conservation."
+    },
+    {
+        "question": "Which device determines direction of magnetic field?",
+        "options": ["Voltmeter", "Galvanometer", "Compass", "Ammeter"],
+        "answer": 2,
+        "explanation": "Compass shows direction of magnetic field."
+    },
+    {
+        "question": "Which lens has a focal length less than zero?",
+        "options": ["Convex lens", "Concave lens", "Bifocal lens", "Plano-convex lens"],
+        "answer": 1,
+        "explanation": "Concave lens has negative focal length."
+    },
+    {
+        "question": "Which electromagnetic wave has highest frequency?",
+        "options": ["Radio waves", "X-rays", "Gamma rays", "Microwaves"],
+        "answer": 2,
+        "explanation": "Gamma rays have highest frequency in electromagnetic spectrum."
+    },
+    {
+        "question": "What does the area under a speed-time graph represent?",
+        "options": ["Acceleration", "Distance travelled", "Velocity", "Displacement"],
+        "answer": 1,
+        "explanation": "Area under speed-time graph = distance travelled."
+    },
+    {
+        "question": "The ability of an object to float in fluid is due to:",
+        "options": ["Viscosity", "Surface tension", "Buoyant force", "Capillarity"],
+        "answer": 2,
+        "explanation": "Buoyant force helps object float."
+    },
+    {
+        "question": "A device that converts chemical energy into electrical energy is:",
+        "options": ["Capacitor", "Resistor", "Battery", "Inductor"],
+        "answer": 2,
+        "explanation": "Battery converts chemical to electrical energy."
+    },
+    {
+        "question": "Which quantity is conserved in elastic collision?",
+        "options": ["Momentum only", "Energy only", "Both momentum and energy", "Velocity"],
+        "answer": 2,
+        "explanation": "In elastic collision, both momentum and energy are conserved."
+    },
+    {
+        "question": "A body at rest remains at rest due to:",
+        "options": ["Gravity", "Friction", "Inertia", "Tension"],
+        "answer": 2,
+        "explanation": "Inertia keeps body at rest unless acted upon."
+    },
+    {
+        "question": "Which of the following is not affected by temperature?",
+        "options": ["Electric resistance", "Length", "Mass", "Pressure"],
+        "answer": 2,
+        "explanation": "Mass remains unchanged with temperature."
+    },
+    {
+        "question": "Which law explains floating of iceberg?",
+        "options": ["Newton’s third law", "Archimedes’ principle", "Kepler’s law", "Pascal’s law"],
+        "answer": 1,
+        "explanation": "Archimedes’ principle explains floating."
+    },
+    {
+        "question": "Which instrument measures specific gravity of liquids?",
+        "options": ["Hydrometer", "Barometer", "Pyrometer", "Galvanometer"],
+        "answer": 0,
+        "explanation": "Hydrometer measures specific gravity."
+    },
+    {
+        "question": "During free fall, which property remains unchanged?",
+        "options": ["Potential energy", "Kinetic energy", "Acceleration", "Mass"],
+        "answer": 3,
+        "explanation": "Mass remains unchanged during free fall."
+    },
+    {
+        "question": "Which material is commonly used in resistors?",
+        "options": ["Copper", "Nichrome", "Iron", "Aluminum"],
+        "answer": 1,
+        "explanation": "Nichrome is used due to high resistivity."
+    },
+    {
+        "question": "Which aspect of waves is used in ultrasound imaging?",
+        "options": ["Reflection", "Refraction", "Diffraction", "Transmission"],
+        "answer": 0,
+        "explanation": "Reflection of ultrasound waves is used in imaging."
+    },
+    {
+        "question": "Which process increases entropy?",
+        "options": ["Melting of ice", "Freezing of water", "Condensation", "Crystallization"],
+        "answer": 0,
+        "explanation": "Melting increases disorder; entropy rises."
+    },
+    {
+        "question": "Which nuclear reaction powers the Sun?",
+        "options": ["Fission", "Fusion", "Decay", "Electrolysis"],
+        "answer": 1,
+        "explanation": "Sun’s energy comes from nuclear fusion."
+    },
+    {
+        "question": "The device used for storing charge is:",
+        "options": ["Capacitor", "Inductor", "Resistor", "Emitter"],
+        "answer": 0,
+        "explanation": "Capacitor stores charge."
+    },
+    {
+        "question": "Which phenomenon makes the sun appear red during sunrise and sunset?",
+        "options": ["Reflection", "Scattering", "Refraction", "Diffusion"],
+        "answer": 1,
+        "explanation": "Scattering of light causes the red color."
+    },
+    {
+        "question": "The splitting of white light into its components is called:",
+        "options": ["Diffraction", "Reflection", "Dispersion", "Polarization"],
+        "answer": 2,
+        "explanation": "Splitting into different colors is dispersion."
+    },
+    {
+        "question": "SI unit of power of lens is:",
+        "options": ["Diopter", "Joule", "Watt", "Lux"],
+        "answer": 0,
+        "explanation": "Diopter is the power unit for lens."
+    },
+    {
+        "question": "Which type of semiconductor is obtained by doping silicon with phosphorus?",
+        "options": ["P-type", "N-type", "Intrinsic", "Superconductor"],
+        "answer": 1,
+        "explanation": "Phosphorus doping makes silicon N-type."
+    },
+    {
+        "question": "A transformer cannot work with which current?",
+        "options": ["Alternating Current", "Direct Current", "Sinusoidal", "Triangular"],
+        "answer": 1,
+        "explanation": "Transformers only work with alternating current."
+    },
+    {
+        "question": "Which value is equal in all points of a liquid at rest?",
+        "options": ["Pressure", "Density", "Temperature", "Volume"],
+        "answer": 0,
+        "explanation": "Pressure is equal at same level in stationary liquid."
+    },
+    {
+        "question": "On which principle does hydraulic lift work?",
+        "options": ["Pascal’s law", "Archimedes’ principle", "Bernoulli’s principle", "Hooke’s law"],
+        "answer": 0,
+        "explanation": "Hydraulic lifts use Pascal’s law."
+    },
+	 {
+        "question": "What is the SI unit of work?",
+        "options": ["Joule", "Newton", "Watt", "Pascal"],
+        "answer": 0,
+        "explanation": "Work is measured in joules in SI units."
+    },
+    {
+        "question": "What is the physical quantity represented by the area under force-displacement graph?",
+        "options": ["Work done", "Power", "Energy", "Momentum"],
+        "answer": 0,
+        "explanation": "Area under force-displacement graph gives work done."
+    },
+    {
+        "question": "Which physical law explains why a ship floats?",
+        "options": ["Archimedes’ Principle", "Pascal’s Law", "Newton’s First Law", "Boyle’s Law"],
+        "answer": 0,
+        "explanation": "Archimedes’ Principle explains buoyancy making ships float."
+    },
+    {
+        "question": "Which quantity remains constant in a satellite orbiting Earth?",
+        "options": ["Speed", "Velocity", "Kinetic energy", "Potential energy"],
+        "answer": 0,
+        "explanation": "The speed remains constant but velocity changes (direction)."
+    },
+    {
+        "question": "What type of image is formed by a plane mirror?",
+        "options": ["Real and inverted", "Real and erect", "Virtual and inverted", "Virtual and erect"],
+        "answer": 3,
+        "explanation": "Plane mirrors form virtual and erect images."
+    },
+    {
+        "question": "Which law explains the relation between angles of incidence and reflection?",
+        "options": ["Snell’s law", "Law of reflection", "Newton’s law", "Pascal’s law"],
+        "answer": 1,
+        "explanation": "Law of reflection states angle of incidence equals angle of reflection."
+    },
+    {
+        "question": "What is the main cause of seasons on Earth?",
+        "options": ["Earth’s distance from Sun", "Earth’s rotation", "Earth’s tilt on axis", "Moon’s gravity"],
+        "answer": 2,
+        "explanation": "Earth’s axial tilt causes seasonal changes."
+    },
+    {
+        "question": "In sound waves, what determines the pitch?",
+        "options": ["Amplitude", "Frequency", "Wavelength", "Speed"],
+        "answer": 1,
+        "explanation": "Pitch depends on frequency of sound waves."
+    },
+    {
+        "question": "Which gas is responsible for the greenhouse effect?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Helium"],
+        "answer": 1,
+        "explanation": "Carbon dioxide traps heat leading to greenhouse effect."
+    },
+    {
+        "question": "What is the characteristic of a monochromatic light source?",
+        "options": ["Single frequency", "Multiple frequencies", "High intensity", "Rays in multiple directions"],
+        "answer": 0,
+        "explanation": "Monochromatic light has a single frequency or wavelength."
+    },
+    {
+        "question": "What is the value of absolute zero in Celsius?",
+        "options": ["-273°C", "-100°C", "0°C", "-459.67°C"],
+        "answer": 0,
+        "explanation": "Absolute zero is -273°C."
+    },
+    {
+        "question": "A convex lens always forms a real image when the object is placed:",
+        "options": ["At the focus", "Beyond the center of curvature", "Between the focus and lens", "At infinity"],
+        "answer": 1,
+        "explanation": "When object is beyond center of curvature, convex lens forms real image."
+    },
+    {
+        "question": "Which current flows through a conductor without resistance?",
+        "options": ["Direct current", "Alternating current", "Supercurrent", "Static current"],
+        "answer": 2,
+        "explanation": "Supercurrent flows in superconductors with zero resistance."
+    },
+    {
+        "question": "Which metal is commonly used in thermocouples?",
+        "options": ["Copper", "Iron", "Chromel", "Silver"],
+        "answer": 2,
+        "explanation": "Chromel is used commonly with alumel in thermocouples."
+    },
+    {
+        "question": "The bending of light when it passes through a small opening or around obstacles is called:",
+        "options": ["Reflection", "Refraction", "Diffraction", "Dispersion"],
+        "answer": 2,
+        "explanation": "Diffraction refers to bending of waves around obstacles."
+    },
+    {
+        "question": "Which device is used to maintain constant voltage in circuits?",
+        "options": ["Transformer", "Regulator", "Rectifier", "Capacitor"],
+        "answer": 1,
+        "explanation": "Voltage regulator maintains constant voltage."
+    },
+    {
+        "question": "Which type of semiconductor has excess electrons?",
+        "options": ["Intrinsic", "N-type", "P-type", "Insulator"],
+        "answer": 1,
+        "explanation": "N-type semiconductor has excess electrons."
+    },
+    {
+        "question": "What is measured by an electroscope?",
+        "options": ["Current", "Voltage", "Electric charge", "Resistance"],
+        "answer": 2,
+        "explanation": "Electroscope detects electric charge."
+    },
+    {
+        "question": "Which color of light has the longest wavelength?",
+        "options": ["Violet", "Red", "Green", "Blue"],
+        "answer": 1,
+        "explanation": "Red light has the longest wavelength."
+    },
+    {
+        "question": "In which device does electromagnetic induction occur?",
+        "options": ["Electric motor", "Generator", "Battery", "Diode"],
+        "answer": 1,
+        "explanation": "Generators work on electromagnetic induction."
+    },
+    {
+        "question": "The pressure exerted by liquid in a container depends on:",
+        "options": ["Height of liquid", "Area of base", "Volume of liquid", "Shape of container"],
+        "answer": 0,
+        "explanation": "Pressure depends on height of liquid column."
+    },
+    {
+        "question": "What causes tides on Earth?",
+        "options": ["Sun’s gravity", "Moon’s gravity", "Earth’s rotation", "Wind"],
+        "answer": 1,
+        "explanation": "Moon’s gravitational pull causes tides."
+    },
+    {
+        "question": "The power of a lens is the reciprocal of its:",
+        "options": ["Focal length in meters", "Diameter", "Radius of curvature", "Thickness"],
+        "answer": 0,
+        "explanation": "Power (in diopters) = 1/focal length in meters."
+    },
+    {
+        "question": "Which type of energy transportation occurs in an incandescent bulb?",
+        "options": ["Conduction", "Convection", "Radiation", "Reflection"],
+        "answer": 2,
+        "explanation": "Heat and light leave bulb mainly by radiation."
+    },
+    {
+        "question": "Which property is measured by an ohmmeter?",
+        "options": ["Voltage", "Current", "Resistance", "Power"],
+        "answer": 2,
+        "explanation": "Ohmmeter measures electrical resistance."
+    },
+    {
+        "question": "What is the temperature of boiling water at standard atmospheric pressure?",
+        "options": ["100°C", "90°C", "80°C", "120°C"],
+        "answer": 0,
+        "explanation": "Water boils at 100°C at 1 atm pressure."
+    },
+    {
+        "question": "Which law defines the relation among current, voltage, and resistance?",
+        "options": ["Ohm's law", "Newton's law", "Faraday's law", "Boyle's law"],
+        "answer": 0,
+        "explanation": "Ohm’s law: V=IR."
+    },
+    {
+        "question": "Which material is magnetic?",
+        "options": ["Aluminum", "Iron", "Copper", "Plastic"],
+        "answer": 1,
+        "explanation": "Iron is a magnetic material."
+    },
+    {
+        "question": "The unit of electric capacitance is:",
+        "options": ["Farad", "Henry", "Coulomb", "Ohm"],
+        "answer": 0,
+        "explanation": "Capacitance is measured in Farads."
+    },
+    {
+        "question": "What is the internal resistance of an ideal battery?",
+        "options": ["Zero", "One ohm", "Infinite", "Unknown"],
+        "answer": 0,
+        "explanation": "Ideal battery has zero internal resistance."
+    },
+    {
+        "question": "Which nuclear particle has a positive charge?",
+        "options": ["Electron", "Proton", "Neutron", "Positron"],
+        "answer": 1,
+        "explanation": "Proton carries positive charge."
+    },
+    {
+        "question": "Which is the device to convert DC to AC?",
+        "options": ["Rectifier", "Inverter", "Transformer", "Battery"],
+        "answer": 1,
+        "explanation": "Inverter converts DC into AC."
+    },
+    {
+        "question": "What happens to the focal length of a convex lens if it's immersed in water?",
+        "options": ["Increases", "Decreases", "Remains same", "Becomes zero"],
+        "answer": 0,
+        "explanation": "Focal length increases because refractive index difference decreases."
+    },
+    {
+        "question": "Which quantity remains conserved in all collisions?",
+        "options": ["Momentum", "Kinetic energy", "Potential energy", "Temperature"],
+        "answer": 0,
+        "explanation": "Momentum is conserved in all collisions."
+    },
+    {
+        "question": "Which phenomenon demonstrates light’s particle nature?",
+        "options": ["Interference", "Diffraction", "Photoelectric effect", "Refraction"],
+        "answer": 2,
+        "explanation": "Photoelectric effect supports particle nature of light."
+    },
+    {
+        "question": "Which instrument is used to measure low resistances?",
+        "options": ["Galvanometer", "Ohmmeter", "Kelvin double bridge", "Voltmeter"],
+        "answer": 2,
+        "explanation": "Kelvin double bridge measures low resistances."
+    },
+    {
+        "question": "The frequency of sound in ultrasonic range is greater than:",
+        "options": ["20 Hz", "20,000 Hz", "2,000 Hz", "200 Hz"],
+        "answer": 1,
+        "explanation": "Ultrasonic frequencies are above 20,000 Hz."
+    },
+    {
+        "question": "Which particle is emitted in beta decay?",
+        "options": ["Alpha particle", "Electron", "Neutron", "Proton"],
+        "answer": 1,
+        "explanation": "Beta decay emits an electron or positron."
+    },
+    {
+        "question": "Which device is used to measure temperature accurately?",
+        "options": ["Barometer", "Thermometer", "Ammeter", "Hydrometer"],
+        "answer": 1,
+        "explanation": "Thermometer measures temperature."
+    },
+    {
+        "question": "What is the work done when no displacement occurs?",
+        "options": ["Zero", "Positive", "Negative", "Infinite"],
+        "answer": 0,
+        "explanation": "If displacement is zero, work done is zero."
+    },
+    {
+        "question": "In which medium does sound travel fastest?",
+        "options": ["Vacuum", "Air", "Water", "Steel"],
+        "answer": 3,
+        "explanation": "Sound travels fastest in solids like steel."
+    },
+    {
+        "question": "Which law explains the upward force on a submerged object?",
+        "options": ["Pascal’s law", "Archimedes’ Principle", "Newton’s Third Law", "Boyle’s Law"],
+        "answer": 1,
+        "explanation": "Archimedes’ Principle explains buoyant force."
+    },
+    {
+        "question": "Which of the following is NOT a conductor of electricity?",
+        "options": ["Copper", "Graphite", "Plastic", "Aluminum"],
+        "answer": 2,
+        "explanation": "Plastic is an insulator."
+    },
+    {
+        "question": "Which physical quantity is measured in Candela?",
+        "options": ["Electric current", "Luminous intensity", "Power", "Temperature"],
+        "answer": 1,
+        "explanation": "Candela measures luminous intensity."
+    },
+    {
+        "question": "Which law states that pressure applied to a confined fluid is transmitted equally in all directions?",
+        "options": ["Pascal’s Law", "Boyle’s Law", "Charles’ Law", "Newton’s First Law"],
+        "answer": 0,
+        "explanation": "Pascal’s law describes pressure transmission in fluids."
+    },
+	{
+        "question": "What type of wave is a sound wave?",
+        "options": ["Transverse wave", "Longitudinal wave", "Electromagnetic wave", "Surface wave"],
+        "answer": 1,
+        "explanation": "Sound waves are longitudinal waves where particles oscillate parallel to wave direction."
+    },
+    {
+        "question": "What causes refraction of light?",
+        "options": ["Change in frequency", "Change in wavelength", "Change in speed", "Change in amplitude"],
+        "answer": 2,
+        "explanation": "Light bends when its speed changes passing through different media."
+    },
+    {
+        "question": "Which is the lightest atomic particle?",
+        "options": ["Proton", "Neutron", "Electron", "Positron"],
+        "answer": 2,
+        "explanation": "Electron has the smallest mass among these particles."
+    },
+    {
+        "question": "Which gas has the highest thermal conductivity?",
+        "options": ["Carbon dioxide", "Hydrogen", "Oxygen", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Hydrogen has highest thermal conductivity among gases."
+    },
+    {
+        "question": "Which property of sound wave determines its pitch?",
+        "options": ["Amplitude", "Frequency", "Wavelength", "Velocity"],
+        "answer": 1,
+        "explanation": "Pitch depends on frequency of sound wave."
+    },
+    {
+        "question": "Which mirror is used in solar furnaces to concentrate light?",
+        "options": ["Concave mirror", "Convex mirror", "Plane mirror", "Spherical mirror"],
+        "answer": 0,
+        "explanation": "Concave mirror focuses rays to a point for concentration."
+    },
+    {
+        "question": "Which unit is used to measure magnetic field strength?",
+        "options": ["Tesla", "Weber", "Farad", "Henry"],
+        "answer": 0,
+        "explanation": "Magnetic field strength is measured in Tesla."
+    },
+    {
+        "question": "Moving coil galvanometer is used to measure:",
+        "options": ["Voltage", "Resistance", "Current", "Power"],
+        "answer": 2,
+        "explanation": "Galvanometer measures small electric currents."
+    },
+    {
+        "question": "Which energy form is stored in fossil fuels?",
+        "options": ["Thermal energy", "Chemical energy", "Kinetic energy", "Nuclear energy"],
+        "answer": 1,
+        "explanation": "Chemical energy is stored in bonds of fossil fuels."
+    },
+    {
+        "question": "Thermometer works on the principle of:",
+        "options": ["Expansion of liquids", "Electrical conductivity", "Magnetic property", "Pressure change"],
+        "answer": 0,
+        "explanation": "Thermometer measures expansion of liquids with temperature."
+    },
+    {
+        "question": "Which of these materials is a good conductor of electricity?",
+        "options": ["Glass", "Rubber", "Copper", "Plastic"],
+        "answer": 2,
+        "explanation": "Copper is an excellent conductor."
+    },
+    {
+        "question": "Which device is used to change AC voltage levels?",
+        "options": ["Rectifier", "Transformer", "Inverter", "Generator"],
+        "answer": 1,
+        "explanation": "Transformer changes AC voltage levels."
+    },
+    {
+        "question": "Time period of a simple pendulum depends on:",
+        "options": ["Mass of bob", "Length of string", "Amplitude", "Color of bob"],
+        "answer": 1,
+        "explanation": "Time period depends on length and gravity only."
+    },
+    {
+        "question": "Which of the following is NOT an electromagnetic wave?",
+        "options": ["X-ray", "Radio wave", "Ultrasound", "Gamma ray"],
+        "answer": 2,
+        "explanation": "Ultrasound is a mechanical wave, not electromagnetic."
+    },
+    {
+        "question": "The velocity of light in vacuum is approximately:",
+        "options": ["3 x 10^6 m/s", "3 x 10^7 m/s", "3 x 10^8 m/s", "3 x 10^9 m/s"],
+        "answer": 2,
+        "explanation": "Speed of light in vacuum is 3 x 10^8 m/s."
+    },
+    {
+        "question": "Which element is commonly used in nuclear reactors as fuel?",
+        "options": ["Uranium", "Thorium", "Plutonium", "All of these"],
+        "answer": 3,
+        "explanation": "All Uranium, Thorium, and Plutonium are used in reactors."
+    },
+    {
+        "question": "What property of a wave is measured in Hertz (Hz)?",
+        "options": ["Wavelength", "Frequency", "Amplitude", "Velocity"],
+        "answer": 1,
+        "explanation": "Frequency is measured in Hertz."
+    },
+    {
+        "question": "In a diode, current flows from:",
+        "options": ["Anode to Cathode", "Cathode to Anode", "Both directions", "Neither direction"],
+        "answer": 0,
+        "explanation": "Current flows easily from anode to cathode."
+    },
+    {
+        "question": "Which of the following materials is used as an insulator?",
+        "options": ["Silicon", "Copper", "Glass", "Iron"],
+        "answer": 2,
+        "explanation": "Glass is an electrical insulator."
+    },
+    {
+        "question": "Work done by a force moving an object in the direction of force is:",
+        "options": ["Zero", "Positive", "Negative", "Infinite"],
+        "answer": 1,
+        "explanation": "If force and displacement in same direction, work done is positive."
+    },
+    {
+        "question": "Which physical quantity is a vector quantity?",
+        "options": ["Speed", "Distance", "Displacement", "Volume"],
+        "answer": 2,
+        "explanation": "Displacement has magnitude and direction (vector)."
+    },
+    {
+        "question": "The basic unit of electric current in the SI system is:",
+        "options": ["Ampere", "Volt", "Ohm", "Watt"],
+        "answer": 0,
+        "explanation": "Ampere is the SI unit of current."
+    },
+    {
+        "question": "Which is responsible for the initial spark in a spark plug?",
+        "options": ["High current", "High voltage", "Low voltage", "High power"],
+        "answer": 1,
+        "explanation": "High voltage produces the spark."
+    },
+    {
+        "question": "What happens to the resistance of a conductor when temperature is increased?",
+        "options": ["Increases", "Decreases", "Remains same", "Becomes zero"],
+        "answer": 0,
+        "explanation": "Resistance of conductors generally increases with temperature."
+    },
+    {
+        "question": "Which gas is used in Geiger counter tubes?",
+        "options": ["Argon", "Oxygen", "Nitrogen", "Helium"],
+        "answer": 0,
+        "explanation": "Argon is commonly used in Geiger tubes."
+    },
+    {
+        "question": "Which of the following has the highest frequency?",
+        "options": ["Radio waves", "UV light", "Gamma rays", "Infrared rays"],
+        "answer": 2,
+        "explanation": "Gamma rays have the highest frequency."
+    },
+    {
+        "question": "The quantity of heat required to raise the temperature of 1kg of water by 1°C is called:",
+        "options": ["Specific heat capacity", "Latent heat", "Heat of vaporization", "Calorie"],
+        "answer": 0,
+        "explanation": "Specific heat capacity is heat for 1kg to raise 1°C."
+    },
+    {
+        "question": "A body moving in a circle at constant speed has:",
+        "options": ["Constant velocity", "Zero acceleration", "Centripetal acceleration", "No force acting"],
+        "answer": 2,
+        "explanation": "It experiences centripetal acceleration towards center."
+    },
+    {
+        "question": "Which ray bends the most when passing through a prism?",
+        "options": ["Red", "Violet", "Green", "Yellow"],
+        "answer": 1,
+        "explanation": "Violet light is bent most due to higher refractive index."
+    },
+    {
+        "question": "What type of energy conversion takes place in a loudspeaker?",
+        "options": ["Electrical to mechanical", "Mechanical to electrical", "Chemical to electrical", "Thermal to electrical"],
+        "answer": 0,
+        "explanation": "Loudspeaker converts electrical signals to sound (mechanical energy)."
+    },
+    {
+        "question": "What does the instrument ‘ammeter’ measure?",
+        "options": ["Voltage", "Current", "Resistance", "Power"],
+        "answer": 1,
+        "explanation": "Ammeter measures electric current."
+    },
+    {
+        "question": "What is the amount of charge carried by one electron?",
+        "options": ["1.6 x 10^-19 C", "1.6 x 10^-20 C", "1.6 x 10^-18 C", "1.6 x 10^-17 C"],
+        "answer": 0,
+        "explanation": "One electron carries charge of 1.6 x 10^-19 coulombs."
+    },
+    {
+        "question": "Which of the following is NOT a component of an atom?",
+        "options": ["Proton", "Neutron", "Electron", "Photon"],
+        "answer": 3,
+        "explanation": "Photon is a particle of light, not part of atom."
+    },
+    {
+        "question": "Which unit of luminous flux is used in photometry?",
+        "options": ["Candela", "Lumen", "Lux", "Watt"],
+        "answer": 1,
+        "explanation": "Lumen is the unit of luminous flux."
+    },
+    {
+        "question": "What happens to the wavelength of light when it enters denser medium?",
+        "options": ["Increases", "Decreases", "No change", "Becomes zero"],
+        "answer": 1,
+        "explanation": "Wavelength decreases as speed reduces in denser medium."
+    },
+    {
+        "question": "Which is NOT a renewable source of energy?",
+        "options": ["Solar energy", "Wind energy", "Coal", "Hydroelectric energy"],
+        "answer": 2,
+        "explanation": "Coal is a non-renewable fossil fuel."
+    },
+    {
+        "question": "What is the principle behind a hydraulic lift?",
+        "options": ["Pascal’s law", "Archimedes’ principle", "Boyle’s law", "Bernoulli’s principle"],
+        "answer": 0,
+        "explanation": "Hydraulic lift works on Pascal’s law of pressure transmission."
+    },
+    {
+        "question": "Which type of semiconductor has holes as majority charge carriers?",
+        "options": ["N-type", "P-type", "Intrinsic", "None"],
+        "answer": 1,
+        "explanation": "P-type semiconductor has holes as majority carriers."
+    },
+    {
+        "question": "Which nuclear particle determines the identity of an element?",
+        "options": ["Neutron", "Proton", "Electron", "Positron"],
+        "answer": 1,
+        "explanation": "Number of protons (atomic number) defines the element."
+    },
+    {
+        "question": "In which type of motion is acceleration constant and non-zero?",
+        "options": ["Uniform motion", "Uniformly accelerated motion", "Oscillatory motion", "Random motion"],
+        "answer": 1,
+        "explanation": "Uniformly accelerated motion has constant acceleration."
+    },
+    {
+        "question": "Which phenomenon explains bending of light near the edge of an obstacle?",
+        "options": ["Reflection", "Refraction", "Diffraction", "Interference"],
+        "answer": 2,
+        "explanation": "Diffraction causes bending of waves around edges."
+    },
+    {
+        "question": "What type of energy is stored in a stretched rubber band?",
+        "options": ["Kinetic energy", "Potential energy", "Elastic potential energy", "Thermal energy"],
+        "answer": 2,
+        "explanation": "Energy stored in stretched rubber band is elastic potential energy."
+    },
+	{
+        "question": "What is the unit of capacitance?",
+        "options": ["Farad", "Henry", "Ohm", "Watt"],
+        "answer": 0,
+        "explanation": "Capacitance is measured in Farads."
+    },
+    {
+        "question": "Which law states that pressure applied to a liquid is transmitted equally in all directions?",
+        "options": ["Pascal's Law", "Boyle's Law", "Charles's Law", "Newton's Law"],
+        "answer": 0,
+        "explanation": "Pascal's law states pressure in a confined incompressible fluid is transmitted equally."
+    },
+    {
+        "question": "Which phenomenon is responsible for the rainbow formation?",
+        "options": ["Reflection", "Dispersion", "Diffraction", "Refraction"],
+        "answer": 1,
+        "explanation": "Rainbow formation is due to dispersion of sunlight."
+    },
+    {
+        "question": "Which physical quantity is the rate of change of velocity?",
+        "options": ["Speed", "Acceleration", "Displacement", "Momentum"],
+        "answer": 1,
+        "explanation": "Acceleration is rate of change of velocity."
+    },
+    {
+        "question": "Which part of the atom contains protons and neutrons?",
+        "options": ["Nucleus", "Electron cloud", "Orbit", "Shell"],
+        "answer": 0,
+        "explanation": "Protons and neutrons are located in the nucleus."
+    },
+    {
+        "question": "Which type of radiation is most penetrating?",
+        "options": ["Alpha rays", "Beta rays", "Gamma rays", "X-rays"],
+        "answer": 2,
+        "explanation": "Gamma rays have the highest penetration power."
+    },
+    {
+        "question": "Which quantity is defined as force multiplied by displacement in the direction of force?",
+        "options": ["Power", "Work", "Energy", "Momentum"],
+        "answer": 1,
+        "explanation": "Work is force times displacement in the direction of force."
+    },
+    {
+        "question": "Which process converts electrical energy into mechanical energy?",
+        "options": ["Generator", "Motor", "Transformer", "Cell"],
+        "answer": 1,
+        "explanation": "Electric motor converts electrical energy to mechanical energy."
+    },
+    {
+        "question": "What happens to the temperature of a gas when compressed at constant energy?",
+        "options": ["Increases", "Decreases", "Remains constant", "Becomes zero"],
+        "answer": 0,
+        "explanation": "Compression increases temperature if energy added."
+    },
+    {
+        "question": "Which law defines the relationship between voltage and current in a conductor?",
+        "options": ["Ohm's Law", "Newton's Law", "Faraday's Law", "Pascal's Law"],
+        "answer": 0,
+        "explanation": "Ohm's law states V=IR."
+    },
+    {
+        "question": "Which of the following materials is a good conductor of electricity?",
+        "options": ["Rubber", "Copper", "Glass", "Plastic"],
+        "answer": 1,
+        "explanation": "Copper is an excellent electrical conductor."
+    },
+    {
+        "question": "Which instrument measures atmospheric pressure?",
+        "options": ["Barometer", "Thermometer", "Hygrometer", "Voltmeter"],
+        "answer": 0,
+        "explanation": "Barometer measures atmospheric pressure."
+    },
+    {
+        "question": "Which of the following is a renewable energy source?",
+        "options": ["Coal", "Petroleum", "Solar energy", "Natural gas"],
+        "answer": 2,
+        "explanation": "Solar energy is renewable."
+    },
+    {
+        "question": "What is the unit of electric power?",
+        "options": ["Watt", "Volt", "Ampere", "Ohm"],
+        "answer": 0,
+        "explanation": "Power is measured in watts."
+    },
+    {
+        "question": "What is the main constituent of alpha particles emitted during radioactivity?",
+        "options": ["Electron", "Proton", "Helium nucleus", "Neutron"],
+        "answer": 2,
+        "explanation": "Alpha particles are helium nuclei (2 protons, 2 neutrons)."
+    },
+    {
+        "question": "Which part of the electromagnetic spectrum has the longest wavelength?",
+        "options": ["Gamma rays", "X-rays", "Radio waves", "Ultraviolet rays"],
+        "answer": 2,
+        "explanation": "Radio waves have the longest wavelength."
+    },
+    {
+        "question": "What kind of mirror is used in vehicle rear-view mirrors?",
+        "options": ["Plane mirror", "Concave mirror", "Convex mirror", "Spherical mirror"],
+        "answer": 2,
+        "explanation": "Convex mirrors provide a wider field of view."
+    },
+    {
+        "question": "What force pulls objects towards Earth’s surface?",
+        "options": ["Electromagnetic force", "Gravitational force", "Nuclear force", "Tension"],
+        "answer": 1,
+        "explanation": "Gravitational force attracts objects towards Earth."
+    },
+    {
+        "question": "What type of current flows in households?",
+        "options": ["Direct current", "Alternating current", "Static current", "Pulse current"],
+        "answer": 1,
+        "explanation": "Household electricity is alternating current."
+    },
+    {
+        "question": "What is the unit of electric charge?",
+        "options": ["Coulomb", "Joule", "Watt", "Volt"],
+        "answer": 0,
+        "explanation": "Electric charge is measured in coulombs."
+    },
+    {
+        "question": "What does a voltmeter measure?",
+        "options": ["Current", "Voltage", "Resistance", "Capacitance"],
+        "answer": 1,
+        "explanation": "Voltmeter measures electric potential difference."
+    },
+    {
+        "question": "What causes sound?",
+        "options": ["Vibration", "Light", "Movement", "Electricity"],
+        "answer": 0,
+        "explanation": "Sound is produced by vibrating objects."
+    },
+    {
+        "question": "Which is the fundamental unit of mass in the SI system?",
+        "options": ["Gram", "Kilogram", "Pound", "Ounce"],
+        "answer": 1,
+        "explanation": "Kilogram is the SI base unit of mass."
+    },
+    {
+        "question": "What is the main component of a neutron?",
+        "options": ["Proton and electron", "Neutrino", "Up and down quarks", "Photon"],
+        "answer": 2,
+        "explanation": "Neutrons are made of up and down quarks."
+    },
+    {
+        "question": "What is the velocity of light?",
+        "options": ["3 x 10^6 m/s", "3 x 10^7 m/s", "3 x 10^8 m/s", "3 x 10^9 m/s"],
+        "answer": 2,
+        "explanation": "Velocity of light in vacuum is 3 x 10^8 m/s."
+    },
+    {
+        "question": "Which gas is commonly used in fluorescent lamps?",
+        "options": ["Neon", "Argon", "Xenon", "Krypton"],
+        "answer": 1,
+        "explanation": "Argon is commonly used in fluorescent lamps."
+    },
+    {
+        "question": "Which law states that energy cannot be created nor destroyed?",
+        "options": ["First law of thermodynamics", "Second law of thermodynamics", "Ohm's law", "Pascal's law"],
+        "answer": 0,
+        "explanation": "Energy conservation is stated in the first law of thermodynamics."
+    },
+    {
+        "question": "Which device is used to convert mechanical energy into electrical energy?",
+        "options": ["Motor", "Generator", "Transformer", "Battery"],
+        "answer": 1,
+        "explanation": "Generator converts mechanical energy to electrical energy."
+    },
+    {
+        "question": "Which type of lens diverges light rays?",
+        "options": ["Convex lens", "Concave lens", "Bifocal lens", "Plano lens"],
+        "answer": 1,
+        "explanation": "Concave lenses diverge light rays."
+    },
+    {
+        "question": "The path followed by a projectile is:",
+        "options": ["Straight line", "Parabola", "Circle", "Ellipse"],
+        "answer": 1,
+        "explanation": "Projectile motion forms a parabolic path."
+    },
+    {
+        "question": "What type of energy transformation occurs in a toaster?",
+        "options": ["Electrical to thermal energy", "Mechanical to electrical", "Chemical to electrical", "Nuclear to thermal"],
+        "answer": 0,
+        "explanation": "Toaster converts electrical energy to heat."
+    },
+    {
+        "question": "Which law relates the pressure and volume of gas at constant temperature?",
+        "options": ["Boyle’s law", "Charles's law", "Gay-Lussac's law", "Pascal's law"],
+        "answer": 0,
+        "explanation": "Boyle’s law states pressure inversely proportional to volume."
+    },
+    {
+        "question": "What type of energy is associated with moving objects?",
+        "options": ["Potential energy", "Kinetic energy", "Chemical energy", "Thermal energy"],
+        "answer": 1,
+        "explanation": "Kinetic energy is due to motion."
+    },
+    {
+        "question": "Which phenomenon causes a mirage?",
+        "options": ["Reflection", "Refraction", "Total internal reflection", "Diffraction"],
+        "answer": 2,
+        "explanation": "Mirage occurs due to total internal reflection."
+    },
+    {
+        "question": "What is the unit of electric resistance?",
+        "options": ["Ohm", "Volt", "Ampere", "Watt"],
+        "answer": 0,
+        "explanation": "Resistance is measured in ohms."
+    },
+    {
+        "question": "Which effect demonstrates the wave nature of light?",
+        "options": ["Photoelectric effect", "Interference", "Compton effect", "Blackbody radiation"],
+        "answer": 1,
+        "explanation": "Interference is a wave phenomenon."
+    },
+    {
+        "question": "Which nuclear particle is electrically neutral?",
+        "options": ["Proton", "Electron", "Neutron", "Positron"],
+        "answer": 2,
+        "explanation": "Neutrons carry no charge."
+    },
+    {
+        "question": "What is the unit of frequency?",
+        "options": ["Hertz", "Tesla", "Joule", "Newton"],
+        "answer": 0,
+        "explanation": "Frequency is measured in Hertz."
+    },
+    {
+        "question": "Which device is used to measure current?",
+        "options": ["Voltmeter", "Ammeter", "Ohmmeter", "Wattmeter"],
+        "answer": 1,
+        "explanation": "Ammeter measures current."
+    },
+    {
+        "question": "Which heat transfer method requires a medium?",
+        "options": ["Conduction", "Convection", "Radiation", "All of these"],
+        "answer": 1,
+        "explanation": "Convection requires a fluid medium."
+    },
+    {
+        "question": "What is the angle of incidence in a mirror if the angle of reflection is 45°?",
+        "options": ["45°", "90°", "30°", "60°"],
+        "answer": 0,
+        "explanation": "Angle of incidence equals angle of reflection."
+    },
+    {
+        "question": "What is the effect of increasing the temperature on resistance of a metal conductor?",
+        "options": ["Resistance increases", "Resistance decreases", "No effect", "Resistance becomes zero"],
+        "answer": 0,
+        "explanation": "Resistance of metals increases with temperature."
+    },
+    {
+        "question": "Which law explains the bending of light when it passes from one medium to another?",
+        "options": ["Law of reflection", "Snell's law", "Pascal's law", "Ohm's law"],
+        "answer": 1,
+        "explanation": "Snell's law describes refraction."
+    },
+    {
+        "question": "What is measured by a spectrometer?",
+        "options": ["Electricity", "Mass", "Wavelength", "Force"],
+        "answer": 2,
+        "explanation": "Spectrometer measures wavelengths of light."
+    },
+    {
+        "question": "Which force exists between the nucleus and electrons in an atom?",
+        "options": ["Gravitational force", "Electrostatic force", "Nuclear force", "Magnetic force"],
+        "answer": 1,
+        "explanation": "Electrostatic force binds electrons to nucleus."
+    },
+    {
+        "question": "Which is used for measuring very high temperatures?",
+        "options": ["Thermocouple", "Thermometer", "Barometer", "Voltmeter"],
+        "answer": 0,
+        "explanation": "Thermocouples measure high temperatures."
+    },
+	{
+        "question": "What is Hooke’s law related to?",
+        "options": ["Gas laws", "Elasticity", "Motion", "Electricity"],
+        "answer": 1,
+        "explanation": "Hooke’s law describes elasticity and the force in a spring."
+    },
+    {
+        "question": "Which physical quantity is the product of mass and velocity?",
+        "options": ["Force", "Momentum", "Energy", "Power"],
+        "answer": 1,
+        "explanation": "Momentum is mass times velocity."
+    },
+    {
+        "question": "Which color in the visible spectrum has the shortest wavelength?",
+        "options": ["Red", "Violet", "Blue", "Yellow"],
+        "answer": 1,
+        "explanation": "Violet has the shortest wavelength."
+    },
+    {
+        "question": "What type of energy is possessed by an object due to motion?",
+        "options": ["Potential energy", "Kinetic energy", "Chemical energy", "Thermal energy"],
+        "answer": 1,
+        "explanation": "Kinetic energy is due to motion."
+    },
+    {
+        "question": "Which phenomenon explains the splitting of white light into its component colors?",
+        "options": ["Reflection", "Refraction", "Dispersion", "Diffraction"],
+        "answer": 2,
+        "explanation": "Dispersion splits light into colors."
+    },
+    {
+        "question": "What is the unit of frequency?",
+        "options": ["Hertz", "Second", "Meter", "Newton"],
+        "answer": 0,
+        "explanation": "Frequency is measured in Hertz."
+    },
+    {
+        "question": "Which device converts AC to DC?",
+        "options": ["Rectifier", "Inverter", "Transformer", "Generator"],
+        "answer": 0,
+        "explanation": "Rectifier converts alternating current to direct current."
+    },
+    {
+        "question": "Which type of lens is used to correct hypermetropia (long-sightedness)?",
+        "options": ["Concave lens", "Convex lens", "Cylindrical lens", "Plano lens"],
+        "answer": 1,
+        "explanation": "Convex lenses correct long-sightedness."
+    },
+    {
+        "question": "What is the SI unit of power?",
+        "options": ["Watt", "Joule", "Newton", "Volt"],
+        "answer": 0,
+        "explanation": "Power is measured in watts."
+    },
+    {
+        "question": "Which is an example of longitudinal wave?",
+        "options": ["Light wave", "Sound wave", "Water wave", "Radio wave"],
+        "answer": 1,
+        "explanation": "Sound waves are longitudinal."
+    },
+    {
+        "question": "Which part of the atom has a negative charge?",
+        "options": ["Proton", "Electron", "Neutron", "Nucleus"],
+        "answer": 1,
+        "explanation": "Electrons have negative charge."
+    },
+    {
+        "question": "What type of wave is an electromagnetic wave?",
+        "options": ["Longitudinal", "Transverse", "Surface", "Mechanical"],
+        "answer": 1,
+        "explanation": "Electromagnetic waves are transverse."
+    },
+    {
+        "question": "Which type of radiation is emitted during nuclear fusion?",
+        "options": ["Alpha", "Beta", "Gamma", "Neutron"],
+        "answer": 2,
+        "explanation": "Gamma rays are commonly emitted during fusion."
+    },
+    {
+        "question": "What is the effect of increasing the temperature of a gas at constant volume?",
+        "options": ["Pressure increases", "Pressure decreases", "No change", "Volume increases"],
+        "answer": 0,
+        "explanation": "Pressure increases with temperature at constant volume."
+    },
+    {
+        "question": "Which law states that the force between two charges is inversely proportional to the square of the distance between them?",
+        "options": ["Coulomb’s Law", "Ohm’s Law", "Newton’s Law", "Faraday’s Law"],
+        "answer": 0,
+        "explanation": "Coulomb’s Law explains electrostatic force."
+    },
+    {
+        "question": "Which scientist formulated the three laws of motion?",
+        "options": ["Newton", "Einstein", "Galileo", "Maxwell"],
+        "answer": 0,
+        "explanation": "Newton formulated the laws of motion."
+    },
+    {
+        "question": "Which unit is used for measuring luminous intensity?",
+        "options": ["Candela", "Lumen", "Lux", "Watt"],
+        "answer": 0,
+        "explanation": "Candela measures luminous intensity."
+    },
+    {
+        "question": "What is the nature of the image formed by a concave mirror when the object is placed between focus and pole?",
+        "options": ["Real and inverted", "Virtual and erect", "Real and erect", "Virtual and inverted"],
+        "answer": 1,
+        "explanation": "Image formed is virtual and erect in this case."
+    },
+    {
+        "question": "Which quantity is conserved in inelastic collisions?",
+        "options": ["Momentum only", "Kinetic energy only", "Both momentum and kinetic energy", "Neither"],
+        "answer": 0,
+        "explanation": "Momentum is conserved, kinetic energy is not."
+    },
+    {
+        "question": "Which phenomenon explains the delay between seeing lightning and hearing thunder?",
+        "options": ["Difference in speed of light and sound", "Reflection of sound", "Refraction of light", "Absorption of sound"],
+        "answer": 0,
+        "explanation": "Light travels faster than sound, causing delay."
+    },
+    {
+        "question": "Which gas is responsible for global warming?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Carbon dioxide traps infrared radiation increasing global temperature."
+    },
+    {
+        "question": "Which force acts between two magnets?",
+        "options": ["Gravitational force", "Electrostatic force", "Magnetic force", "Nuclear force"],
+        "answer": 2,
+        "explanation": "Magnetic force acts between magnets."
+    },
+    {
+        "question": "Which material is used as a semiconductor in electronic devices?",
+        "options": ["Copper", "Silicon", "Aluminum", "Iron"],
+        "answer": 1,
+        "explanation": "Silicon is commonly used semiconductor."
+    },
+    {
+        "question": "What is the purpose of a fuse in an electric circuit?",
+        "options": ["Increase voltage", "Increase current", "Protect circuit from overcurrent", "Convert AC to DC"],
+        "answer": 2,
+        "explanation": "Fuse protects by breaking circuit during excess current."
+    },
+    {
+        "question": "What is the unit of pressure in the SI system?",
+        "options": ["Pascal", "Bar", "Newton", "Joule"],
+        "answer": 0,
+        "explanation": "Pressure is measured in pascals."
+    },
+    {
+        "question": "Which device is used to measure electric resistance?",
+        "options": ["Voltmeter", "Ammeter", "Ohmmeter", "Galvanometer"],
+        "answer": 2,
+        "explanation": "Ohmmeter measures resistance."
+    },
+    {
+        "question": "Which property of light explains the working of a lens?",
+        "options": ["Reflection", "Refraction", "Diffraction", "Polarization"],
+        "answer": 1,
+        "explanation": "Refraction bends light rays through lenses."
+    },
+    {
+        "question": "What phenomenon causes the sound of a siren to change as it moves towards or away from us?",
+        "options": ["Doppler effect", "Refraction", "Reflection", "Diffraction"],
+        "answer": 0,
+        "explanation": "Doppler effect causes change in frequency and pitch."
+    },
+    {
+        "question": "What is the measure of disorder or randomness in a system called?",
+        "options": ["Enthalpy", "Entropy", "Energy", "Pressure"],
+        "answer": 1,
+        "explanation": "Entropy is the measure of disorder."
+    },
+    {
+        "question": "Which law states the pressure of a gas is directly proportional to its absolute temperature at constant volume?",
+        "options": ["Boyle's Law", "Charles's Law", "Gay-Lussac's Law", "Pascal's Law"],
+        "answer": 2,
+        "explanation": "Gay-Lussac's law relates pressure and temperature."
+    },
+    {
+        "question": "What is the primary source of energy for the Sun?",
+        "options": ["Nuclear fission", "Nuclear fusion", "Chemical combustion", "Gravitational energy"],
+        "answer": 1,
+        "explanation": "Sun's energy comes from nuclear fusion reactions."
+    },
+    {
+        "question": "Who is known for discovering the electron?",
+        "options": ["Isaac Newton", "J.J. Thomson", "Marie Curie", "Albert Einstein"],
+        "answer": 1,
+        "explanation": "J.J. Thomson discovered the electron in 1897."
+    },
+    {
+        "question": "What is the SI unit of electric potential?",
+        "options": ["Volt", "Ampere", "Ohm", "Watt"],
+        "answer": 0,
+        "explanation": "Electric potential is measured in volts."
+    },
+    {
+        "question": "Which device is used to increase or decrease voltage of alternating current?",
+        "options": ["Generator", "Battery", "Transformer", "Rectifier"],
+        "answer": 2,
+        "explanation": "Transformer adjusts voltage levels in AC circuits."
+    },
+    {
+        "question": "Which law explains the behavior of gas under compression at constant temperature?",
+        "options": ["Boyle's Law", "Charles' Law", "Pascal's Law", "Ohm's Law"],
+        "answer": 0,
+        "explanation": "Boyle's law states pressure inversely varies with volume at constant temperature."
+    },
+    {
+        "question": "What form of energy is involved in photosynthesis?",
+        "options": ["Thermal energy", "Chemical energy", "Light energy", "Mechanical energy"],
+        "answer": 2,
+        "explanation": "Light energy is converted to chemical energy in photosynthesis."
+    },
+    {
+        "question": "Which type of particles are emitted in beta decay?",
+        "options": ["Neutrons", "Electrons", "Protons", "Alpha particles"],
+        "answer": 1,
+        "explanation": "Beta decay emits electrons or positrons."
+    },
+    {
+        "question": "Which type of mirror can form both real and virtual images?",
+        "options": ["Plane mirror", "Convex mirror", "Concave mirror", "Cylindrical mirror"],
+        "answer": 2,
+        "explanation": "Concave mirrors can form real or virtual images."
+    },
+    {
+        "question": "Which of the following is a vector quantity?",
+        "options": ["Speed", "Distance", "Acceleration", "Energy"],
+        "answer": 2,
+        "explanation": "Acceleration has both magnitude and direction."
+    },
+    {
+        "question": "Which physical phenomenon explains why the sky is blue?",
+        "options": ["Reflection", "Scattering", "Refraction", "Diffraction"],
+        "answer": 1,
+        "explanation": "Scattering of sunlight causes the blue appearance of the sky."
+    },
+    {
+        "question": "What type of energy is possessed by a body due to its position?",
+        "options": ["Kinetic energy", "Potential energy", "Thermal energy", "Sound energy"],
+        "answer": 1,
+        "explanation": "Potential energy depends on an object's position."
+    },
+    {
+        "question": "What is the effect of adding salt to water on its boiling point?",
+        "options": ["Boiling point increases", "Boiling point decreases", "No effect", "Boiling point becomes zero"],
+        "answer": 0,
+        "explanation": "Adding salt raises the boiling point (boiling point elevation)."
+    },
+    {
+        "question": "Which device is used to measure electric current?",
+        "options": ["Voltmeter", "Ammeter", "Ohmmeter", "Wattmeter"],
+        "answer": 1,
+        "explanation": "Ammeter measures electric current."
+    },
+    {
+        "question": "What type of force is exerted by magnets?",
+        "options": ["Gravitational force", "Magnetic force", "Frictional force", "Nuclear force"],
+        "answer": 1,
+        "explanation": "Magnets exert magnetic force."
+    },
+	{
+        "question": "What is the SI unit of force?",
+        "options": ["Newton", "Joule", "Watt", "Pascal"],
+        "answer": 0,
+        "explanation": "The SI unit of force is Newton."
+    },
+    {
+        "question": "Which part of the electromagnetic spectrum has the highest energy?",
+        "options": ["Radio waves", "Gamma rays", "Infrared rays", "Visible light"],
+        "answer": 1,
+        "explanation": "Gamma rays have the highest energy among electromagnetic waves."
+    },
+    {
+        "question": "What happens to the electrical resistance of a conductor when temperature decreases?",
+        "options": ["Increases", "Decreases", "Remains same", "Becomes infinite"],
+        "answer": 1,
+        "explanation": "Electrical resistance of a conductor decreases when temperature decreases."
+    },
+    {
+        "question": "What is the relation between wavelength and frequency of a wave if velocity is constant?",
+        "options": ["Directly proportional", "Inversely proportional", "No relation", "Equal"],
+        "answer": 1,
+        "explanation": "Wavelength is inversely proportional to frequency if velocity is constant."
+    },
+    {
+        "question": "What causes an object to float in water?",
+        "options": ["Its density is greater than water", "Buoyant force acts on it", "Gravity acting upwards", "Frictional force"],
+        "answer": 1,
+        "explanation": "Buoyant force balances gravity allowing the object to float if it is lesser than its weight."
+    },
+    {
+        "question": "Who proposed the theory of relativity?",
+        "options": ["Isaac Newton", "Albert Einstein", "James Clerk Maxwell", "Galileo Galilei"],
+        "answer": 1,
+        "explanation": "Albert Einstein proposed the theory of relativity."
+    },
+    {
+        "question": "What is the speed of sound in vacuum?",
+        "options": ["0 m/s", "343 m/s", "1500 m/s", "300,000 km/s"],
+        "answer": 0,
+        "explanation": "Sound cannot travel in a vacuum because it requires a medium."
+    },
+    {
+        "question": "What is the function of a capacitor in an electrical circuit?",
+        "options": ["Store electrical energy", "Increase current", "Reduce voltage", "Convert AC to DC"],
+        "answer": 0,
+        "explanation": "A capacitor stores electrical energy in an electric field."
+    },
+    {
+        "question": "Which phenomenon is responsible for the blue color of the sky?",
+        "options": ["Reflection", "Refraction", "Scattering", "Diffraction"],
+        "answer": 2,
+        "explanation": "Rayleigh scattering of sunlight by the atmosphere causes the sky to appear blue."
+    },
+    {
+        "question": "What is the principle behind sonar technology?",
+        "options": ["Reflection of light", "Refraction of sound", "Reflection of sound", "Diffusion of light"],
+        "answer": 2,
+        "explanation": "Sonar works on the reflection of sound waves."
+    },
+    {
+        "question": "How many electrons are present in a neutral oxygen atom?",
+        "options": ["6", "8", "10", "16"],
+        "answer": 1,
+        "explanation": "A neutral oxygen atom has 8 electrons equal to its atomic number."
+    },
+    {
+        "question": "What is the acceleration due to gravity on Earth’s surface?",
+        "options": ["9.8 m/s²", "10 m/s²", "8.9 m/s²", "7.8 m/s²"],
+        "answer": 0,
+        "explanation": "The standard acceleration due to gravity is 9.8 m/s²."
+    },
+    {
+        "question": "Which device is used to detect electric charge?",
+        "options": ["Ammeter", "Electroscope", "Voltmeter", "Galvanometer"],
+        "answer": 1,
+        "explanation": "Electroscope is used to detect the presence of electric charge."
+    },
+    {
+        "question": "Light exhibits which types of behavior?",
+        "options": ["Wave only", "Particle only", "Both wave and particle", "Neither wave nor particle"],
+        "answer": 2,
+        "explanation": "Light exhibits both wave and particle nature (wave-particle duality)."
+    },
+    {
+        "question": "The direction of magnetic field around a current-carrying conductor is given by:",
+        "options": ["Right-hand thumb rule", "Left-hand thumb rule", "Fleming’s left-hand rule", "Fleming’s right-hand rule"],
+        "answer": 0,
+        "explanation": "Right-hand thumb rule determines magnetic field direction around conductor."
+    },
+    {
+        "question": "Which type of nuclear reaction is used in nuclear power plants?",
+        "options": ["Nuclear fusion", "Nuclear fission", "Radioactive decay", "Electrolysis"],
+        "answer": 1,
+        "explanation": "Nuclear fission reaction is used to generate energy in nuclear power plants."
+    },
+    {
+        "question": "Which metal is commonly used for making electrical wires?",
+        "options": ["Gold", "Aluminum", "Copper", "Iron"],
+        "answer": 2,
+        "explanation": "Copper is used due to its excellent conductivity and ductility."
+    },
+    {
+        "question": "Which phenomenon causes the reddish appearance of the sun during sunset?",
+        "options": ["Reflection", "Diffraction", "Scattering", "Refraction"],
+        "answer": 2,
+        "explanation": "Scattering removes shorter wavelengths leaving red color at sunset."
+    },
+    {
+        "question": "What kind of image is formed by a convex lens when the object is placed between focus and lens?",
+        "options": ["Real and inverted", "Virtual and erect", "Real and erect", "No image is formed"],
+        "answer": 1,
+        "explanation": "Convex lens forms a virtual, erect and magnified image in this case."
+    },
+    {
+        "question": "What is the cause of the greenhouse effect?",
+        "options": ["Ozone depletion", "Increase in greenhouse gases", "Decrease in carbon dioxide", "Deforestation"],
+        "answer": 1,
+        "explanation": "Increase in greenhouse gases like CO₂ traps heat causing greenhouse effect."
+    },
+    {
+        "question": "Which particle in the nucleus determines the atomic number?",
+        "options": ["Neutron", "Electron", "Proton", "Positron"],
+        "answer": 2,
+        "explanation": "Atomic number equals the number of protons in nucleus."
+    },
+    {
+        "question": "Which of the following is NOT a renewable source of energy?",
+        "options": ["Solar energy", "Wind energy", "Natural gas", "Hydropower"],
+        "answer": 2,
+        "explanation": "Natural gas is a fossil fuel and not renewable."
+    },
+    {
+        "question": "What kind of energy transformation occurs in a battery-powered flashlight?",
+        "options": ["Chemical energy to electrical to light energy", "Mechanical energy to electrical energy", "Electrical energy to heat energy", "Chemical energy to heat energy"],
+        "answer": 0,
+        "explanation": "Battery converts chemical energy into electrical, which produces light."
+    },
+    {
+        "question": "Which of the following is NOT a vector quantity?",
+        "options": ["Acceleration", "Velocity", "Speed", "Displacement"],
+        "answer": 2,
+        "explanation": "Speed is a scalar quantity; others are vectors."
+    },
+    {
+        "question": "Which unit measures luminous intensity?",
+        "options": ["Lux", "Lumen", "Candela", "Watt"],
+        "answer": 2,
+        "explanation": "Candela measures luminous intensity."
+    },
+    {
+        "question": "Which phenomenon causes the formation of shadows?",
+        "options": ["Reflection", "Refraction", "Absorption", "Rectilinear propagation of light"],
+        "answer": 3,
+        "explanation": "Light travels in straight lines causing shadows when blocked."
+    },
+    {
+        "question": "Which part of the atom contains electrons?",
+        "options": ["Nucleus", "Proton", "Electron cloud", "Neutron"],
+        "answer": 2,
+        "explanation": "Electrons orbit the nucleus forming the electron cloud."
+    },
+    {
+        "question": "What is the energy source of the Sun?",
+        "options": ["Nuclear fission", "Nuclear fusion", "Chemical combustion", "Gravitational energy"],
+        "answer": 1,
+        "explanation": "Sun’s energy comes from nuclear fusion."
+    },
+    {
+        "question": "Which law states that the current through a conductor is directly proportional to the voltage across it?",
+        "options": ["Ohm's Law", "Kirchhoff’s Law", "Newton’s First Law", "Boyle’s Law"],
+        "answer": 0,
+        "explanation": "Ohm’s Law: Current is proportional to voltage."
+    },
+    {
+        "question": "Which instrument is used to measure electric current?",
+        "options": ["Voltmeter", "Ammeter", "Ohmmeter", "Wattmeter"],
+        "answer": 1,
+        "explanation": "Ammeter is used to measure electric current."
+    },
+    {
+        "question": "What happens to the wavelength of light when it enters a denser medium?",
+        "options": ["Increases", "Decreases", "Remains same", "Becomes zero"],
+        "answer": 1,
+        "explanation": "Wavelength decreases when light enters a denser medium."
+    },
+    {
+        "question": "Which type of lens is thicker in the middle than at the edges?",
+        "options": ["Concave lens", "Convex lens", "Cylindrical lens", "Plano lens"],
+        "answer": 1,
+        "explanation": "Convex lenses are thicker in the middle."
+    },
+    {
+        "question": "What does the unit Henry measure?",
+        "options": ["Capacitance", "Inductance", "Resistance", "Power"],
+        "answer": 1,
+        "explanation": "Henry is the unit of inductance."
+    },
+    {
+        "question": "What type of wave requires a medium to travel?",
+        "options": ["Electromagnetic wave", "Mechanical wave", "Light wave", "Radio wave"],
+        "answer": 1,
+        "explanation": "Mechanical waves require a medium; electromagnetic waves do not."
+    },
+    {
+        "question": "What is the SI unit of electric charge?",
+        "options": ["Coulomb", "Volt", "Ampere", "Watt"],
+        "answer": 0,
+        "explanation": "Electric charge is measured in coulombs."
+    },
+    {
+        "question": "Which effect is responsible for the operation of solar cells?",
+        "options": ["Photoelectric effect", "Electrolysis", "Nuclear fission", "Thermoelectric effect"],
+        "answer": 0,
+        "explanation": "Photoelectric effect produces current in solar cells."
+    },
+    {
+        "question": "What changes when frequency of a wave changes but speed remains constant?",
+        "options": ["Wavelength", "Amplitude", "Velocity", "Direction"],
+        "answer": 0,
+        "explanation": "Wavelength changes inversely to frequency with constant speed."
+    },
+    {
+        "question": "Which law states that the total energy of an isolated system remains constant?",
+        "options": ["First law of thermodynamics", "Second law of thermodynamics", "Boyle’s law", "Pascal’s law"],
+        "answer": 0,
+        "explanation": "First law of thermodynamics is law of energy conservation."
+    },
+    {
+        "question": "Which part of the electromagnetic spectrum is used in microwave ovens?",
+        "options": ["Infrared", "Microwaves", "Radio waves", "Ultraviolet"],
+        "answer": 1,
+        "explanation": "Microwaves are used for heating food in microwaves ovens."
+    },
+    {
+        "question": "Which quantity remains constant in a free-falling object?",
+        "options": ["Velocity", "Acceleration", "Displacement", "Mass"],
+        "answer": 3,
+        "explanation": "Mass remains constant during free fall."
+    },
+	{
+        "question": "What is the work done when a force of 5 N moves an object 3 m in direction of force?",
+        "options": ["15 J", "8 J", "2 J", "1.5 J"],
+        "answer": 0,
+        "explanation": "Work done = Force × Distance = 5 × 3 = 15 Joules."
+    },
+    {
+        "question": "Which of the following is a scalar quantity?",
+        "options": ["Force", "Velocity", "Speed", "Acceleration"],
+        "answer": 2,
+        "explanation": "Speed is a scalar; others are vector quantities."
+    },
+    {
+        "question": "What type of energy conversion happens in a hydroelectric power plant?",
+        "options": ["Chemical to electrical", "Mechanical to electrical", "Electrical to mechanical", "Thermal to electrical"],
+        "answer": 1,
+        "explanation": "Mechanical energy of water is converted to electrical energy."
+    },
+    {
+        "question": "Which law relates the pressure and volume of a gas at constant temperature?",
+        "options": ["Boyle’s Law", "Charles’s Law", "Gay-Lussac’s Law", "Pascal’s Law"],
+        "answer": 0,
+        "explanation": "Boyle's law states Pressure × Volume = constant."
+    },
+    {
+        "question": "What is the frequency of a wave with a period of 0.01 seconds?",
+        "options": ["100 Hz", "10 Hz", "0.01 Hz", "0.1 Hz"],
+        "answer": 0,
+        "explanation": "Frequency = 1 / Period = 1 / 0.01 = 100 Hz."
+    },
+    {
+        "question": "What type of radiation has the least penetrating power?",
+        "options": ["Alpha particles", "Beta particles", "Gamma rays", "X-rays"],
+        "answer": 0,
+        "explanation": "Alpha particles are least penetrating; stopped by paper."
+    },
+    {
+        "question": "Which device converts mechanical energy into electrical energy?",
+        "options": ["Motor", "Generator", "Transformer", "Rectifier"],
+        "answer": 1,
+        "explanation": "Generators convert mechanical to electrical energy."
+    },
+    {
+        "question": "What is the temperature of absolute zero in Celsius?",
+        "options": ["-273°C", "-100°C", "0°C", "-273 K"],
+        "answer": 0,
+        "explanation": "Absolute zero is -273°C."
+    },
+    {
+        "question": "Which phenomenon explains the bending of light near the edge of an obstacle?",
+        "options": ["Reflection", "Refraction", "Diffraction", "Dispersion"],
+        "answer": 2,
+        "explanation": "Diffraction causes bending near edges."
+    },
+    {
+        "question": "Which metal is the best conductor of electricity?",
+        "options": ["Copper", "Gold", "Silver", "Aluminum"],
+        "answer": 2,
+        "explanation": "Silver has the highest electrical conductivity."
+    },
+    {
+        "question": "What happens to the wavelength of light when passing from air into water?",
+        "options": ["Increases", "Decreases", "No change", "Becomes zero"],
+        "answer": 1,
+        "explanation": "Wavelength decreases in denser medium like water."
+    },
+    {
+        "question": "Which instrument measures the electric potential difference across two points?",
+        "options": ["Ammeter", "Voltmeter", "Galvanometer", "Ohmmeter"],
+        "answer": 1,
+        "explanation": "Voltmeter measures potential difference (voltage)."
+    },
+    {
+        "question": "Which law states that the induced emf in a coil is proportional to the rate of change of magnetic flux?",
+        "options": ["Faraday's Law", "Lenz's Law", "Ampere's Law", "Ohm's Law"],
+        "answer": 0,
+        "explanation": "Faraday's Law describes electromagnetic induction."
+    },
+    {
+        "question": "Which device can store electrical charge temporarily?",
+        "options": ["Resistor", "Capacitor", "Inductor", "Transformer"],
+        "answer": 1,
+        "explanation": "Capacitor stores electric charge temporarily."
+    },
+    {
+        "question": "The SI unit of luminous flux is:",
+        "options": ["Candela", "Lumen", "Lux", "Watt"],
+        "answer": 1,
+        "explanation": "Lumen measures luminous flux."
+    },
+    {
+        "question": "In electric circuits, what does 'resistance' measure?",
+        "options": ["Current", "Voltage", "Opposition to current", "Power"],
+        "answer": 2,
+        "explanation": "Resistance opposes the flow of current."
+    },
+    {
+        "question": "What is the main source of energy in the Sun?",
+        "options": ["Nuclear fission", "Nuclear fusion", "Chemical combustion", "Gravitational energy"],
+        "answer": 1,
+        "explanation": "Energy is generated from nuclear fusion in the Sun."
+    },
+    {
+        "question": "The rate of doing work is called:",
+        "options": ["Power", "Energy", "Force", "Work"],
+        "answer": 0,
+        "explanation": "Power is the rate of work done."
+    },
+    {
+        "question": "The unit of pressure is:",
+        "options": ["Pascal", "Joule", "Newton", "Watt"],
+        "answer": 0,
+        "explanation": "Pressure is measured in pascals (Pa)."
+    },
+    {
+        "question": "Which of these is a unit of energy?",
+        "options": ["Watt", "Newton", "Joule", "Ampere"],
+        "answer": 2,
+        "explanation": "Joule is the SI unit of energy."
+    },
+    {
+        "question": "What kind of wave is a sound wave?",
+        "options": ["Transverse", "Longitudinal", "Electromagnetic", "Surface"],
+        "answer": 1,
+        "explanation": "Sound is a longitudinal mechanical wave."
+    },
+    {
+        "question": "Which gas is responsible for the greenhouse effect?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+        "answer": 2,
+        "explanation": "Carbon dioxide traps heat causing greenhouse effect."
+    },
+    {
+        "question": "Which law relates pressure and volume of a gas at constant temperature?",
+        "options": ["Boyle's law", "Charles's law", "Gay-Lussac's law", "Pascal's law"],
+        "answer": 0,
+        "explanation": "Boyle’s law states that pressure and volume are inversely proportional."
+    },
+    {
+        "question": "What is the device to increase or decrease voltage in AC circuits?",
+        "options": ["Transformer", "Rectifier", "Generator", "Motor"],
+        "answer": 0,
+        "explanation": "Transformer changes voltage levels in AC circuits."
+    },
+    {
+        "question": "What is the direction of force on a current carrying conductor in a magnetic field?",
+        "options": ["Right hand thumb rule", "Fleming’s right-hand rule", "Fleming’s left-hand rule", "Left hand thumb rule"],
+        "answer": 2,
+        "explanation": "Fleming’s left-hand rule gives direction of force."
+    },
+    {
+        "question": "Which law explains the buoyant force on an object immersed in fluid?",
+        "options": ["Ohm's Law", "Archimedes’ Principle", "Boyle's Law", "Pascal's Law"],
+        "answer": 1,
+        "explanation": "Archimedes’ Principle explains buoyancy."
+    },
+    {
+        "question": "Which device converts chemical energy to electrical energy?",
+        "options": ["Battery", "Generator", "Motor", "Transformer"],
+        "answer": 0,
+        "explanation": "Battery converts chemical to electrical energy."
+    },
+    {
+        "question": "Which quantity has only magnitude but no direction?",
+        "options": ["Vector", "Scalar", "Force", "Velocity"],
+        "answer": 1,
+        "explanation": "Scalar quantities have magnitude only."
+    },
+    {
+        "question": "What is the path of a projectile called?",
+        "options": ["Ellipse", "Parabola", "Hyperbola", "Circle"],
+        "answer": 1,
+        "explanation": "The projectile moves in a parabolic path."
+    },
+    {
+        "question": "Which phenomenon occurs when light bends passing from one medium to another?",
+        "options": ["Reflection", "Refraction", "Diffraction", "Dispersion"],
+        "answer": 1,
+        "explanation": "Refraction is bending of light at boundary between two media."
+    },
+    {
+        "question": "What happens to the speed of light in a vacuum?",
+        "options": ["It changes with frequency", "It remains constant", "It depends on wavelength", "It decreases"],
+        "answer": 1,
+        "explanation": "Speed of light in vacuum is constant at approximately 3x10^8 m/s."
+    },
+    {
+        "question": "Which energy transformation takes place in a hydroelectric power plant?",
+        "options": ["Mechanical to electrical", "Electrical to mechanical", "Chemical to electrical", "Thermal to mechanical"],
+        "answer": 0,
+        "explanation": "Mechanical energy of water is converted to electrical energy."
+    },
+    {
+        "question": "Which of the following is not a good conductor of electricity?",
+        "options": ["Copper", "Aluminum", "Rubber", "Silver"],
+        "answer": 2,
+        "explanation": "Rubber is an insulator."
+    },
+    {
+        "question": "Which physical quantity is measured in watts?",
+        "options": ["Energy", "Power", "Work", "Force"],
+        "answer": 1,
+        "explanation": "Power is measured in watts."
+    },
+    {
+        "question": "What is the formula to calculate kinetic energy?",
+        "options": ["KE = 1/2 mv^2", "KE = mgh", "KE = Fd", "KE = mv"],
+        "answer": 0,
+        "explanation": "Kinetic energy = 1/2 × mass × velocity squared."
+    },
+    {
+        "question": "What is the unit of resistance?",
+        "options": ["Ohm", "Volt", "Ampere", "Watt"],
+        "answer": 0,
+        "explanation": "Resistance is measured in ohms."
+    },
+    {
+        "question": "Which color has the shortest wavelength in visible light?",
+        "options": ["Red", "Blue", "Violet", "Green"],
+        "answer": 2,
+        "explanation": "Violet light has the shortest wavelength."
+    },
+    {
+        "question": "What is the law of conservation of energy?",
+        "options": ["Energy can be created", "Energy can be destroyed", "Energy cannot be created or destroyed", "Energy decreases with time"],
+        "answer": 2,
+        "explanation": "Total energy in an isolated system remains constant."
+    },
+    {
+        "question": "Which property of a wave corresponds to its loudness?",
+        "options": ["Frequency", "Amplitude", "Velocity", "Wavelength"],
+        "answer": 1,
+        "explanation": "Amplitude relates to loudness."
+    },
+    {
+        "question": "Which property of an object causes it to resist changes to motion?",
+        "options": ["Force", "Momentum", "Inertia", "Energy"],
+        "answer": 2,
+        "explanation": "Inertia is resistance to change in motion."
+    },
+	{
+        "question": "Which of these quantities is a vector?",
+        "options": ["Speed", "Mass", "Displacement", "Temperature"],
+        "answer": 2,
+        "explanation": "Displacement has both magnitude and direction, making it a vector."
+    },
+    {
+        "question": "What is the unit of frequency?",
+        "options": ["Hertz", "Newton", "Watt", "Joule"],
+        "answer": 0,
+        "explanation": "Frequency is measured in hertz (Hz)."
+    },
+    {
+        "question": "Which of the following is an insulator?",
+        "options": ["Copper", "Silver", "Plastic", "Gold"],
+        "answer": 2,
+        "explanation": "Plastic is an electrical insulator."
+    },
+    {
+        "question": "What does Ohm's law state?",
+        "options": ["Voltage is proportional to current", "Power equals voltage times current", "Force equals mass times acceleration", "Energy equals force times distance"],
+        "answer": 0,
+        "explanation": "Ohm's law states voltage is proportional to current in a conductor."
+    },
+    {
+        "question": "What is the speed of light?",
+        "options": ["3 x 10^6 m/s", "3 x 10^7 m/s", "3 x 10^8 m/s", "3 x 10^9 m/s"],
+        "answer": 2,
+        "explanation": "Speed of light in vacuum is approximately 3 x 10^8 m/s."
+    },
+    {
+        "question": "What kind of energy is stored in a stretched or compressed spring?",
+        "options": ["Kinetic", "Potential", "Elastic potential", "Chemical"],
+        "answer": 2,
+        "explanation": "Elastic potential energy is stored in deformed springs."
+    },
+    {
+        "question": "Which force keeps planets in orbit around the sun?",
+        "options": ["Electromagnetic force", "Gravitational force", "Strong nuclear force", "Frictional force"],
+        "answer": 1,
+        "explanation": "Gravity keeps the planets in orbit."
+    },
+    {
+        "question": "Which law explains buoyancy?",
+        "options": ["Pascal’s law", "Archimedes’ principle", "Boyle’s law", "Newton’s second law"],
+        "answer": 1,
+        "explanation": "Archimedes’ principle explains buoyant force."
+    },
+    {
+        "question": "What is the energy of a photon proportional to?",
+        "options": ["Wavelength", "Frequency", "Amplitude", "Speed"],
+        "answer": 1,
+        "explanation": "Photon energy is proportional to its frequency."
+    },
+    {
+        "question": "Which law is used in transformers?",
+        "options": ["Ohm’s law", "Faraday’s law of electromagnetic induction", "Newton’s law", "Snell’s law"],
+        "answer": 1,
+        "explanation": "Transformers operate on Faraday’s electromagnetic induction."
+    },
+    {
+        "question": "Which device is used to measure current in a circuit?",
+        "options": ["Ammeter", "Voltmeter", "Ohmmeter", "Galvanometer"],
+        "answer": 0,
+        "explanation": "Ammeter measures electric current."
+    },
+    {
+        "question": "What happens to resistance when the length of a conductor is doubled?",
+        "options": ["Resistance doubles", "Resistance halves", "Resistance remains constant", "Resistance quadruples"],
+        "answer": 0,
+        "explanation": "Resistance is directly proportional to length."
+    },
+    {
+        "question": "What is the main source of energy for the Earth?",
+        "options": ["Solar energy", "Geothermal energy", "Nuclear energy", "Wind energy"],
+        "answer": 0,
+        "explanation": "Earth receives energy mainly from the Sun."
+    },
+    {
+        "question": "Which kind of motion is periodic in nature?",
+        "options": ["Linear", "Circular", "Oscillatory", "Random"],
+        "answer": 2,
+        "explanation": "Oscillatory motion repeats over regular intervals."
+    },
+    {
+        "question": "What is the angle of incidence if the angle of reflection is 30 degrees?",
+        "options": ["30 degrees", "60 degrees", "90 degrees", "0 degrees"],
+        "answer": 0,
+        "explanation": "Angle of incidence equals angle of reflection."
+    },
+    {
+        "question": "Which material is used as a semiconductor?",
+        "options": ["Copper", "Silicon", "Iron", "Lead"],
+        "answer": 1,
+        "explanation": "Silicon is a commonly used semiconductor."
+    },
+    {
+        "question": "What is the frequency range of audible sound for humans?",
+        "options": ["0-20 Hz", "20 Hz-20,000 Hz", "20,000-40,000 Hz", "Above 40,000 Hz"],
+        "answer": 1,
+        "explanation": "Humans hear sound between 20 Hz and 20,000 Hz."
+    },
+    {
+        "question": "Which phenomenon causes the blue color of the ocean?",
+        "options": ["Reflection", "Refraction", "Scattering", "Absorption"],
+        "answer": 2,
+        "explanation": "Scattering of light causes the blue color."
+    },
+    {
+        "question": "Which physical quantity is the product of force and displacement?",
+        "options": ["Energy", "Work", "Power", "Momentum"],
+        "answer": 1,
+        "explanation": "Work = force × displacement."
+    },
+    {
+        "question": "What is the charge on a proton?",
+        "options": ["Negative", "Positive", "Neutral", "Variable"],
+        "answer": 1,
+        "explanation": "Protons have a positive electric charge."
+    },
+    {
+        "question": "What does the symbol 'g' denote in physics?",
+        "options": ["Acceleration due to gravity", "Gravitational force", "Mass", "Momentum"],
+        "answer": 0,
+        "explanation": "'g' is acceleration due to gravity (9.8 m/s²)."
+    },
+    {
+        "question": "Which phenomenon is used in optical fiber communication?",
+        "options": ["Reflection", "Refraction", "Total internal reflection", "Diffraction"],
+        "answer": 2,
+        "explanation": "Total internal reflection keeps light within the fiber."
+    },
+    {
+        "question": "What is the value of Planck's constant?",
+        "options": ["6.63 x 10^-34 Js", "3 x 10^8 m/s", "1.6 x 10^-19 C", "9.8 m/s^2"],
+        "answer": 0,
+        "explanation": "Planck's constant is approximately 6.63 x 10^-34 Js."
+    },
+    {
+        "question": "What kind of waves are X-rays?",
+        "options": ["Mechanical", "Electromagnetic", "Longitudinal", "Surface"],
+        "answer": 1,
+        "explanation": "X-rays are electromagnetic waves."
+    },
+    {
+        "question": "Which of the following is a renewable source of energy?",
+        "options": ["Coal", "Natural gas", "Wind energy", "Petroleum"],
+        "answer": 2,
+        "explanation": "Wind energy is renewable; fossil fuels are not."
+    },
+    {
+        "question": "At what temperature does water freeze at standard atmospheric pressure?",
+        "options": ["0°C", "100°C", "32°C", "273 K"],
+        "answer": 0,
+        "explanation": "Water freezes at 0°C or 273 K at 1 atm."
+    },
+    {
+        "question": "Which of these particles is found in the nucleus of an atom?",
+        "options": ["Electron", "Proton", "Photon", "Neutrino"],
+        "answer": 1,
+        "explanation": "Protons are found in the nucleus."
+    },
+    {
+        "question": "What is the primary component of natural gas?",
+        "options": ["Methane", "Ethane", "Propane", "Butane"],
+        "answer": 0,
+        "explanation": "Natural gas mainly consists of methane."
+    },
+    {
+        "question": "Which law relates to the expansion of gases on heating?",
+        "options": ["Boyle's Law", "Charles's Law", "Pascal's Law", "Ohm's Law"],
+        "answer": 1,
+        "explanation": "Charles's law states volume is proportional to temperature at constant pressure."
+    },
+    {
+        "question": "What does a voltmeter measure?",
+        "options": ["Current", "Voltage", "Resistance", "Power"],
+        "answer": 1,
+        "explanation": "Voltmeter measures electrical potential difference."
+    },
+    {
+        "question": "What force opposes motion between two surfaces in contact?",
+        "options": ["Gravitational force", "Frictional force", "Magnetic force", "Electrical force"],
+        "answer": 1,
+        "explanation": "Friction opposes motion between surfaces."
+    },
+    {
+        "question": "Which unit is used to measure magnetic field strength?",
+        "options": ["Tesla", "Joule", "Watt", "Newton"],
+        "answer": 0,
+        "explanation": "Tesla is the SI unit of magnetic field."
+    },
+    {
+        "question": "In optics, what is the focal length?",
+        "options": ["Distance between lens and object", "Distance between lens and image", "Distance between center and focus of lens", "Radius of the lens"],
+        "answer": 2,
+        "explanation": "Focal length is distance between lens center and focal point."
+    },
+    {
+        "question": "Which property of sound determines its pitch?",
+        "options": ["Frequency", "Amplitude", "Wavelength", "Velocity"],
+        "answer": 0,
+        "explanation": "Pitch is determined by frequency."
+    },
+    {
+        "question": "What is the process of splitting of nucleus called?",
+        "options": ["Fusion", "Fission", "Ionization", "Radioactivity"],
+        "answer": 1,
+        "explanation": "Nuclear fission is splitting of a nucleus."
+    },
+    {
+        "question": "Which mirror is used in headlights of vehicles to focus light?",
+        "options": ["Plane mirror", "Concave mirror", "Convex mirror", "Cylindrical mirror"],
+        "answer": 1,
+        "explanation": "Concave mirrors focus light into a beam."
+    },
+    {
+        "question": "What is the fundamental force responsible for holding protons and neutrons together in nucleus?",
+        "options": ["Gravitational force", "Electromagnetic force", "Strong nuclear force", "Weak nuclear force"],
+        "answer": 2,
+        "explanation": "Strong nuclear force binds nucleons."
+    },
+    {
+        "question": "Which of the following is a conducting material?",
+        "options": ["Rubber", "Wood", "Copper", "Glass"],
+        "answer": 2,
+        "explanation": "Copper is a good electrical conductor."
+    },
+    {
+        "question": "The displacement of a wave tells about its:",
+        "options": ["Amplitude", "Wavelength", "Frequency", "Speed"],
+        "answer": 0,
+        "explanation": "Displacement corresponds to amplitude of wave."
+    },
+    {
+        "question": "What is the unit of electric current?",
+        "options": ["Ampere", "Volt", "Watt", "Ohm"],
+        "answer": 0,
+        "explanation": "Current is measured in amperes."
+    },
+    {
+        "question": "What is the cause of electric current?",
+        "options": ["Movement of protons", "Movement of electrons", "Movement of neutrons", "All of these"],
+        "answer": 1,
+        "explanation": "Electric current is flow of electrons."
+    },
+    {
+        "question": "Which device is used to measure temperature?",
+        "options": ["Barometer", "Thermometer", "Ammeter", "Voltmeter"],
+        "answer": 1,
+        "explanation": "Thermometer measures temperature."
+    },
+	{
+        "question": "What is the formula for gravitational force between two masses?",
+        "options": ["F = G(m1 + m2)/r²", "F = G(m1m2)/r²", "F = mv²/r", "F = ma"],
+        "answer": 1,
+        "explanation": "Newton's law of universal gravitation: force is proportional to product of masses and inversely to square of distance."
+    },
+    {
+        "question": "Which color in the visible spectrum has the longest wavelength?",
+        "options": ["Red", "Blue", "Green", "Violet"],
+        "answer": 0,
+        "explanation": "Red has the longest wavelength in visible light."
+    },
+    {
+        "question": "The unit of radioactive decay is:",
+        "options": ["Curie", "Sievert", "Rem", "Gray"],
+        "answer": 0,
+        "explanation": "Curie is a unit measuring rate of radioactive decay."
+    },
+    {
+        "question": "Which subatomic particle has negligible mass and negative charge?",
+        "options": ["Electron", "Proton", "Neutron", "Positron"],
+        "answer": 0,
+        "explanation": "Electron has very small mass and negative charge."
+    },
+    {
+        "question": "What is the principle behind the working of a nuclear reactor?",
+        "options": ["Nuclear fusion", "Nuclear fission", "Radioactive decay", "Electromagnetic induction"],
+        "answer": 1,
+        "explanation": "Nuclear reactors operate on controlled fission reactions."
+    },
+    {
+        "question": "Which semiconductor is widely used in electronic devices?",
+        "options": ["Germanium", "Silicon", "Gallium", "Phosphorus"],
+        "answer": 1,
+        "explanation": "Silicon is the most widely used semiconductor."
+    },
+    {
+        "question": "The bending of a wave around obstacles is called:",
+        "options": ["Reflection", "Diffraction", "Refraction", "Interference"],
+        "answer": 1,
+        "explanation": "Diffraction describes wave bending around obstacles."
+    },
+    {
+        "question": "What is measured by a barometer?",
+        "options": ["Temperature", "Humidity", "Atmospheric pressure", "Electric current"],
+        "answer": 2,
+        "explanation": "Barometers measure atmospheric pressure."
+    },
+    {
+        "question": "Who discovered radioactivity?",
+        "options": ["Marie Curie", "Albert Einstein", "Isaac Newton", "J.J. Thomson"],
+        "answer": 0,
+        "explanation": "Marie Curie is credited with discovering radioactivity."
+    },
+    {
+        "question": "Which force is responsible for holding electrons in their orbit around the nucleus?",
+        "options": ["Electrostatic force", "Nuclear force", "Gravitational force", "Magnetic force"],
+        "answer": 0,
+        "explanation": "Electrostatic force attracts electrons toward nucleus."
+    },
+    {
+        "question": "What is the SI unit of luminous intensity?",
+        "options": ["Lumen", "Candela", "Lux", "Watt"],
+        "answer": 1,
+        "explanation": "Candela measures luminous intensity."
+    },
+    {
+        "question": "Which device converts chemical energy directly to electrical energy?",
+        "options": ["Battery", "Generator", "Motor", "Transformer"],
+        "answer": 0,
+        "explanation": "Battery converts chemical to electrical energy."
+    },
+    {
+        "question": "What is the temperature at which water boils at standard atmospheric pressure?",
+        "options": ["100°C", "90°C", "80°C", "120°C"],
+        "answer": 0,
+        "explanation": "Water boils at 100°C at 1 atm pressure."
+    },
+    {
+        "question": "Which law relates force, mass, and acceleration?",
+        "options": ["Newton’s First Law", "Newton’s Second Law", "Newton’s Third Law", "Law of Conservation of Energy"],
+        "answer": 1,
+        "explanation": "Newton’s Second Law: F = ma."
+    },
+    {
+        "question": "Which phenomenon explains the blue color of the sky?",
+        "options": ["Reflection", "Refraction", "Scattering", "Diffraction"],
+        "answer": 2,
+        "explanation": "Rayleigh scattering causes blue sky."
+    },
+    {
+        "question": "What is the unit of electric power?",
+        "options": ["Joule", "Watt", "Ampere", "Volt"],
+        "answer": 1,
+        "explanation": "Power is measured in watts."
+    },
+    {
+        "question": "The energy stored in a body due to its position is called:",
+        "options": ["Kinetic energy", "Potential energy", "Thermal energy", "Chemical energy"],
+        "answer": 1,
+        "explanation": "Potential energy is position dependent."
+    },
+    {
+        "question": "Which mirror diverges light rays?",
+        "options": ["Concave mirror", "Convex mirror", "Plane mirror", "Cylindrical mirror"],
+        "answer": 1,
+        "explanation": "Convex mirrors diverge light rays."
+    },
+    {
+        "question": "Which device converts mechanical energy into electrical energy?",
+        "options": ["Motor", "Generator", "Transformer", "Battery"],
+        "answer": 1,
+        "explanation": "Generator does mechanical to electrical energy conversion."
+    },
+    {
+        "question": "Which nuclear particle has no electric charge?",
+        "options": ["Neutron", "Proton", "Electron", "Positron"],
+        "answer": 0,
+        "explanation": "Neutrons are electrically neutral."
+    },
+    {
+        "question": "Which physical quantity is work done divided by time?",
+        "options": ["Energy", "Power", "Force", "Momentum"],
+        "answer": 1,
+        "explanation": "Power is rate of doing work."
+    },
+    {
+        "question": "What type of lens is used to correct near-sightedness?",
+        "options": ["Concave lens", "Convex lens", "Cylindrical lens", "Plano lens"],
+        "answer": 0,
+        "explanation": "Concave lenses correct myopia."
+    },
+    {
+        "question": "Which law states that like charges repel and unlike charges attract?",
+        "options": ["Coulomb’s Law", "Newton’s Law", "Ohm’s Law", "Pascal’s Law"],
+        "answer": 0,
+        "explanation": "Coulomb’s Law describes forces between charges."
+    },
+    {
+        "question": "What is the value of acceleration due to gravity on Earth?",
+        "options": ["9.8 m/s²", "10 m/s²", "8.9 m/s²", "7.8 m/s²"],
+        "answer": 0,
+        "explanation": "Standard gravity is 9.8 m/s²."
+    },
+    {
+        "question": "Which unit is used to measure electric charge?",
+        "options": ["Volt", "Ampere", "Coulomb", "Ohm"],
+        "answer": 2,
+        "explanation": "Electric charge is measured in coulombs."
+    },
+    {
+        "question": "Which wave property is associated with loudness?",
+        "options": ["Frequency", "Amplitude", "Wavelength", "Speed"],
+        "answer": 1,
+        "explanation": "Amplitude relates to loudness."
+    },
+    {
+        "question": "Which of the following is an example of a transverse wave?",
+        "options": ["Sound wave", "Light wave", "Seismic P waves", "Ultrasound"],
+        "answer": 1,
+        "explanation": "Light is a transverse wave."
+    },
+    {
+        "question": "Which phenomenon causes a straw to appear bent in a glass of water?",
+        "options": ["Reflection", "Refraction", "Dispersion", "Diffraction"],
+        "answer": 1,
+        "explanation": "Refraction bends light at water-air interface."
+    },
+    {
+        "question": "What is the formula for pressure?",
+        "options": ["Force × Area", "Force / Area", "Mass × Acceleration", "Velocity × Time"],
+        "answer": 1,
+        "explanation": "Pressure = Force divided by Area."
+    },
+    {
+        "question": "Which device is used to measure very small distances?",
+        "options": ["Micrometer screw gauge", "Meter scale", "Thermometer", "Stopwatch"],
+        "answer": 0,
+        "explanation": "Micrometer screw gauge measures small lengths accurately."
+    },
+    {
+        "question": "How many electrons does a neutral hydrogen atom have?",
+        "options": ["One", "Two", "Zero", "Three"],
+        "answer": 0,
+        "explanation": "Hydrogen has one electron."
+    },
+    {
+        "question": "What is the unit of work done?",
+        "options": ["Joule", "Newton", "Watt", "Ampere"],
+        "answer": 0,
+        "explanation": "Work is measured in joules."
+    },
+    {
+        "question": "What type of energy is heat energy?",
+        "options": ["Kinetic energy", "Potential energy", "Thermal energy", "Chemical energy"],
+        "answer": 2,
+        "explanation": "Heat energy is a form of thermal energy."
+    },
+    {
+        "question": "Which type of wave is a seismic S-wave?",
+        "options": ["Transverse", "Longitudinal", "Surface", "Electromagnetic"],
+        "answer": 0,
+        "explanation": "S-waves are transverse seismic waves."
+    },
+    {
+        "question": "Which physical quantity is current times resistance?",
+        "options": ["Voltage", "Power", "Energy", "Force"],
+        "answer": 0,
+        "explanation": "Voltage (V) = Current (I) × Resistance (R)."
+    },
+    {
+        "question": "Which material is used as the filament in incandescent bulbs?",
+        "options": ["Tungsten", "Copper", "Silver", "Iron"],
+        "answer": 0,
+        "explanation": "Tungsten is used due to high melting point."
+    },
+    {
+        "question": "What is the SI unit of magnetic flux?",
+        "options": ["Tesla", "Weber", "Henry", "Farad"],
+        "answer": 1,
+        "explanation": "Magnetic flux is measured in webers."
+    },
+    {
+        "question": "Which type of energy is stored in fossil fuels?",
+        "options": ["Nuclear energy", "Chemical energy", "Potential energy", "Mechanical energy"],
+        "answer": 1,
+        "explanation": "Fossil fuels store chemical energy."
+    },
+    {
+        "question": "Which process involves combining nuclei?",
+        "options": ["Nuclear fission", "Nuclear fusion", "Radioactive decay", "Electric discharge"],
+        "answer": 1,
+        "explanation": "Fusion combines nuclei releasing energy."
+    },
+    {
+        "question": "What unit is used to measure electrical capacitance?",
+        "options": ["Farad", "Henry", "Volt", "Ohm"],
+        "answer": 0,
+        "explanation": "Capacitance is measured in Farads."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

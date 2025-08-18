@@ -1,0 +1,2766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Indirect Speech Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">DIRECT INDIRECT SPEECH</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+	{
+        "question": "She said, 'I like chocolate.'",
+        "options": [
+            "She said she likes chocolate.",
+            "She said she liked chocolate.",
+            "She said she has liked chocolate.",
+            "She said she was liking chocolate."
+        ],
+        "answer": 1,
+        "explanation": "Simple present changes to simple past in reported speech."
+    },
+    {
+        "question": "'Where do you live?' he asked.",
+        "options": [
+            "He asked where do I live.",
+            "He asked where I live.",
+            "He asked where I lived.",
+            "He asked where am I living."
+        ],
+        "answer": 2,
+        "explanation": "Present simple question changes to past simple in indirect speech."
+    },
+    {
+        "question": "He said, 'I will come tomorrow.'",
+        "options": [
+            "He said he will come the next day.",
+            "He said he would come tomorrow.",
+            "He said he would come the next day.",
+            "He said he comes the next day."
+        ],
+        "answer": 2,
+        "explanation": "'Will' changes to 'would'; 'tomorrow' becomes 'the next day'."
+    },
+    {
+        "question": "She said, 'I am eating lunch.'",
+        "options": [
+            "She said she was eating lunch.",
+            "She said she is eating lunch.",
+            "She said she had eaten lunch.",
+            "She said she eats lunch."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous changes to past continuous."
+    },
+    {
+        "question": "'Did you see him?' she asked.",
+        "options": [
+            "She asked did I see him.",
+            "She asked if I saw him.",
+            "She asked if I see him.",
+            "She asked if I had seen him."
+        ],
+        "answer": 3,
+        "explanation": "Past simple question changes to past perfect in indirect speech."
+    },
+    {
+        "question": "He said, 'I can swim.'",
+        "options": [
+            "He said he could swim.",
+            "He said he can swim.",
+            "He said he could swam.",
+            "He said he swim."
+        ],
+        "answer": 0,
+        "explanation": "'Can' changes to 'could' in reported speech."
+    },
+    {
+        "question": "She said, 'Please help me.'",
+        "options": [
+            "She asked me to help her.",
+            "She told me to help her.",
+            "She requested me to help her.",
+            "All of the above."
+        ],
+        "answer": 3,
+        "explanation": "Polite requests can be reported with 'asked', 'told', or 'requested'."
+    },
+    {
+        "question": "He said, 'I was reading a book.'",
+        "options": [
+            "He said he was reading a book.",
+            "He said he had been reading a book.",
+            "He said he reads a book.",
+            "He said he read a book."
+        ],
+        "answer": 1,
+        "explanation": "Past continuous changes to past perfect continuous."
+    },
+    {
+        "question": "She said, 'Do not touch the stove.'",
+        "options": [
+            "She told not to touch the stove.",
+            "She told me not to touch the stove.",
+            "She asked me not to touch the stove.",
+            "She ordered not to touch the stove."
+        ],
+        "answer": 1,
+        "explanation": "Negative imperative reported as 'told/asked + object + not to + verb'."
+    },
+    {
+        "question": "He said, 'I have finished my homework.'",
+        "options": [
+            "He said he had finished his homework.",
+            "He said he has finished his homework.",
+            "He said he finished his homework.",
+            "He said he is finishing his homework."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect changes to past perfect."
+    },
+    {
+        "question": "'Are you hungry?' she asked.",
+        "options": [
+            "She asked if I was hungry.",
+            "She asked am I hungry.",
+            "She asked if I am hungry.",
+            "She asked are you hungry."
+        ],
+        "answer": 0,
+        "explanation": "Yes/no present simple question changes to past simple and uses 'if'."
+    },
+    {
+        "question": "He said, 'I will call you later.'",
+        "options": [
+            "He said he would call me later.",
+            "He said he will call me later.",
+            "He said he calls me later.",
+            "He said he called me later."
+        ],
+        "answer": 0,
+        "explanation": "'Will' changes to 'would'."
+    },
+    {
+        "question": "She said, 'I am going to the market now.'",
+        "options": [
+            "She said she was going to the market then.",
+            "She said she is going to the market now.",
+            "She said she went to the market then.",
+            "She said she is going to the market then."
+        ],
+        "answer": 0,
+        "explanation": "'Now' changes to 'then'; present continuous changes to past continuous."
+    },
+    {
+        "question": "He asked, 'Where do you work?'",
+        "options": [
+            "He asked where do I work.",
+            "He asked where I work.",
+            "He asked where I worked.",
+            "He asked where am I working."
+        ],
+        "answer": 2,
+        "explanation": "Present simple question changes to past simple in reported speech."
+    },
+    {
+        "question": "She said, 'I can't come to the party.'",
+        "options": [
+            "She said she couldn't come to the party.",
+            "She said she can't come to the party.",
+            "She said she can come to the party.",
+            "She said she won't come to the party."
+        ],
+        "answer": 0,
+        "explanation": "'Can't' changes to 'couldn't' in reported speech."
+    },
+    {
+        "question": "He said, 'Did you finish the work?'",
+        "options": [
+            "He asked if I had finished the work.",
+            "He asked did I finish the work.",
+            "He asked if I finished the work.",
+            "He asked if I have finished the work."
+        ],
+        "answer": 0,
+        "explanation": "Past simple question changes to past perfect in indirect speech."
+    },
+    {
+        "question": "She said, 'Let’s meet tomorrow.'",
+        "options": [
+            "She suggested meeting the next day.",
+            "She said let’s meet tomorrow.",
+            "She told us to meet tomorrow.",
+            "She advised us to meet tomorrow."
+        ],
+        "answer": 0,
+        "explanation": "'Let’s' reported as suggestion; 'tomorrow' becomes 'the next day'."
+    },
+    {
+        "question": "He said, 'I am reading a novel.'",
+        "options": [
+            "He said he was reading a novel.",
+            "He said he is reading a novel.",
+            "He said he had read a novel.",
+            "He said he read a novel."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous changes to past continuous."
+    },
+    {
+        "question": "She said, 'Who is at the door?'",
+        "options": [
+            "She asked who was at the door.",
+            "She asked who is at the door.",
+            "She asked who was the door.",
+            "She asked who is the door."
+        ],
+        "answer": 0,
+        "explanation": "Wh-question word followed by subject + verb in indirect speech."
+    },
+    {
+        "question": "He said, 'You must complete the task today.'",
+        "options": [
+            "He said I had to complete the task that day.",
+            "He said I must complete the task today.",
+            "He said I must have completed the task today.",
+            "He said I must complete the task then."
+        ],
+        "answer": 0,
+        "explanation": "'Must' changes to 'had to'; 'today' becomes 'that day'."
+    },
+    {
+        "question": "She said, 'I will help you with your homework.'",
+        "options": [
+            "She said she would help me with my homework.",
+            "She said she will help me with my homework.",
+            "She said she helps me with my homework.",
+            "She said she helped me with my homework."
+        ],
+        "answer": 0,
+        "explanation": "'Will' changes to 'would'; pronouns adjusted."
+    },
+    {
+        "question": "He asked, 'Are you coming to the meeting?'",
+        "options": [
+            "He asked if I was coming to the meeting.",
+            "He asked am I coming to the meeting.",
+            "He asked if I am coming to the meeting.",
+            "He asked are you coming to the meeting."
+        ],
+        "answer": 0,
+        "explanation": "Yes/no questions reported using 'if' or 'whether' with backshift."
+    },
+    {
+        "question": "She said, 'I have never been to London.'",
+        "options": [
+            "She said she had never been to London.",
+            "She said she has never been to London.",
+            "She said she never went to London.",
+            "She said she never been to London."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect negative changes to past perfect negative."
+    },
+    {
+        "question": "He said, 'Please close the window.'",
+        "options": [
+            "He requested me to close the window.",
+            "He told me to close the window.",
+            "He asked me to close the window.",
+            "All of the above."
+        ],
+        "answer": 3,
+        "explanation": "Imperative sentences may be reported using 'requested', 'told', or 'asked'."
+    },
+    {
+        "question": "She said, 'Where did you keep the keys?'",
+        "options": [
+            "She asked where I had kept the keys.",
+            "She asked where did I keep the keys.",
+            "She asked where I kept the keys.",
+            "She asked where have I kept the keys."
+        ],
+        "answer": 0,
+        "explanation": "Past simple question changes to past perfect in indirect speech."
+    },
+    {
+        "question": "He said, 'I have been waiting for you since morning.'",
+        "options": [
+            "He said he had been waiting for me since morning.",
+            "He said he has been waiting for me since morning.",
+            "He said he was waiting for me since morning.",
+            "He said he waited for me since morning."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect continuous changes to past perfect continuous."
+    },
+	{
+        "question": "She said, 'I am reading a novel.'",
+        "options": [
+            "She said that she is reading a novel.",
+            "She said that she was reading a novel.",
+            "She said she has been reading a novel.",
+            "She said that she had read a novel."
+        ],
+        "answer": 1,
+        "explanation": "In reported speech, present continuous becomes past continuous."
+    },
+    {
+        "question": "He said, 'I write poems.'",
+        "options": [
+            "He said he writes poems.",
+            "He said he wrote poems.",
+            "He said he had written poems.",
+            "He said that he is writing poems."
+        ],
+        "answer": 1,
+        "explanation": "Simple present in direct speech changes to simple past in reported speech."
+    },
+    {
+        "question": "She said, 'I have completed my project.'",
+        "options": [
+            "She said she has completed her project.",
+            "She said she had completed her project.",
+            "She said she completed her project.",
+            "She said she completes her project."
+        ],
+        "answer": 1,
+        "explanation": "Present perfect becomes past perfect in indirect speech."
+    },
+    {
+        "question": "He said, 'I will help you.'",
+        "options": [
+            "He said he would help me.",
+            "He said he will help me.",
+            "He said he had helped me.",
+            "He said I would be helped by him."
+        ],
+        "answer": 0,
+        "explanation": "Will becomes would in reported speech."
+    },
+    {
+        "question": "She said, 'I was cleaning the house.'",
+        "options": [
+            "She said she has been cleaning the house.",
+            "She said she was cleaning the house.",
+            "She said she had been cleaning the house.",
+            "She said she cleaned the house."
+        ],
+        "answer": 2,
+        "explanation": "Past continuous changes to past perfect continuous in indirect speech."
+    },
+    {
+        "question": "He said, 'I had seen the movie.'",
+        "options": [
+            "He said he saw the movie.",
+            "He said he had seen the movie.",
+            "He said he has seen the movie.",
+            "He said he sees the movie."
+        ],
+        "answer": 1,
+        "explanation": "Past perfect remains unchanged in reported speech."
+    },
+    {
+        "question": "She said, 'I will be going to Delhi tomorrow.'",
+        "options": [
+            "She said she would be going to Delhi the next day.",
+            "She said she will be going to Delhi the next day.",
+            "She said she would go to Delhi tomorrow.",
+            "She said she was going to Delhi next day."
+        ],
+        "answer": 0,
+        "explanation": "Will be changes to would be, and tomorrow becomes the next day."
+    },
+    {
+        "question": "He said, 'I should finish the work.'",
+        "options": [
+            "He said he should finish the work.",
+            "He said he must finish the work.",
+            "He said he would finish the work.",
+            "He said he might finish the work."
+        ],
+        "answer": 0,
+        "explanation": "Should remains unchanged in indirect speech."
+    },
+    {
+        "question": "She said, 'Open the door!'",
+        "options": [
+            "She said to open the door.",
+            "She ordered to open the door.",
+            "She told me to open the door.",
+            "She said that open the door."
+        ],
+        "answer": 2,
+        "explanation": "Imperatives are reported with 'told/asked + object + to-infinitive'."
+    },
+    {
+        "question": "He said to me, 'Please help me.'",
+        "options": [
+            "He requested me to help him.",
+            "He asked that help me please.",
+            "He said to me for help.",
+            "He said for me to help him."
+        ],
+        "answer": 0,
+        "explanation": "Polite requests are reported using 'requested'."
+    },
+    {
+        "question": "She said, 'Do you like ice cream?'",
+        "options": [
+            "She asked me if I liked ice cream.",
+            "She asked me do I like ice cream.",
+            "She asked I like ice cream.",
+            "She asked whether do I like ice cream."
+        ],
+        "answer": 0,
+        "explanation": "Yes/No questions are reported using 'if/whether' with backshift."
+    },
+    {
+        "question": "He said, 'Where are you going?'",
+        "options": [
+            "He asked me where was I going.",
+            "He asked me where I was going.",
+            "He asked me where am I going.",
+            "He asked me that where I am going."
+        ],
+        "answer": 1,
+        "explanation": "Wh-questions in reported speech use normal word order."
+    },
+    {
+        "question": "He said, 'I may join the meeting.'",
+        "options": [
+            "He said he may join the meeting.",
+            "He said he might join the meeting.",
+            "He said he would join the meeting.",
+            "He said he could join the meeting."
+        ],
+        "answer": 1,
+        "explanation": "May changes to might in indirect speech."
+    },
+    {
+        "question": "She said, 'I can solve this problem.'",
+        "options": [
+            "She said she can solve this problem.",
+            "She said she could solve this problem.",
+            "She said she solved this problem.",
+            "She said she had solved this problem."
+        ],
+        "answer": 1,
+        "explanation": "Can changes to could in indirect speech."
+    },
+    {
+        "question": "He said, 'I must leave now.'",
+        "options": [
+            "He said he had to leave then.",
+            "He said he must leave then.",
+            "He said he must leave now.",
+            "He said he was leaving then."
+        ],
+        "answer": 0,
+        "explanation": "Must often changes to had to in indirect speech; 'now' becomes 'then'."
+    },
+    {
+        "question": "She said, 'Who is your teacher?'",
+        "options": [
+            "She asked who was my teacher.",
+            "She asked me who my teacher was.",
+            "She asked me that who is my teacher.",
+            "She asked me who was your teacher."
+        ],
+        "answer": 1,
+        "explanation": "Wh-questions in indirect speech follow subject-verb order."
+    },
+    {
+        "question": "He said, 'What are you doing here?'",
+        "options": [
+            "He asked what was I doing here.",
+            "He asked me what I was doing there.",
+            "He asked me what was I doing there.",
+            "He asked me what I am doing here."
+        ],
+        "answer": 1,
+        "explanation": "Here changes to there. Structure: He asked me what I was doing there."
+    },
+    {
+        "question": "She said, 'Where have you put my bag?'",
+        "options": [
+            "She asked me where had I put her bag.",
+            "She asked me where I have put her bag.",
+            "She asked me where I had put her bag.",
+            "She asked me where was my bag."
+        ],
+        "answer": 2,
+        "explanation": "Present perfect changes to past perfect in indirect speech."
+    },
+    {
+        "question": "He said, 'Did you finish your homework?'",
+        "options": [
+            "He asked me if I had finished my homework.",
+            "He asked me did I finish my homework.",
+            "He asked me whether I finished my homework.",
+            "He asked me if I finished my homework."
+        ],
+        "answer": 0,
+        "explanation": "Simple past in question changes to past perfect; yes/no → if/whether."
+    },
+    {
+        "question": "She said, 'Have you ever been to Delhi?'",
+        "options": [
+            "She asked if I had ever been to Delhi.",
+            "She asked had I ever been to Delhi.",
+            "She asked me if I have ever been to Delhi.",
+            "She asked whether I was ever in Delhi."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect becomes past perfect in interrogative reporting."
+    },
+
+    {
+        "question": "Rajiv said, 'I will call you tomorrow.'",
+        "options": [
+            "Rajiv said he would call me tomorrow.",
+            "Rajiv said he would call me the next day.",
+            "Rajiv said he will call me the next day.",
+            "Rajiv said he called me the next day."
+        ],
+        "answer": 1,
+        "explanation": "Tomorrow becomes the next day; will → would."
+    },
+    {
+        "question": "She said to him, 'Don't be late.'",
+        "options": [
+            "She advised him not to be late.",
+            "She told him not to be late.",
+            "She ordered him don't be late.",
+            "She warned him don't be late."
+        ],
+        "answer": 1,
+        "explanation": "Negative imperative is reported as 'told/asked + not to verb'."
+    },
+    {
+        "question": "He said, 'Let’s go for a walk.'",
+        "options": [
+            "He suggested going for a walk.",
+            "He said we should go for a walk.",
+            "He told us to go for a walk.",
+            "He advised that we go for a walk."
+        ],
+        "answer": 0,
+        "explanation": "Let’s in indirect speech is usually reported with 'suggested'."
+    },
+    {
+        "question": "Mother said, 'Let him play outside.'",
+        "options": [
+            "Mother suggested that he should play outside.",
+            "Mother said let him play outside.",
+            "Mother ordered him to play outside.",
+            "Mother asked to let him play outside."
+        ],
+        "answer": 0,
+        "explanation": "Let him is reported as 'suggested/allowed that he should'."
+    },
+    {
+        "question": "She said, 'I was watching TV when you called.'",
+        "options": [
+            "She said she was watching TV when I had called.",
+            "She said she had been watching TV when I had called.",
+            "She said she had been watching TV when I called.",
+            "She said she was watching TV when I called."
+        ],
+        "answer": 2,
+        "explanation": "Past continuous changes to past perfect continuous; clause tense adjusted."
+    },
+    {
+        "question": "He said, 'The sun rises in the east.'",
+        "options": [
+            "He said the sun rose in the east.",
+            "He said the sun rises in the east.",
+            "He said that sun has risen in the east.",
+            "He said that the sun is rising in the east."
+        ],
+        "answer": 1,
+        "explanation": "Universal truths remain unchanged in reported speech."
+    },
+    {
+        "question": "Sita said, 'I am going to the temple now.'",
+        "options": [
+            "Sita said she was going to the temple now.",
+            "Sita said she was going to the temple then.",
+            "Sita said she went to the temple then.",
+            "Sita said she is going to the temple now."
+        ],
+        "answer": 1,
+        "explanation": "Now becomes then, present continuous → past continuous."
+    },
+    {
+        "question": "He said to me, 'Are you coming to the party?'",
+        "options": [
+            "He asked me was I coming to the party.",
+            "He asked me whether I had been coming to the party.",
+            "He asked me if I was coming to the party.",
+            "He asked me whether was I coming to the party."
+        ],
+        "answer": 2,
+        "explanation": "Yes/No questions are reported with if/whether."
+    },
+    {
+        "question": "They said, 'We have finished our work.'",
+        "options": [
+            "They said they had finished their work.",
+            "They said they finished their work.",
+            "They said they have finished their work.",
+            "They said they will finish their work."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect → past perfect."
+    },
+    {
+        "question": "She said, 'I cannot attend the meeting.'",
+        "options": [
+            "She said she could not attend the meeting.",
+            "She said she might not attend the meeting.",
+            "She said she was not attending the meeting.",
+            "She said she didn't attend the meeting."
+        ],
+        "answer": 0,
+        "explanation": "Cannot → could not."
+    },
+    {
+        "question": "He said, 'I am writing a letter.'",
+        "options": [
+            "He said he was writing a letter.",
+            "He said he is writing a letter.",
+            "He said he wrote a letter.",
+            "He said he has been writing a letter."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous → past continuous."
+    },
+    {
+        "question": "Ravi said, 'I saw a tiger yesterday.'",
+        "options": [
+            "Ravi said he saw a tiger yesterday.",
+            "Ravi said he saw a tiger the day before.",
+            "Ravi said he had seen a tiger the previous day.",
+            "Ravi said he has seen a tiger the other day."
+        ],
+        "answer": 2,
+        "explanation": "Past simple → past perfect; yesterday → the previous day."
+    },
+    {
+        "question": "She said, 'Do not touch the wire!'",
+        "options": [
+            "She told us not to touch the wire.",
+            "She told us do not touch the wire.",
+            "She said not to touch the wire.",
+            "She warned us do not touch the wire."
+        ],
+        "answer": 0,
+        "explanation": "Negative imperative → told/asked not to + verb."
+    },
+    {
+        "question": "He said to his friend, 'Please lend me some money.'",
+        "options": [
+            "He asked his friend to lend him some money.",
+            "He requested his friend to lend him some money.",
+            "He forced his friend to lend money.",
+            "He said to his friend lend me some money."
+        ],
+        "answer": 1,
+        "explanation": "Polite requests → requested + object + to verb."
+    },
+    {
+        "question": "Teacher said, 'Write your answers carefully.'",
+        "options": [
+            "Teacher said to write your answers carefully.",
+            "Teacher advised them to write their answers carefully.",
+            "Teacher advised write answers carefully.",
+            "Teacher said that write your answers carefully."
+        ],
+        "answer": 1,
+        "explanation": "Advised fits best with instructions."
+    },
+    {
+        "question": "She said, 'How did you solve the sum?'",
+        "options": [
+            "She asked me how I solved the sum.",
+            "She asked me how had I solved the sum.",
+            "She asked me how I had solved the sum.",
+            "She asked me did I solve the sum."
+        ],
+        "answer": 2,
+        "explanation": "Past simple in question → past perfect in indirect."
+    },
+    {
+        "question": "He said, 'I was reading when he came.'",
+        "options": [
+            "He said he had been reading when he came.",
+            "He said he was reading when he had come.",
+            "He said he had read when he came.",
+            "He said he had been reading when he had come."
+        ],
+        "answer": 0,
+        "explanation": "Past continuous → past perfect continuous."
+    },
+    {
+        "question": "She said, 'He has been working hard.'",
+        "options": [
+            "She said he had been working hard.",
+            "She said he was working hard.",
+            "She said he has been working hard.",
+            "She said he had worked hard."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect continuous → past perfect continuous."
+    },
+    {
+        "question": "Arun said, 'I shall return the book soon.'",
+        "options": [
+            "Arun said he will return the book soon.",
+            "Arun said he would return the book soon.",
+            "Arun said he had returned the book soon.",
+            "Arun said he returns the book soon."
+        ],
+        "answer": 1,
+        "explanation": "Shall/will → would."
+    },
+    {
+        "question": "She said, 'What do you want?'",
+        "options": [
+            "She asked me what do I want.",
+            "She asked me what I wanted.",
+            "She asked me that what I want.",
+            "She asked me what was my want."
+        ],
+        "answer": 1,
+        "explanation": "Do you want → I wanted."
+    },
+    {
+        "question": "He said, 'My sister is singing.'",
+        "options": [
+            "He said his sister is singing.",
+            "He said his sister was singing.",
+            "He said his sister has sung.",
+            "He said that his sister sings."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous → past continuous."
+    },
+    {
+        "question": "She said, 'I had already left before you came.'",
+        "options": [
+            "She said she had already left before I came.",
+            "She said she already left before I had come.",
+            "She said she leaves before I came.",
+            "She said she had already left before I had come."
+        ],
+        "answer": 0,
+        "explanation": "Past perfect remains unchanged."
+    },
+    {
+        "question": "He said, 'Are you listening to me?'",
+        "options": [
+            "He asked me am I listening to him.",
+            "He asked me was I listening to him.",
+            "He asked me if I was listening to him.",
+            "He asked me if I had been listening to him."
+        ],
+        "answer": 2,
+        "explanation": "Yes/No present continuous → if + past continuous."
+    },
+    {
+        "question": "She said, 'What time is it?'", 
+        "options": [
+            "She asked what time is it.",
+            "She asked me what time it was.",
+            "She asked me what was time.",
+            "She asked what time it is."
+        ],
+        "answer": 1,
+        "explanation": "Is → was; wh-questions follow subject-verb order."
+    },
+	 {
+        "question": "He said, 'Does she play tennis?'",
+        "options": [
+            "He asked if she played tennis.",
+            "He asked does she play tennis.",
+            "He asked had she played tennis.",
+            "He asked will she play tennis."
+        ],
+        "answer": 0,
+        "explanation": "Simple present in questions changes to simple past and uses if/whether."
+    },
+    {
+        "question": "She said, 'What does this word mean?'",
+        "options": [
+            "She asked me what does this word mean.",
+            "She asked me what that word meant.",
+            "She asked me what this word had meant.",
+            "She asked me what that word means."
+        ],
+        "answer": 1,
+        "explanation": "Reporting 'what does' changes to 'what ... meant'; this → that."
+    },
+    {
+        "question": "He said, 'Have you done the work?'",
+        "options": [
+            "He asked if I had done the work.",
+            "He asked had I done the work.",
+            "He asked whether I do the work.",
+            "He asked if I has done the work."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect → past perfect; question form uses if/whether."
+    },
+    {
+        "question": "Priya said, 'Did you see the new shop?'",
+        "options": [
+            "Priya asked me if I saw the new shop.",
+            "Priya asked me if I had seen the new shop.",
+            "Priya asked me did I see the new shop.",
+            "Priya asked me had I seen the new shop."
+        ],
+        "answer": 1,
+        "explanation": "Past simple → past perfect in reported speech."
+    },
+    {
+        "question": "He said, 'Let's go to a movie tonight.'",
+        "options": [
+            "He suggested we go to a movie that night.",
+            "He suggested going to a movie tonight.",
+            "He said we go to a movie last night.",
+            "He suggested we will go to a movie that night."
+        ],
+        "answer": 0,
+        "explanation": "'Let's' suggestions: 'suggested we go...'; tonight → that night."
+    },
+    {
+        "question": "'Can you help me?', she said.",
+        "options": [
+            "She asked me I can help her.",
+            "She asked me if I could help her.",
+            "She asked me if could I help her.",
+            "She asked me if I would help her."
+        ],
+        "answer": 1,
+        "explanation": "Can → could; question form uses if/whether."
+    },
+    {
+        "question": "'May I leave now?', he asked.",
+        "options": [
+            "He asked if he may leave now.",
+            "He asked if he could leave then.",
+            "He asked if he might leave now.",
+            "He asked can he leave now."
+        ],
+        "answer": 1,
+        "explanation": "May → could; now → then."
+    },
+    {
+        "question": "She said, 'Please sit down.'",
+        "options": [
+            "She asked to sit down.",
+            "She told me sit down.",
+            "She requested me to sit down.",
+            "She ordered me to sit down."
+        ],
+        "answer": 2,
+        "explanation": "Polite request becomes: requested + object + to + verb."
+    },
+    {
+        "question": "'Where did you keep the key?', he asked.",
+        "options": [
+            "He asked me where I had kept the key.",
+            "He asked me where did I keep the key.",
+            "He asked me where have I kept the key.",
+            "He asked me where do I keep the key."
+        ],
+        "answer": 0,
+        "explanation": "Past simple → past perfect."
+    },
+    {
+        "question": "He said, 'You must finish your homework.'",
+        "options": [
+            "He said I must finish my homework.",
+            "He said I had to finish my homework.",
+            "He said I should finish my homework.",
+            "He said I must finished my homework."
+        ],
+        "answer": 1,
+        "explanation": "Must often becomes had to in reported speech."
+    },
+    {
+        "question": "She said, 'Where are my glasses?'",
+        "options": [
+            "She asked me where her glasses were.",
+            "She asked me where are her glasses.",
+            "She asked me where my glasses were.",
+            "She asked me where my glasses are."
+        ],
+        "answer": 0,
+        "explanation": "Are → were; my → her."
+    },
+    {
+        "question": "He said, 'Is this your bag?'",
+        "options": [
+            "He asked me if that was my bag.",
+            "He asked me if this was my bag.",
+            "He asked me was that my bag.",
+            "He asked me if it was my bag."
+        ],
+        "answer": 0,
+        "explanation": "This → that; is → was."
+    },
+    {
+        "question": "'Did you understand the question?', the teacher asked.",
+        "options": [
+            "The teacher asked us if we understood the question.",
+            "The teacher asked us had we understood the question.",
+            "The teacher asked us if we had understood the question.",
+            "The teacher asked us that we understood the question."
+        ],
+        "answer": 2,
+        "explanation": "Did (past simple) → had understood (past perfect)."
+    },
+    {
+        "question": "He said, 'She sings beautifully.'",
+        "options": [
+            "He said she sang beautifully.",
+            "He said she sings beautifully.",
+            "He said she singing beautifully.",
+            "He said she has sung beautifully."
+        ],
+        "answer": 0,
+        "explanation": "Simple present → simple past for statements."
+    },
+    {
+        "question": "'Why are you crying?', mother asked.",
+        "options": [
+            "Mother asked me why I was crying.",
+            "Mother asked me why I am crying.",
+            "Mother asked why was I crying.",
+            "Mother asked me why was I cried."
+        ],
+        "answer": 0,
+        "explanation": "Are → was; normal word order."
+    },
+    {
+        "question": "The boy said, 'I shall try again.'",
+        "options": [
+            "The boy said that he will try again.",
+            "The boy said that he would try again.",
+            "The boy said that he should try again.",
+            "The boy said that he tries again."
+        ],
+        "answer": 1,
+        "explanation": "Shall/will → would."
+    },
+    {
+        "question": "She said to me, 'Don't forget your keys.'",
+        "options": [
+            "She told me not to forget my keys.",
+            "She said not to forget my keys.",
+            "She said me do not forget your keys.",
+            "She asked me to not forget my keys."
+        ],
+        "answer": 0,
+        "explanation": "Negative command: told/asked + not to + verb."
+    },
+    {
+        "question": "He said, 'I wasn't at home yesterday.'",
+        "options": [
+            "He said he wasn't at home yesterday.",
+            "He said he hadn't been at home the previous day.",
+            "He said he hadn't at home yesterday.",
+            "He said he wasn't at home the next day."
+        ],
+        "answer": 1,
+        "explanation": "Past simple negative → past perfect negative; yesterday → previous day."
+    },
+    {
+        "question": "'Is it raining?', she asked.",
+        "options": [
+            "She asked if it was raining.",
+            "She asked it was raining.",
+            "She asked if it is raining.",
+            "She asked if is it raining."
+        ],
+        "answer": 0,
+        "explanation": "Is → was; yes/no questions use if/whether."
+    },
+    {
+        "question": "He said, 'She has done her duty.'",
+        "options": [
+            "He said she had done her duty.",
+            "He said she has done her duty.",
+            "He said she did her duty.",
+            "He said she would do her duty."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect → past perfect."
+    },
+    {
+        "question": "Teacher said, 'Do your homework regularly.'",
+        "options": [
+            "The teacher said us do your homework regularly.",
+            "The teacher advised us to do our homework regularly.",
+            "The teacher told us do homework.",
+            "The teacher ordered to do homework regularly."
+        ],
+        "answer": 1,
+        "explanation": "Advice in indirect speech: advised + object + to + verb."
+    },
+    {
+        "question": "He said, 'I can swim across the river.'",
+        "options": [
+            "He said he could swim across the river.",
+            "He said he can swim across the river.",
+            "He said he would swim across the river.",
+            "He said he had swum across the river."
+        ],
+        "answer": 0,
+        "explanation": "Can → could."
+    },
+    {
+        "question": "'Will you come with me?', she asked.",
+        "options": [
+            "She asked me will I come with her.",
+            "She asked me if I came with her.",
+            "She asked me if I would come with her.",
+            "She asked me if I will come with her."
+        ],
+        "answer": 2,
+        "explanation": "Will → would; yes/no question."
+    },
+    {
+        "question": "He said, 'Why did you miss the class?'",
+        "options": [
+            "He asked why I missed the class.",
+            "He asked why did I miss the class.",
+            "He asked me why I had missed the class.",
+            "He asked me that I missed the class."
+        ],
+        "answer": 2,
+        "explanation": "Past simple → past perfect in wh-questions."
+    },
+    {
+        "question": "She said, 'I must complete it by tonight.'",
+        "options": [
+            "She said she has to complete it by that night.",
+            "She said she must complete it by that night.",
+            "She said she had to complete it by that night.",
+            "She said she has completed it by tonight."
+        ],
+        "answer": 2,
+        "explanation": "Must → had to; tonight → that night."
+    },
+    {
+        "question": "He said, 'You should speak politely.'",
+        "options": [
+            "He said I should speak politely.",
+            "He said I spoke politely.",
+            "He said I would speak politely.",
+            "He said I must speak politely."
+        ],
+        "answer": 0,
+        "explanation": "Should remains unchanged."
+    },
+    {
+        "question": "Mother said, 'Don't make a noise.'",
+        "options": [
+            "Mother asked not to make a noise.",
+            "Mother told to not make a noise.",
+            "Mother told us not to make a noise.",
+            "Mother ordered us don't make noise."
+        ],
+        "answer": 2,
+        "explanation": "Negative command."
+    },
+    {
+        "question": "He said, 'My parents will arrive tonight.'",
+        "options": [
+            "He said his parents would arrive tonight.",
+            "He said his parents would arrive that night.",
+            "He said his parents will arrive that night.",
+            "He said his parents arrived that night."
+        ],
+        "answer": 1,
+        "explanation": "Will → would; tonight → that night; my → his."
+    },
+    {
+        "question": "She said, 'Has the train left?'",
+        "options": [
+            "She asked if the train had left.",
+            "She asked the train had left.",
+            "She asked if has the train left.",
+            "She asked train left."
+        ],
+        "answer": 0,
+        "explanation": "Has → had; yes/no questions use if/whether."
+    },
+    {
+        "question": "He said, 'John is playing cricket now.'",
+        "options": [
+            "He said John was playing cricket now.",
+            "He said John was playing cricket then.",
+            "He said John played cricket then.",
+            "He said John plays cricket now."
+        ],
+        "answer": 1,
+        "explanation": "Now → then; present continuous → past continuous."
+    },
+    {
+        "question": "She said, 'How can I solve this quickly?'",
+        "options": [
+            "She asked how she solve that quickly.",
+            "She asked how could she solve that quickly.",
+            "She asked how she could solve that quickly.",
+            "She asked how she solving that quickly."
+        ],
+        "answer": 2,
+        "explanation": "Can → could; this → that."
+    },
+    {
+        "question": "He said, 'I have been living here for five years.'",
+        "options": [
+            "He said he had been living here for five years.",
+            "He said he had been living there for five years.",
+            "He said he has been living there for five years.",
+            "He said he had lived there for five years."
+        ],
+        "answer": 1,
+        "explanation": "Here → there; present perfect continuous → past perfect continuous."
+    },
+    {
+        "question": "'Do you like coffee or tea?', he asked.",
+        "options": [
+            "He asked me if I liked coffee or tea.",
+            "He asked me did I like coffee or tea.",
+            "He asked me if I had liked coffee or tea.",
+            "He asked I like coffee or tea."
+        ],
+        "answer": 0,
+        "explanation": "Simple present question → simple past; yes/no + options."
+    },
+    {
+        "question": "She said, 'I cannot go there today.'",
+        "options": [
+            "She said she could not go there that day.",
+            "She said she cannot go there that day.",
+            "She said she could not gone there that day.",
+            "She said she goes there that day."
+        ],
+        "answer": 0,
+        "explanation": "Cannot → could not; today → that day."
+    },
+    {
+        "question": "He said, 'Who broke this vase?'",
+        "options": [
+            "He asked me who had broken that vase.",
+            "He asked who broke that vase.",
+            "He asked to me who broke this vase.",
+            "He asked me who has broken that vase."
+        ],
+        "answer": 0,
+        "explanation": "Past simple → past perfect; this → that."
+    },
+    {
+        "question": "She said to him, 'Go away!'",
+        "options": [
+            "She said him to go away.",
+            "She told him to go away.",
+            "She ordered him go away.",
+            "She asked him that go away."
+        ],
+        "answer": 1,
+        "explanation": "Imperative statements: told/ordered + object + to + verb."
+    },
+    {
+        "question": "He said, 'I thought she would win the race.'",
+        "options": [
+            "He said he thought she would win the race.",
+            "He said he had thought she would win the race.",
+            "He said he thought she won the race.",
+            "He said he thought she will win the race."
+        ],
+        "answer": 1,
+        "explanation": "Past simple → past perfect; would remains the same."
+    },
+    {
+        "question": "She said, 'I will return your book soon.'",
+        "options": [
+            "She said she would return my book soon.",
+            "She said she will return my book soon.",
+            "She said she would return your book soon.",
+            "She said she can return my book soon."
+        ],
+        "answer": 0,
+        "explanation": "Will → would; your → my."
+    },
+    {
+        "question": "He said, 'How long will you stay here?'",
+        "options": [
+            "He asked me how long I would stay here.",
+            "He asked me how long I would stay there.",
+            "He asked me how long I will stay there.",
+            "He asked me how long do you stay here."
+        ],
+        "answer": 1,
+        "explanation": "Will → would; here → there."
+    },
+    {
+        "question": "'Are you going to school?', father asked.",
+        "options": [
+            "Father asked me if I am going to school.",
+            "Father asked me if I was going to school.",
+            "Father asked me if I go to the school.",
+            "Father asked me I am going to school."
+        ],
+        "answer": 1,
+        "explanation": "Am → was; yes/no question uses if."
+    },
+    {
+        "question": "She said, 'I know her address.'",
+        "options": [
+            "She said that she knows her address.",
+            "She said that she knew her address.",
+            "She said that she had known her address.",
+            "She said that she has known her address."
+        ],
+        "answer": 1,
+        "explanation": "Simple present → simple past."
+    },
+    {
+        "question": "He said, 'My brother bought a new car last week.'",
+        "options": [
+            "He said his brother had bought a new car the previous week.",
+            "He said his brother bought a new car previous week.",
+            "He said his brother has bought a new car last week.",
+            "He said that his brother bought a new car last week."
+        ],
+        "answer": 0,
+        "explanation": "Past simple → past perfect; last week → previous week."
+    },
+    {
+        "question": "She said, 'I went to Mumbai three days ago.'",
+        "options": [
+            "She said she went to Mumbai three days ago.",
+            "She said she had gone to Mumbai three days before.",
+            "She said she had gone to Mumbai three days ago.",
+            "She said she goes to Mumbai three days before."
+        ],
+        "answer": 1,
+        "explanation": "Ago → before; past simple → past perfect."
+    },
+    {
+        "question": "'Whose pen is this?', he asked.",
+        "options": [
+            "He asked whose pen was that.",
+            "He asked me whose pen is that.",
+            "He asked whose pen it is.",
+            "He asked whose pen that is."
+        ],
+        "answer": 0,
+        "explanation": "Is → was; this → that."
+    },
+    {
+        "question": "She said, 'It may rain today.'",
+        "options": [
+            "She said it might rain that day.",
+            "She said it could rain today.",
+            "She said it may rain that day.",
+            "She said it might rains today."
+        ],
+        "answer": 0,
+        "explanation": "May → might; today → that day."
+    },
+    {
+        "question": "He said, 'Did you meet the principal?'",
+        "options": [
+            "He asked me whether I met the principal.",
+            "He asked me whether I have met the principal.",
+            "He asked me if I had met the principal.",
+            "He asked me had I meet the principal."
+        ],
+        "answer": 2,
+        "explanation": "Past simple → past perfect; did → had met."
+    },
+    {
+        "question": "She said, 'I am planning a trip.'",
+        "options": [
+            "She said she was planning a trip.",
+            "She said she has planned a trip.",
+            "She said she would be planning a trip.",
+            "She said she planned a trip."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous → past continuous."
+    },
+    {
+        "question": "He said to me, 'Read the instructions carefully.'",
+        "options": [
+            "He told me to read the instructions carefully.",
+            "He asked me to read the instructions carefully.",
+            "He ordered me read the instructions carefully.",
+            "He ordered me to read the instructions carefully."
+        ],
+        "answer": 0,
+        "explanation": "Imperative: told + object + to + verb."
+    },
+	{
+        "question": "She said, 'I met him yesterday.'",
+        "options": [
+            "She said she met him yesterday.",
+            "She said she had met him the day before.",
+            "She said she meets him yesterday.",
+            "She said she had met him yesterday."
+        ],
+        "answer": 1,
+        "explanation": "'Yesterday' changes to 'the day before'; simple past becomes past perfect."
+    },
+    {
+        "question": "He said, 'I am having lunch now.'",
+        "options": [
+            "He said he was having lunch then.",
+            "He said he had lunch now.",
+            "He said he is having lunch now.",
+            "He said he had been having lunch now."
+        ],
+        "answer": 0,
+        "explanation": "'Now' changes to 'then'; present continuous changes to past continuous."
+    },
+    {
+        "question": "She said, 'I like this book.'",
+        "options": [
+            "She said she liked that book.",
+            "She said she likes that book.",
+            "She said she liked this book.",
+            "She said she like that book."
+        ],
+        "answer": 0,
+        "explanation": "Demonstrative 'this' changes to 'that'; simple present to simple past."
+    },
+    {
+        "question": "He said, 'Where is the station?'",
+        "options": [
+            "He asked where was the station.",
+            "He asked where the station was.",
+            "He asked where is the station.",
+            "He asked where the station is."
+        ],
+        "answer": 1,
+        "explanation": "In reported speech, question word + subject + verb."
+    },
+    {
+        "question": "She said, 'I can do it myself.'",
+        "options": [
+            "She said she can do it herself.",
+            "She said she could do it herself.",
+            "She said she can do it herself.",
+            "She said she could done it herself."
+        ],
+        "answer": 1,
+        "explanation": "'Can' changes to 'could'; 'myself' becomes 'herself'."
+    },
+    {
+        "question": "'Where have you been?', he asked.",
+        "options": [
+            "He asked where I have been.",
+            "He asked where I had been.",
+            "He asked where had I been.",
+            "He asked where was I."
+        ],
+        "answer": 1,
+        "explanation": "Present perfect changes to past perfect in reported speech."
+    },
+    {
+        "question": "He said, 'I will fix the car tomorrow.'",
+        "options": [
+            "He said he would fix the car tomorrow.",
+            "He said he would fix the car the next day.",
+            "He said he will fix the car the next day.",
+            "He said he fixed the car the next day."
+        ],
+        "answer": 1,
+        "explanation": "'Tomorrow' changes to 'the next day'; 'will' becomes 'would'."
+    },
+    {
+        "question": "She said, 'I am going to meet him tonight.'",
+        "options": [
+            "She said she was going to meet him that night.",
+            "She said she was going to meet him tonight.",
+            "She said she is going to meet him tonight.",
+            "She said she goes to meet him tonight."
+        ],
+        "answer": 0,
+        "explanation": "'Tonight' changes to 'that night'; present continuous changes to past continuous."
+    },
+    {
+        "question": "'Please don't be late,' he said.",
+        "options": [
+            "He requested not to be late.",
+            "He requested me not to be late.",
+            "He ordered not to be late.",
+            "He asked do not be late."
+        ],
+        "answer": 1,
+        "explanation": "Polite request reported as 'requested + object + not + to infinitive'."
+    },
+    {
+        "question": "He said, 'I have been waiting for you since morning.'",
+        "options": [
+            "He said he had been waiting for me since morning.",
+            "He said he has been waiting for me since morning.",
+            "He said he was waiting for me since morning.",
+            "He said he had waited for me since morning."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect continuous changes to past perfect continuous."
+    },
+    {
+        "question": "She asked, 'Are you coming to the party?'",
+        "options": [
+            "She asked if I was coming to the party.",
+            "She asked whether I am coming to the party.",
+            "She asked if we come to the party.",
+            "She asked I was coming to the party."
+        ],
+        "answer": 0,
+        "explanation": "Yes/no questions reported using 'if' or 'whether' plus past tense."
+    },
+    {
+        "question": "He said, 'Let's meet tomorrow.'",
+        "options": [
+            "He suggested meeting the next day.",
+            "He suggested meeting tomorrow.",
+            "He told to meet the next day.",
+            "He ordered to meet tomorrow."
+        ],
+        "answer": 0,
+        "explanation": "'Let's' reported as suggestion; 'tomorrow' becomes 'the next day'."
+    },
+    {
+        "question": "She said, 'I might come late.'",
+        "options": [
+            "She said she might come late.",
+            "She said she might came late.",
+            "She said she might have come late.",
+            "She said she might had come late."
+        ],
+        "answer": 0,
+        "explanation": "Modal verb 'might' generally remains the same in reported speech."
+    },
+    {
+        "question": "'Do you play football?', he asked.",
+        "options": [
+            "He asked if I played football.",
+            "He asked do I play football.",
+            "He asked if I had played football.",
+            "He asked whether I play football."
+        ],
+        "answer": 0,
+        "explanation": "Simple present question changes to simple past and uses 'if/whether'."
+    },
+    {
+        "question": "The teacher said, 'Open your books.'",
+        "options": [
+            "The teacher told us to open our books.",
+            "The teacher said open your books.",
+            "The teacher ordered to open our books.",
+            "The teacher asked us open our books."
+        ],
+        "answer": 0,
+        "explanation": "Imperative: told + object + to + infinitive."
+    },
+    {
+        "question": "He said to me, 'Have you completed your task?'",
+        "options": [
+            "He asked me if I had completed my task.",
+            "He asked me if I completed my task.",
+            "He asked me have I completed my task.",
+            "He asked me did I complete my task."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect changes to past perfect; question form uses 'if/whether'."
+    },
+    {
+        "question": "She said, 'I will write the letter.'",
+        "options": [
+            "She said she will write the letter.",
+            "She said she would write the letter.",
+            "She said she writes the letter.",
+            "She said she wrote the letter."
+        ],
+        "answer": 1,
+        "explanation": "'Will' changes to 'would' in reported speech."
+    },
+    {
+        "question": "He said, 'I have never been to Delhi.'",
+        "options": [
+            "He said he had never been to Delhi.",
+            "He said he never went to Delhi.",
+            "He said he has never been to Delhi.",
+            "He said he never had been to Delhi."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect negative changes to past perfect negative."
+    },
+    {
+        "question": "She said, 'Can you help me?'",
+        "options": [
+            "She asked if I could help her.",
+            "She asked if I can help her.",
+            "She asked can I help her.",
+            "She asked I could help her."
+        ],
+        "answer": 0,
+        "explanation": "'Can' changes to 'could' in reported speech questions."
+    },
+    {
+        "question": "He said, 'I was reading a book.'",
+        "options": [
+            "He said he was reading a book.",
+            "He said he had been reading a book.",
+            "He said he had read a book.",
+            "He said he reads a book."
+        ],
+        "answer": 1,
+        "explanation": "Past continuous changes to past perfect continuous."
+    },
+    {
+        "question": "She said, 'Please close the door.'",
+        "options": [
+            "She requested to close the door.",
+            "She requested me to close the door.",
+            "She said close the door.",
+            "She asked close the door."
+        ],
+        "answer": 1,
+        "explanation": "Polite requests reported as 'requested + object + to + infinitive'."
+    },
+    {
+        "question": "He said, 'I might visit you tomorrow.'",
+        "options": [
+            "He said he might visit me tomorrow.",
+            "He said he might visit me the next day.",
+            "He said he would visit me tomorrow.",
+            "He said he could visit me tomorrow."
+        ],
+        "answer": 1,
+        "explanation": "'Tomorrow' changes to 'the next day' in reported speech."
+    },
+    {
+        "question": "She said, 'Did you attend the meeting?'",
+        "options": [
+            "She asked if I attended the meeting.",
+            "She asked if I had attended the meeting.",
+            "She asked did I attend the meeting.",
+            "She asked had I attended the meeting."
+        ],
+        "answer": 1,
+        "explanation": "Past simple questions change to past perfect in reported speech."
+    },
+    {
+        "question": "He said, 'I have seen that movie.'",
+        "options": [
+            "He said he had seen that movie.",
+            "He said he saw that movie.",
+            "He said he has seen that movie.",
+            "He said he see that movie."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect changes to past perfect."
+    },
+    {
+        "question": "They said, 'We will come to the party.'",
+        "options": [
+            "They said they would come to the party.",
+            "They said they will come to the party.",
+            "They said they come to the party.",
+            "They said they came to the party."
+        ],
+        "answer": 0,
+        "explanation": "'Will' changes to 'would' in reported speech."
+    },
+    {
+        "question": "'Who is coming to dinner?', she asked.",
+        "options": [
+            "She asked who is coming to dinner.",
+            "She asked who was coming to dinner.",
+            "She asked who comes to dinner.",
+            "She asked who come to dinner."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous becomes past continuous in reported speech."
+    },
+    {
+        "question": "He said, 'I must go now.'",
+        "options": [
+            "He said he must go then.",
+            "He said he had to go then.",
+            "He said he must go now.",
+            "He said he should go then."
+        ],
+        "answer": 1,
+        "explanation": "'Must' often changes to 'had to'; 'now' → 'then'."
+    },
+    {
+        "question": "She said, 'Where were you yesterday?'",
+        "options": [
+            "She asked where I was the day before.",
+            "She asked where was I yesterday.",
+            "She asked where I were yesterday.",
+            "She asked where I was yesterday."
+        ],
+        "answer": 0,
+        "explanation": "'Yesterday' becomes 'the day before'; word order changes in indirect questions."
+    },
+    {
+        "question": "He said, 'Why did you leave early?'",
+        "options": [
+            "He asked why I had left early.",
+            "He asked why did I leave early.",
+            "He asked why I leave early.",
+            "He asked why I left early."
+        ],
+        "answer": 0,
+        "explanation": "Past simple question changes to past perfect in reported speech."
+    },
+    {
+        "question": "She said, 'Do not open the window.'",
+        "options": [
+            "She told not to open the window.",
+            "She told me not to open the window.",
+            "She told me do not open the window.",
+            "She said do not open the window."
+        ],
+        "answer": 1,
+        "explanation": "Negative imperative reported as 'told + object + not + to + infinitive'."
+    },
+	 {
+        "question": "He said, 'She is a good dancer.'",
+        "options": [
+            "He said that she was a good dancer.",
+            "He said that she is a good dancer.",
+            "He said that she had been a good dancer.",
+            "He said that she will be a good dancer."
+        ],
+        "answer": 0,
+        "explanation": "Simple present becomes simple past in reported speech unless it is universal truth."
+    },
+    {
+        "question": "She said, 'I can speak three languages.'",
+        "options": [
+            "She said she could speak three languages.",
+            "She said she can speak three languages.",
+            "She said she could spoke three languages.",
+            "She said she had spoken three languages."
+        ],
+        "answer": 0,
+        "explanation": "'Can' changes to 'could' in indirect speech."
+    },
+    {
+        "question": "He said, 'I am feeling sick.'",
+        "options": [
+            "He said he was feeling sick.",
+            "He said he is feeling sick.",
+            "He said he has been feeling sick.",
+            "He said he had felt sick."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous becomes past continuous in indirect speech."
+    },
+    {
+        "question": "She said, 'I have lost my umbrella.'",
+        "options": [
+            "She said she had lost her umbrella.",
+            "She said she has lost her umbrella.",
+            "She said she lost her umbrella.",
+            "She said she had been losing her umbrella."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect changes to past perfect in reported speech."
+    },
+    {
+        "question": "He asked, 'Do you live here?'",
+        "options": [
+            "He asked if I lived there.",
+            "He asked do I live here.",
+            "He asked if I live here.",
+            "He asked whether I live there."
+        ],
+        "answer": 0,
+        "explanation": "Yes/no question changes into indirect with if/whether and backshifting."
+    },
+    {
+        "question": "She said, 'I will be late.'",
+        "options": [
+            "She said she would be late.",
+            "She said she will be late.",
+            "She said she is late.",
+            "She said she was late."
+        ],
+        "answer": 0,
+        "explanation": "'Will' changes to 'would' in indirect speech."
+    },
+    {
+        "question": "He said, 'I have been reading the book.'",
+        "options": [
+            "He said he had been reading the book.",
+            "He said he has been reading the book.",
+            "He said he was reading the book.",
+            "He said he read the book."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect continuous becomes past perfect continuous."
+    },
+    {
+        "question": "She said, 'I saw the accident.'",
+        "options": [
+            "She said she had seen the accident.",
+            "She said she saw the accident.",
+            "She said she has seen the accident.",
+            "She said she sees the accident."
+        ],
+        "answer": 0,
+        "explanation": "Past simple becomes past perfect in reported speech."
+    },
+    {
+        "question": "He said, 'Please help me.'",
+        "options": [
+            "He requested me to help him.",
+            "He told me to help him.",
+            "He ordered me to help him.",
+            "He asked me helping him."
+        ],
+        "answer": 0,
+        "explanation": "Polite request reported as 'requested + object + to + infinitive.'"
+    },
+    {
+        "question": "She said, 'I will call you tomorrow.'",
+        "options": [
+            "She said she would call me the next day.",
+            "She said she will call me tomorrow.",
+            "She said she would call me tomorrow.",
+            "She said she will call me the next day."
+        ],
+        "answer": 0,
+        "explanation": "Tomorrow changes to the next day; will changes to would."
+    },
+    {
+        "question": "He said, 'I had finished my work before you arrived.'",
+        "options": [
+            "He said he had finished his work before I arrived.",
+            "He said he had finished his work before I had arrived.",
+            "He said he finished his work before I arrived.",
+            "He said he finished his work before I had arrived."
+        ],
+        "answer": 1,
+        "explanation": "Past perfect remains past perfect; the second clause in the past perfect as well."
+    },
+    {
+        "question": "She said, 'Do not touch this book.'",
+        "options": [
+            "She told not to touch that book.",
+            "She told me not to touch that book.",
+            "She told me not touch this book.",
+            "She asked not to touch this book."
+        ],
+        "answer": 1,
+        "explanation": "Negative imperative reported as 'told + object + not + to + infinitive'."
+    },
+    {
+        "question": "He said, 'Are you coming to the party?'",
+        "options": [
+            "He asked if I was coming to the party.",
+            "He asked if I come to the party.",
+            "He asked whether I come to the party.",
+            "He asked if am I coming to the party."
+        ],
+        "answer": 0,
+        "explanation": "Yes/no question reported with if/whether and backshift."
+    },
+    {
+        "question": "She said, 'How do you solve this problem?'",
+        "options": [
+            "She asked me how I solved that problem.",
+            "She asked me how do I solve that problem.",
+            "She asked how I solved this problem.",
+            "She asked how do I solved this problem."
+        ],
+        "answer": 0,
+        "explanation": "Wh-questions with present simple change to past simple in indirect speech."
+    },
+    {
+        "question": "He said, 'My friend has gone to Mumbai.'",
+        "options": [
+            "He said his friend had gone to Mumbai.",
+            "He said his friend has gone to Mumbai.",
+            "He said his friend went to Mumbai.",
+            "He said his friend goes to Mumbai."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect becomes past perfect."
+    },
+    {
+        "question": "She said, 'I am learning English.'",
+        "options": [
+            "She said she was learning English.",
+            "She said she is learning English.",
+            "She said she had learned English.",
+            "She said she had been learning English."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous becomes past continuous."
+    },
+    {
+        "question": "He said, 'What are you doing now?'",
+        "options": [
+            "He asked what I was doing then.",
+            "He asked what am I doing now.",
+            "He asked what I am doing now.",
+            "He asked what I did now."
+        ],
+        "answer": 0,
+        "explanation": "'Now' changes to 'then'; present continuous becomes past continuous."
+    },
+    {
+        "question": "She said, 'Let us go for a walk.'",
+        "options": [
+            "She suggested going for a walk.",
+            "She said let us go for a walk.",
+            "She told us to go for a walk.",
+            "She advised us to go for a walk."
+        ],
+        "answer": 0,
+        "explanation": "'Let us' reported as suggestion."
+    },
+    {
+        "question": "He asked me, 'Have you finished your work?'",
+        "options": [
+            "He asked me if I had finished my work.",
+            "He asked me if I finished my work.",
+            "He asked me have I finished my work.",
+            "He asked me did I finish my work."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect question changes to past perfect in indirect speech."
+    },
+    {
+        "question": "She said, 'You should work hard.'",
+        "options": [
+            "She said I should work hard.",
+            "She said I should worked hard.",
+            "She said I must work hard.",
+            "She said I had to work hard."
+        ],
+        "answer": 0,
+        "explanation": "'Should' remains unchanged in indirect speech."
+    },
+    {
+        "question": "He said, 'This shop closes at 9 pm.'",
+        "options": [
+            "He said that the shop closed at 9 pm.",
+            "He said that the shop closes at 9 pm.",
+            "He said that the shop had closed at 9 pm.",
+            "He said that the shop is closing at 9 pm."
+        ],
+        "answer": 0,
+        "explanation": "Simple present changes to simple past in reported speech."
+    },
+    {
+        "question": "She said, 'I have been waiting for you.'",
+        "options": [
+            "She said she had been waiting for me.",
+            "She said she has been waiting for me.",
+            "She said she was waiting for me.",
+            "She said she waited for me."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect continuous changes to past perfect continuous."
+    },
+    {
+        "question": "The teacher said, 'Please open your books.'",
+        "options": [
+            "The teacher requested us to open our books.",
+            "The teacher said open your books.",
+            "The teacher told us open our books.",
+            "The teacher ordered us open your books."
+        ],
+        "answer": 0,
+        "explanation": "Polite request reported as 'requested + object + to + infinitive'."
+    },
+    {
+        "question": "He said, 'Why are you late?'",
+        "options": [
+            "He asked why I was late.",
+            "He asked why am I late.",
+            "He asked why I am late.",
+            "He asked why was I late."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous changes to past continuous in questions."
+    },
+    {
+        "question": "She said, 'I will help you tomorrow.'",
+        "options": [
+            "She said she would help me the next day.",
+            "She said she will help me tomorrow.",
+            "She said she would help me tomorrow.",
+            "She said she will help me the next day."
+        ],
+        "answer": 0,
+        "explanation": "'Tomorrow' changes to 'the next day'; 'will' changes to 'would'."
+    },
+    {
+        "question": "He said, 'My father has returned.'",
+        "options": [
+            "He said his father had returned.",
+            "He said his father has returned.",
+            "He said his father was returned.",
+            "He said his father returned."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect changes to past perfect in reported speech."
+    },
+    {
+        "question": "She said, 'Are you a doctor?'",
+        "options": [
+            "She asked if I was a doctor.",
+            "She asked if I am a doctor.",
+            "She asked if am I a doctor.",
+            "She asked if I were a doctor."
+        ],
+        "answer": 0,
+        "explanation": "Yes/no questions require 'if/whether' and backshift in reported speech."
+    },
+    {
+        "question": "He said, 'Please don't be late.'",
+        "options": [
+            "He requested not to be late.",
+            "He asked me not to be late.",
+            "He told me not to be late.",
+            "He asked not to be late."
+        ],
+        "answer": 2,
+        "explanation": "Negative imperative reported with 'told + object + not + to + verb'."
+    },
+    {
+        "question": "She said, 'Who is that man?'",
+        "options": [
+            "She asked who was that man.",
+            "She asked who that man was.",
+            "She asked who is that man.",
+            "She asked who that man is."
+        ],
+        "answer": 1,
+        "explanation": "Wh-questions in indirect speech have subject-verb order."
+    },
+    {
+        "question": "He said, 'I was sleeping when the phone rang.'",
+        "options": [
+            "He said he had been sleeping when the phone rang.",
+            "He said he was sleeping when the phone had rung.",
+            "He said he had been sleeping when the phone had rung.",
+            "He said he was sleeping when the phone rings."
+        ],
+        "answer": 2,
+        "explanation": "Past continuous becomes past perfect continuous; past simple becomes past perfect."
+    },
+    {
+        "question": "She said, 'I am going to the market now.'",
+        "options": [
+            "She said she was going to the market then.",
+            "She said she is going to the market now.",
+            "She said she went to the market then.",
+            "She said she is going to the market then."
+        ],
+        "answer": 0,
+        "explanation": "'Now' changes to 'then'; present continuous changes to past continuous."
+    },
+	 {
+        "question": "She said, 'I am going to school.'",
+        "options": [
+            "She said she was going to school.",
+            "She said she is going to school.",
+            "She said she went to school.",
+            "She said she has gone to school."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous changes to past continuous in reported speech."
+    },
+    {
+        "question": "'Do you like apples?' he asked.",
+        "options": [
+            "He asked if I liked apples.",
+            "He asked do I like apples.",
+            "He asked whether I like apples.",
+            "He asked if I like apples."
+        ],
+        "answer": 0,
+        "explanation": "Present simple question changes to past simple and uses 'if/whether' in reported speech."
+    },
+    {
+        "question": "He said, 'I will help you.'",
+        "options": [
+            "He said he would help me.",
+            "He said he will help me.",
+            "He said he helps me.",
+            "He said he helped me."
+        ],
+        "answer": 0,
+        "explanation": "'Will' changes to 'would' in indirect speech."
+    },
+    {
+        "question": "She said, 'I have finished my homework.'",
+        "options": [
+            "She said she had finished her homework.",
+            "She said she has finished her homework.",
+            "She said she finished her homework.",
+            "She said she was finishing her homework."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect changes to past perfect."
+    },
+    {
+        "question": "He said, 'Can you come tomorrow?'",
+        "options": [
+            "He asked if I could come the next day.",
+            "He asked can I come tomorrow.",
+            "He asked whether I can come the next day.",
+            "He asked whether I could come tomorrow."
+        ],
+        "answer": 0,
+        "explanation": "'Can' changes to 'could'; 'tomorrow' changes to 'the next day'."
+    },
+    {
+        "question": "'Please open the door,' she said.",
+        "options": [
+            "She told me to open the door.",
+            "She ordered me to open the door.",
+            "She requested me to open the door.",
+            "All of the above."
+        ],
+        "answer": 3,
+        "explanation": "Imperatives can be reported with 'told', 'ordered', or 'requested' depending on context."
+    },
+    {
+        "question": "He said, 'Where are you going?'",
+        "options": [
+            "He asked where I was going.",
+            "He asked where was I going.",
+            "He asked where I am going.",
+            "He asked where am I going."
+        ],
+        "answer": 0,
+        "explanation": "In indirect speech, question word + subject + verb order is used."
+    },
+    {
+        "question": "She said, 'I am busy now.'",
+        "options": [
+            "She said she was busy then.",
+            "She said she is busy now.",
+            "She said she was busy now.",
+            "She said she is busy then."
+        ],
+        "answer": 0,
+        "explanation": "'Now' changes to 'then'; present continuous changes to past continuous."
+    },
+    {
+        "question": "He asked, 'Did you finish your work?'",
+        "options": [
+            "He asked if I had finished my work.",
+            "He asked did I finish my work.",
+            "He asked whether I finished my work.",
+            "He asked if I finished my work."
+        ],
+        "answer": 0,
+        "explanation": "Past simple question changes to past perfect in reported speech."
+    },
+    {
+        "question": "She said, 'I can speak French.'",
+        "options": [
+            "She said she could speak French.",
+            "She said she can speak French.",
+            "She said she could spoken French.",
+            "She said she spoke French."
+        ],
+        "answer": 0,
+        "explanation": "'Can' changes to 'could' in indirect speech."
+    },
+    {
+        "question": "He said, 'I must do my duty.'",
+        "options": [
+            "He said he had to do his duty.",
+            "He said he must do his duty.",
+            "He said he should do his duty.",
+            "He said he must did his duty."
+        ],
+        "answer": 0,
+        "explanation": "'Must' changes to 'had to' in reported speech."
+    },
+    {
+        "question": "She said, 'Do not touch the books.'",
+        "options": [
+            "She told us not to touch the books.",
+            "She asked us not to touch the books.",
+            "She ordered us not to touch the books.",
+            "All of the above."
+        ],
+        "answer": 3,
+        "explanation": "Negative imperative can be reported with 'told', 'asked', or 'ordered'."
+    },
+    {
+        "question": "He said, 'I was reading when you called.'",
+        "options": [
+            "He said he had been reading when I called.",
+            "He said he was reading when I called.",
+            "He said he had read when I called.",
+            "He said he was reading when I had called."
+        ],
+        "answer": 0,
+        "explanation": "Past continuous changes to past perfect continuous in reported speech."
+    },
+    {
+        "question": "She asked, 'Where do you live?'",
+        "options": [
+            "She asked where I lived.",
+            "She asked where do I live.",
+            "She asked where I live.",
+            "She asked where am I living."
+        ],
+        "answer": 0,
+        "explanation": "Present simple question changes to past simple in reported speech."
+    },
+    {
+        "question": "He said, 'I will come tomorrow.'",
+        "options": [
+            "He said he would come the next day.",
+            "He said he will come tomorrow.",
+            "He said he would come tomorrow.",
+            "He said he will come the next day."
+        ],
+        "answer": 0,
+        "explanation": "'Will' changes to 'would'; 'tomorrow' to 'the next day'."
+    },
+    {
+        "question": "She said, 'I have lost my keys.'",
+        "options": [
+            "She said she had lost her keys.",
+            "She said she has lost her keys.",
+            "She said she lost her keys.",
+            "She said she was losing her keys."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect changes to past perfect."
+    },
+    {
+        "question": "He said, 'Why are you late?'",
+        "options": [
+            "He asked why I was late.",
+            "He asked why am I late.",
+            "He asked why I am late.",
+            "He asked why was I late."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous question converts to past continuous in reported speech."
+    },
+    {
+        "question": "'Who called you yesterday?' she asked.",
+        "options": [
+            "She asked who had called me the day before.",
+            "She asked who called me yesterday.",
+            "She asked who calls me yesterday.",
+            "She asked who had called me yesterday."
+        ],
+        "answer": 0,
+        "explanation": "'Yesterday' changes to 'the day before'; past simple to past perfect."
+    },
+    {
+        "question": "He said, 'I must finish the work.'",
+        "options": [
+            "He said he had to finish the work.",
+            "He said he must finish the work.",
+            "He said he should finish the work.",
+            "He said he must finished the work."
+        ],
+        "answer": 0,
+        "explanation": "'Must' changes to 'had to' in indirect speech."
+    },
+    {
+        "question": "She said, 'Let’s go to the market.'",
+        "options": [
+            "She suggested going to the market.",
+            "She said let’s go to the market.",
+            "She told us to go to the market.",
+            "She asked us to go to the market."
+        ],
+        "answer": 0,
+        "explanation": "'Let’s' reported as suggestion."
+    },
+    {
+        "question": "He said, 'Did you see the movie?'",
+        "options": [
+            "He asked if I had seen the movie.",
+            "He asked did I see the movie.",
+            "He asked if I saw the movie.",
+            "He asked if I have seen the movie."
+        ],
+        "answer": 0,
+        "explanation": "Past simple question changes to past perfect in reported speech."
+    },
+    {
+        "question": "She said, 'Can you help me?'",
+        "options": [
+            "She asked if I could help her.",
+            "She asked can I help her.",
+            "She asked whether I can help her.",
+            "She asked whether I could help her."
+        ],
+        "answer": 0,
+        "explanation": "'Can' changes to 'could' in reported questions."
+    },
+    {
+        "question": "He said, 'I am learning English.'",
+        "options": [
+            "He said he was learning English.",
+            "He said he is learning English.",
+            "He said he had learned English.",
+            "He said he had been learning English."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous becomes past continuous."
+    },
+    {
+        "question": "She said, 'I will write a letter.'",
+        "options": [
+            "She said she would write a letter.",
+            "She said she will write a letter.",
+            "She said she wrote a letter.",
+            "She said she has written a letter."
+        ],
+        "answer": 0,
+        "explanation": "'Will' changes to 'would' in reported speech."
+    },
+    {
+        "question": "He asked, 'Where is the library?'",
+        "options": [
+            "He asked where the library was.",
+            "He asked where is the library.",
+            "He asked where was the library.",
+            "He asked where the library is."
+        ],
+        "answer": 0,
+        "explanation": "In indirect questions, question word + subject + verb."
+    },
+    {
+        "question": "She said, 'Please sit down.'",
+        "options": [
+            "She requested me to sit down.",
+            "She told me to sit down.",
+            "She asked me to sit down.",
+            "All of the above."
+        ],
+        "answer": 3,
+        "explanation": "Polite requests can be reported with 'requested', 'told' or 'asked'."
+    },
+    {
+        "question": "He said, 'I have never seen this place.'",
+        "options": [
+            "He said he had never seen that place.",
+            "He said he never saw that place.",
+            "He said he has never seen this place.",
+            "He said he never seen that place."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect negative changes to past perfect negative."
+    },
+    {
+        "question": "She said, 'Do not make noise.'",
+        "options": [
+            "She told us not to make noise.",
+            "She asked us not to make noise.",
+            "She ordered us not to make noise.",
+            "All of the above."
+        ],
+        "answer": 3,
+        "explanation": "Negative imperatives can be reported with 'told', 'asked', or 'ordered'."
+    },
+    {
+        "question": "He said to me, 'Will you come tomorrow?'",
+        "options": [
+            "He asked if I would come the next day.",
+            "He asked will I come tomorrow.",
+            "He asked if I will come tomorrow.",
+            "He asked if I would come tomorrow."
+        ],
+        "answer": 0,
+        "explanation": "Will changes to would; tomorrow becomes the next day."
+    },
+    {
+        "question": "She asked, 'Why are you late?'",
+        "options": [
+            "She asked why I was late.",
+            "She asked why am I late.",
+            "She asked why I am late.",
+            "She asked why was I late."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous question changes to past continuous."
+    },
+    {
+        "question": "He said, 'I have done my work.'",
+        "options": [
+            "He said he had done his work.",
+            "He said he has done his work.",
+            "He said he did his work.",
+            "He said he has been doing his work."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect changes to past perfect."
+    },
+    {
+        "question": "She said, 'Are you coming to the party?'",
+        "options": [
+            "She asked if I was coming to the party.",
+            "She asked are you coming to the party.",
+            "She asked if I come to the party.",
+            "She asked whether I am coming to the party."
+        ],
+        "answer": 0,
+        "explanation": "Yes/no questions reported with if/whether and backshift."
+    },
+    {
+        "question": "He said, 'I can play guitar.'",
+        "options": [
+            "He said he could play guitar.",
+            "He said he can play guitar.",
+            "He said he could played guitar.",
+            "He said he played guitar."
+        ],
+        "answer": 0,
+        "explanation": "'Can' changes to 'could' in reported speech."
+    },
+	 {
+        "question": "The teacher said to the students, 'You must submit your assignments before Friday to avoid any penalty.'",
+        "options": [
+            "The teacher said that we had to submit our assignments before Friday to avoid any penalty.",
+            "The teacher said that we must submit our assignments before Friday to avoid any penalty.",
+            "The teacher said that students must submit their assignments before Friday to avoid any penalty.",
+            "The teacher said that the assignments are to be submitted before Friday to avoid any penalty."
+        ],
+        "answer": 0,
+        "explanation": "'Must' changes to 'had to' and pronouns are adjusted in reported speech."
+    },
+    {
+        "question": "She said, 'I am feeling very tired because I have been working non-stop since morning.'",
+        "options": [
+            "She said she was feeling very tired because she had been working non-stop since morning.",
+            "She said she is feeling very tired because she has been working non-stop since morning.",
+            "She said she was feeling very tired because she had worked non-stop since morning.",
+            "She said she felt very tired because she has been working non-stop since morning."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous changes to past continuous; present perfect continuous changes to past perfect continuous."
+    },
+    {
+        "question": "He said, 'If I finish my work early today, I will join you for the cricket match in the evening.'",
+        "options": [
+            "He said that if he finished his work early that day, he would join me for the cricket match in the evening.",
+            "He said that if he finishes his work early today, he will join me for the cricket match in the evening.",
+            "He said that he would join me for the cricket match in the evening if he finishes his work early today.",
+            "He said that if he finished his work early, he would join me for the cricket match today."
+        ],
+        "answer": 0,
+        "explanation": "First conditional sentences change using past tense for 'if' clause and 'would' for main clause."
+    },
+    {
+        "question": "The manager said, 'All employees must attend the safety training session next Monday without fail to comply with the company rules.'",
+        "options": [
+            "The manager said that all employees had to attend the safety training session the next Monday without fail to comply with the company rules.",
+            "The manager said that all employees must attend the safety training session next Monday without fail to comply with the company rules.",
+            "The manager said that all employees should attend the safety training session next Monday without fail to comply with company rules.",
+            "The manager said that employees will attend the safety training session next Monday to comply with company rules."
+        ],
+        "answer": 0,
+        "explanation": "'Must' changes to 'had to'; 'next Monday' becomes 'the next Monday' and pronouns are adjusted."
+    },
+    {
+        "question": "She said, 'I have been waiting for you at the cafe for over an hour, but you did not turn up.'",
+        "options": [
+            "She said she had been waiting for me at the cafe for over an hour but I had not turned up.",
+            "She said she has been waiting for me at the cafe for over an hour but I did not turn up.",
+            "She said she had been waiting for me at the cafe for over an hour but I did not turn up.",
+            "She said she was waiting for me at the cafe for over an hour but I had not turned up."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect continuous becomes past perfect continuous; past simple negative becomes past perfect negative."
+    },
+    {
+        "question": "The guide said, 'If you want to see the museum, you should leave the hotel by 9 am sharp to avoid the crowds.'",
+        "options": [
+            "The guide advised that if we wanted to see the museum, we should leave the hotel by 9 am sharp to avoid the crowds.",
+            "The guide said that if you want to see the museum, you should leave the hotel by 9 am sharp to avoid the crowds.",
+            "The guide said if we wanted to see the museum, we should leave the hotel at 9 am sharp to avoid the crowds.",
+            "The guide told us that we must leave the hotel by 9 am sharp."
+        ],
+        "answer": 0,
+        "explanation": "Advice in reported speech includes adjusting pronouns and verb tense; conditional clauses are backshifted."
+    },
+    {
+        "question": "He said, 'I might not be able to attend the meeting tomorrow as I have an urgent appointment in the morning.'",
+        "options": [
+            "He said that he might not be able to attend the meeting the next day as he had an urgent appointment in the morning.",
+            "He said that he might not be able to attend the meeting tomorrow because he has an urgent appointment.",
+            "He said that he may not be able to attend the meeting the next day due to an urgent appointment.",
+            "He said he might not attend the meeting tomorrow as he has an urgent appointment."
+        ],
+        "answer": 0,
+        "explanation": "'Tomorrow' changes to 'the next day'; present tense changes to past tense."
+    },
+    {
+        "question": "The principal said to the students, 'You will be responsible for maintaining discipline in the campus at all times.'",
+        "options": [
+            "The principal told the students that they would be responsible for maintaining discipline in the campus at all times.",
+            "The principal said that students will be responsible for discipline on campus always.",
+            "The principal said students are responsible for maintaining discipline in the campus.",
+            "The principal told the students they will be responsible for discipline in the campus."
+        ],
+        "answer": 0,
+        "explanation": "'Will' changes to 'would'; pronouns are adjusted appropriately."
+    },
+    {
+        "question": "She said, 'I am planning to apply for the new position once the applications open next month.'",
+        "options": [
+            "She said she was planning to apply for the new position once the applications opened the next month.",
+            "She said she was planning to apply for the new position once the applications open next month.",
+            "She said she is planning to apply for the new position once the applications open next month.",
+            "She said she planned to apply for the new position next month."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous changes to past continuous; 'next month' becomes 'the next month'."
+    },
+    {
+        "question": "He said to his friend, 'Could you please help me with this project as I am running out of time?'",
+        "options": [
+            "He asked his friend if he could help him with the project as he was running out of time.",
+            "He requested his friend to help with the project because he is running out of time.",
+            "He asked his friend could he help him as he is running out of time.",
+            "He told his friend to help him with the project."
+        ],
+        "answer": 0,
+        "explanation": "Polite request reported with correct backshifts and pronoun changes."
+    },
+    {
+        "question": "My mother said to me, 'Make sure you finish your dinner before watching TV tonight.'",
+        "options": [
+            "My mother told me to make sure I finished my dinner before watching TV that night.",
+            "My mother said I should finish my dinner before watching TV tonight.",
+            "My mother said that I finish my dinner before watching TV tonight.",
+            "My mother told me to finish my dinner before TV tonight."
+        ],
+        "answer": 0,
+        "explanation": "Imperative reported using 'told' + object + to + infinitive; 'tonight' → 'that night'."
+    },
+    {
+        "question": "He said, 'I can't attend the conference today because of sudden illness.'",
+        "options": [
+            "He said he could not attend the conference that day because of sudden illness.",
+            "He said he can’t attend the conference today due to sudden illness.",
+            "He said he couldn’t attend the conference today because of illness.",
+            "He said he will not attend the conference today due to sudden illness."
+        ],
+        "answer": 0,
+        "explanation": "'Can't' changes to 'could not'; 'today' changes to 'that day'."
+    },
+    {
+        "question": "The officer said, 'All visitors must carry their identity cards at all times while inside the premises.'",
+        "options": [
+            "The officer said all visitors had to carry their identity cards at all times while inside the premises.",
+            "The officer said all visitors must carry identity cards at all times on the premises.",
+            "The officer said visitors must carry their identity cards inside the premises.",
+            "The officer said visitors should carry identity cards all the time."
+        ],
+        "answer": 0,
+        "explanation": "'Must' changes to 'had to' in indirect speech; pronouns adjusted."
+    },
+    {
+        "question": "She said, 'I have been working on this research paper for several months now, and I hope to finish it soon.'",
+        "options": [
+            "She said she had been working on that research paper for several months and hoped to finish it soon.",
+            "She said she is working on this research paper for several months and hopes to finish it soon.",
+            "She said she has worked on the research paper and hopes to finish it soon.",
+            "She said she had worked on that research paper and hoped to finish it soon."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect continuous changes to past perfect continuous; pronouns changed accordingly."
+    },
+    {
+        "question": "The doctor told me, 'You should take your medicine regularly and avoid eating oily foods.'",
+        "options": [
+            "The doctor told me that I should take my medicine regularly and avoid eating oily foods.",
+            "The doctor told me to take my medicine regularly and avoid oily foods.",
+            "The doctor advised me that I should take my medicine regularly and avoid eating oily foods.",
+            "All of the above."
+        ],
+        "answer": 3,
+        "explanation": "Advice can be reported with 'told' or 'advised'; both forms are possible."
+    },
+    {
+        "question": "She said, 'I was watching TV when the lights went off suddenly in the evening.'",
+        "options": [
+            "She said she was watching TV when the lights had gone off suddenly in the evening.",
+            "She said she had been watching TV when the lights went off suddenly in the evening.",
+            "She said she was watching TV when the lights went off suddenly in the evening.",
+            "She said she had watched TV when the lights had gone off in the evening."
+        ],
+        "answer": 1,
+        "explanation": "Past continuous changes to past perfect continuous; simple past changes to past perfect."
+    },
+    {
+        "question": "John said, 'If I had more time, I would travel around the world and explore new cultures.'",
+        "options": [
+            "John said that if he had had more time, he would have traveled around the world and explored new cultures.",
+            "John said that if he had more time, he would travel around the world and explore new cultures.",
+            "John said that if he had had more time, he would travel around the world and explore new cultures.",
+            "John said if he had more time, he would travel around the world."
+        ],
+        "answer": 2,
+        "explanation": "Second conditional remains same except pronouns adjusted."
+    },
+    {
+        "question": "She said, 'Can you tell me how to get to the nearest post office from here?'",
+        "options": [
+            "She asked if I could tell her how to get to the nearest post office from there.",
+            "She asked if I can tell her how to get to the nearest post office from here.",
+            "She asked if I could tell her how get to the nearest post office.",
+            "She asked if I could tell her how to get to the nearest post office here."
+        ],
+        "answer": 0,
+        "explanation": "Polite question in indirect speech with pronoun and adverb changes."
+    },
+    {
+        "question": "He said, 'I should have submitted the report before the deadline but I forgot.'",
+        "options": [
+            "He said that he should have submitted the report before the deadline but he had forgotten.",
+            "He said that he should submit the report before the deadline but he forgot.",
+            "He said he should have submitted the report before the deadline but forgot.",
+            "He said he should submit the report but he forgot."
+        ],
+        "answer": 0,
+        "explanation": "Perfect modal verb remains the same; past tense verbs backshifted."
+    },
+    {
+        "question": "The teacher said to the students, 'Please be punctual for the exam scheduled next Wednesday morning at 9 am sharp.'",
+        "options": [
+            "The teacher requested the students to be punctual for the exam scheduled the following Wednesday at 9 am sharp.",
+            "The teacher said the students must be punctual for the exam set for next Wednesday morning.",
+            "The teacher told the students to be punctual for the exam scheduled Wednesday at 9 am.",
+            "The teacher advised students to be punctual for the exam next Wednesday."
+        ],
+        "answer": 0,
+        "explanation": "Polite request reported using 'requested' + object + infinitive; date adjusted."
+    },
+    {
+        "question": "He said, 'I haven't decided whether I will attend the conference or not as I have to check my schedule.'",
+        "options": [
+            "He said he hadn't decided whether he would attend the conference or not as he had to check his schedule.",
+            "He said he hasn't decided whether he will attend the conference or not because he has to check his schedule.",
+            "He said he hadn't decided whether he will attend the conference or not as he has to check his schedule.",
+            "He said he hasn't decided whether he would attend the conference or not because he needs to check his schedule."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect negative changes to past perfect; future tense changes to conditional."
+    },
+    {
+        "question": "She said, 'Tell me the truth about why you were late for the meeting yesterday.'",
+        "options": [
+            "She asked me to tell her the truth about why I had been late for the meeting the day before.",
+            "She told me to tell her the truth why I was late for the meeting yesterday.",
+            "She requested me to tell her the truth about why I am late for the meeting yesterday.",
+            "She asked to tell the truth about why I was late for the meeting."
+        ],
+        "answer": 0,
+        "explanation": "Indirect imperative with past perfect and pronoun/time change."
+    }
+	
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

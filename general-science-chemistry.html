@@ -1,0 +1,2470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">CHEMISTRY</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "Which of the following is a strong acid?",
+        "options": ["HCl", "CH3COOH", "NH4OH", "H2CO3"],
+        "answer": 0,
+        "explanation": "Hydrochloric acid (HCl) is a strong acid that dissociates completely in water."
+    },
+    {
+        "question": "Which of these is a base?",
+        "options": ["NaOH", "H2SO4", "CO2", "CH3COOH"],
+        "answer": 0,
+        "explanation": "Sodium hydroxide (NaOH) is a strong base."
+    },
+    {
+        "question": "Which salt is formed when hydrochloric acid reacts with sodium hydroxide?",
+        "options": ["NaCl", "KCl", "Na2SO4", "CaCl2"],
+        "answer": 0,
+        "explanation": "HCl + NaOH → NaCl + H2O."
+    },
+    {
+        "question": "Litmus turns red in the presence of?",
+        "options": ["Base", "Acid", "Salt", "Neutral solution"],
+        "answer": 1,
+        "explanation": "Acids turn blue litmus red."
+    },
+    {
+        "question": "Which gas is usually released when a metal reacts with an acid?",
+        "options": ["Oxygen", "Nitrogen", "Hydrogen", "Carbon dioxide"],
+        "answer": 2,
+        "explanation": "Acid + Metal → Salt + Hydrogen gas."
+    },
+    {
+        "question": "Which group in the periodic table contains noble gases?",
+        "options": ["Group 1", "Group 2", "Group 17", "Group 18"],
+        "answer": 3,
+        "explanation": "Noble gases (He, Ne, Ar, etc.) belong to Group 18."
+    },
+    {
+        "question": "Which element has atomic number 6?",
+        "options": ["Carbon", "Oxygen", "Nitrogen", "Sulphur"],
+        "answer": 0,
+        "explanation": "The atomic number of Carbon is 6."
+    },
+    {
+        "question": "Chlorine belongs to which group in the periodic table?",
+        "options": ["Halogens", "Noble gases", "Alkali metals", "Transition metals"],
+        "answer": 0,
+        "explanation": "Chlorine is a halogen in Group 17."
+    },
+    {
+        "question": "Which metal is the best conductor of electricity?",
+        "options": ["Copper", "Silver", "Aluminium", "Gold"],
+        "answer": 1,
+        "explanation": "Silver is the best conductor of electricity."
+    },
+    {
+        "question": "Which property is common in non-metals?",
+        "options": ["Malleability", "Ductility", "Poor conductor of heat", "High density"],
+        "answer": 2,
+        "explanation": "Non-metals are generally poor conductors of heat and electricity."
+    },
+    {
+        "question": "When iron reacts with oxygen and moisture, it forms?",
+        "options": ["Rust", "Steel", "Iron oxide", "Iron sulphate"],
+        "answer": 0,
+        "explanation": "Iron reacts with oxygen and water to form rust (hydrated iron oxide)."
+    },
+    {
+        "question": "Which of these is a displacement reaction?",
+        "options": ["Zn + CuSO4 → ZnSO4 + Cu", "CaCO3 → CaO + CO2", "NaOH + HCl → NaCl + H2O", "2H2 + O2 → 2H2O"],
+        "answer": 0,
+        "explanation": "Zinc displaces copper from copper sulfate."
+    },
+    {
+        "question": "Which is an example of a redox reaction?",
+        "options": ["Zn + CuSO4 → ZnSO4 + Cu", "CaCO3 → CaO + CO2", "H2O + NaCl → NaOH", "MgCO3 → MgO + CO2"],
+        "answer": 0,
+        "explanation": "In Zn + CuSO4, Zn is oxidized and Cu is reduced."
+    },
+    {
+        "question": "Ozone is an allotrope of which element?",
+        "options": ["Hydrogen", "Oxygen", "Nitrogen", "Sulphur"],
+        "answer": 1,
+        "explanation": "Ozone (O3) is an allotrope of oxygen."
+    },
+    {
+        "question": "Which gas causes acid rain?",
+        "options": ["CO2", "O2", "SO2", "NH3"],
+        "answer": 2,
+        "explanation": "Sulphur dioxide causes acid rain."
+    },
+    {
+        "question": "The atomic number of sodium is?",
+        "options": ["10", "11", "12", "13"],
+        "answer": 1,
+        "explanation": "Sodium (Na) has atomic number 11."
+    },
+    {
+        "question": "Valency of oxygen is?",
+        "options": ["1", "2", "3", "4"],
+        "answer": 1,
+        "explanation": "Oxygen requires 2 electrons to complete its octet."
+    },
+    {
+        "question": "The bond formed in H2 molecule is?",
+        "options": ["Ionic bond", "Covalent bond", "Hydrogen bond", "Metallic bond"],
+        "answer": 1,
+        "explanation": "H2 molecule has a covalent bond formed by sharing electrons."
+    },
+    {
+        "question": "Loss of electrons is called?",
+        "options": ["Oxidation", "Reduction", "Neutralization", "Combustion"],
+        "answer": 0,
+        "explanation": "Oxidation refers to loss of electrons."
+    },
+    {
+        "question": "Which element is known as 'king of chemicals'?",
+        "options": ["H2SO4", "NaCl", "HCl", "NaOH"],
+        "answer": 0,
+        "explanation": "Sulphuric acid (H2SO4) is called 'king of chemicals'."
+    },
+    {
+        "question": "Which gas is evolved when zinc reacts with H2SO4?",
+        "options": ["CO2", "N2", "H2", "O2"],
+        "answer": 2,
+        "explanation": "Zn + H2SO4 → ZnSO4 + H2."
+    },
+    {
+        "question": "The chemical formula of baking soda is?",
+        "options": ["Na2CO3", "NaHCO3", "CaCO3", "K2CO3"],
+        "answer": 1,
+        "explanation": "Baking soda is sodium bicarbonate (NaHCO3)."
+    },
+    {
+        "question": "Which acid is present in lemon juice?",
+        "options": ["Acetic acid", "Citric acid", "Formic acid", "Oxalic acid"],
+        "answer": 1,
+        "explanation": "Citrus fruits like lemon contain citric acid."
+    },
+    {
+        "question": "Caustic potash is?",
+        "options": ["NaOH", "KOH", "Ca(OH)2", "NH4OH"],
+        "answer": 1,
+        "explanation": "KOH is called caustic potash."
+    },
+    {
+        "question": "Which is the lightest element?",
+        "options": ["Helium", "Hydrogen", "Lithium", "Oxygen"],
+        "answer": 1,
+        "explanation": "Hydrogen is the lightest element."
+    },
+    {
+        "question": "NaCl is an example of?",
+        "options": ["Covalent bond", "Ionic bond", "Hydrogen bond", "Metallic bond"],
+        "answer": 1,
+        "explanation": "Sodium chloride has ionic bonds."
+    },
+    {
+        "question": "Which non-metal is essential for combustion?",
+        "options": ["Nitrogen", "Oxygen", "Chlorine", "Carbon"],
+        "answer": 1,
+        "explanation": "Oxygen is necessary for combustion."
+    },
+    {
+        "question": "Which metal is liquid at room temperature?",
+        "options": ["Mercury", "Sodium", "Iron", "Zinc"],
+        "answer": 0,
+        "explanation": "Mercury is liquid at room temperature."
+    },
+    {
+        "question": "What is the pH of pure water?",
+        "options": ["5", "6", "7", "8"],
+        "answer": 2,
+        "explanation": "Pure water has neutral pH = 7."
+    },
+    {
+        "question": "Which greenhouse gas is released by burning fossil fuels?",
+        "options": ["CO2", "N2", "O2", "CH4"],
+        "answer": 0,
+        "explanation": "Burning fossil fuels releases carbon dioxide."
+    },
+    {
+        "question": "Which functional group is present in alcohols?",
+        "options": ["–COOH", "–OH", "–CHO", "–NH2"],
+        "answer": 1,
+        "explanation": "Alcohols contain hydroxyl group (–OH)."
+    },
+    {
+        "question": "Which is known as marsh gas?",
+        "options": ["Ethane", "Methane", "Propane", "Butane"],
+        "answer": 1,
+        "explanation": "Methane (CH4) is known as marsh gas."
+    },
+    {
+        "question": "Polyethene is an example of?",
+        "options": ["Natural polymer", "Synthetic polymer", "Carbohydrate", "Protein"],
+        "answer": 1,
+        "explanation": "Polyethene is a synthetic polymer."
+    },
+    {
+        "question": "Which salt is called 'washing soda'?",
+        "options": ["Na2CO3·10H2O", "NaHCO3", "CaCO3", "K2CO3"],
+        "answer": 0,
+        "explanation": "Washing soda is sodium carbonate decahydrate."
+    },
+    {
+        "question": "Which is an amphoteric oxide?",
+        "options": ["Na2O", "MgO", "Al2O3", "SO2"],
+        "answer": 2,
+        "explanation": "Aluminium oxide acts as both acid and base."
+    },
+    {
+        "question": "Which gas do plants use for photosynthesis?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Methane"],
+        "answer": 1,
+        "explanation": "Plants use carbon dioxide in photosynthesis."
+    },
+    {
+        "question": "Which element is used in making pencils?",
+        "options": ["Graphite", "Lead", "Carbon", "Zinc"],
+        "answer": 0,
+        "explanation": "Graphite (form of carbon) is used in pencils."
+    },
+    {
+        "question": "Who proposed the planetary model of the atom?",
+        "options": ["Dalton", "Rutherford", "Bohr", "Thomson"],
+        "answer": 1,
+        "explanation": "Rutherford proposed the nuclear/planetary model."
+    },
+    {
+        "question": "Which particle has no charge?",
+        "options": ["Proton", "Electron", "Neutron", "Nucleus"],
+        "answer": 2,
+        "explanation": "Neutrons are neutral particles."
+    },
+    {
+        "question": "Atomic number of hydrogen is?",
+        "options": ["0", "1", "2", "3"],
+        "answer": 1,
+        "explanation": "Hydrogen has atomic number 1."
+    },
+    {
+        "question": "Which gas is used in fire extinguishers?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "CO2 is commonly used in fire extinguishers."
+    },
+    {
+        "question": "Which element is known as 'quick silver'?",
+        "options": ["Iron", "Silver", "Mercury", "Zinc"],
+        "answer": 2,
+        "explanation": "Mercury is known as quick silver."
+    },
+    {
+        "question": "Bronze is an alloy of?",
+        "options": ["Copper and Zinc", "Copper and Tin", "Iron and Carbon", "Aluminium and Magnesium"],
+        "answer": 1,
+        "explanation": "Bronze is an alloy of copper and tin."
+    },
+    {
+        "question": "The neutral particle in an atom is?",
+        "options": ["Neutron", "Proton", "Electron", "Photon"],
+        "answer": 0,
+        "explanation": "Neutrons are neutral particles in an atom."
+    },
+    {
+        "question": "The energy required to remove an electron is called?",
+        "options": ["Ionization energy", "Electron affinity", "Electronegativity", "Atomic energy"],
+        "answer": 0,
+        "explanation": "Ionization energy is the energy needed to remove an electron."
+    },
+    {
+        "question": "Which gas is used for ripening fruits?",
+        "options": ["CO2", "Ethylene", "Nitrogen", "Oxygen"],
+        "answer": 1,
+        "explanation": "Ethylene gas helps in artificial fruit ripening."
+    },
+    {
+        "question": "Which element is stored under kerosene?",
+        "options": ["Iron", "Sodium", "Calcium", "Zinc"],
+        "answer": 1,
+        "explanation": "Reactive alkali metals like sodium are stored under kerosene."
+    },
+    {
+        "question": "Which vitamin synthesis requires sunlight?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin D", "Vitamin K"],
+        "answer": 2,
+        "explanation": "Vitamin D is synthesized in skin when exposed to sunlight."
+    },
+    {
+        "question": "Which is a greenhouse gas?",
+        "options": ["Argon", "Carbon dioxide", "Helium", "Neon"],
+        "answer": 1,
+        "explanation": "CO2 is one of the main greenhouse gases."
+    },
+	 {
+        "question": "Which acid is used in car batteries?",
+        "options": ["Hydrochloric acid", "Sulphuric acid", "Nitric acid", "Acetic acid"],
+        "answer": 1,
+        "explanation": "Sulphuric acid is used in lead-acid batteries."
+    },
+    {
+        "question": "The main constituent of LPG is?",
+        "options": ["Methane", "Propane", "Butane", "Ethylene"],
+        "answer": 2,
+        "explanation": "LPG mainly contains butane and propane."
+    },
+    {
+        "question": "Who gave the law of constant proportions?",
+        "options": ["Dalton", "Lavoisier", "Proust", "Mendeleev"],
+        "answer": 2,
+        "explanation": "Joseph Proust gave the law of constant proportions."
+    },
+    {
+        "question": "The most abundant element in Earth's crust is?",
+        "options": ["Oxygen", "Silicon", "Iron", "Aluminium"],
+        "answer": 0,
+        "explanation": "Oxygen is the most abundant element in Earth's crust."
+    },
+    {
+        "question": "What is the formula of quick lime?",
+        "options": ["CaCO3", "CaO", "Ca(OH)2", "CaCl2"],
+        "answer": 1,
+        "explanation": "Quick lime is calcium oxide (CaO)."
+    },
+    {
+        "question": "Which non-metal is liquid at room temperature?",
+        "options": ["Nitrogen", "Chlorine", "Bromine", "Oxygen"],
+        "answer": 2,
+        "explanation": "Bromine is a liquid non-metal at room temperature."
+    },
+    {
+        "question": "Which metal is highly reactive?",
+        "options": ["Gold", "Copper", "Sodium", "Silver"],
+        "answer": 2,
+        "explanation": "Sodium is highly reactive and stored under kerosene."
+    },
+    {
+        "question": "Which acid is present in vinegar?",
+        "options": ["Formic acid", "Acetic acid", "Sulphuric acid", "Citric acid"],
+        "answer": 1,
+        "explanation": "Acetic acid is the main constituent of vinegar."
+    },
+    {
+        "question": "The atomic number determines?",
+        "options": ["Mass", "Charge", "Number of protons", "Number of neutrons"],
+        "answer": 2,
+        "explanation": "Atomic number equals the number of protons."
+    },
+    {
+        "question": "The process of converting a solid into a gas directly is called?",
+        "options": ["Evaporation", "Sublimation", "Condensation", "Melting"],
+        "answer": 1,
+        "explanation": "Sublimation is conversion from solid to gas without becoming liquid."
+    },
+    {
+        "question": "Which of these has maximum electronegativity?",
+        "options": ["Fluorine", "Oxygen", "Nitrogen", "Chlorine"],
+        "answer": 0,
+        "explanation": "Fluorine has the highest electronegativity."
+    },
+    {
+        "question": "Name the metal found in blood?",
+        "options": ["Iron", "Zinc", "Copper", "Magnesium"],
+        "answer": 0,
+        "explanation": "Iron is present in hemoglobin in blood."
+    },
+    {
+        "question": "Which oxide causes global warming?",
+        "options": ["CO2", "NO2", "SO2", "CO"],
+        "answer": 0,
+        "explanation": "Carbon dioxide is a major greenhouse gas."
+    },
+    {
+        "question": "Who introduced the atomic theory?",
+        "options": ["Dalton", "Rutherford", "Mendeleev", "Bohr"],
+        "answer": 0,
+        "explanation": "John Dalton proposed the atomic theory."
+    },
+    {
+        "question": "Which compound is used as plaster of Paris?",
+        "options": ["CaCO3", "CaSO4·0.5H2O", "CaSO4·2H2O", "Ca(OH)2"],
+        "answer": 1,
+        "explanation": "Plaster of Paris is calcium sulfate hemihydrate."
+    },
+    {
+        "question": "What is the atomic symbol for potassium?",
+        "options": ["K", "P", "Pt", "Po"],
+        "answer": 0,
+        "explanation": "Potassium's symbol is K."
+    },
+    {
+        "question": "Bleaching powder chemical formula?",
+        "options": ["CaOCl2", "NaOCl", "CaCl2", "KClO3"],
+        "answer": 0,
+        "explanation": "Bleaching powder is calcium oxychloride (CaOCl2)."
+    },
+    {
+        "question": "Which metal is added to steel to make it stainless?",
+        "options": ["Copper", "Zinc", "Chromium", "Iron"],
+        "answer": 2,
+        "explanation": "Chromium is added to steel to make it stainless."
+    },
+    {
+        "question": "Which of the following is not a halogen?",
+        "options": ["Fluorine", "Iodine", "Neon", "Chlorine"],
+        "answer": 2,
+        "explanation": "Neon is a noble gas, not a halogen."
+    },
+    {
+        "question": "Which is an ore of aluminium?",
+        "options": ["Bauxite", "Magnetite", "Haematite", "Galena"],
+        "answer": 0,
+        "explanation": "Bauxite is the main ore of aluminium."
+    },
+    {
+        "question": "Which acid is used in soft drinks?",
+        "options": ["Citric acid", "Phosphoric acid", "Nitric acid", "Sulphuric acid"],
+        "answer": 1,
+        "explanation": "Phosphoric acid is used in soft drinks for flavor."
+    },
+    {
+        "question": "Atomic number of calcium is?",
+        "options": ["18", "20", "12", "22"],
+        "answer": 1,
+        "explanation": "Calcium has atomic number 20."
+    },
+    {
+        "question": "Which of the following metals reacts with water vigorously?",
+        "options": ["Copper", "Iron", "Sodium", "Gold"],
+        "answer": 2,
+        "explanation": "Sodium reacts vigorously with water."
+    },
+    {
+        "question": "What is the basic unit of a chemical element?",
+        "options": ["Atom", "Molecule", "Ion", "Electron"],
+        "answer": 0,
+        "explanation": "Atom is the basic unit of a chemical element."
+    },
+    {
+        "question": "Which acid is found in the stomach?",
+        "options": ["Sulphuric acid", "Hydrochloric acid", "Nitric acid", "Phosphoric acid"],
+        "answer": 1,
+        "explanation": "Hydrochloric acid aids digestion in the stomach."
+    },
+    {
+        "question": "The process of rusting is a type of?",
+        "options": ["Combustion", "Oxidation", "Reduction", "Neutralization"],
+        "answer": 1,
+        "explanation": "Rusting is the oxidation of iron."
+    },
+    {
+        "question": "Which non-metal conducts electricity?",
+        "options": ["Sulphur", "Carbon (graphite)", "Phosphorus", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Graphite, an allotrope of carbon, conducts electricity."
+    },
+    {
+        "question": "Which gas is produced during anaerobic respiration?",
+        "options": ["Oxygen", "Carbon dioxide", "Methane", "Nitrogen"],
+        "answer": 2,
+        "explanation": "Methane is produced during anaerobic respiration."
+    },
+    {
+        "question": "What is the chemical formula for lime water?",
+        "options": ["CaCO3", "CaO", "Ca(OH)2", "CaCl2"],
+        "answer": 2,
+        "explanation": "Lime water is calcium hydroxide (Ca(OH)2)."
+    },
+    {
+        "question": "The nucleus of an atom consists of?",
+        "options": ["Electrons", "Protons and neutrons", "Protons and electrons", "Neutrons and electrons"],
+        "answer": 1,
+        "explanation": "Nucleus contains protons and neutrons."
+    },
+    {
+        "question": "Which one is known as laughing gas?",
+        "options": ["CO2", "NO2", "N2O", "NH3"],
+        "answer": 2,
+        "explanation": "Nitrous oxide (N2O) is known as laughing gas."
+    },
+    {
+        "question": "Which compound is commonly used in rainwater harvesting to purify water?",
+        "options": ["Bleaching powder", "Quick lime", "Gypsum", "Sodium chloride"],
+        "answer": 0,
+        "explanation": "Bleaching powder disinfects water in rainwater harvesting."
+    },
+    {
+        "question": "Which gas is responsible for causing depletion of ozone layer?",
+        "options": ["CFCs", "CO2", "NO", "O2"],
+        "answer": 0,
+        "explanation": "Chlorofluorocarbons (CFCs) deplete the ozone layer."
+    },
+    {
+        "question": "Which of the following shows metallic character?",
+        "options": ["Na", "S", "Cl", "N"],
+        "answer": 0,
+        "explanation": "Sodium (Na) exhibits metallic character."
+    },
+    {
+        "question": "Which is the hardest naturally occurring substance?",
+        "options": ["Gold", "Iron", "Diamond", "Quartz"],
+        "answer": 2,
+        "explanation": "Diamond is the hardest naturally occurring substance."
+    },
+    {
+        "question": "Which of the following is not an alloy?",
+        "options": ["Brass", "Bronze", "Steel", "Quartz"],
+        "answer": 3,
+        "explanation": "Quartz is a mineral, not an alloy."
+    },
+    {
+        "question": "The first artificial element prepared was?",
+        "options": ["Uranium", "Technetium", "Thorium", "Plutonium"],
+        "answer": 1,
+        "explanation": "Technetium was the first artificially prepared element."
+    },
+    {
+        "question": "Which of the following substances is NOT biodegradable?",
+        "options": ["Paper", "Plastic", "Food waste", "Cotton"],
+        "answer": 1,
+        "explanation": "Plastic is not biodegradable."
+    },
+    {
+        "question": "Which element is required for the synthesis of thyroid hormone?",
+        "options": ["Calcium", "Iodine", "Potassium", "Phosphorus"],
+        "answer": 1,
+        "explanation": "Iodine is required for thyroid hormone synthesis."
+    },
+    {
+        "question": "Which gas is filled in electric bulbs?",
+        "options": ["Oxygen", "Neon", "Argon", "Nitrogen"],
+        "answer": 2,
+        "explanation": "Argon is filled in electric bulbs to prevent filament oxidation."
+    },
+    {
+        "question": "Which of these substances is a man-made polymer?",
+        "options": ["Proteins", "Polythene", "Cellulose", "Starch"],
+        "answer": 1,
+        "explanation": "Polythene is a synthetic polymer."
+    },
+    {
+        "question": "Which type of bond is present in sodium chloride?",
+        "options": ["Covalent", "Ionic", "Metallic", "Hydrogen"],
+        "answer": 1,
+        "explanation": "NaCl is formed by ionic bonds."
+    },
+    {
+        "question": "The chemical used as an antacid is?",
+        "options": ["Sodium chloride", "Magnesium hydroxide", "Sulphuric acid", "Potassium nitrate"],
+        "answer": 1,
+        "explanation": "Magnesium hydroxide neutralizes excess stomach acid."
+    },
+    {
+        "question": "The principal gas causing greenhouse effect is?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+        "answer": 2,
+        "explanation": "Carbon dioxide is the main greenhouse gas."
+    },
+    {
+        "question": "Which of the following is a reducing agent?",
+        "options": ["Ozone", "Hydrogen", "Oxygen", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Hydrogen acts as a reducing agent in chemical reactions."
+    },
+    {
+        "question": "Which group does sodium belong to in the periodic table?",
+        "options": ["Alkali metals", "Alkaline earth metals", "Transition metals", "Noble gases"],
+        "answer": 0,
+        "explanation": "Sodium is an alkali metal (Group 1)."
+    },
+    {
+        "question": "Which one of these is not a compound?",
+        "options": ["Water", "Oxygen", "Carbon dioxide", "Sodium chloride"],
+        "answer": 1,
+        "explanation": "Oxygen (O2) is an element, not a compound."
+    },
+    {
+        "question": "The number of electrons in a neutral atom equals?",
+        "options": ["Number of protons", "Number of neutrons", "Atomic mass", "Group number"],
+        "answer": 0,
+        "explanation": "In a neutral atom, electrons equal protons."
+    },
+    {
+        "question": "The conversion of ammonia into nitrites and nitrates is called?",
+        "options": ["Photosynthesis", "Nitrification", "Denitrification", "Fermentation"],
+        "answer": 1,
+        "explanation": "Nitrification is the process of ammonia conversion to nitrites/nitrates."
+    },
+    {
+        "question": "Which of the following chemicals is used for water softening?",
+        "options": ["Baking soda", "Zeolite", "Alum", "Sodium peroxide"],
+        "answer": 1,
+        "explanation": "Zeolite is used for softening hard water."
+    },
+	{
+        "question": "What is the nature of an acid according to Arrhenius theory?",
+        "options": ["Donates electrons", "Donates hydrogen ions", "Accepts electrons", "Accepts hydrogen ions"],
+        "answer": 1,
+        "explanation": "Arrhenius theory defines acids as substances that release hydrogen ions (H+) in aqueous solution."
+    },
+    {
+        "question": "A base according to Arrhenius theory is a substance which releases?",
+        "options": ["OH- ions", "H+ ions", "CO3- ions", "NO3- ions"],
+        "answer": 0,
+        "explanation": "Bases produce hydroxide ions (OH-) in aqueous solutions as per Arrhenius definition."
+    },
+    {
+        "question": "What is the major component of natural gas?",
+        "options": ["Methane", "Propane", "Butane", "Ethylene"],
+        "answer": 0,
+        "explanation": "Methane is the chief constituent of natural gas."
+    },
+    {
+        "question": "Which element is a halogen?",
+        "options": ["Fluorine", "Neon", "Argon", "Hydrogen"],
+        "answer": 0,
+        "explanation": "Fluorine belongs to the halogen group in the periodic table."
+    },
+    {
+        "question": "The chemical formula of washing soda is?",
+        "options": ["Na2CO3", "NaHCO3", "NaOH", "Na2SO4"],
+        "answer": 0,
+        "explanation": "Washing soda is sodium carbonate (Na2CO3)."
+    },
+    {
+        "question": "Which salt is commonly used in the preparation of baking powder?",
+        "options": ["Sodium carbonate", "Sodium bicarbonate", "Potassium nitrate", "Calcium carbonate"],
+        "answer": 1,
+        "explanation": "Sodium bicarbonate (baking soda) is used in baking powder."
+    },
+    {
+        "question": "Which of the following is a transition metal?",
+        "options": ["Iron", "Sodium", "Calcium", "Potassium"],
+        "answer": 0,
+        "explanation": "Iron is a transition metal found in the d-block."
+    },
+    {
+        "question": "Which metal is used in thermometers?",
+        "options": ["Copper", "Mercury", "Aluminium", "Lead"],
+        "answer": 1,
+        "explanation": "Mercury is used in thermometers due to its liquid state at room temperature."
+    },
+    {
+        "question": "The pH of an acidic solution is?",
+        "options": ["7", "<7", ">7", "Neutral"],
+        "answer": 1,
+        "explanation": "Acidic solutions have pH less than 7."
+    },
+    {
+        "question": "Which process is used by plants to prepare their food?",
+        "options": ["Respiration", "Photosynthesis", "Fermentation", "Combustion"],
+        "answer": 1,
+        "explanation": "Photosynthesis is the process where plants produce food using sunlight."
+    },
+    {
+        "question": "Which of the following is a chemical change?",
+        "options": ["Melting of ice", "Boiling of water", "Rusting of iron", "Dissolving salt in water"],
+        "answer": 2,
+        "explanation": "Rusting of iron involves formation of a new substance, hence a chemical change."
+    },
+    {
+        "question": "What is the atomic number of helium?",
+        "options": ["1", "2", "3", "4"],
+        "answer": 1,
+        "explanation": "Helium has atomic number 2."
+    },
+    {
+        "question": "Which is the lightest metal?",
+        "options": ["Aluminum", "Potassium", "Lithium", "Sodium"],
+        "answer": 2,
+        "explanation": "Lithium is the lightest metal."
+    },
+    {
+        "question": "Which of the following is an allotrope of carbon?",
+        "options": ["Diamond", "Graphite", "Charcoal", "All of the above"],
+        "answer": 3,
+        "explanation": "Diamond, graphite, and charcoal are allotropes of carbon."
+    },
+    {
+        "question": "Which of the following is a reducing agent?",
+        "options": ["Oxygen", "Hydrogen", "Chlorine", "Fluorine"],
+        "answer": 1,
+        "explanation": "Hydrogen acts as a reducing agent by donating electrons."
+    },
+    {
+        "question": "Sulfur dioxide is released mainly from?",
+        "options": ["Volcanoes", "Vehicles", "Factories", "Power plants burning coal"],
+        "answer": 3,
+        "explanation": "Power plants burning coal release sulfur dioxide."
+    },
+    {
+        "question": "Which is the most reactive metal in the reactivity series?",
+        "options": ["Calcium", "Potassium", "Sodium", "Lithium"],
+        "answer": 1,
+        "explanation": "Potassium is more reactive than sodium, lithium, and calcium."
+    },
+    {
+        "question": "Which is used as a fuel in nuclear reactors?",
+        "options": ["Uranium", "Plutonium", "Thorium", "All of these"],
+        "answer": 3,
+        "explanation": "Uranium, plutonium, and thorium are used as nuclear fuels."
+    },
+    {
+        "question": "Which gas is released during photosynthesis?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "answer": 0,
+        "explanation": "Plants release oxygen during photosynthesis."
+    },
+    {
+        "question": "Which of the following substances is acidic in nature?",
+        "options": ["Lemon juice", "Milk", "Water", "Baking soda solution"],
+        "answer": 0,
+        "explanation": "Lemon juice contains citric acid and is acidic."
+    },
+    {
+        "question": "Which element is liquid at room temperature?",
+        "options": ["Bromine", "Chlorine", "Mercury", "Both Bromine and Mercury"],
+        "answer": 3,
+        "explanation": "Both bromine (non-metal) and mercury (metal) are liquids at room temperature."
+    },
+    {
+        "question": "Which of the following elements is an alkali metal?",
+        "options": ["Calcium", "Potassium", "Magnesium", "Aluminum"],
+        "answer": 1,
+        "explanation": "Potassium is an alkali metal in group 1."
+    },
+    {
+        "question": "Which salt is found in baking powder?",
+        "options": ["Sodium bicarbonate", "Calcium carbonate", "Sodium chloride", "Potassium nitrate"],
+        "answer": 0,
+        "explanation": "Sodium bicarbonate is a key ingredient in baking powder."
+    },
+    {
+        "question": "The formula of vinegar is?",
+        "options": ["CH3COOH", "HCl", "H2SO4", "NaOH"],
+        "answer": 0,
+        "explanation": "Vinegar contains acetic acid (CH3COOH)."
+    },
+    {
+        "question": "What is the molar mass of water?",
+        "options": ["18 g/mol", "16 g/mol", "20 g/mol", "22 g/mol"],
+        "answer": 0,
+        "explanation": "Water (H2O) molar mass is 2(1) + 16 = 18 g/mol."
+    },
+    {
+        "question": "Which ion is responsible for acidity?",
+        "options": ["OH-", "H+", "Cl-", "NO3-"],
+        "answer": 1,
+        "explanation": "H+ ions cause acidity."
+    },
+    {
+        "question": "The main component of rust is?",
+        "options": ["FeO", "Fe2O3", "Fe3O4", "Fe(OH)3"],
+        "answer": 1,
+        "explanation": "Rust primarily consists of hydrated ferric oxide (Fe2O3·xH2O)."
+    },
+    {
+        "question": "Which of the following is a physical change?",
+        "options": ["Cutting paper", "Burning paper", "Rusting iron", "Cooking food"],
+        "answer": 0,
+        "explanation": "Cutting paper changes its shape, but not composition."
+    },
+    {
+        "question": "Which acid is present in ant sting?",
+        "options": ["Formic acid", "Citric acid", "Acetic acid", "Sulphuric acid"],
+        "answer": 0,
+        "explanation": "Formic acid is present in ant sting venom."
+    },
+    {
+        "question": "Which metal is obtained by electrolysis?",
+        "options": ["Iron", "Aluminium", "Copper", "Silver"],
+        "answer": 1,
+        "explanation": "Aluminium is extracted by electrolysis of alumina."
+    },
+    {
+        "question": "Which of the following is an exothermic reaction?",
+        "options": ["Photosynthesis", "Respiration", "Melting of ice", "Boiling of water"],
+        "answer": 1,
+        "explanation": "Respiration releases heat, hence exothermic."
+    },
+    {
+        "question": "Which compound is used in disinfectants and bleaching agents?",
+        "options": ["Sodium chloride", "Bleaching powder", "Calcium carbonate", "Sodium nitrate"],
+        "answer": 1,
+        "explanation": "Bleaching powder is widely used as disinfectant and bleach."
+    },
+    {
+        "question": "What is the oxidation state of oxygen in peroxides?",
+        "options": ["-1", "-2", "+1", "0"],
+        "answer": 0,
+        "explanation": "In peroxides like H2O2, oxygen shows -1 oxidation state."
+    },
+    {
+        "question": "Which metal is used in making galvanic cells?",
+        "options": ["Lead", "Zinc", "Copper", "Aluminium"],
+        "answer": 1,
+        "explanation": "Zinc is used as anode in many galvanic cells."
+    },
+    {
+        "question": "Acetic acid is also known as?",
+        "options": ["Vinegar", "Citric acid", "Formic acid", "Tartaric acid"],
+        "answer": 0,
+        "explanation": "Acetic acid is the main constituent of vinegar."
+    },
+    {
+        "question": "Which of the following is a synthetic fiber?",
+        "options": ["Cotton", "Nylon", "Silk", "Wool"],
+        "answer": 1,
+        "explanation": "Nylon is a man-made synthetic fiber."
+    },
+    {
+        "question": "An element with atomic number 17 belongs to?",
+        "options": ["Alkali metals", "Alkaline earth metals", "Halogens", "Noble gases"],
+        "answer": 2,
+        "explanation": "Element 17 is chlorine, a halogen."
+    },
+    {
+        "question": "Which of the following metals does not react with dilute hydrochloric acid?",
+        "options": ["Zinc", "Copper", "Magnesium", "Iron"],
+        "answer": 1,
+        "explanation": "Copper does not react with dilute HCl."
+    },
+    {
+        "question": "Which type of bond is formed by the sharing of electrons?",
+        "options": ["Ionic bond", "Covalent bond", "Metallic bond", "Hydrogen bond"],
+        "answer": 1,
+        "explanation": "Covalent bond forms by sharing electrons."
+    },
+    {
+        "question": "Which one of the following is an amphoteric oxide?",
+        "options": ["Aluminium oxide", "Sodium oxide", "Calcium oxide", "Sulfur dioxide"],
+        "answer": 0,
+        "explanation": "Aluminium oxide reacts both as acid and base."
+    },
+    {
+        "question": "Which of the following is a greenhouse gas?",
+        "options": ["Oxygen", "Methane", "Nitrogen", "Argon"],
+        "answer": 1,
+        "explanation": "Methane is a potent greenhouse gas."
+    },
+    {
+        "question": "Which salt is commonly used in road de-icing?",
+        "options": ["Calcium chloride", "Sodium chloride", "Potassium chloride", "Magnesium chloride"],
+        "answer": 0,
+        "explanation": "Calcium chloride is used for de-icing roads."
+    },
+    {
+        "question": "What is the main gas responsible for acid rain?",
+        "options": ["Nitrogen", "Carbon dioxide", "Sulfur dioxide", "Oxygen"],
+        "answer": 2,
+        "explanation": "Sulfur dioxide reacts with water to form acid rain."
+    },
+    {
+        "question": "Which metal is extracted using the Hall-Héroult process?",
+        "options": ["Iron", "Aluminium", "Copper", "Zinc"],
+        "answer": 1,
+        "explanation": "Aluminium is extracted by Hall-Héroult electrolytic process."
+    },
+	{
+        "question": "Which of the following is the main constituent of natural gas?",
+        "options": ["Methane", "Propane", "Ethane", "Butane"],
+        "answer": 0,
+        "explanation": "Methane is the primary component of natural gas."
+    },
+    {
+        "question": "Which alkali metal is stored under kerosene to prevent its reaction with air?",
+        "options": ["Sodium", "Potassium", "Lithium", "Calcium"],
+        "answer": 0,
+        "explanation": "Sodium is stored under kerosene due to its high reactivity."
+    },
+    {
+        "question": "Which of the following is a poor conductor of electricity?",
+        "options": ["Copper", "Aluminium", "Silicon", "Iron"],
+        "answer": 2,
+        "explanation": "Silicon, a metalloid, is a poor conductor compared to metals."
+    },
+    {
+        "question": "An element with atomic number 20 belongs to which group in the periodic table?",
+        "options": ["Alkali Metals", "Alkaline Earth Metals", "Halogens", "Noble gases"],
+        "answer": 1,
+        "explanation": "Calcium with atomic number 20 is an alkaline earth metal."
+    },
+    {
+        "question": "What is the name of the process in which metals are extracted from ores?",
+        "options": ["Electrolysis", "Condensation", "Distillation", "Refining"],
+        "answer": 0,
+        "explanation": "Electrolysis is used to extract some metals from their ores."
+    },
+    {
+        "question": "Which salt is used in baking and also known as baking soda?",
+        "options": ["Na2CO3", "NaHCO3", "NaCl", "KCl"],
+        "answer": 1,
+        "explanation": "Sodium bicarbonate (NaHCO3) is baking soda."
+    },
+    {
+        "question": "Which of the following is a covalent compound?",
+        "options": ["NaCl", "H2O", "CaCl2", "MgO"],
+        "answer": 1,
+        "explanation": "Water (H2O) is a covalent compound formed by shared electrons."
+    },
+    {
+        "question": "Which of these gases is involved in the depletion of the ozone layer?",
+        "options": ["Methane", "Chlorofluorocarbons (CFCs)", "Carbon dioxide", "Nitrogen"],
+        "answer": 1,
+        "explanation": "CFCs cause depletion of the ozone layer."
+    },
+    {
+        "question": "Which metal is liquid at room temperature?",
+        "options": ["Mercury", "Gallium", "Francium", "Cesium"],
+        "answer": 0,
+        "explanation": "Mercury is the only metal liquid at room temperature."
+    },
+    {
+        "question": "Which of the following is NOT a greenhouse gas?",
+        "options": ["Carbon dioxide", "Methane", "Oxygen", "Nitrous oxide"],
+        "answer": 2,
+        "explanation": "Oxygen is not a greenhouse gas."
+    },
+    {
+        "question": "What type of reaction is represented by A + B → AB?",
+        "options": ["Displacement reaction", "Combination reaction", "Decomposition reaction", "Redox reaction"],
+        "answer": 1,
+        "explanation": "Combination reaction involves two or more reactants combining to form a single product."
+    },
+    {
+        "question": "In an oxidation reaction, there is a?",
+        "options": ["Gain of electrons", "Loss of electrons", "Gain of protons", "Loss of protons"],
+        "answer": 1,
+        "explanation": "Oxidation is the loss of electrons."
+    },
+    {
+        "question": "The gas evolved when dilute hydrochloric acid reacts with zinc is?",
+        "options": ["Hydrogen", "Oxygen", "Carbon dioxide", "Nitrogen"],
+        "answer": 0,
+        "explanation": "Hydrogen gas is produced when zinc reacts with hydrochloric acid."
+    },
+    {
+        "question": "Which acid is present in the stomach?",
+        "options": ["Hydrochloric acid", "Sulphuric acid", "Acetic acid", "Nitric acid"],
+        "answer": 0,
+        "explanation": "Hydrochloric acid helps in digestion in the stomach."
+    },
+    {
+        "question": "Which element is used as a fuel in nuclear reactors?",
+        "options": ["Uranium", "Plutonium", "Thorium", "All of these"],
+        "answer": 3,
+        "explanation": "Uranium, plutonium, and thorium are all used as nuclear fuels."
+    },
+    {
+        "question": "Which vitamin is synthesized by the body when exposed to sunlight?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 3,
+        "explanation": "Vitamin D is synthesized in the skin under sunlight."
+    },
+    {
+        "question": "Which element has the highest electronegativity?",
+        "options": ["Fluorine", "Oxygen", "Chlorine", "Nitrogen"],
+        "answer": 0,
+        "explanation": "Fluorine has the highest electronegativity."
+    },
+    {
+        "question": "What is the chemical formula of rust?",
+        "options": ["FeO", "Fe2O3", "Fe3O4", "Fe(OH)3"],
+        "answer": 1,
+        "explanation": "Rust is primarily hydrated iron(III) oxide (Fe2O3·xH2O)."
+    },
+    {
+        "question": "Which process converts a solid directly into gas?",
+        "options": ["Melting", "Evaporation", "Sublimation", "Condensation"],
+        "answer": 2,
+        "explanation": "Sublimation is the direct conversion of solid to gas."
+    },
+    {
+        "question": "Which of the following has the lowest atomic number?",
+        "options": ["Helium", "Hydrogen", "Oxygen", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Hydrogen has atomic number 1."
+    },
+    {
+        "question": "An example of a noble gas is?",
+        "options": ["Argon", "Oxygen", "Chlorine", "Nitrogen"],
+        "answer": 0,
+        "explanation": "Argon is a noble gas with atomic number 18."
+    },
+    {
+        "question": "Which of these is a synthetic polymer?",
+        "options": ["Cellulose", "Proteins", "Nylon", "Starch"],
+        "answer": 2,
+        "explanation": "Nylon is a man-made synthetic polymer."
+    },
+    {
+        "question": "Which gas is primarily responsible for global warming?",
+        "options": ["Oxygen", "Hydrogen", "Carbon dioxide", "Nitrogen"],
+        "answer": 2,
+        "explanation": "Carbon dioxide traps heat in the atmosphere, causing global warming."
+    },
+    {
+        "question": "What type of bond exists in sodium chloride?",
+        "options": ["Ionic bond", "Covalent bond", "Metallic bond", "Hydrogen bond"],
+        "answer": 0,
+        "explanation": "Sodium chloride forms ionic bonds."
+    },
+    {
+        "question": "The pH of a neutral solution is?",
+        "options": ["0", "7", "14", "1"],
+        "answer": 1,
+        "explanation": "Neutral solutions have a pH of 7."
+    },
+    {
+        "question": "Which of the following is an example of a chemical change?",
+        "options": ["Melting of ice", "Boiling of water", "Rusting of iron", "Dissolving sugar in water"],
+        "answer": 2,
+        "explanation": "Rusting involves forming new substances, hence a chemical change."
+    },
+    {
+        "question": "The atomic number of carbon is?",
+        "options": ["6", "12", "14", "8"],
+        "answer": 0,
+        "explanation": "Carbon has atomic number 6."
+    },
+    {
+        "question": "Which of the following is the heaviest element?",
+        "options": ["Gold", "Lead", "Uranium", "Platinum"],
+        "answer": 2,
+        "explanation": "Uranium is heavier than gold, lead, and platinum."
+    },
+    {
+        "question": "Which element is required for the synthesis of thyroid hormone?",
+        "options": ["Calcium", "Iodine", "Potassium", "Magnesium"],
+        "answer": 1,
+        "explanation": "Iodine is essential for thyroid hormone production."
+    },
+    {
+        "question": "What is the principal gas in the air we breathe?",
+        "options": ["Nitrogen", "Oxygen", "Carbon dioxide", "Argon"],
+        "answer": 0,
+        "explanation": "Air is approximately 78% nitrogen."
+    },
+    {
+        "question": "What do we call the number of protons in the nucleus of an atom?",
+        "options": ["Atomic mass", "Atomic number", "Mass number", "Isotope number"],
+        "answer": 1,
+        "explanation": "Atomic number equals the number of protons."
+    },
+    {
+        "question": "Which is an amphoteric oxide?",
+        "options": ["Sodium oxide", "Aluminium oxide", "Sulfur dioxide", "Magnesium oxide"],
+        "answer": 1,
+        "explanation": "Aluminium oxide acts as both acid and base."
+    },
+    {
+        "question": "Which among these is not an alkali metal?",
+        "options": ["Sodium", "Potassium", "Calcium", "Lithium"],
+        "answer": 2,
+        "explanation": "Calcium is an alkaline earth metal."
+    },
+    {
+        "question": "The organic compound with formula CH4 is?",
+        "options": ["Methane", "Ethane", "Propane", "Butane"],
+        "answer": 0,
+        "explanation": "Methane has the chemical formula CH4."
+    },
+    {
+        "question": "Which acid is commonly used in car batteries?",
+        "options": ["Hydrochloric acid", "Sulfuric acid", "Nitric acid", "Acetic acid"],
+        "answer": 1,
+        "explanation": "Sulfuric acid is used in lead-acid batteries."
+    },
+    {
+        "question": "Which metal is used for making electrical wires due to its good conductivity?",
+        "options": ["Aluminium", "Copper", "Iron", "Gold"],
+        "answer": 1,
+        "explanation": "Copper is an excellent conductor of electricity."
+    },
+    {
+        "question": "Which gas is commonly released from volcanoes?",
+        "options": ["Oxygen", "Nitrogen", "Sulfur dioxide", "Hydrogen"],
+        "answer": 2,
+        "explanation": "Volcanoes emit sulfur dioxide gas."
+    },
+    {
+        "question": "The substance which increases the rate of a chemical reaction without getting consumed is called?",
+        "options": ["Catalyst", "Inhibitor", "Reactant", "Product"],
+        "answer": 0,
+        "explanation": "Catalysts speed up reactions without being used up."
+    },
+    {
+        "question": "Which type of reaction is 2H2 + O2 → 2H2O?",
+        "options": ["Decomposition", "Displacement", "Combination", "Redox"],
+        "answer": 3,
+        "explanation": "This is a redox reaction where hydrogen is oxidized to water."
+    },
+    {
+        "question": "Which one of these is a neutral oxide?",
+        "options": ["CO2", "N2O", "SO2", "NO2"],
+        "answer": 1,
+        "explanation": "Nitrous oxide (N2O) is a neutral oxide."
+    },
+	{
+        "question": "Which of the following is used in water purification?",
+        "options": ["Alum", "Lime", "Both alum and lime", "Bleaching powder"],
+        "answer": 2,
+        "explanation": "Both alum and lime are used to purify water."
+    },
+    {
+        "question": "Which acid is formed when carbon dioxide dissolves in water?",
+        "options": ["Carbonic acid", "Acetic acid", "Sulfuric acid", "Hydrochloric acid"],
+        "answer": 0,
+        "explanation": "CO2 dissolves to form carbonic acid (H2CO3) in water."
+    },
+    {
+        "question": "Which of these gases is used as a refrigerant?",
+        "options": ["Oxygen", "Chlorofluorocarbons (CFCs)", "Nitrogen", "Carbon dioxide"],
+        "answer": 1,
+        "explanation": "CFCs were widely used as refrigerants."
+    },
+    {
+        "question": "Which of the following is a non-metal?",
+        "options": ["Copper", "Sulfur", "Iron", "Zinc"],
+        "answer": 1,
+        "explanation": "Sulfur is a non-metal."
+    },
+    {
+        "question": "Which element is essential for blood clotting?",
+        "options": ["Calcium", "Potassium", "Sodium", "Magnesium"],
+        "answer": 0,
+        "explanation": "Calcium plays a key role in blood clotting."
+    },
+    {
+        "question": "Which of the following is NOT an example of a chemical reaction?",
+        "options": ["Photosynthesis", "Respiration", "Dissolving sugar in water", "Rusting"],
+        "answer": 2,
+        "explanation": "Dissolving sugar in water is a physical change."
+    },
+    {
+        "question": "Which is a base according to Bronsted-Lowry theory?",
+        "options": ["Proton donor", "Proton acceptor", "Electron donor", "Electron acceptor"],
+        "answer": 1,
+        "explanation": "Bases accept protons according to Bronsted-Lowry."
+    },
+    {
+        "question": "Which element has the symbol 'Fe'?",
+        "options": ["Iron", "Fluorine", "Fermium", "Francium"],
+        "answer": 0,
+        "explanation": "Fe is the chemical symbol for iron."
+    },
+    {
+        "question": "Which element is used in the manufacture of nuclear bombs?",
+        "options": ["Uranium", "Thorium", "Plutonium", "Both Uranium and Plutonium"],
+        "answer": 3,
+        "explanation": "Both uranium and plutonium isotopes are used in nuclear bombs."
+    },
+    {
+        "question": "Baking powder contains?",
+        "options": ["Sodium bicarbonate", "Calcium carbonate", "Potassium nitrate", "Sodium chloride"],
+        "answer": 0,
+        "explanation": "Baking powder contains sodium bicarbonate to release CO2."
+    },
+    {
+        "question": "Which of the following is a component of smog?",
+        "options": ["Ozone", "Nitrogen oxides", "Particulate matter", "All of these"],
+        "answer": 3,
+        "explanation": "Smog is a mixture of ozone, nitrogen oxides, and particulates."
+    },
+    {
+        "question": "Which of these is a metal?",
+        "options": ["Chlorine", "Sulfur", "Copper", "Nitrogen"],
+        "answer": 2,
+        "explanation": "Copper is a metal."
+    },
+    {
+        "question": "Which acid is commonly used in food preservatives?",
+        "options": ["Citric acid", "Acetic acid", "Lactic acid", "Sulfuric acid"],
+        "answer": 1,
+        "explanation": "Acetic acid is used in pickling and food preservation."
+    },
+    {
+        "question": "What is the valency of hydrogen?",
+        "options": ["1", "2", "3", "4"],
+        "answer": 0,
+        "explanation": "Hydrogen has a valency of 1."
+    },
+    {
+        "question": "Which of the following compounds is an ester?",
+        "options": ["Ethyl acetate", "Acetic acid", "Ethanol", "Formaldehyde"],
+        "answer": 0,
+        "explanation": "Ethyl acetate is an ester formed from ethanol and acetic acid."
+    },
+    {
+        "question": "Which type of bond is formed when electrons are shared between atoms?",
+        "options": ["Ionic", "Covalent", "Metallic", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Covalent bonds involve sharing electrons."
+    },
+    {
+        "question": "Which of these shows oxidation?",
+        "options": ["Loss of electrons", "Gain of electrons", "Loss of protons", "Gain of neutrons"],
+        "answer": 0,
+        "explanation": "Oxidation is loss of electrons."
+    },
+    {
+        "question": "Which of the following is an allotrope of oxygen?",
+        "options": ["O2", "O3", "Both O2 and O3", "None of these"],
+        "answer": 2,
+        "explanation": "Oxygen exists as O2 (dioxygen) and O3 (ozone) allotropes."
+    },
+    {
+        "question": "Salt is formed by the reaction between?",
+        "options": ["Acid and base", "Acid and metal", "Metal and non-metal", "Non-metal and base"],
+        "answer": 0,
+        "explanation": "Salt is formed when acids react with bases."
+    },
+    {
+        "question": "What is the chemical formula for common salt?",
+        "options": ["NaCl", "KCl", "Na2SO4", "CaCl2"],
+        "answer": 0,
+        "explanation": "Common salt is sodium chloride (NaCl)."
+    },
+    {
+        "question": "Which metal is used in making electric wires?",
+        "options": ["Copper", "Iron", "Aluminium", "Silver"],
+        "answer": 0,
+        "explanation": "Copper has excellent electrical conductivity."
+    },
+    {
+        "question": "Which is the most abundant element in the Earth's crust?",
+        "options": ["Silicon", "Oxygen", "Aluminium", "Iron"],
+        "answer": 1,
+        "explanation": "Oxygen is the most abundant element in Earth's crust."
+    },
+    {
+        "question": "Which of these metals is most reactive?",
+        "options": ["Gold", "Iron", "Sodium", "Copper"],
+        "answer": 2,
+        "explanation": "Sodium is highly reactive."
+    },
+    {
+        "question": "What is rust primarily composed of?",
+        "options": ["Iron oxide", "Iron sulfate", "Iron nitrate", "Iron chloride"],
+        "answer": 0,
+        "explanation": "Rust is hydrated iron oxide."
+    },
+    {
+        "question": "Which acid is used in car batteries?",
+        "options": ["Hydrochloric acid", "Sulfuric acid", "Citric acid", "Acetic acid"],
+        "answer": 1,
+        "explanation": "Sulfuric acid is used in lead-acid batteries."
+    },
+    {
+        "question": "Which gas is liberated when acid reacts with carbonate?",
+        "options": ["Oxygen", "Carbon dioxide", "Hydrogen", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Carbon dioxide gas is released in acid-carbonate reactions."
+    },
+    {
+        "question": "Which of the following is a synthetic polymer?",
+        "options": ["Cellulose", "Nylon", "Starch", "Proteins"],
+        "answer": 1,
+        "explanation": "Nylon is a man-made synthetic polymer."
+    },
+    {
+        "question": "Which element has the highest electronegativity?",
+        "options": ["Oxygen", "Nitrogen", "Fluorine", "Chlorine"],
+        "answer": 2,
+        "explanation": "Fluorine is the most electronegative element."
+    },
+    {
+        "question": "Which of these metals is liquid at room temperature?",
+        "options": ["Gallium", "Mercury", "Francium", "Cesium"],
+        "answer": 1,
+        "explanation": "Mercury is liquid at room temperature."
+    },
+    {
+        "question": "The oxidation state of oxygen in water is?",
+        "options": ["-2", "-1", "+1", "0"],
+        "answer": 0,
+        "explanation": "Oxygen has an oxidation state of -2 in water."
+    },
+    {
+        "question": "What is the chemical formula of plaster of Paris?",
+        "options": ["CaSO4·2H2O", "CaSO4·0.5H2O", "CaCO3", "CaO"],
+        "answer": 1,
+        "explanation": "Plaster of Paris is calcium sulfate hemihydrate."
+    },
+    {
+        "question": "Which gas is responsible for acid rain?",
+        "options": ["Carbon dioxide", "Nitrogen", "Sulfur dioxide", "Oxygen"],
+        "answer": 2,
+        "explanation": "Sulfur dioxide causes acid rain."
+    },
+    {
+        "question": "Which of the following is an example of an exothermic reaction?",
+        "options": ["Photosynthesis", "Combustion", "Melting of ice", "Evaporation"],
+        "answer": 1,
+        "explanation": "Combustion releases heat, hence exothermic."
+    },
+    {
+        "question": "Which gas is used in fire extinguishers?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Argon"],
+        "answer": 1,
+        "explanation": "Carbon dioxide is used to extinguish fires."
+    },
+    {
+        "question": "Which acid is found in lemon juice?",
+        "options": ["Citric acid", "Acetic acid", "Sulfuric acid", "Nitric acid"],
+        "answer": 0,
+        "explanation": "Lemon juice contains citric acid."
+    },
+    {
+        "question": "What is the atomic number of nitrogen?",
+        "options": ["6", "7", "8", "9"],
+        "answer": 1,
+        "explanation": "Nitrogen has atomic number 7."
+    },
+    {
+        "question": "Which part of the atom has a positive charge?",
+        "options": ["Electron", "Proton", "Neutron", "Nucleus"],
+        "answer": 1,
+        "explanation": "Protons have positive charge."
+    },
+    {
+        "question": "Which of the following gases is a greenhouse gas?",
+        "options": ["Nitrogen", "Oxygen", "Methane", "Hydrogen"],
+        "answer": 2,
+        "explanation": "Methane contributes to the greenhouse effect."
+    },
+    {
+        "question": "Which salt is commonly found in table salt?",
+        "options": ["NaCl", "KCl", "Na2SO4", "CaCl2"],
+        "answer": 0,
+        "explanation": "Table salt is sodium chloride."
+    },
+	{
+        "question": "Which process is used to obtain pure metals from their ores?",
+        "options": ["Filtration", "Distillation", "Reduction", "Electrolysis"],
+        "answer": 3,
+        "explanation": "Electrolysis is commonly used to extract pure metals from ores."
+    },
+    {
+        "question": "Which acid is known as 'oil of vitriol'?",
+        "options": ["Hydrochloric acid", "Sulfuric acid", "Nitric acid", "Acetic acid"],
+        "answer": 1,
+        "explanation": "Sulfuric acid is called oil of vitriol."
+    },
+    {
+        "question": "Which element is a halogen?",
+        "options": ["Oxygen", "Chlorine", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Chlorine belongs to the halogen group in the periodic table."
+    },
+    {
+        "question": "Which of the following is an alkaline earth metal?",
+        "options": ["Sodium", "Magnesium", "Potassium", "Aluminum"],
+        "answer": 1,
+        "explanation": "Magnesium is an alkaline earth metal."
+    },
+    {
+        "question": "Which of these elements has the highest atomic number?",
+        "options": ["Oxygen", "Iron", "Uranium", "Gold"],
+        "answer": 2,
+        "explanation": "Uranium has atomic number 92, the highest among these."
+    },
+    {
+        "question": "Which of the following compounds is a common fertilizer?",
+        "options": ["Ammonium nitrate", "Calcium carbonate", "Sodium chloride", "Magnesium sulfate"],
+        "answer": 0,
+        "explanation": "Ammonium nitrate is widely used as fertilizer."
+    },
+    {
+        "question": "What is the chemical name of chalk?",
+        "options": ["Calcium carbonate", "Calcium oxide", "Calcium hydroxide", "Calcium sulfate"],
+        "answer": 0,
+        "explanation": "Chalk is primarily calcium carbonate."
+    },
+    {
+        "question": "Which of these is a radioactive element?",
+        "options": ["Thorium", "Lead", "Copper", "Zinc"],
+        "answer": 0,
+        "explanation": "Thorium is radioactive."
+    },
+    {
+        "question": "Which is the main constituent of natural gas?",
+        "options": ["Methane", "Propane", "Butane", "Ethylene"],
+        "answer": 0,
+        "explanation": "Methane is the primary constituent of natural gas."
+    },
+    {
+        "question": "What is the formula of baking soda?",
+        "options": ["NaHCO3", "Na2CO3", "KOH", "CaCO3"],
+        "answer": 0,
+        "explanation": "Baking soda is sodium bicarbonate (NaHCO3)."
+    },
+    {
+        "question": "Which vitamin is synthesized in the skin upon sunlight exposure?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin D"],
+        "answer": 3,
+        "explanation": "Vitamin D is synthesized in the skin through sunlight."
+    },
+    {
+        "question": "Which metal has the highest melting point?",
+        "options": ["Iron", "Copper", "Tungsten", "Gold"],
+        "answer": 2,
+        "explanation": "Tungsten has the highest melting point among metals."
+    },
+    {
+        "question": "Which is the noble gas present in air?",
+        "options": ["Helium", "Neon", "Argon", "Krypton"],
+        "answer": 2,
+        "explanation": "Argon is the noble gas found in significant amount in air."
+    },
+    {
+        "question": "Which of these gases is responsible for ozone layer depletion?",
+        "options": ["Carbon dioxide", "Sulfur dioxide", "Chlorofluorocarbons (CFCs)", "Nitrogen dioxide"],
+        "answer": 2,
+        "explanation": "CFCs cause depletion of the ozone layer."
+    },
+    {
+        "question": "Which of the following is a base?",
+        "options": ["HCl", "NaOH", "H2SO4", "NH4Cl"],
+        "answer": 1,
+        "explanation": "Sodium hydroxide is a strong base."
+    },
+    {
+        "question": "Which is an example of an oxidation reaction?",
+        "options": ["Rusting of iron", "Dissolving salt", "Melting of ice", "Boiling of water"],
+        "answer": 0,
+        "explanation": "Rusting is oxidation of iron."
+    },
+    {
+        "question": "Which gas is released when acids react with metals?",
+        "options": ["Oxygen", "Hydrogen", "Carbon dioxide", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Hydrogen gas is released in acid-metal reactions."
+    },
+    {
+        "question": "Which metal is used in making batteries?",
+        "options": ["Nickel", "Lithium", "Copper", "Lead"],
+        "answer": 1,
+        "explanation": "Lithium is widely used in rechargeable batteries."
+    },
+    {
+        "question": "Which acid gives sour taste to food?",
+        "options": ["Sulfuric acid", "Citric acid", "Hydrochloric acid", "Nitric acid"],
+        "answer": 1,
+        "explanation": "Citric acid gives sour taste to citrus fruits."
+    },
+    {
+        "question": "Which element is essential for thyroid gland functioning?",
+        "options": ["Calcium", "Iodine", "Potassium", "Iron"],
+        "answer": 1,
+        "explanation": "Iodine is essential for thyroid hormone production."
+    },
+    {
+        "question": "The atomic number of Oxygen is?",
+        "options": ["6", "7", "8", "9"],
+        "answer": 2,
+        "explanation": "Oxygen has atomic number 8."
+    },
+    {
+        "question": "Which compound is used for making fertilizers?",
+        "options": ["Ammonium sulfate", "Sodium chloride", "Potassium nitrate", "Both Ammonium sulfate and Potassium nitrate"],
+        "answer": 3,
+        "explanation": "Both ammonium sulfate and potassium nitrate are fertilizers."
+    },
+    {
+        "question": "What is the main gas in the air we breathe?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Argon"],
+        "answer": 1,
+        "explanation": "Nitrogen makes up about 78% of air."
+    },
+    {
+        "question": "Which metal is used in making thermometers?",
+        "options": ["Lead", "Copper", "Mercury", "Zinc"],
+        "answer": 2,
+        "explanation": "Mercury is liquid at room temperature and used in thermometers."
+    },
+    {
+        "question": "Which of these is an example of a noble gas?",
+        "options": ["Nitrogen", "Oxygen", "Argon", "Hydrogen"],
+        "answer": 2,
+        "explanation": "Argon is a noble gas."
+    },
+    {
+        "question": "Which non-metal has the highest electronegativity?",
+        "options": ["Oxygen", "Fluorine", "Chlorine", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Fluorine is the most electronegative element."
+    },
+    {
+        "question": "Which of the following gases is responsible for climate change?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Helium"],
+        "answer": 2,
+        "explanation": "Carbon dioxide contributes significantly to climate change."
+    },
+    {
+        "question": "Which is the lightest element?",
+        "options": ["Helium", "Hydrogen", "Lithium", "Neon"],
+        "answer": 1,
+        "explanation": "Hydrogen is the lightest element."
+    },
+    {
+        "question": "Which of the following is a metalloid?",
+        "options": ["Silicon", "Copper", "Iron", "Zinc"],
+        "answer": 0,
+        "explanation": "Silicon has properties of both metal and non-metal."
+    },
+    {
+        "question": "What is the principle of conservation of mass?",
+        "options": ["Mass can be created", "Mass cannot be created or destroyed", "Mass decreases in chemical reactions", "Mass increases in chemical reactions"],
+        "answer": 1,
+        "explanation": "In chemical reactions, mass remains conserved."
+    },
+    {
+        "question": "Which of the following is a synthetic polymer?",
+        "options": ["Wool", "Nylon", "Silk", "Cotton"],
+        "answer": 1,
+        "explanation": "Nylon is a man-made synthetic polymer."
+    },
+    {
+        "question": "Which of the following is acidic?",
+        "options": ["Ammonia", "Sodium hydroxide", "Hydrochloric acid", "Calcium oxide"],
+        "answer": 2,
+        "explanation": "Hydrochloric acid is an acid."
+    },
+    {
+        "question": "The atomic mass of an element is?",
+        "options": ["Number of protons", "Number of neutrons", "Sum of protons and neutrons", "Atomic number"],
+        "answer": 2,
+        "explanation": "Atomic mass = protons + neutrons."
+    },
+    {
+        "question": "Which acid is obtained from vinegar?",
+        "options": ["Acetic acid", "Hydrochloric acid", "Sulfuric acid", "Nitric acid"],
+        "answer": 0,
+        "explanation": "Acetic acid is present in vinegar."
+    },
+    {
+        "question": "Which compound is common salt?",
+        "options": ["KCl", "NaCl", "CaCl2", "MgCl2"],
+        "answer": 1,
+        "explanation": "NaCl is sodium chloride, common salt."
+    },
+    {
+        "question": "The process of rusting needs which of the following?",
+        "options": ["Oxygen", "Water", "Both oxygen and water", "Only metal"],
+        "answer": 2,
+        "explanation": "Rusting requires both oxygen and water."
+    },
+    {
+        "question": "Which element has the symbol 'Na'?",
+        "options": ["Nitrogen", "Sodium", "Nickel", "Neon"],
+        "answer": 1,
+        "explanation": "Na is the symbol for sodium."
+    },
+    {
+        "question": "Which of the following is an example of a physical change?",
+        "options": ["Boiling of water", "Burning of paper", "Rusting of iron", "Cooking of food"],
+        "answer": 0,
+        "explanation": "Boiling is a physical change."
+    },
+    {
+        "question": "What is the process of separating solids from liquids called?",
+        "options": ["Filtration", "Evaporation", "Condensation", "Sublimation"],
+        "answer": 0,
+        "explanation": "Filtration separates solids from liquids."
+    },
+    {
+        "question": "Which of the following is used as a bleaching agent?",
+        "options": ["Hydrogen peroxide", "Sulfuric acid", "Sodium chloride", "Calcium carbonate"],
+        "answer": 0,
+        "explanation": "Hydrogen peroxide is a bleaching agent."
+    },
+	{
+        "question": "Which element is most abundant in the human body?",
+        "options": ["Oxygen", "Carbon", "Hydrogen", "Nitrogen"],
+        "answer": 0,
+        "explanation": "Oxygen makes up about 65% of the human body by mass."
+    },
+    {
+        "question": "The pH scale measures the concentration of which ions?",
+        "options": ["Hydroxide ions (OH-)", "Hydrogen ions (H+)", "Sodium ions (Na+)", "Calcium ions (Ca2+)"],
+        "answer": 1,
+        "explanation": "pH measures the concentration of hydrogen ions."
+    },
+    {
+        "question": "Which type of chemical bond involves the transfer of electrons?",
+        "options": ["Ionic bond", "Covalent bond", "Metallic bond", "Hydrogen bond"],
+        "answer": 0,
+        "explanation": "Ionic bonds are formed by transfer of electrons."
+    },
+    {
+        "question": "Which acid is present in car batteries?",
+        "options": ["Nitric acid", "Hydrochloric acid", "Sulfuric acid", "Acetic acid"],
+        "answer": 2,
+        "explanation": "Sulfuric acid is used in lead-acid car batteries."
+    },
+    {
+        "question": "Which gas is largely responsible for global warming?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+        "answer": 2,
+        "explanation": "Carbon dioxide traps heat in the atmosphere causing global warming."
+    },
+    {
+        "question": "Which metal is extracted from bauxite ore?",
+        "options": ["Iron", "Aluminium", "Copper", "Zinc"],
+        "answer": 1,
+        "explanation": "Aluminium is extracted from bauxite."
+    },
+    {
+        "question": "What is the name of the positively charged particle in an atom?",
+        "options": ["Proton", "Electron", "Neutron", "Photon"],
+        "answer": 0,
+        "explanation": "Protons carry positive charge."
+    },
+    {
+        "question": "Which gas is used in photosynthesis?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Plants use carbon dioxide during photosynthesis."
+    },
+    {
+        "question": "Which compound is an example of an alkane?",
+        "options": ["Ethene", "Ethyne", "Ethane", "Ethanol"],
+        "answer": 2,
+        "explanation": "Ethane is an alkane with single bonds."
+    },
+    {
+        "question": "Which of the following is a non-metal?",
+        "options": ["Iron", "Zinc", "Sulfur", "Copper"],
+        "answer": 2,
+        "explanation": "Sulfur is a non-metal."
+    },
+    {
+        "question": "Which type of reaction takes place when acid reacts with a base?",
+        "options": ["Neutralization", "Oxidation", "Reduction", "Decomposition"],
+        "answer": 0,
+        "explanation": "Acid and base react in neutralization to form salt and water."
+    },
+    {
+        "question": "The chemical symbol for gold is?",
+        "options": ["Ag", "Gd", "Au", "Ga"],
+        "answer": 2,
+        "explanation": "Gold's chemical symbol is Au."
+    },
+    {
+        "question": "Which of the following is an amphoteric oxide?",
+        "options": ["Aluminium oxide", "Calcium oxide", "Zinc oxide", "Both Aluminium and Zinc oxides"],
+        "answer": 3,
+        "explanation": "Both Al2O3 and ZnO can act as acid or base."
+    },
+    {
+        "question": "Which gas is commonly used in fire extinguishers?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Helium"],
+        "answer": 2,
+        "explanation": "Carbon dioxide smothers fire by displacing oxygen."
+    },
+    {
+        "question": "Which of these is the lightest metal?",
+        "options": ["Lithium", "Potassium", "Sodium", "Calcium"],
+        "answer": 0,
+        "explanation": "Lithium is the lightest metal."
+    },
+    {
+        "question": "Which acid is responsible for sour taste of lemon?",
+        "options": ["Acetic acid", "Citric acid", "Sulfuric acid", "Lactic acid"],
+        "answer": 1,
+        "explanation": "Citric acid is found in lemons."
+    },
+    {
+        "question": "Which of the following is a halogen?",
+        "options": ["Oxygen", "Chlorine", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Chlorine is a halogen."
+    },
+    {
+        "question": "Which of the following metals is liquid at room temperature?",
+        "options": ["Mercury", "Sodium", "Lead", "Zinc"],
+        "answer": 0,
+        "explanation": "Mercury is liquid at room temperature."
+    },
+    {
+        "question": "The process of converting a solid directly to gas is called?",
+        "options": ["Sublimation", "Evaporation", "Condensation", "Melting"],
+        "answer": 0,
+        "explanation": "Sublimation is conversion from solid to gas."
+    },
+    {
+        "question": "What is the chemical formula for water?",
+        "options": ["H2", "O2", "H2O", "HO2"],
+        "answer": 2,
+        "explanation": "Water's formula is H2O."
+    },
+    {
+        "question": "Which of the following is an example of oxidation?",
+        "options": ["Rusting of iron", "Melting of ice", "Boiling water", "Dissolving sugar"],
+        "answer": 0,
+        "explanation": "Rusting involves oxidation of iron."
+    },
+    {
+        "question": "Which gas is evolved when zinc reacts with hydrochloric acid?",
+        "options": ["Carbon dioxide", "Hydrogen", "Oxygen", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Hydrogen gas is released."
+    },
+    {
+        "question": "Which is a man-made polymer?",
+        "options": ["Cotton", "Nylon", "Silk", "Wool"],
+        "answer": 1,
+        "explanation": "Nylon is synthetic polymer."
+    },
+    {
+        "question": "Which metal is used in electric wiring?",
+        "options": ["Copper", "Silver", "Gold", "Aluminum"],
+        "answer": 0,
+        "explanation": "Copper is widely used for wiring."
+    },
+    {
+        "question": "Which gas is known as laughing gas?",
+        "options": ["Nitrogen oxide", "Nitrous oxide", "Nitric oxide", "Nitrogen dioxide"],
+        "answer": 1,
+        "explanation": "Nitrous oxide is laughing gas."
+    },
+    {
+        "question": "The atomic number represents the number of?",
+        "options": ["Protons", "Neutrons", "Electrons", "Protons and neutrons"],
+        "answer": 0,
+        "explanation": "Atomic number equals number of protons."
+    },
+    {
+        "question": "Which of the following gases contributes the most to the greenhouse effect?",
+        "options": ["Methane", "Water vapor", "Carbon dioxide", "Nitrous oxide"],
+        "answer": 2,
+        "explanation": "Carbon dioxide is the most abundant greenhouse gas."
+    },
+    {
+        "question": "Which of the following is a noble gas?",
+        "options": ["Neon", "Oxygen", "Nitrogen", "Hydrogen"],
+        "answer": 0,
+        "explanation": "Neon is a noble gas."
+    },
+    {
+        "question": "Which element is used in making disinfectants and bleaching agents?",
+        "options": ["Chlorine", "Sulfur", "Nitrogen", "Oxygen"],
+        "answer": 0,
+        "explanation": "Chlorine is used as disinfectant and bleach."
+    },
+    {
+        "question": "Water is?",
+        "options": ["Acidic", "Basic", "Neutral", "None of these"],
+        "answer": 2,
+        "explanation": "Pure water has a neutral pH of 7."
+    },
+    {
+        "question": "Which of the following is a chemical change?",
+        "options": ["Cutting wood", "Melting ice", "Rusting iron", "Boiling water"],
+        "answer": 2,
+        "explanation": "Rusting changes iron chemically."
+    },
+    {
+        "question": "Which of the following is used to measure pH of a solution?",
+        "options": ["Thermometer", "Barometer", "pH meter", "Hygrometer"],
+        "answer": 2,
+        "explanation": "pH meter measures acidity/alkalinity."
+    },
+    {
+        "question": "Which gas is used in the food industry for ripening fruits?",
+        "options": ["Ethylene", "Oxygen", "Carbon dioxide", "Nitrogen"],
+        "answer": 0,
+        "explanation": "Ethylene gas is a natural plant hormone for ripening."
+    },
+    {
+        "question": "Which of the following metals reacts violently with water?",
+        "options": ["Potassium", "Copper", "Iron", "Aluminum"],
+        "answer": 0,
+        "explanation": "Potassium reacts vigorously with water."
+    },
+    {
+        "question": "Which of these substances is used as an antacid?",
+        "options": ["Sodium bicarbonate", "Hydrochloric acid", "Sulfuric acid", "Sodium chloride"],
+        "answer": 0,
+        "explanation": "Sodium bicarbonate neutralizes stomach acids."
+    },
+    {
+        "question": "Which acid is present in lemon juice?",
+        "options": ["Citric acid", "Acetic acid", "Lactic acid", "Tartaric acid"],
+        "answer": 0,
+        "explanation": "Citric acid gives sour taste to lemon."
+    },
+    {
+        "question": "Which of the following is a synthetic fiber?",
+        "options": ["Cotton", "Silk", "Nylon", "Wool"],
+        "answer": 2,
+        "explanation": "Nylon is a man-made fiber."
+    },
+    {
+        "question": "Which of the following is an example of a salt?",
+        "options": ["NaOH", "HCl", "NaCl", "H2O"],
+        "answer": 2,
+        "explanation": "NaCl is a salt formed from acid and base."
+    },
+    {
+        "question": "The atomic mass of an element is the sum of its?",
+        "options": ["Protons and electrons", "Protons and neutrons", "Electrons and neutrons", "All three particles"],
+        "answer": 1,
+        "explanation": "Atomic mass counts protons and neutrons."
+    },
+    {
+        "question": "What is the major gas present in air?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Argon"],
+        "answer": 1,
+        "explanation": "Nitrogen makes about 78% of air."
+    },
+	{
+        "question": "Which process is used to separate two liquids with different boiling points?",
+        "options": ["Filtration", "Distillation", "Decantation", "Chromatography"],
+        "answer": 1,
+        "explanation": "Distillation separates liquids based on boiling points."
+    },
+    {
+        "question": "What is the chemical formula of baking soda?",
+        "options": ["NaHCO3", "Na2CO3", "KCl", "CaCO3"],
+        "answer": 0,
+        "explanation": "Baking soda is sodium bicarbonate (NaHCO3)."
+    },
+    {
+        "question": "Which metal is used to galvanize iron to prevent rusting?",
+        "options": ["Zinc", "Copper", "Aluminium", "Nickel"],
+        "answer": 0,
+        "explanation": "Zinc coating protects iron from rusting."
+    },
+    {
+        "question": "The molecular formula of ozone is?",
+        "options": ["O2", "O3", "O4", "O"],
+        "answer": 1,
+        "explanation": "Ozone consists of three oxygen atoms (O3)."
+    },
+    {
+        "question": "Flowering plants inhale which gas?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Plants take in carbon dioxide for photosynthesis."
+    },
+    {
+        "question": "Which gas is released during fermentation?",
+        "options": ["Oxygen", "Carbon dioxide", "Hydrogen", "Nitrogen"],
+        "answer": 1,
+        "explanation": "Carbon dioxide is produced during fermentation."
+    },
+    {
+        "question": "Which acid is found in ant sting?",
+        "options": ["Formic acid", "Citric acid", "Acetic acid", "Lactic acid"],
+        "answer": 0,
+        "explanation": "Formic acid causes the sting in ants."
+    },
+    {
+        "question": "Which element is represented by the symbol 'K'?",
+        "options": ["Potassium", "Krypton", "Kadmium", "Kobidium"],
+        "answer": 0,
+        "explanation": "K is the symbol for potassium."
+    },
+    {
+        "question": "Which of the following represents an endothermic reaction?",
+        "options": ["Combustion", "Respiration", "Photosynthesis", "Freezing water"],
+        "answer": 2,
+        "explanation": "Photosynthesis absorbs energy from sunlight, making it endothermic."
+    },
+    {
+        "question": "Which salt is also known as ‘salt of soda’?",
+        "options": ["Na2CO3", "NaHCO3", "KCl", "NaCl"],
+        "answer": 0,
+        "explanation": "Sodium carbonate (Na2CO3) is also called salt of soda."
+    },
+    {
+        "question": "The atomic number of oxygen is?",
+        "options": ["6", "7", "8", "9"],
+        "answer": 2,
+        "explanation": "Oxygen has atomic number 8."
+    },
+    {
+        "question": "Which of the following is a halogen?",
+        "options": ["Oxygen", "Chlorine", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Chlorine belongs to the halogen group."
+    },
+    {
+        "question": "Which gas causes greenhouse effect and is majorly released from burning fossil fuels?",
+        "options": ["Carbon dioxide", "Methane", "Nitrous oxide", "Oxygen"],
+        "answer": 0,
+        "explanation": "Carbon dioxide causes greenhouse effect."
+    },
+    {
+        "question": "Which metal rusts when exposed to moisture and air?",
+        "options": ["Iron", "Copper", "Gold", "Platinum"],
+        "answer": 0,
+        "explanation": "Iron reacts with oxygen and water to form rust."
+    },
+    {
+        "question": "Which element is used in balloons and airships due to its lightness?",
+        "options": ["Hydrogen", "Helium", "Nitrogen", "Oxygen"],
+        "answer": 1,
+        "explanation": "Helium is used because it's inert and lighter than air."
+    },
+    {
+        "question": "Which gas is used in the tanning of leather?",
+        "options": ["Hydrogen sulfide", "Carbon dioxide", "Sulfur dioxide", "Ammonia"],
+        "answer": 0,
+        "explanation": "Hydrogen sulfide gas is used in tanning."
+    },
+    {
+        "question": "What is the pH of pure water?",
+        "options": ["5", "6", "7", "8"],
+        "answer": 2,
+        "explanation": "Pure water has a neutral pH of 7."
+    },
+    {
+        "question": "Which element is used in nuclear reactors as fuel?",
+        "options": ["Plutonium", "Uranium", "Thorium", "All of these"],
+        "answer": 3,
+        "explanation": "All listed elements are used as nuclear fuels."
+    },
+    {
+        "question": "Which compound is used as an antiseptic?",
+        "options": ["Baking soda", "Hydrogen peroxide", "Sodium chloride", "Sodium hydroxide"],
+        "answer": 1,
+        "explanation": "Hydrogen peroxide is used for disinfection."
+    },
+    {
+        "question": "Salt is formed when?",
+        "options": ["Acid reacts with acid", "Base reacts with base", "Acid reacts with base", "Salt reacts with acid"],
+        "answer": 2,
+        "explanation": "Salt forms from neutralization of acid and base."
+    },
+    {
+        "question": "Which acid is present in lemon juice?",
+        "options": ["Citric acid", "Acetic acid", "Formic acid", "Tartaric acid"],
+        "answer": 0,
+        "explanation": "Citric acid is found in lemons."
+    },
+    {
+        "question": "Which element has the chemical symbol ‘Fe’?",
+        "options": ["Fluorine", "Iron", "Francium", "Fermium"],
+        "answer": 1,
+        "explanation": "Fe is symbol for iron."
+    },
+    {
+        "question": "Which gas is used for artificial ripening of fruits?",
+        "options": ["Ethylene", "Oxygen", "Nitrogen", "Carbon dioxide"],
+        "answer": 0,
+        "explanation": "Ethylene promotes ripening of fruits."
+    },
+    {
+        "question": "Which metal is used in making coins, especially pennies?",
+        "options": ["Copper", "Silver", "Gold", "Platinum"],
+        "answer": 0,
+        "explanation": "Copper is commonly used in coins."
+    },
+    {
+        "question": "Which is the hardest natural substance?",
+        "options": ["Gold", "Diamond", "Quartz", "Ruby"],
+        "answer": 1,
+        "explanation": "Diamond is the hardest known natural material."
+    },
+	{
+        "question": "Which metal is liquid at room temperature?",
+        "options": ["Mercury", "Gallium", "Sodium", "Potassium"],
+        "answer": 0,
+        "explanation": "Mercury is liquid at room temperature."
+    },
+    {
+        "question": "Which acid is commonly used to clean metals?",
+        "options": ["Hydrochloric acid", "Sulfuric acid", "Nitric acid", "Acetic acid"],
+        "answer": 0,
+        "explanation": "Hydrochloric acid is used to clean metal surfaces."
+    },
+    {
+        "question": "The atomic number of carbon is?",
+        "options": ["6", "12", "14", "8"],
+        "answer": 0,
+        "explanation": "Carbon has atomic number 6."
+    },
+    {
+        "question": "Which of the following is a noble gas?",
+        "options": ["Oxygen", "Neon", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Neon is a noble gas."
+    },
+    {
+        "question": "Which element is known as quicksilver?",
+        "options": ["Silver", "Mercury", "Lead", "Gold"],
+        "answer": 1,
+        "explanation": "Mercury is called quicksilver."
+    },
+    {
+        "question": "Which is the main gas responsible for acid rain?",
+        "options": ["Carbon dioxide", "Sulfur dioxide", "Nitrogen", "Methane"],
+        "answer": 1,
+        "explanation": "Sulfur dioxide causes acid rain."
+    },
+    {
+        "question": "Which is the chemical formula of water?",
+        "options": ["H2O", "H2O2", "HO", "OH"],
+        "answer": 0,
+        "explanation": "Water's chemical formula is H2O."
+    },
+    {
+        "question": "Which of the following is a chemical change?",
+        "options": ["Melting ice", "Boiling water", "Burning wood", "Dissolving salt"],
+        "answer": 2,
+        "explanation": "Burning wood causes a chemical change."
+    },
+    {
+        "question": "What is the process of removing impurities from crude metals called?",
+        "options": ["Refining", "Melting", "Smelting", "Electrolysis"],
+        "answer": 0,
+        "explanation": "Refining removes impurities from metals."
+    },
+    {
+        "question": "Which of these elements is a halogen?",
+        "options": ["Fluorine", "Oxygen", "Nitrogen", "Carbon"],
+        "answer": 0,
+        "explanation": "Fluorine is a halogen."
+    },
+    {
+        "question": "Which of these is an alkali metal?",
+        "options": ["Magnesium", "Sodium", "Calcium", "Aluminium"],
+        "answer": 1,
+        "explanation": "Sodium belongs to alkali metals."
+    },
+    {
+        "question": "Which compound is commonly used as washing soda?",
+        "options": ["NaHCO3", "Na2CO3", "CaCO3", "K2CO3"],
+        "answer": 1,
+        "explanation": "Washing soda is sodium carbonate (Na2CO3)."
+    },
+    {
+        "question": "Which acid is found in vinegar?",
+        "options": ["Acetic acid", "Citric acid", "Sulfuric acid", "Nitric acid"],
+        "answer": 0,
+        "explanation": "Vinegar contains acetic acid."
+    },
+    {
+        "question": "Which gas is commonly used in fire extinguishers?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Helium"],
+        "answer": 1,
+        "explanation": "Carbon dioxide is used for fire extinguishing."
+    },
+    {
+        "question": "Which element is used in pencils?",
+        "options": ["Graphite", "Lead", "Charcoal", "Coal"],
+        "answer": 0,
+        "explanation": "Graphite is used in pencils."
+    },
+    {
+        "question": "What is the valency of nitrogen?",
+        "options": ["3", "5", "1", "2"],
+        "answer": 0,
+        "explanation": "Nitrogen usually has valency of 3."
+    },
+    {
+        "question": "Which is the formula for bleaching powder?",
+        "options": ["CaOCl2", "NaOCl", "CaCl2", "KClO3"],
+        "answer": 0,
+        "explanation": "Bleaching powder is calcium oxychloride (CaOCl2)."
+    },
+    {
+        "question": "Which metal is mostly used for making electrical wires?",
+        "options": ["Copper", "Silver", "Gold", "Aluminium"],
+        "answer": 0,
+        "explanation": "Copper is the best conductor and most widely used."
+    },
+    {
+        "question": "An acid turns blue litmus paper to?",
+        "options": ["Red", "Green", "Blue", "Yellow"],
+        "answer": 0,
+        "explanation": "Acids turn blue litmus red."
+    },
+    {
+        "question": "The noble gases are located in which group of the periodic table?",
+        "options": ["Group 1", "Group 16", "Group 18", "Group 17"],
+        "answer": 2,
+        "explanation": "Noble gases occupy Group 18."
+    },
+    {
+        "question": "Which is the heaviest naturally occurring element?",
+        "options": ["Lead", "Uranium", "Gold", "Platinum"],
+        "answer": 1,
+        "explanation": "Uranium is the heaviest naturally occurring element."
+    },
+    {
+        "question": "Which reaction types involve electron transfer?",
+        "options": ["Neutralization", "Oxidation-reduction", "Combination", "Decomposition"],
+        "answer": 1,
+        "explanation": "Redox reactions involve transfer of electrons."
+    },
+    {
+        "question": "Which gas is liberated when acids react with carbonates?",
+        "options": ["Hydrogen", "Oxygen", "Nitrogen", "Carbon dioxide"],
+        "answer": 3,
+        "explanation": "Carbon dioxide gas is released."
+    },
+    {
+        "question": "Which is the most reactive metal?",
+        "options": ["Gold", "Potassium", "Copper", "Silver"],
+        "answer": 1,
+        "explanation": "Potassium is highly reactive."
+    },
+    {
+        "question": "Which acid is present in gastric juice?",
+        "options": ["Hydrochloric acid", "Sulfuric acid", "Nitric acid", "Acetic acid"],
+        "answer": 0,
+        "explanation": "Hydrochloric acid aids digestion."
+    },
+    {
+        "question": "Which of the following is used as a fuel gas?",
+        "options": ["Hydrogen", "Neon", "Carbon dioxide", "Nitrogen"],
+        "answer": 0,
+        "explanation": "Hydrogen is used as a fuel gas."
+    },
+    {
+        "question": "Which of these is used in the manufacture of soap?",
+        "options": ["Sodium hydroxide", "Calcium carbonate", "Hydrochloric acid", "Sulfuric acid"],
+        "answer": 0,
+        "explanation": "NaOH is used in soap making."
+    },
+    {
+        "question": "Which metal is liquid at room temperature?",
+        "options": ["Mercury", "Copper", "Silver", "Gold"],
+        "answer": 0,
+        "explanation": "Mercury is liquid at room temperature."
+    },
+    {
+        "question": "Which process involves splitting a compound into simpler substances?",
+        "options": ["Combustion", "Synthesis", "Decomposition", "Displacement"],
+        "answer": 2,
+        "explanation": "Decomposition involves breaking down compounds."
+    },
+    {
+        "question": "What is the strongest acid among the following?",
+        "options": ["Hydrochloric acid", "Sulfuric acid", "Nitric acid", "Acetic acid"],
+        "answer": 1,
+        "explanation": "Sulfuric acid is a strong acid."
+    },
+    {
+        "question": "Which is an example of an alkaline earth metal?",
+        "options": ["Calcium", "Sodium", "Potassium", "Aluminium"],
+        "answer": 0,
+        "explanation": "Calcium belongs to group 2 alkaline earth metals."
+    },
+    {
+        "question": "Which gas is essential for respiration?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Methane"],
+        "answer": 0,
+        "explanation": "Oxygen is essential for breathing."
+    },
+	 {
+        "question": "Which acid is used in the manufacture of fertilizers?",
+        "options": ["Hydrochloric acid", "Sulfuric acid", "Nitric acid", "Phosphoric acid"],
+        "answer": 3,
+        "explanation": "Phosphoric acid is widely used in fertilizer production."
+    },
+    {
+        "question": "Which element has the electronic configuration 2, 8, 1?",
+        "options": ["Sodium", "Potassium", "Calcium", "Magnesium"],
+        "answer": 0,
+        "explanation": "Sodium has 11 electrons with this configuration."
+    },
+    {
+        "question": "What type of chemical bond exists in a molecule of oxygen (O2)?",
+        "options": ["Ionic bond", "Covalent bond", "Metallic bond", "Hydrogen bond"],
+        "answer": 1,
+        "explanation": "Oxygen atoms share electrons in a covalent bond."
+    },
+    {
+        "question": "Which of the following is a non-metal that conducts electricity?",
+        "options": ["Sulfur", "Phosphorus", "Graphite", "Chlorine"],
+        "answer": 2,
+        "explanation": "Graphite is a good conductor though it is a non-metal."
+    },
+    {
+        "question": "The pH value of a neutral solution is?",
+        "options": ["0", "7", "14", "1"],
+        "answer": 1,
+        "explanation": "Neutral solutions have a pH of 7."
+    },
+    {
+        "question": "Which gas is released during photosynthesis?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "answer": 0,
+        "explanation": "Oxygen is released during photosynthesis."
+    },
+    {
+        "question": "Which among these is a synthetic polymer?",
+        "options": ["Cellulose", "Proteins", "Polythene", "Starch"],
+        "answer": 2,
+        "explanation": "Polythene is a man-made polymer."
+    },
+    {
+        "question": "Water boils at?",
+        "options": ["100°C", "0°C", "50°C", "212°C"],
+        "answer": 0,
+        "explanation": "Water boils at 100°C at standard atmospheric pressure."
+    },
+    {
+        "question": "What is the chemical formula for common salt?",
+        "options": ["NaCl", "KCl", "Na2SO4", "CaCl2"],
+        "answer": 0,
+        "explanation": "Common salt is sodium chloride (NaCl)."
+    },
+    {
+        "question": "Which of the following metals reacts with cold water?",
+        "options": ["Zinc", "Calcium", "Iron", "Copper"],
+        "answer": 1,
+        "explanation": "Calcium reacts readily with cold water."
+    },
+    {
+        "question": "Which element is used in light bulbs?",
+        "options": ["Argon", "Neon", "Krypton", "Xenon"],
+        "answer": 0,
+        "explanation": "Argon is filled in bulbs to prevent filament oxidation."
+    },
+    {
+        "question": "Which of the following is a base?",
+        "options": ["HCl", "NaOH", "NH3", "CH3COOH"],
+        "answer": 1,
+        "explanation": "Sodium hydroxide is a strong base."
+    },
+    {
+        "question": "What is the process of rusting?",
+        "options": ["Oxidation", "Reduction", "Combustion", "Evaporation"],
+        "answer": 0,
+        "explanation": "Rusting is the oxidation of iron."
+    },
+    {
+        "question": "Which element is used in pencils?",
+        "options": ["Graphite", "Lead", "Charcoal", "Carbon black"],
+        "answer": 0,
+        "explanation": "Graphite is used in pencil leads."
+    },
+    {
+        "question": "Which metal is most reactive?",
+        "options": ["Gold", "Platinum", "Sodium", "Copper"],
+        "answer": 2,
+        "explanation": "Sodium is highly reactive."
+    },
+    {
+        "question": "Which is the formula of ammonia?",
+        "options": ["NH4", "NH3", "N2H4", "NH2"],
+        "answer": 1,
+        "explanation": "Ammonia's chemical formula is NH3."
+    },
+    {
+        "question": "Which metal is used in making thermometers?",
+        "options": ["Copper", "Tin", "Mercury", "Lead"],
+        "answer": 2,
+        "explanation": "Mercury is used for its liquid state at room temperature."
+    },
+    {
+        "question": "Which of the following is a greenhouse gas?",
+        "options": ["Oxygen", "Nitrogen", "Methane", "Helium"],
+        "answer": 2,
+        "explanation": "Methane is a potent greenhouse gas."
+    },
+    {
+        "question": "Which acid is used in car batteries?",
+        "options": ["Hydrochloric acid", "Sulfuric acid", "Nitric acid", "Acetic acid"],
+        "answer": 1,
+        "explanation": "Sulfuric acid is used in lead-acid batteries."
+    },
+    {
+        "question": "Which of the following metals is liquid at room temperature?",
+        "options": ["Mercury", "Sodium", "Iron", "Copper"],
+        "answer": 0,
+        "explanation": "Mercury is liquid at room temperature."
+    },
+    {
+        "question": "What gas causes acid rain?",
+        "options": ["Nitrogen", "Oxygen", "Sulfur dioxide", "Carbon dioxide"],
+        "answer": 2,
+        "explanation": "Sulfur dioxide combines with water to form acid rain."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

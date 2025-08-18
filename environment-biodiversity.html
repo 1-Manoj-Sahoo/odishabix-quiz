@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biodiversity Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">BIODIVERSITY</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "What is biodiversity?",
+        "options": [
+            "Variety of life forms on Earth",
+            "Total number of planets in solar system",
+            "Number of countries in the world",
+            "Amount of oxygen in the atmosphere"
+        ],
+        "answer": 0,
+        "explanation": "Biodiversity is the variety of living organisms found on Earth."
+    },
+    {
+        "question": "Which region is known for having the highest biodiversity in the world?",
+        "options": ["Arctic tundra", "Amazon rainforest", "Sahara Desert", "Australian Outback"],
+        "answer": 1,
+        "explanation": "The Amazon rainforest is rich in biodiversity, hosting millions of species."
+    },
+    {
+        "question": "Which of the following ecosystems typically has the highest species diversity?",
+        "options": ["Deserts", "Grasslands", "Boreal forests", "Coral reefs"],
+        "answer": 3,
+        "explanation": "Coral reefs are among the most diverse ecosystems on Earth."
+    },
+    {
+        "question": "Which factor does NOT directly contribute to the loss of biodiversity?",
+        "options": [
+            "Habitat destruction",
+            "Climate change",
+            "Species introduction",
+            "Genetic diversity"
+        ],
+        "answer": 3,
+        "explanation": "High genetic diversity helps maintain species survival; it does not reduce biodiversity."
+    },
+    {
+        "question": "Which of the following is a biodiversity hotspot?",
+        "options": ["Antarctica", "The Himalayas", "Mediterranean Basin", "Greenland"],
+        "answer": 2,
+        "explanation": "Mediterranean Basin is recognized as a biodiversity hotspot."
+    },
+    {
+        "question": "What is the primary cause of the current high rates of species extinction?",
+        "options": ["Natural selection", "Human activities", "Volcanic eruptions", "Meteor impacts"],
+        "answer": 1,
+        "explanation": "Human activities such as deforestation, pollution, and overexploitation are primary causes."
+    },
+    {
+        "question": "Which term describes the variety of genes within a particular species?",
+        "options": ["Species diversity", "Genetic diversity", "Ecosystem diversity", "Functional diversity"],
+        "answer": 1,
+        "explanation": "Genetic diversity refers to variation in genes within a species."
+    },
+    {
+        "question": "Which of the following best describes an endemic species?",
+        "options": [
+            "A species found in multiple regions",
+            "A species restricted to a particular area",
+            "A migratory species",
+            "A species that has gone extinct"
+        ],
+        "answer": 1,
+        "explanation": "Endemic species occur only in specific geographic areas."
+    },
+    {
+        "question": "Which of the following biomes is known for low biodiversity?",
+        "options": ["Tropical rainforest", "Desert", "Savanna", "Temperate forest"],
+        "answer": 1,
+        "explanation": "Deserts have harsh conditions, supporting fewer species."
+    },
+    {
+        "question": "Which of these is NOT a type of biodiversity?",
+        "options": [
+            "Genetic diversity",
+            "Species diversity",
+            "Ecosystem diversity",
+            "Population diversity"
+        ],
+        "answer": 3,
+        "explanation": "The three main recognized types are genetic, species, and ecosystem diversity."
+    },
+    {
+        "question": "What is 'ex-situ' conservation?",
+        "options": [
+            "Conservation in natural habitat",
+            "Conservation outside natural habitat",
+            "Conservation through law only",
+            "Conservation by only breeding programs"
+        ],
+        "answer": 1,
+        "explanation": "Zoos, botanical gardens, and gene banks are ex-situ conservation examples."
+    },
+    {
+        "question": "Which of the following is an example of 'in-situ' conservation?",
+        "options": [
+            "Wildlife sanctuaries",
+            "Seed banks",
+            "Zoos",
+            "Botanical gardens"
+        ],
+        "answer": 0,
+        "explanation": "In-situ conservation involves protecting species in their natural habitats."
+    },
+    {
+        "question": "Which organization publishes the IUCN Red List of threatened species?",
+        "options": [
+            "UNESCO",
+            "WWF",
+            "IUCN",
+            "Greenpeace"
+        ],
+        "answer": 2,
+        "explanation": "The International Union for Conservation of Nature (IUCN) publishes the Red List."
+    },
+    {
+        "question": "Which of the following statements about biodiversity is correct?",
+        "options": [
+            "It only includes animal and plant species.",
+            "It includes all living organisms including microorganisms.",
+            "It excludes fungi.",
+            "It only refers to endangered species."
+        ],
+        "answer": 1,
+        "explanation": "Biodiversity includes animals, plants, fungi, and microorganisms."
+    },
+    {
+        "question": "Which law in India is specifically related to the conservation of wildlife?",
+        "options": [
+            "Forest Rights Act",
+            "Wildlife Protection Act, 1972",
+            "Environmental Protection Act",
+            "Biodiversity Act"
+        ],
+        "answer": 1,
+        "explanation": "Wildlife Protection Act, 1972 is India's major legal framework for wildlife conservation."
+    },
+    {
+        "question": "What does the term 'biogeographic zone' refer to?",
+        "options": [
+            "A country with forests",
+            "A region defined by unique plant and animal life",
+            "An area with high rainfall",
+            "A wetland zone"
+        ],
+        "answer": 1,
+        "explanation": "Biogeographic zones are regions with distinct groups of plants and animals."
+    },
+    {
+        "question": "Which animal is declared as the National Aquatic Animal of India?",
+        "options": [
+            "Sea horse",
+            "Dugong",
+            "Gangetic dolphin",
+            "Olive Ridley turtle"
+        ],
+        "answer": 2,
+        "explanation": "Gangetic dolphin is India's national aquatic animal."
+    },
+    {
+        "question": "Which plant is known as the largest flower in the world, found in some biodiversity hotspots?",
+        "options": [
+            "Titan arum",
+            "Rafflesia arnoldii",
+            "Sunflower",
+            "Lotus"
+        ],
+        "answer": 1,
+        "explanation": "Rafflesia produces the world’s largest individual flower."
+    },
+    {
+        "question": "What is the Ramsar Convention related to?",
+        "options": [
+            "Mountain conservation",
+            "Wetlands protection",
+            "Coral reef management",
+            "Plastic pollution"
+        ],
+        "answer": 1,
+        "explanation": "The Ramsar Convention is an international treaty for the conservation of wetlands."
+    },
+    {
+        "question": "Which Indian region is recognized as a UNESCO World Heritage Site for biodiversity?",
+        "options": [
+            "Thar Desert",
+            "Sunderbans",
+            "Rann of Kutch",
+            "Satpura Hills"
+        ],
+        "answer": 1,
+        "explanation": "The Sunderbans is listed for its unique mangrove biodiversity."
+    },
+    {
+        "question": "What is a 'keystone species'?",
+        "options": [
+            "A species with a large population",
+            "A species whose role is disproportionately important in its ecosystem",
+            "A species with high reproductive rate",
+            "A rarest species in the area"
+        ],
+        "answer": 1,
+        "explanation": "Keystone species greatly influence the ecosystem's structure and function."
+    },
+    {
+        "question": "Which of the following is a threat to biodiversity?",
+        "options": [
+            "Habitat destruction",
+            "Invasive species",
+            "Overexploitation",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "All of these activities threaten biodiversity."
+    },
+    {
+        "question": "Which Indian state is known for the highest number of endemic flowering plants?",
+        "options": [
+            "Kerala",
+            "Tamil Nadu",
+            "Assam",
+            "Maharashtra"
+        ],
+        "answer": 1,
+        "explanation": "Tamil Nadu has the highest number of endemic flowering plants."
+    },
+    {
+        "question": "Which of the following is considered ex-situ conservation?",
+        "options": [
+            "National Park",
+            "Seed bank",
+            "Biosphere Reserve",
+            "Wildlife Sanctuary"
+        ],
+        "answer": 1,
+        "explanation": "Seed banks conserve genetic material outside natural habitats."
+    },
+    {
+        "question": "Who is known as the ‘Father of Biodiversity’?",
+        "options": [
+            "Charles Darwin",
+            "E.O. Wilson",
+            "Carl Linnaeus",
+            "Alfred Wallace"
+        ],
+        "answer": 1,
+        "explanation": "Edward O. Wilson is widely regarded as the Father of Biodiversity."
+    },
+    {
+        "question": "Which is a major cause of biodiversity loss in oceans?",
+        "options": [
+            "Overfishing",
+            "Mountain building",
+            "Volcanic eruptions",
+            "Eutrophication"
+        ],
+        "answer": 0,
+        "explanation": "Overfishing depletes marine species and affects marine biodiversity."
+    },
+    {
+        "question": "Which animal is a major pollinator for many wild plants and crops?",
+        "options": [
+            "Dog",
+            "Cow",
+            "Bee",
+            "Peacock"
+        ],
+        "answer": 2,
+        "explanation": "Bees are crucial pollinators for flowering plants and crops."
+    },
+    {
+        "question": "Biodiversity increases towards the:",
+        "options": [
+            "Poles",
+            "Equator",
+            "Mountains",
+            "Deserts"
+        ],
+        "answer": 1,
+        "explanation": "Biodiversity generally rises as we move from the poles towards the equator."
+    },
+    {
+        "question": "Which of the following biomes has the greatest primary productivity?",
+        "options": [
+            "Tundra",
+            "Tropical rainforest",
+            "Grassland",
+            "Desert"
+        ],
+        "answer": 1,
+        "explanation": "Tropical rainforests lead in primary productivity due to favorable climate."
+    },
+    {
+        "question": "Which is an example of ‘ecosystem diversity’?",
+        "options": [
+            "Many types of forests, grasslands, and wetlands in an area",
+            "A single genetic type of rice",
+            "Ten varieties of mango in a farm",
+            "Ten species of insects in a park"
+        ],
+        "answer": 0,
+        "explanation": "Ecosystem diversity refers to variety of ecosystems in a region."
+    },
+    {
+        "question": "Which is NOT a direct threat to biodiversity?",
+        "options": [
+            "Land use change",
+            "Climate change",
+            "Sustainable harvesting",
+            "Pollution"
+        ],
+        "answer": 2,
+        "explanation": "Sustainable harvesting does not directly threaten biodiversity."
+    },
+    {
+        "question": "Which of the following is NOT a benefit of biodiversity?",
+        "options": [
+            "Provides genetic resources",
+            "Regulates climate",
+            "Causes pollution",
+            "Supports food chains"
+        ],
+        "answer": 2,
+        "explanation": "Biodiversity does not cause pollution, it provides several other ecosystem services."
+    },
+	{
+        "question": "Which of the following regions in India is a biodiversity hotspot?",
+        "options": [
+            "Himalayas",
+            "Indo-Gangetic Plain",
+            "Deccan Plateau",
+            "Western Rajasthan"
+        ],
+        "answer": 0,
+        "explanation": "The Himalayas are recognized as one of India's four biodiversity hotspots."
+    },
+    {
+        "question": "Which type of diversity reflects the number of different species in an ecosystem?",
+        "options": [
+            "Genetic diversity",
+            "Species diversity",
+            "Ecosystem diversity",
+            "Functional diversity"
+        ],
+        "answer": 1,
+        "explanation": "Species diversity is the variety of species within a habitat."
+    },
+    {
+        "question": "The introduction of which of the following has sometimes led to the extinction of local species?",
+        "options": [
+            "Endemic species",
+            "Exotic (invasive) species",
+            "Endangered species",
+            "Rare species"
+        ],
+        "answer": 1,
+        "explanation": "Exotic or invasive species can outcompete native species, sometimes causing extinction."
+    },
+    {
+        "question": "Which of the following tournaments is related to biodiversity conservation?",
+        "options": [
+            "Earth Summit (Rio de Janeiro, 1992)",
+            "World Cup Football",
+            "Olympic Games",
+            "Miss Universe"
+        ],
+        "answer": 0,
+        "explanation": "The Earth Summit resulted in important biodiversity agreements like the CBD."
+    },
+    {
+        "question": "Which Indian national park is famous for one-horned rhinoceros?",
+        "options": [
+            "Jim Corbett",
+            "Kaziranga",
+            "Gir",
+            "Bandhavgarh"
+        ],
+        "answer": 1,
+        "explanation": "Kaziranga National Park in Assam is a stronghold for one-horned rhinoceros."
+    },
+    {
+        "question": "Which of the following is the legal framework for biodiversity protection in India?",
+        "options": [
+            "National Forest Policy",
+            "Wildlife Protection Act",
+            "Biological Diversity Act, 2002",
+            "Indian Forest Act"
+        ],
+        "answer": 2,
+        "explanation": "The Biological Diversity Act, 2002 is India's main biodiversity law."
+    },
+    {
+        "question": "Which process refers to disappearance of a species from all parts of the world?",
+        "options": [
+            "Migration",
+            "Extinction",
+            "Emigration",
+            "Speciation"
+        ],
+        "answer": 1,
+        "explanation": "Extinction is the loss of a species globally."
+    },
+    {
+        "question": "A species with a high risk of extinction in the near future is called:",
+        "options": [
+            "Rare",
+            "Endangered",
+            "Common",
+            "Abundant"
+        ],
+        "answer": 1,
+        "explanation": "Endangered species face a very high risk of extinction."
+    },
+    {
+        "question": "The process of development of new species is known as:",
+        "options": [
+            "Speciation",
+            "Extinction",
+            "Domestication",
+            "Migration"
+        ],
+        "answer": 0,
+        "explanation": "Speciation is the formation of new and distinct species."
+    },
+    {
+        "question": "Which is not an invasive species in India?",
+        "options": [
+            "Eichhornia crassipes (Water hyacinth)",
+            "Lantana camara",
+            "Bamboo",
+            "Parthenium hysterophorus"
+        ],
+        "answer": 2,
+        "explanation": "Bamboo is native to India; others are invasive."
+    },
+    {
+        "question": "Which Indian state has the maximum number of national parks?",
+        "options": [
+            "Madhya Pradesh",
+            "Assam",
+            "Rajasthan",
+            "Kerala"
+        ],
+        "answer": 0,
+        "explanation": "Madhya Pradesh has the highest number of national parks in India."
+    },
+    {
+        "question": "Which is the correct sequence (from largest to smallest) for protected areas in India?",
+        "options": [
+            "Biosphere Reserve – National Park – Wildlife Sanctuary",
+            "Wildlife Sanctuary – Biosphere Reserve – National Park",
+            "Wildlife Sanctuary – National Park – Biosphere Reserve",
+            "National Park – Wildlife Sanctuary – Biosphere Reserve"
+        ],
+        "answer": 0,
+        "explanation": "Biosphere Reserves are the largest, then National Parks, then Wildlife Sanctuaries."
+    },
+    {
+        "question": "Biosphere reserves are declared under the:",
+        "options": [
+            "UNESCO's Man and Biosphere (MAB) Programme",
+            "Wildlife Protection Act",
+            "Indian Forest Act",
+            "World Food Programme"
+        ],
+        "answer": 0,
+        "explanation": "UNESCO’s MAB Programme encourages biosphere reserves worldwide."
+    },
+    {
+        "question": "Which Indian Biosphere Reserve is a UNESCO World Heritage site for flora and fauna?",
+        "options": [
+            "Nanda Devi",
+            "Agasthyamalai",
+            "Nilgiri",
+            "Pachmarhi"
+        ],
+        "answer": 2,
+        "explanation": "Nilgiri Biosphere Reserve is recognized by UNESCO for biodiversity."
+    },
+    {
+        "question": "Which is the primary objective of Project Tiger in India?",
+        "options": [
+            "In-situ conservation of tigers and their habitats",
+            "Promote tourism",
+            "Grow tiger populations in zoos",
+            "Develop tiger as national animal"
+        ],
+        "answer": 0,
+        "explanation": "Project Tiger was started for in-situ conservation of tigers."
+    },
+    {
+        "question": "Which organization in India is responsible for wildlife research and conservation?",
+        "options": [
+            "Indian Wildlife Institute",
+            "Botanical Survey of India",
+            "Council of Scientific and Industrial Research",
+            "National Biodiversity Authority"
+        ],
+        "answer": 0,
+        "explanation": "The Wildlife Institute of India conducts research and training in wildlife conservation."
+    },
+    {
+        "question": "The main aim of the Convention on Biological Diversity (CBD) is NOT:",
+        "options": [
+            "To conserve biodiversity",
+            "To ensure sustainable use",
+            "To promote the extinction of invasive species",
+            "To ensure fair sharing of benefits from genetic resources"
+        ],
+        "answer": 2,
+        "explanation": "CBD aims to conserve all species, not promote extinction."
+    },
+    {
+        "question": "Which of the following is NOT a part of biodiversity conservation?",
+        "options": [
+            "Habitat protection",
+            "Pollution",
+            "Species reintroduction",
+            "Genetic conservation"
+        ],
+        "answer": 1,
+        "explanation": "Pollution actually threatens biodiversity."
+    },
+    {
+        "question": "What is a 'flagship species'?",
+        "options": [
+            "A species which leads migration",
+            "A charismatic species used to drive conservation campaigns",
+            "A marine species",
+            "A common species"
+        ],
+        "answer": 1,
+        "explanation": "Flagship species are used to garner support for conservation."
+    },
+    {
+        "question": "Which one is an example of a critically endangered animal in India?",
+        "options": [
+            "House sparrow",
+            "Bengal tiger",
+            "Great Indian Bustard",
+            "Common myna"
+        ],
+        "answer": 2,
+        "explanation": "The Great Indian Bustard is critically endangered."
+    },
+    {
+        "question": "Genetic erosion is:",
+        "options": [
+            "Loss of genetic diversity",
+            "Increase in wild genes",
+            "Increase in endangered species",
+            "A type of soil erosion"
+        ],
+        "answer": 0,
+        "explanation": "Genetic erosion means loss of genes, often due to monocultures."
+    },
+    {
+        "question": "India is a signatory to which international treaty for protection of migratory species?",
+        "options": [
+            "Ramsar Convention",
+            "CMS (Bonn Convention)",
+            "CITES",
+            "CBD"
+        ],
+        "answer": 1,
+        "explanation": "The CMS is a treaty for conserving migratory species that India has signed."
+    },
+    {
+        "question": "Which of these is a function of wetlands?",
+        "options": [
+            "Water purification",
+            "Flood control",
+            "Biodiversity support",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "Wetlands provide all these vital ecosystem services."
+    },
+    {
+        "question": "Which species is NOT protected under Schedule I of India’s Wildlife Protection Act?",
+        "options": [
+            "Lion",
+            "Elephant",
+            "Indian Star Tortoise",
+            "Domestic cat"
+        ],
+        "answer": 3,
+        "explanation": "Domestic cat is not a protected Scheduled species."
+    },
+    {
+        "question": "Which Indian river island is famous for its biodiversity and is the world's largest river island?",
+        "options": [
+            "Majuli",
+            "Bhavani",
+            "Srirangam",
+            "Divar"
+        ],
+        "answer": 0,
+        "explanation": "Majuli Island in Assam is noted for its biodiversity."
+    },
+    {
+        "question": "What major threat do mangroves in India face?",
+        "options": [
+            "Overgrazing",
+            "Urbanization and pollution",
+            "Landslides",
+            "Earthquakes"
+        ],
+        "answer": 1,
+        "explanation": "Mangroves are destroyed by pollution, reclamation, and encroachment."
+    },
+    {
+        "question": "What is an indicator species?",
+        "options": [
+            "A species that signals environmental quality",
+            "A rare plant",
+            "An animal at the top of food chain",
+            "A plant used for medicine"
+        ],
+        "answer": 0,
+        "explanation": "Indicator species indicate the health of a particular ecosystem."
+    },
+    {
+        "question": "India is one of the ___ mega-diverse countries of the world.",
+        "options": [
+            "6",
+            "8",
+            "17",
+            "22"
+        ],
+        "answer": 2,
+        "explanation": "India is among 17 recognized mega-diverse countries."
+    },
+    {
+        "question": "Which part of the plant gene pool is preserved in seed banks?",
+        "options": [
+            "Germplasm",
+            "Flowers",
+            "Fruits",
+            "Leaves"
+        ],
+        "answer": 0,
+        "explanation": "Seed banks mainly store the plant's germplasm for future restoration."
+    },
+    {
+        "question": "The main cause for the decrease in vulture population in India is:",
+        "options": [
+            "Diclofenac poisoning",
+            "Overfishing",
+            "Climate change",
+            "Natural predators"
+        ],
+        "answer": 0,
+        "explanation": "Diclofenac, a veterinary drug, is highly toxic to vultures."
+    },
+    {
+        "question": "A group of individuals belonging to the same species living in a specific area is called:",
+        "options": [
+            "Genotype",
+            "Community",
+            "Population",
+            "Ecosystem"
+        ],
+        "answer": 2,
+        "explanation": "Population is a group of individuals of same species in an area."
+    },
+    {
+        "question": "Which is NOT a benefit of biodiversity?",
+        "options": [
+            "Soil formation",
+            "Water purification",
+            "Causing epidemics",
+            "Climate regulation"
+        ],
+        "answer": 2,
+        "explanation": "Biodiversity supports ecosystem functions, not disease spread."
+    },
+    {
+        "question": "Which Indian animal has recently been reintroduced after extinction in the wild?",
+        "options": [
+            "Cheetah",
+            "Lion",
+            "Indian rhino",
+            "Nilgai"
+        ],
+        "answer": 0,
+        "explanation": "Cheetahs have been reintroduced in India after decades of extinction."
+    },
+    {
+        "question": "Which of the following is not a genetic resource?",
+        "options": [
+            "Wild crop relatives",
+            "Exotic breeds",
+            "Economic plants",
+            "Plastic polymers"
+        ],
+        "answer": 3,
+        "explanation": "Plastics are synthetic and not biological or genetic resources."
+    },
+	{
+        "question": "The Western Ghats of India are recognized as which of the following?",
+        "options": [
+            "A desert region",
+            "A biodiversity hotspot",
+            "An urban area",
+            "A mining zone"
+        ],
+        "answer": 1,
+        "explanation": "The Western Ghats are a globally recognized biodiversity hotspot."
+    },
+    {
+        "question": "Which Indian wildlife sanctuary is known for olive ridley turtles?",
+        "options": [
+            "Bhitarakanika Sanctuary",
+            "Bhitarkanika National Park",
+            "Gahirmatha Marine Sanctuary",
+            "Nandankanan Wildlife Sanctuary"
+        ],
+        "answer": 2,
+        "explanation": "Gahirmatha Marine Sanctuary in Odisha is famous for olive ridley turtle nesting."
+    },
+    {
+        "question": "The ‘Red List’ published by IUCN provides information about:",
+        "options": [
+            "Global warming effects",
+            "Endangered and threatened species",
+            "Polluted rivers",
+            "National parks"
+        ],
+        "answer": 1,
+        "explanation": "The IUCN Red List assesses the conservation status of species."
+    },
+    {
+        "question": "Which of these is an endemic species of India?",
+        "options": [
+            "Asiatic lion",
+            "Giant Panda",
+            "Bengal Tiger",
+            "Snow leopard"
+        ],
+        "answer": 0,
+        "explanation": "Asiatic lion is endemic to the Gir forest in India."
+    },
+    {
+        "question": "An invasive species is best described as:",
+        "options": [
+            "A native species with declining population",
+            "A species introduced from outside that harms native biodiversity",
+            "A species in a breeding program",
+            "A keystone species"
+        ],
+        "answer": 1,
+        "explanation": "Invasive species disrupt ecosystems and threaten native species."
+    },
+    {
+        "question": "Which one is an example of in-situ conservation?",
+        "options": [
+            "Botanical gardens",
+            "Wildlife sanctuaries",
+            "Seed banks",
+            "Zoos"
+        ],
+        "answer": 1,
+        "explanation": "In-situ conservation protects species within their natural habitats."
+    },
+    {
+        "question": "The National Biodiversity Authority of India was established under which act?",
+        "options": [
+            "Wildlife Protection Act",
+            "Biological Diversity Act, 2002",
+            "Environmental Protection Act",
+            "Forest Conservation Act"
+        ],
+        "answer": 1,
+        "explanation": "NBA was set up under the Biological Diversity Act, 2002."
+    },
+    {
+        "question": "Which of the following best describes an ‘umbrella species’?",
+        "options": [
+            "Species used to cover for other small animals",
+            "Species whose conservation indirectly protects many other species",
+            "Species that is the most endangered in its habitat",
+            "A species that migrates annually"
+        ],
+        "answer": 1,
+        "explanation": "Umbrella species provide protection to other species sharing their habitat."
+    },
+    {
+        "question": "Which Indian state has the highest number of bird species?",
+        "options": [
+            "Assam",
+            "Kerala",
+            "Sikkim",
+            "Rajasthan"
+        ],
+        "answer": 0,
+        "explanation": "Assam is rich in avian diversity due to its varied ecosystems."
+    },
+    {
+        "question": "Which is the largest national park in India?",
+        "options": [
+            "Nagarhole",
+            "Hemisphere",
+            "Hemis National Park",
+            "Kanha"
+        ],
+        "answer": 2,
+        "explanation": "Hemis National Park in Ladakh is the largest national park in India."
+    },
+    {
+        "question": "Which of the following is a ‘flagship species’?",
+        "options": [
+            "Indian star tortoise",
+            "Bengal Tiger",
+            "House sparrow",
+            "Rat"
+        ],
+        "answer": 1,
+        "explanation": "Bengal Tiger is a flagship species used to promote conservation."
+    },
+    {
+        "question": "Which field studies the classification of living organisms?",
+        "options": [
+            "Taxonomy",
+            "Ecology",
+            "Genetics",
+            "Botany"
+        ],
+        "answer": 0,
+        "explanation": "Taxonomy is the science of classification of organisms."
+    },
+    {
+        "question": "Which of these biomes has the highest number of endemic species?",
+        "options": [
+            "Tropical rainforests",
+            "Temperate grasslands",
+            "Taiga",
+            "Tundra"
+        ],
+        "answer": 0,
+        "explanation": "Tropical rainforests are rich in endemic species."
+    },
+    {
+        "question": "What is the function of 'Biodiversity Hotspots'?",
+        "options": [
+            "To identify regions requiring conservation due to high biodiversity",
+            "To promote tourism",
+            "To develop agriculture",
+            "To provide forest resources to local communities"
+        ],
+        "answer": 0,
+        "explanation": "Hotspots indicate critical areas for biodiversity preservation."
+    },
+    {
+        "question": "The Blackbuck is native to which of the following countries?",
+        "options": [
+            "India and Pakistan",
+            "Australia",
+            "South Africa",
+            "Brazil"
+        ],
+        "answer": 0,
+        "explanation": "The Blackbuck is native to the Indian subcontinent."
+    },
+    {
+        "question": "What does biopiracy refer to?",
+        "options": [
+            "Illegal extraction or commercialization of biological resources",
+            "Scientific discovery of new species",
+            "Protected area management",
+            "Species conservation programs"
+        ],
+        "answer": 0,
+        "explanation": "Biopiracy involves unauthorized use of genetic resources."
+    },
+    {
+        "question": "Which ecoregion has four distinct seasons and moderate biodiversity?",
+        "options": [
+            "Temperate forests",
+            "Tropical forests",
+            "Deserts",
+            "Tundra"
+        ],
+        "answer": 0,
+        "explanation": "Temperate forests experience seasonal changes and moderate biodiversity."
+    },
+    {
+        "question": "Which of the following is an example of a ‘biodiversity corridor’?",
+        "options": [
+            "A linear habitat facilitating wildlife movement between protected areas",
+            "A river used for shipping",
+            "A highway with animal crossings",
+            "A forest depleted due to mining"
+        ],
+        "answer": 0,
+        "explanation": "Biodiversity corridors connect fragmented habitats to maintain genetic flow."
+    },
+    {
+        "question": "Which Indian tiger reserve is the oldest?",
+        "options": [
+            "Sariska",
+            "Jim Corbett",
+            "Bandhavgarh",
+            "Pench"
+        ],
+        "answer": 1,
+        "explanation": "Jim Corbett National Park was India's first established tiger reserve."
+    },
+    {
+        "question": "Which international treaty aims to regulate international trade in endangered species?",
+        "options": [
+            "Kyoto Protocol",
+            "CITES",
+            "Paris Agreement",
+            "Ramsar Convention"
+        ],
+        "answer": 1,
+        "explanation": "CITES regulates trade of endangered plants and animals."
+    },
+    {
+        "question": "Which of the following is an indicator of ecosystem health?",
+        "options": [
+            "Species diversity",
+            "Pollution levels",
+            "Human population growth",
+            "Economic development"
+        ],
+        "answer": 0,
+        "explanation": "Species diversity often reflects ecosystem vitality."
+    },
+    {
+        "question": "Which insect is a major pollinator, essential for biodiversity conservation?",
+        "options": [
+            "Butterflies",
+            "Bees",
+            "Ants",
+            "Mosquitoes"
+        ],
+        "answer": 1,
+        "explanation": "Bees are primary pollinators vital to ecosystems."
+    },
+    {
+        "question": "Which of the following is NOT a biogeographic zone in India?",
+        "options": [
+            "Trans-Himalayan zone",
+            "Gangetic plains",
+            "Coastal zone",
+            "Siberian zone"
+        ],
+        "answer": 3,
+        "explanation": "The Siberian zone is not part of India’s biogeographic zones."
+    },
+    {
+        "question": "Which Indian state has the highest number of butterfly species?",
+        "options": [
+            "Sikkim",
+            "Uttarakhand",
+            "Maharashtra",
+            "Kerala"
+        ],
+        "answer": 0,
+        "explanation": "Sikkim has high butterfly diversity due to varied ecosystems."
+    },
+    {
+        "question": "‘Sacred groves’ are:",
+        "options": [
+            "Religious forest patches protected by communities",
+            "Natural disasters",
+            "Deforested areas",
+            "Wildlife sanctuaries"
+        ],
+        "answer": 0,
+        "explanation": "Sacred groves are conservation areas maintained due to religious beliefs."
+    },
+    {
+        "question": "The Great Indian Bustard is primarily found in which region?",
+        "options": [
+            "Western India",
+            "Eastern Himalayas",
+            "Northern plains",
+            "Western Ghats"
+        ],
+        "answer": 0,
+        "explanation": "It is largely found in parts of Rajasthan and Gujarat in western India."
+    },
+    {
+        "question": "Which of the following is an example of community-based natural resource management?",
+        "options": [
+            "Joint Forest Management (JFM)",
+            "Forest department alone managing forests",
+            "Commercial logging",
+            "Mining operations"
+        ],
+        "answer": 0,
+        "explanation": "JFM involves communities in forest conservation."
+    },
+    {
+        "question": "Which ecosystem service is NOT provided by biodiversity?",
+        "options": [
+            "Pollination",
+            "Air and water purification",
+            "Carbon sequestration",
+            "Manufacturing plastics"
+        ],
+        "answer": 3,
+        "explanation": "Manufacturing plastics is a human activity unrelated to biodiversity services."
+    },
+    {
+        "question": "Which of these national parks is known for its population of snow leopards?",
+        "options": [
+            "Hemisphere National Park",
+            "Kanha National Park",
+            "Gir National Park",
+            "Corbett National Park"
+        ],
+        "answer": 0,
+        "explanation": "Hemis National Park in Ladakh is a known habitat for snow leopards."
+    },
+    {
+        "question": "The ‘Red Data Book’ is related to which of the following?",
+        "options": [
+            "Threatened species",
+            "National flora database",
+            "Forest inventory",
+            "Wildlife census"
+        ],
+        "answer": 0,
+        "explanation": "Red Data Book lists endangered and threatened species."
+    },
+    {
+        "question": "Which Indian state has the Sundarbans mangrove forest?",
+        "options": [
+            "West Bengal",
+            "Odisha",
+            "Tamil Nadu",
+            "Andhra Pradesh"
+        ],
+        "answer": 0,
+        "explanation": "The Sundarbans are located in West Bengal and Bangladesh."
+    },
+    {
+        "question": "What is the function of ‘seed banks’ in biodiversity conservation?",
+        "options": [
+            "Store seeds of various plants for future use",
+            "Nurseries for plants",
+            "Forest conservation",
+            "Wildlife rescue"
+        ],
+        "answer": 0,
+        "explanation": "Seed banks safeguard genetic material of plants."
+    },
+    {
+        "question": "Which animal is considered a 'flagship species' for Indian wildlife conservation?",
+        "options": [
+            "Asiatic Lion",
+            "Indian Pangolin",
+            "Indian Peafowl",
+            "Nilgai"
+        ],
+        "answer": 0,
+        "explanation": "The Asiatic Lion is used as a flagship species in India."
+    },
+    {
+        "question": "Which of the following is an eco-sensitive zone in India?",
+        "options": [
+            "Zone around Protected Areas",
+            "Industrial zones",
+            "Urban areas",
+            "Mining areas"
+        ],
+        "answer": 0,
+        "explanation": "Eco-sensitive zones are buffer areas around protected areas for conservation."
+    },
+    {
+        "question": "Which Indian island has unique biodiversity and is part of a biosphere reserve?",
+        "options": [
+            "Nicobar Islands",
+            "Lakshadweep",
+            "Andaman Islands",
+            "Diu"
+        ],
+        "answer": 2,
+        "explanation": "Andaman Islands are part of a biosphere reserve with unique ecology."
+    },
+    {
+        "question": "Which is NOT a characteristic of tropical rainforests?",
+        "options": [
+            "High rainfall",
+            "Low biodiversity",
+            "Dense canopy",
+            "High species richness"
+        ],
+        "answer": 1,
+        "explanation": "Tropical rainforests are known for high biodiversity."
+    },
+	{
+        "question": "Which element is essential for nitrogen fixation in plants?",
+        "options": [
+            "Phosphorus",
+            "Rhizobium bacteria",
+            "Potassium",
+            "Magnesium"
+        ],
+        "answer": 1,
+        "explanation": "Rhizobium bacteria fix atmospheric nitrogen into a form usable by plants."
+    },
+    {
+        "question": "The Great Indian Bustard is primarily threatened by:",
+        "options": [
+            "Habitat loss",
+            "Water pollution",
+            "Overfishing",
+            "Climate cold"
+        ],
+        "answer": 0,
+        "explanation": "Habitat loss due to agriculture and development is the main threat."
+    },
+    {
+        "question": "What is ‘allelopathy’?",
+        "options": [
+            "A plant’s ability to produce toxins affecting other plants",
+            "Symbiotic relationship between plants",
+            "Method of seed dispersal",
+            "Animal migration"
+        ],
+        "answer": 0,
+        "explanation": "Allelopathy is when plants release biochemicals harmful to other plants."
+    },
+    {
+        "question": "The Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES) was adopted in:",
+        "options": [
+            "1973",
+            "1980",
+            "1992",
+            "2000"
+        ],
+        "answer": 0,
+        "explanation": "CITES was adopted in 1973 to regulate international wildlife trade."
+    },
+    {
+        "question": "Which biome is characterized by coniferous forests and long winters?",
+        "options": [
+            "Tundra",
+            "Boreal forest (Taiga)",
+            "Grasslands",
+            "Rainforests"
+        ],
+        "answer": 1,
+        "explanation": "Boreal forests have mostly coniferous trees and cold climates."
+    },
+    {
+        "question": "Which Indian biosphere reserve includes the Nanda Devi National Park?",
+        "options": [
+            "Nilgiri",
+            "Nanda Devi",
+            "Sundarbans",
+            "Gulf of Mannar"
+        ],
+        "answer": 1,
+        "explanation": "Nanda Devi Biosphere Reserve comprises the national park and surrounding areas."
+    },
+    {
+        "question": "Wetlands provide crucial services. Which is NOT a service provided by wetlands?",
+        "options": [
+            "Flood control",
+            "Water purification",
+            "Habitat for biodiversity",
+            "Emission of greenhouse gases"
+        ],
+        "answer": 3,
+        "explanation": "Wetlands generally act as carbon sinks; emissions are minor compared to benefits."
+    },
+    {
+        "question": "The major pollinator of coconut palms is:",
+        "options": [
+            "Honey bees",
+            "Bats",
+            "Butterflies",
+            "Wind"
+        ],
+        "answer": 1,
+        "explanation": "Bats are the primary pollinators of coconut palms."
+    },
+    {
+        "question": "Which of the following is an important step in biodiversity conservation?",
+        "options": [
+            "Habitat fragmentation",
+            "Wildlife corridors",
+            "Deforestation",
+            "Use of pesticides"
+        ],
+        "answer": 1,
+        "explanation": "Wildlife corridors connect habitats and support species movement."
+    },
+    {
+        "question": "Which Indian biodiversity hotspot is famous for sandalwood trees?",
+        "options": [
+            "Western Ghats",
+            "Eastern Himalayas",
+            "Indo-Burma",
+            "Sundarbans"
+        ],
+        "answer": 0,
+        "explanation": "The Western Ghats are traditional sources of sandalwood."
+    },
+    {
+        "question": "Which of the following is NOT a coral reef forming species?",
+        "options": [
+            "Hermatypic corals",
+            "Algae",
+            "Oysters",
+            "Sponges"
+        ],
+        "answer": 2,
+        "explanation": "Oysters do not build coral reefs, unlike certain corals and algae."
+    },
+    {
+        "question": "The greatest threat to marine biodiversity is:",
+        "options": [
+            "Overfishing",
+            "Climate change",
+            "Habitat destruction",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "All these factors collectively threaten marine biodiversity."
+    },
+    {
+        "question": "Which plant in India is considered an endangered species due to over-exploitation?",
+        "options": [
+            "Sandalwood",
+            "Neem",
+            "Tulsi",
+            "Bamboo"
+        ],
+        "answer": 0,
+        "explanation": "Sandalwood is overharvested leading to population decline."
+    },
+    {
+        "question": "Which animal is the national bird of India and also part of the country’s biodiversity?",
+        "options": [
+            "Peacock",
+            "Eagle",
+            "Kingfisher",
+            "Sparrow"
+        ],
+        "answer": 0,
+        "explanation": "The Indian Peafowl is the national bird."
+    },
+    {
+        "question": "Which is a major driver of invasive species spread in biodiversity hotspots?",
+        "options": [
+            "Global trade",
+            "Climate moderation",
+            "Protected areas",
+            "Sustainable agriculture"
+        ],
+        "answer": 0,
+        "explanation": "Global trade introduces species into new environments."
+    },
+    {
+        "question": "Which of these species is found only in the Western Ghats?",
+        "options": [
+            "Nilgiri Tahr",
+            "Asiatic lion",
+            "Great Indian Bustard",
+            "Gangetic dolphin"
+        ],
+        "answer": 0,
+        "explanation": "Nilgiri Tahr is endemic to the Western Ghats."
+    },
+    {
+        "question": "The ‘Plant Genetic Resources’ include:",
+        "options": [
+            "Wild and cultivated species genetic diversity",
+            "Only endangered species",
+            "Only plants used for forestry",
+            "Only medicinal plants"
+        ],
+        "answer": 0,
+        "explanation": "Plant genetic resources include genetic material from wild and cultivated plants."
+    },
+    {
+        "question": "Which Indian national park is part of Project Elephant?",
+        "options": [
+            "Kaziranga",
+            "Gir",
+            "Jim Corbett",
+            "Sariska"
+        ],
+        "answer": 2,
+        "explanation": "Jim Corbett National Park participates in Project Elephant."
+    },
+    {
+        "question": "Which of the following is a threat from ‘fragmentation’?",
+        "options": [
+            "Smaller, isolated habitats",
+            "Increased biodiversity",
+            "Habitat restoration",
+            "Soil formation"
+        ],
+        "answer": 0,
+        "explanation": "Fragmentation isolates populations, reducing genetic flow."
+    },
+    {
+        "question": "Which is NOT an example of aquatic biodiversity?",
+        "options": [
+            "Mangrove",
+            "Coral reefs",
+            "Murga (local Indian chicken breed)",
+            "Freshwater fish"
+        ],
+        "answer": 2,
+        "explanation": "‘Murga’ is a terrestrial species."
+    },
+    {
+        "question": "Which factor influences species richness in a biome?",
+        "options": [
+            "Climate",
+            "Latitude",
+            "Altitude",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "All these factors influence species diversity."
+    },
+    {
+        "question": "The main aim of the Biodiversity Act, 2002 is to:",
+        "options": [
+            "Regulate biodiversity conservation and sustainable use",
+            "Promote industrial development",
+            "Regulate imports and exports",
+            "Protect heritage monuments"
+        ],
+        "answer": 0,
+        "explanation": "The Act aims to conserve biodiversity and govern sustainable benefits."
+    },
+    {
+        "question": "A ‘hotspot’ for biodiversity must contain:",
+        "options": [
+            "At least 0.5% of the world’s plant species as endemics",
+            "No human habitation",
+            "Only tropical forests",
+            "Only endangered species"
+        ],
+        "answer": 0,
+        "explanation": "Biodiversity hotspots have high levels of endemism and significant habitat loss."
+    },
+    {
+        "question": "Which is an example of a marine biodiversity hotspot in India?",
+        "options": [
+            "Gulf of Mannar",
+            "Sundarbans",
+            "Western Ghats",
+            "Himalayas"
+        ],
+        "answer": 0,
+        "explanation": "The Gulf of Mannar hosts rich marine biodiversity."
+    },
+    {
+        "question": "The endemic Golden Langur is found in?",
+        "options": [
+            "Assam and Bhutan",
+            "Kerala",
+            "Maharashtra",
+            "Tamil Nadu"
+        ],
+        "answer": 0,
+        "explanation": "Golden Langurs live in Assam and Bhutan foothills."
+    },
+    {
+        "question": "The Chipko movement is known for which of the following?",
+        "options": [
+            "Protecting forests by hugging trees",
+            "Wildlife rescue",
+            "Rainwater harvesting",
+            "Organic farming"
+        ],
+        "answer": 0,
+        "explanation": "Local communities embraced trees to prevent deforestation."
+    },
+    {
+        "question": "Which of the following is a consequence of habitat destruction?",
+        "options": [
+            "Loss of species",
+            "Improved biodiversity",
+            "Better soil quality",
+            "Increased rainfall"
+        ],
+        "answer": 0,
+        "explanation": "Habitat destruction leads to species loss."
+    },
+    {
+        "question": "Sacred groves serve as important areas for:",
+        "options": [
+            "Biodiversity conservation",
+            "Mining",
+            "Agriculture",
+            "Urban development"
+        ],
+        "answer": 0,
+        "explanation": "Sacred groves protect native plants and wildlife."
+    },
+    {
+        "question": "Which of these groups of animals is vertebrate?",
+        "options": [
+            "Insects",
+            "Fish",
+            "Spiders",
+            "Worms"
+        ],
+        "answer": 1,
+        "explanation": "Fish have backbones and are vertebrates."
+    },
+    {
+        "question": "Which is NOT a product of biodiversity?",
+        "options": [
+            "Medicines",
+            "Food crops",
+            "Minerals",
+            "Clothing materials"
+        ],
+        "answer": 2,
+        "explanation": "Minerals are abiotic natural resources, not products of biodiversity."
+    },
+	{
+        "question": "What is the principle of ‘sustainable development’ in the context of biodiversity?",
+        "options": [
+            "Using resources without compromising future generations",
+            "Exploiting all resources maximally",
+            "Ignoring conservation and focusing on growth",
+            "Complete protection of all species"
+        ],
+        "answer": 0,
+        "explanation": "Sustainable development balances use while conserving resources for the future."
+    },
+    {
+        "question": "The Ganges River Dolphin is classified as:",
+        "options": [
+            "Extinct",
+            "Endangered",
+            "Critically Endangered",
+            "Vulnerable"
+        ],
+        "answer": 2,
+        "explanation": "The Ganges River Dolphin is critically endangered."
+    },
+    {
+        "question": "Which Indian forest type is predominant in the Western Ghats hotspot?",
+        "options": [
+            "Tropical evergreen forests",
+            "Temperate forests",
+            "Mangrove forests",
+            "Coniferous forests"
+        ],
+        "answer": 0,
+        "explanation": "Tropical evergreen forests dominate the Western Ghats."
+    },
+    {
+        "question": "Which of the following is NOT a source of biodiversity loss?",
+        "options": [
+            "Habitat fragmentation",
+            "Protected areas",
+            "Overexploitation",
+            "Invasive species"
+        ],
+        "answer": 1,
+        "explanation": "Protected areas aim to conserve biodiversity and prevent loss."
+    },
+    {
+        "question": "The major threat to the coral reefs is:",
+        "options": [
+            "Coral bleaching",
+            "Overfishing",
+            "Pollution",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "These combined threats endanger coral reefs."
+    },
+    {
+        "question": "Which Indian state is famous for having the highest diversity of amphibians?",
+        "options": [
+            "Arunachal Pradesh",
+            "Rajasthan",
+            "Goa",
+            "Punjab"
+        ],
+        "answer": 0,
+        "explanation": "Arunachal Pradesh has a rich amphibian diversity due to its varied habitats."
+    },
+    {
+        "question": "Which term is used to describe the process of conserving biodiversity through legal means?",
+        "options": [
+            "Species protection",
+            "Environmental regulation",
+            "Conservation law enforcement",
+            "Legislative conservation"
+        ],
+        "answer": 0,
+        "explanation": "Legal protection of species is part of species protection efforts."
+    },
+    {
+        "question": "Which of the following is a breeding program for conserving tigers in India?",
+        "options": [
+            "Project Elephant",
+            "Project Tiger",
+            "Project Lion",
+            "Project Rhino"
+        ],
+        "answer": 1,
+        "explanation": "Project Tiger focuses on tiger conservation."
+    },
+    {
+        "question": "Plantation of which tree is avoided in biodiversity-rich forests due to its invasiveness?",
+        "options": [
+            "Eucalyptus",
+            "Teak",
+            "Sal",
+            "Sandalwood"
+        ],
+        "answer": 0,
+        "explanation": "Eucalyptus is invasive and reduces soil fertility."
+    },
+    {
+        "question": "The ‘Hotspots’ of biodiversity were first recognized by:",
+        "options": [
+            "IUCN",
+            "Mittermeier and Myers",
+            "UNESCO",
+            "WWF"
+        ],
+        "answer": 1,
+        "explanation": "Hotspot concept was proposed by Mittermeier and Myers."
+    },
+    {
+        "question": "Which Indian bird species is known as the ‘state bird of Maharashtra’?",
+        "options": [
+            "Indian Roller",
+            "Pied Kingfisher",
+            "Great Indian Bustard",
+            "Nilgiri Flycatcher"
+        ],
+        "answer": 0,
+        "explanation": "Indian Roller is Maharashtra’s state bird."
+    },
+    {
+        "question": "Which Indian national park houses the Asiatic lion?",
+        "options": [
+            "Gir National Park",
+            "Kanha National Park",
+            "Manas National Park",
+            "Sundarbans"
+        ],
+        "answer": 0,
+        "explanation": "Gir National Park is the only natural habitat of Asiatic lions."
+    },
+    {
+        "question": "The scientific study of relationships among living organisms and their environment is called:",
+        "options": [
+            "Ecology",
+            "Taxonomy",
+            "Biodiversity",
+            "Genetics"
+        ],
+        "answer": 0,
+        "explanation": "Ecology studies interactions of organisms with each other and their environment."
+    },
+    {
+        "question": "Which of the following animal species is known for its role in controlling urban waste?",
+        "options": [
+            "House crow",
+            "Stray dogs",
+            "Squirrels",
+            "Monkeys"
+        ],
+        "answer": 0,
+        "explanation": "House crows scavenge waste and are common urban birds."
+    },
+    {
+        "question": "Which of these environmental reserves has the largest area in India?",
+        "options": [
+            "Nanda Devi Biosphere Reserve",
+            "Nilgiri Biosphere Reserve",
+            "Sundarbans Biosphere Reserve",
+            "Nokrek Biosphere Reserve"
+        ],
+        "answer": 1,
+        "explanation": "Nilgiri Biosphere Reserve is the largest in India."
+    },
+    {
+        "question": "Which of the following best describes the term ‘Ecotone’?",
+        "options": [
+            "A transition area between two biological communities",
+            "An area rich in minerals",
+            "A natural habitat of birds",
+            "An endangered ecosystem"
+        ],
+        "answer": 0,
+        "explanation": "Ecotone is a zone where two ecosystems meet and integrate."
+    },
+    {
+        "question": "Which of the following is a major constituent of biodiversity?",
+        "options": [
+            "Species diversity",
+            "Ecosystem diversity",
+            "Genetic diversity",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "Biodiversity includes genetic, species, and ecosystem diversity."
+    },
+    {
+        "question": "Which Indian institute is engaged in the conservation of endangered plant species?",
+        "options": [
+            "Botanical Survey of India",
+            "Wildlife Institute of India",
+            "Indian Council of Forestry Research",
+            "Central Pollution Control Board"
+        ],
+        "answer": 0,
+        "explanation": "Botanical Survey of India focuses on plant conservation."
+    },
+    {
+        "question": "Which wildlife sanctuary is known for the conservation of the Great Indian Bustard?",
+        "options": [
+            "Desert National Park",
+            "Kuno Wildlife Sanctuary",
+            "Bharatpur Bird Sanctuary",
+            "Rajaji National Park"
+        ],
+        "answer": 0,
+        "explanation": "Desert National Park in Rajasthan is important for the Great Indian Bustard."
+    },
+    {
+        "question": "What is 'species richness'?",
+        "options": [
+            "The total number of species in an area",
+            "The genetic variation within a species",
+            "The number of ecosystems in a region",
+            "Population size of animals"
+        ],
+        "answer": 0,
+        "explanation": "Species richness is the count of different species in an area."
+    },
+    {
+        "question": "The term ‘indicator species’ is used to describe a species that:",
+        "options": [
+            "Indicates the quality of the environment",
+            "Helps in species migration",
+            "Is always endangered",
+            "Is used in food chains"
+        ],
+        "answer": 0,
+        "explanation": "Indicator species reflect the health of their habitat."
+    },
+    {
+        "question": "Which is NOT a function of wetlands in biodiversity conservation?",
+        "options": [
+            "Habitat for animals",
+            "Water filtration",
+            "Increasing greenhouse gases",
+            "Flood control"
+        ],
+        "answer": 2,
+        "explanation": "Wetlands act as carbon sinks rather than increasing greenhouse gases."
+    },
+    {
+        "question": "Which of the following is NOT a characteristic of biodiversity hotspots?",
+        "options": [
+            "High levels of species endemism",
+            "Rich in species diversity",
+            "Significant loss of habitat",
+            "Low conservation priority"
+        ],
+        "answer": 3,
+        "explanation": "Hotspots are of high conservation priority."
+    },
+    {
+        "question": "Which of these species is considered a keystone species in Indian forests?",
+        "options": [
+            "Elephant",
+            "Peacock",
+            "Otter",
+            "Rat"
+        ],
+        "answer": 0,
+        "explanation": "Elephants maintain forest ecosystem balance and structure."
+    },
+    {
+        "question": "In India, the Chipko movement was related to:",
+        "options": [
+            "Water conservation",
+            "Forest conservation",
+            "Wildlife protection",
+            "Pollution control"
+        ],
+        "answer": 1,
+        "explanation": "Chipko was a forest conservation movement involving tree hugging."
+    },
+    {
+        "question": "Which fragment of the Western Ghats is a famous biodiversity hotspot?",
+        "options": [
+            "Nilgiri Hills",
+            "Aravalli Hills",
+            "Vindhya Hills",
+            "Satpura Range"
+        ],
+        "answer": 0,
+        "explanation": "Nilgiri hills are part of the Western Ghats biodiversity hotspot."
+    },
+    {
+        "question": "Which of the following is an important biodiversity-related Indian law?",
+        "options": [
+            "Forest Conservation Act, 1980",
+            "Water Act, 1974",
+            "Air (Prevention and Control of Pollution) Act, 1981",
+            "Motor Vehicles Act, 1988"
+        ],
+        "answer": 0,
+        "explanation": "Forest Conservation Act regulates forest land usage."
+    },
+    {
+        "question": "Which of the following is NOT included in biodiversity indices calculation?",
+        "options": [
+            "Species richness",
+            "Species evenness",
+            "Economic value",
+            "Abundance of species"
+        ],
+        "answer": 2,
+        "explanation": "Economic value isn't a biodiversity index parameter."
+    },
+    {
+        "question": "Which of these animals is a major seed disperser in tropical forests?",
+        "options": [
+            "Elephants",
+            "Cats",
+            "Tigers",
+            "Crows"
+        ],
+        "answer": 0,
+        "explanation": "Elephants disperse seeds by transporting fruits."
+    },
+    {
+        "question": "What is the significance of the National Biodiversity Authority in India?",
+        "options": [
+            "Regulates access to genetic resources and knowledge",
+            "Manages forest departments",
+            "Controls pollution",
+            "Conducts wildlife census"
+        ],
+        "answer": 0,
+        "explanation": "NBA oversees sustainable use and protection of biodiversity."
+    },
+	{
+        "question": "Which of the following is NOT a biodiversity hotspot in India?",
+        "options": ["Himalayas", "Western Ghats", "Indo-Gangetic Plain", "Indo-Burma region"],
+        "answer": 2,
+        "explanation": "The Indo-Gangetic Plain is not recognized as a biodiversity hotspot."
+    },
+    {
+        "question": "Which Indian law regulates the access to genetic resources and associated knowledge?",
+        "options": [
+            "Biological Diversity Act, 2002",
+            "Forest Conservation Act, 1980",
+            "Environment Protection Act, 1986",
+            "Wildlife Protection Act, 1972"
+        ],
+        "answer": 0,
+        "explanation": "Biological Diversity Act governs access and benefit sharing related to genetic resources."
+    },
+    {
+        "question": "Which is the first Indian national park?",
+        "options": ["Jim Corbett National Park", "Gir National Park", "Kaziranga National Park", "Sundarbans National Park"],
+        "answer": 0,
+        "explanation": "Jim Corbett National Park, established in 1936, is India's oldest national park."
+    },
+    {
+        "question": "Which animal is used as the mascot for Project Elephant in India?",
+        "options": ["Asiatic Elephant", "Indian Leopard", "Royal Bengal Tiger", "Indian Rhino"],
+        "answer": 0,
+        "explanation": "The Asiatic Elephant is the flagship species for Project Elephant."
+    },
+    {
+        "question": "Which of the following species is considered ‘vulnerable’ according to IUCN?",
+        "options": ["Snow leopard", "House sparrow", "Monkey", "Rat"],
+        "answer": 0,
+        "explanation": "Snow leopard is classified as vulnerable due to threats in its habitat."
+    },
+    {
+        "question": "Which Indian state has the highest number of medicinal plants?",
+        "options": ["Himalayas", "Kerala", "Sikkim", "Karnataka"],
+        "answer": 2,
+        "explanation": "Sikkim has rich medicinal plant diversity."
+    },
+    {
+        "question": "Which of the following is the main aim of the Ramsar Convention?",
+        "options": [
+            "Protection of forests",
+            "Conservation of wetlands",
+            "Marine pollution control",
+            "Climate change mitigation"
+        ],
+        "answer": 1,
+        "explanation": "Ramsar Convention focuses on wetland conservation."
+    },
+    {
+        "question": "Which of these is an endangered species found in Gir National Park?",
+        "options": [
+            "Asiatic lion",
+            "Indian bison",
+            "Elephant",
+            "Cheetah"
+        ],
+        "answer": 0,
+        "explanation": "Gir National Park is the only natural habitat of Asiatic lions."
+    },
+    {
+        "question": "Which gene banks in India store seeds and genetic material of plants?",
+        "options": [
+            "National Bureau of Plant Genetic Resources",
+            "Botanical Survey of India",
+            "Forest Survey of India",
+            "Soil Conservation Department"
+        ],
+        "answer": 0,
+        "explanation": "NBPGR conserves plant genetic resources."
+    },
+    {
+        "question": "Which biodiversity-related book was written by E. O. Wilson?",
+        "options": [
+            "The Diversity of Life",
+            "Silent Spring",
+            "The Living Planet",
+            "Our Common Future"
+        ],
+        "answer": 0,
+        "explanation": "‘The Diversity of Life’ is Wilson’s significant work on biodiversity."
+    },
+    {
+        "question": "In ecological studies, ‘alpha diversity’ refers to:",
+        "options": [
+            "Species diversity within a particular area or ecosystem",
+            "Diversity across multiple ecosystems",
+            "Genetic diversity of a species",
+            "Diversity of rare species"
+        ],
+        "answer": 0,
+        "explanation": "Alpha diversity measures species diversity in a single ecosystem."
+    },
+    {
+        "question": "Which of the following is an example of ‘invasive alien species’ in India?",
+        "options": [
+            "Lantana camara",
+            "Neem",
+            "Peepal tree",
+            "Bamboo"
+        ],
+        "answer": 0,
+        "explanation": "Lantana camara is an invasive species causing ecological problems."
+    },
+    {
+        "question": "Which category of species includes plants or animals that are disappearing rapidly from the earth?",
+        "options": [
+            "Endangered",
+            "Rare",
+            "Invasive",
+            "Indigenous"
+        ],
+        "answer": 0,
+        "explanation": "Endangered species face a very high risk of extinction."
+    },
+    {
+        "question": "Which Indian sanctuary is famous for the Nilgiri Tahr?",
+        "options": [
+            "Eravikulam National Park",
+            "Jim Corbett National Park",
+            "Periyar Wildlife Sanctuary",
+            "Kaziranga National Park"
+        ],
+        "answer": 0,
+        "explanation": "Eravikulam protects the Nilgiri Tahr, an endemic mountain goat."
+    },
+    {
+        "question": "‘Biological corridors’ are essential because they:",
+        "options": [
+            "Connect fragmented habitats for animal movement",
+            "Are roads for transportation",
+            "Increase human settlements",
+            "Encourage mining activities"
+        ],
+        "answer": 0,
+        "explanation": "Biological corridors facilitate wildlife migration and gene flow."
+    },
+    {
+        "question": "Which of the following is NOT a protected area in India?",
+        "options": [
+            "Biosphere reserve",
+            "National park",
+            "Wildlife sanctuary",
+            "Private farmland"
+        ],
+        "answer": 3,
+        "explanation": "Private farmland is not a protected area."
+    },
+    {
+        "question": "Which global programme focuses on plant diversity conservation?",
+        "options": [
+            "Global Strategy for Plant Conservation",
+            "UN Biodiversity Convention",
+            "IPCC",
+            "UNFCCC"
+        ],
+        "answer": 0,
+        "explanation": "GSPC aims to halt loss of plant diversity globally."
+    },
+    {
+        "question": "Which Indian park is famous for the Asiatic Wild Buffalo?",
+        "options": [
+            "Manas National Park",
+            "Kanha National Park",
+            "Sariska Tiger Reserve",
+            "Gir Forest"
+        ],
+        "answer": 0,
+        "explanation": "Manas is a sanctuary for Asiatic Wild Buffalo."
+    },
+    {
+        "question": "Which is NOT an effect of biodiversity loss?",
+        "options": [
+            "Reduced ecosystem stability",
+            "Loss of genetic resources",
+            "Better ecosystem services",
+            "Increased vulnerability to disasters"
+        ],
+        "answer": 2,
+        "explanation": "Biodiversity loss harms ecosystem services, not improves."
+    },
+    {
+        "question": "Which of the following describes ‘endemism’?",
+        "options": [
+            "Species native to a specific geographic region",
+            "Species introduced to a region",
+            "A species found everywhere",
+            "Migratory species"
+        ],
+        "answer": 0,
+        "explanation": "Endemic species are unique to a specific location."
+    },
+    {
+        "question": "Which ecosystem hosts mangrove forests?",
+        "options": [
+            "Coastal tidal areas",
+            "Rainforest",
+            "Deserts",
+            "Temperate zones"
+        ],
+        "answer": 0,
+        "explanation": "Mangroves thrive in saline coastal wetlands."
+    },
+    {
+        "question": "The largest population of the Great Indian Bustard is found in which state?",
+        "options": [
+            "Rajasthan",
+            "Bihar",
+            "Tamil Nadu",
+            "Kerala"
+        ],
+        "answer": 0,
+        "explanation": "Rajasthan has the largest population of Great Indian Bustard."
+    },
+    {
+        "question": "Which Indian wildlife reserve specializes in the conservation of Asiatic cheetah?",
+        "options": [
+            "Kuno-Palpur Wildlife Sanctuary",
+            "Gir National Park",
+            "Bandhavgarh National Park",
+            "Kaziranga National Park"
+        ],
+        "answer": 0,
+        "explanation": "Kuno is the site selected for Asiatic cheetah reintroduction."
+    },
+    {
+        "question": "Which Indian state has the largest area under protected forests?",
+        "options": [
+            "Madhya Pradesh",
+            "Uttarakhand",
+            "Karnataka",
+            "Assam"
+        ],
+        "answer": 0,
+        "explanation": "Madhya Pradesh leads in protected forest area."
+    },
+    {
+        "question": "What is the role of ‘wetlands’ in biodiversity?",
+        "options": [
+            "Habitat for aquatic and terrestrial species",
+            "Flood protection",
+            "Water purification",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "Wetlands provide numerous ecosystem services."
+    },
+    {
+        "question": "Which of the following is an important centre of origin of cultivated plants?",
+        "options": [
+            "India",
+            "Europe",
+            "Australia",
+            "Antarctica"
+        ],
+        "answer": 0,
+        "explanation": "India is one of the Vavilov Centres of origin."
+    },
+    {
+        "question": "Which of the following species is listed under Schedule I of the Wildlife Protection Act, 1972?",
+        "options": [
+            "Peacock",
+            "Rat",
+            "Lion-tailed macaque",
+            "Sparrow"
+        ],
+        "answer": 2,
+        "explanation": "Lion-tailed macaque is protected under Schedule I."
+    },
+    {
+        "question": "The ‘Green Wall’ project in India refers to:",
+        "options": [
+            "Massive afforestation to combat desertification",
+            "Planting crops for biofuel",
+            "Urban greenery development",
+            "Establishing national parks"
+        ],
+        "answer": 0,
+        "explanation": "The Green Wall is to degrade deserts and protect biodiversity."
+    },
+    {
+        "question": "Which Indian biosphere reserve is located in the Andaman Islands?",
+        "options": [
+            "Sundarbans",
+            "Nicobar Islands",
+            "Andaman and Nicobar Islands Biosphere Reserve",
+            "Nagaloka"
+        ],
+        "answer": 2,
+        "explanation": "It covers much of the Andaman Islands."
+    },
+    {
+        "question": "Which is an example of ‘structural diversity’ in an ecosystem?",
+        "options": [
+            "Layers of vegetation such as canopy and understory",
+            "Number of species",
+            "Genetic differences among species",
+            "Biogeographic regions"
+        ],
+        "answer": 0,
+        "explanation": "Structural diversity refers to physical organization of ecosystems."
+    },
+    {
+        "question": "Deforestation leads to loss of biodiversity mainly by:",
+        "options": [
+            "Removing habitats",
+            "Increased rainfall",
+            "Soil enrichment",
+            "Increased oxygen"
+        ],
+        "answer": 0,
+        "explanation": "Habitat loss is the major consequence of deforestation."
+    },
+    {
+        "question": "Which is NOT a major effect of biodiversity loss?",
+        "options": [
+            "Ecosystem destabilization",
+            "Loss of ecosystem services",
+            "Climate regulation deterioration",
+            "Increase in species diversity"
+        ],
+        "answer": 3,
+        "explanation": "Loss of biodiversity reduces overall species diversity."
+    },
+    {
+        "question": "Which biogeographic zone covers the largest area in India?",
+        "options": [
+            "Gangetic plains",
+            "Great Indian Desert",
+            "Himalayan mountain range",
+            "Coastal plains"
+        ],
+        "answer": 0,
+        "explanation": "Gangetic plains cover the largest biogeographic area."
+    },
+    {
+        "question": "Which of the following movements was related to biodiversity and forest conservation?",
+        "options": [
+            "Chipko Movement",
+            "White Revolution",
+            "Green Revolution",
+            "Silent Valley Movement"
+        ],
+        "answer": 0,
+        "explanation": "Chipko was a forest protection movement important for conservation."
+    },
+	{
+        "question": "Which of the following Indian plants is listed in the Red Data Book?",
+        "options": [
+            "Sandalwood",
+            "Bamboo",
+            "Neem",
+            "Tulsi"
+        ],
+        "answer": 0,
+        "explanation": "Sandalwood is listed due to over-exploitation and habitat loss."
+    },
+    {
+        "question": "Which of the following is the smallest unit of biodiversity?",
+        "options": [
+            "Ecosystem",
+            "Species",
+            "Population",
+            "Gene"
+        ],
+        "answer": 3,
+        "explanation": "Genetic diversity refers to variety within genes, the smallest biodiversity unit."
+    },
+    {
+        "question": "Which of the following is NOT a function of biodiversity?",
+        "options": [
+            "Maintaining ecological balance",
+            "Pollination of crops",
+            "Reduction in oxygen levels",
+            "Soil fertility"
+        ],
+        "answer": 2,
+        "explanation": "Biodiversity supports oxygen production, not reduction."
+    },
+    {
+        "question": "Which region in India is rich in orchid species?",
+        "options": [
+            "North-East India",
+            "Rajasthan",
+            "Western India",
+            "Central India"
+        ],
+        "answer": 0,
+        "explanation": "North-East India is known for its rich orchid diversity."
+    },
+    {
+        "question": "The Asiatic lion is currently found in which Indian state?",
+        "options": [
+            "Gujarat",
+            "Rajasthan",
+            "Madhya Pradesh",
+            "West Bengal"
+        ],
+        "answer": 0,
+        "explanation": "The Gir forest sanctuary in Gujarat is the only natural habitat of Asiatic lions."
+    },
+    {
+        "question": "Which is NOT a cause of habitat fragmentation?",
+        "options": [
+            "Road construction",
+            "Deforestation",
+            "Agricultural expansion",
+            "Protected area designation"
+        ],
+        "answer": 3,
+        "explanation": "Protected areas help conserve continuous habitats."
+    },
+    {
+        "question": "Which Indian festival promotes tree planting and biodiversity conservation?",
+        "options": [
+            "Van Mahotsav",
+            "Diwali",
+            "Holi",
+            "Pongal"
+        ],
+        "answer": 0,
+        "explanation": "Van Mahotsav is the Indian festival of trees."
+    },
+    {
+        "question": "Which animal species is known as the ‘Ship of the Desert’ but also plays a role in arid ecosystem biodiversity?",
+        "options": [
+            "Horse",
+            "Camel",
+            "Elephant",
+            "Deer"
+        ],
+        "answer": 1,
+        "explanation": "Camels are vital for desert ecosystems."
+    },
+    {
+        "question": "Which Indian Biosphere Reserve is known for its Hornbill population?",
+        "options": [
+            "Nokrek Biosphere Reserve",
+            "Sundarbans",
+            "Nilgiri Biosphere Reserve",
+            "Nanda Devi"
+        ],
+        "answer": 0,
+        "explanation": "Nokrek has rich birdlife including hornbills."
+    },
+    {
+        "question": "Which is an important ecosystem service provided by fungi in biodiversity?",
+        "options": [
+            "Pollination",
+            "Decomposition and nutrient cycling",
+            "Seed dispersal",
+            "Oxygen generation"
+        ],
+        "answer": 1,
+        "explanation": "Fungi play a crucial role in decomposing organic matter."
+    },
+    {
+        "question": "The Snow Leopard is primarily found in which Indian region?",
+        "options": [
+            "Himalayas",
+            "Western Ghats",
+            "Gangetic Plains",
+            "Sundarbans"
+        ],
+        "answer": 0,
+        "explanation": "Snow leopards inhabit the Himalayan mountain range."
+    },
+    {
+        "question": "Which of these is NOT a biotic component of the environment?",
+        "options": [
+            "Plants",
+            "Animals",
+            "Bacteria",
+            "Rocks"
+        ],
+        "answer": 3,
+        "explanation": "Rocks are abiotic components."
+    },
+    {
+        "question": "Which of the following is NOT a priority area for biodiversity conservation in India?",
+        "options": [
+            "Western Ghats",
+            "Indo-Burma region",
+            "Himalayas",
+            "Thar Desert"
+        ],
+        "answer": 3,
+        "explanation": "The Thar Desert has low biodiversity compared to other hotspots."
+    },
+    {
+        "question": "Which Indian tiger reserve has high levels of genetic diversity among tigers?",
+        "options": [
+            "Bandhavgarh",
+            "Sariska",
+            "Jim Corbett",
+            "Panna"
+        ],
+        "answer": 0,
+        "explanation": "Bandhavgarh has substantial genetic diversity in its tiger population."
+    },
+    {
+        "question": "Which of the following is NOT true about wetlands?",
+        "options": [
+            "Important for flood control",
+            "Habitat to numerous species",
+            "Source of biodiversity loss",
+            "Water purification role"
+        ],
+        "answer": 2,
+        "explanation": "Wetlands support biodiversity and do not cause its loss."
+    },
+    {
+        "question": "Which of these is a biodiversity management committee in India?",
+        "options": [
+            "Local Biodiversity Management Committee",
+            "Forest Protection Committee",
+            "Municipal Corporation",
+            "Central Wildlife Board"
+        ],
+        "answer": 0,
+        "explanation": "Local Biodiversity Management Committees work with communities on biodiversity."
+    },
+    {
+        "question": "Which part of biodiversity conservation deals with preserving genetic material in artificial conditions?",
+        "options": [
+            "Ex-situ conservation",
+            "In-situ conservation",
+            "Community conservation",
+            "Ecotourism"
+        ],
+        "answer": 0,
+        "explanation": "Ex-situ conservation involves preserving genetic material outside natural habitats."
+    },
+    {
+        "question": "Which Indian wetland is a Ramsar site protected for avian biodiversity?",
+        "options": [
+            "Keoladeo National Park",
+            "Sundarbans",
+            "Chilika Lake",
+            "Both 1 and 3"
+        ],
+        "answer": 3,
+        "explanation": "Both Keoladeo and Chilika are Ramsar sites for bird biodiversity."
+    },
+    {
+        "question": "What is ‘biodiversity recession’?",
+        "options": [
+            "Increase in species variety",
+            "Loss or decline in biodiversity",
+            "Stable biodiversity levels",
+            "Introduction of new species"
+        ],
+        "answer": 1,
+        "explanation": "Biodiversity recession refers to decline or loss of biodiversity."
+    },
+    {
+        "question": "Which of these is a major cause of biodiversity loss due to invasive species?",
+        "options": [
+            "Competition for resources",
+            "Predation",
+            "Habitat alteration",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "Invasive species affect biodiversity through various mechanisms."
+    },
+    {
+        "question": "Which of these is an example of an animal with high reproductive rate contributing to biodiversity?",
+        "options": [
+            "Rabbit",
+            "Elephant",
+            "Tortoise",
+            "Peacock"
+        ],
+        "answer": 0,
+        "explanation": "Rabbits reproduce rapidly, adding to ecosystem diversity."
+    },
+    {
+        "question": "‘Silent Valley’ is known for which type of forest?",
+        "options": [
+            "Tropical rainforests",
+            "Mangrove forests",
+            "Temperate forests",
+            "Coniferous forests"
+        ],
+        "answer": 0,
+        "explanation": "Silent Valley in Kerala is one of the last undisturbed tropical rainforests."
+    },
+    {
+        "question": "Which of the following is NOT true about the ‘Food Chain’?",
+        "options": [
+            "It represents the transfer of energy between organisms",
+            "Humans are always at the top of the food chain",
+            "It starts from producers",
+            "It includes consumers"
+        ],
+        "answer": 1,
+        "explanation": "Humans do not always occupy the top in every ecosystem’s food chain."
+    },
+    {
+        "question": "Which Indian state is home to the famous silent valley national park?",
+        "options": ["Kerala", "Assam", "Himachal Pradesh", "Maharashtra"],
+        "answer": 0,
+        "explanation": "Silent Valley is located in Kerala."
+    },
+    {
+        "question": "In biodiversity studies, ‘species evenness’ refers to:",
+        "options": [
+            "Equal numbers of different species",
+            "Species richness",
+            "Genetic variation within species",
+            "The size of the population"
+        ],
+        "answer": 0,
+        "explanation": "Species evenness indicates how equal the populations of various species are."
+    },
+    {
+        "question": "Which Indian tiger reserve is known as the 'Land of Tigers'?",
+        "options": [
+            "Bandhavgarh",
+            "Ranthambore",
+            "Tadoba",
+            "Kanha"
+        ],
+        "answer": 0,
+        "explanation": "Bandhavgarh has one of the highest densities of tigers."
+    },
+    {
+        "question": "Which of the following animals is listed under Schedule I of Wildlife Protection Act, 1972?",
+        "options": [
+            "Indian Star Tortoise",
+            "Common crow",
+            "Indian Cobra",
+            "Domestic cat"
+        ],
+        "answer": 0,
+        "explanation": "Indian Star Tortoise is protected under Schedule I."
+    },
+    {
+        "question": "Which is an example of a ‘secondary forest’?",
+        "options": [
+            "Forest regenerated after logging",
+            "Original undisturbed forest",
+            "Mangrove forest",
+            "Savanna"
+        ],
+        "answer": 0,
+        "explanation": "Forests regrown after disturbance are secondary forests."
+    },
+    {
+        "question": "Which of the following is NOT an ecosystem service?",
+        "options": [
+            "Nutrient cycling",
+            "Pollination",
+            "Water filtration",
+            "Manufacturing fertilizers"
+        ],
+        "answer": 3,
+        "explanation": "Manufacturing fertilizers is a human activity, not an ecosystem service."
+    },
+	{
+        "question": "Which international agreement focuses specifically on the fair sharing of genetic resources’ benefits?",
+        "options": [
+            "Nagoya Protocol",
+            "Paris Agreement",
+            "Montreal Protocol",
+            "Kyoto Protocol"
+        ],
+        "answer": 0,
+        "explanation": "The Nagoya Protocol seeks fair and equitable sharing of benefits from genetic resources."
+    },
+    {
+        "question": "Which species is considered the 'barometer of the environment'?",
+        "options": [
+            "Frog",
+            "Cow",
+            "Deer",
+            "Rabbit"
+        ],
+        "answer": 0,
+        "explanation": "Amphibians like frogs are sensitive to changes and indicate ecosystem health."
+    },
+    {
+        "question": "Which is NOT a Ramsar site in India?",
+        "options": [
+            "Chilika Lake",
+            "Keoladeo National Park",
+            "Loktak Lake",
+            "Thar Desert"
+        ],
+        "answer": 3,
+        "explanation": "Thar Desert is not a wetland; others are Ramsar sites."
+    },
+    {
+        "question": "Which of the following birds is only found in the Western Ghats?",
+        "options": [
+            "Malabar Grey Hornbill",
+            "House sparrow",
+            "Pigeon",
+            "Indian roller"
+        ],
+        "answer": 0,
+        "explanation": "Malabar Grey Hornbill is endemic to the Western Ghats."
+    },
+    {
+        "question": "Which of the following is least likely to cause extinction?",
+        "options": [
+            "Habitat loss",
+            "Natural selection",
+            "Pollution",
+            "Overhunting"
+        ],
+        "answer": 1,
+        "explanation": "Natural selection is a slow, natural process, less likely to cause sudden extinction."
+    },
+    {
+        "question": "Which factor does NOT increase biodiversity?",
+        "options": [
+            "Habitat fragmentation",
+            "Niche diversity",
+            "Stable environments",
+            "Intermediate levels of disturbance"
+        ],
+        "answer": 0,
+        "explanation": "Habitat fragmentation usually reduces biodiversity."
+    },
+    {
+        "question": "Which is a major pollinator of apple orchards in India?",
+        "options": [
+            "Bees",
+            "Cows",
+            "Bats",
+            "Flies"
+        ],
+        "answer": 0,
+        "explanation": "Bees are the dominant pollinators for apple orchards."
+    },
+    {
+        "question": "Which one is an example of in-situ conservation?",
+        "options": [
+            "Seed bank",
+            "National Park",
+            "Zoo",
+            "Gene bank"
+        ],
+        "answer": 1,
+        "explanation": "National Parks protect species in their natural habitats."
+    },
+    {
+        "question": "Which organization is responsible for management of Indian biosphere reserves?",
+        "options": [
+            "Ministry of Environment, Forest and Climate Change",
+            "Indian Space Research Organization",
+            "Ministry of Health",
+            "Ministry of Agriculture"
+        ],
+        "answer": 0,
+        "explanation": "The Ministry oversees India's biosphere reserves."
+    },
+    {
+        "question": "What do high values of species evenness indicate?",
+        "options": [
+            "Most individuals are from a few species only",
+            "Individuals are spread more equally among species",
+            "All species are rare",
+            "High endemism"
+        ],
+        "answer": 1,
+        "explanation": "Evenness means species populations are roughly equal in an ecosystem."
+    },
+    {
+        "question": "Which Indian island group is known for marine biodiversity and coral reefs?",
+        "options": [
+            "Lakshadweep",
+            "Rameswaram",
+            "Majuli",
+            "Miyapur"
+        ],
+        "answer": 0,
+        "explanation": "Lakshadweep hosts extensive coral reefs and marine life."
+    },
+    {
+        "question": "Which of the following statements is incorrect about extinction?",
+        "options": [
+            "It can be caused by natural and anthropogenic factors.",
+            "It means disappearance of a species from Earth.",
+            "It increases genetic diversity.",
+            "Mass extinctions have occurred in the past."
+        ],
+        "answer": 2,
+        "explanation": "Extinction reduces, not increases, genetic diversity."
+    },
+    {
+        "question": "Which is NOT a feature of biodiversity-rich regions?",
+        "options": [
+            "High species richness",
+            "Low habitat disturbance",
+            "Monoculture crops",
+            "Many ecological niches"
+        ],
+        "answer": 2,
+        "explanation": "Monocultures decrease biodiversity."
+    },
+    {
+        "question": "Which tree species is a keystone species in the Indian desert ecosystem?",
+        "options": [
+            "Prosopis cineraria (Khejri)",
+            "Bamboo",
+            "Neem",
+            "Teak"
+        ],
+        "answer": 0,
+        "explanation": "Khejri helps support life and soil fertility in Indian deserts."
+    },
+    {
+        "question": "Which of these is NOT a type of ecosystem?",
+        "options": [
+            "Forest",
+            "Pond",
+            "Ocean",
+            "Plastic landfill"
+        ],
+        "answer": 3,
+        "explanation": "Plastic landfill is not a natural ecosystem."
+    },
+    {
+        "question": "Which Indian reserve is noted for its population of one-horned rhinoceros?",
+        "options": [
+            "Kaziranga",
+            "Gir",
+            "Periyar",
+            "Sundarbans"
+        ],
+        "answer": 0,
+        "explanation": "Kaziranga hosts most of the world's population of this rhinoceros."
+    },
+    {
+        "question": "Which is NOT a reason for biodiversity conservation?",
+        "options": [
+            "Ecosystem services",
+            "Aesthetic values",
+            "Legal and ethical obligations",
+            "Uncontrolled poaching"
+        ],
+        "answer": 3,
+        "explanation": "Uncontrolled poaching is a threat, not a reason, for conservation."
+    },
+    {
+        "question": "Which forest type in India is most threatened by developmental activities?",
+        "options": [
+            "Tropical evergreen forests",
+            "Mangrove forests",
+            "Deciduous forests",
+            "Coniferous forests"
+        ],
+        "answer": 1,
+        "explanation": "Mangroves are at high risk from urbanization and industrial projects."
+    },
+    {
+        "question": "Which of the following does NOT describe genetic diversity?",
+        "options": [
+            "Variation of genes within species",
+            "Variation of species in an area",
+            "Inheritance differences within a population",
+            "Allelic variation"
+        ],
+        "answer": 1,
+        "explanation": "That is species diversity, not genetic diversity."
+    },
+    {
+        "question": "Which of these Indian sanctuaries supports the migratory Siberian crane?",
+        "options": [
+            "Keoladeo National Park",
+            "Sundarbans",
+            "Dachigam",
+            "Bandhavgarh"
+        ],
+        "answer": 0,
+        "explanation": "Keoladeo is a key wintering site for the now rare Siberian crane."
+    },
+    {
+        "question": "Which of the following is NOT associated with biodiversity?",
+        "options": [
+            "Species richness",
+            "Soil type",
+            "Ecosystem variety",
+            "Genetic variation"
+        ],
+        "answer": 1,
+        "explanation": "Soil type is an abiotic factor."
+    },
+    {
+        "question": "The extinction of passenger pigeons is due to:",
+        "options": [
+            "Overhunting",
+            "Disease",
+            "Climate change",
+            "Pollution"
+        ],
+        "answer": 0,
+        "explanation": "Passenger pigeons went extinct mainly due to uncontrolled hunting."
+    },
+    {
+        "question": "Which tool is used in modern plant conservation to preserve genetic material?",
+        "options": [
+            "Cryopreservation",
+            "Flood irrigation",
+            "Clear-cutting",
+            "Fire"
+        ],
+        "answer": 0,
+        "explanation": "Cryopreservation stores seeds at low temperatures to keep them viable."
+    },
+    {
+        "question": "Which state has the largest mangrove cover in India?",
+        "options": [
+            "West Bengal",
+            "Andhra Pradesh",
+            "Gujarat",
+            "Odisha"
+        ],
+        "answer": 0,
+        "explanation": "The Sundarbans of West Bengal form the largest mangrove region."
+    },
+    {
+        "question": "Which is the largest man-made lake in India supporting aquatic biodiversity?",
+        "options": [
+            "Hirakud Reservoir",
+            "Vembanad Lake",
+            "Sardar Sarovar",
+            "Gobind Sagar"
+        ],
+        "answer": 0,
+        "explanation": "Hirakud is India's largest artificial lake."
+    },
+    {
+        "question": "Which process in plants leads to the origin of new varieties and contributes to biodiversity?",
+        "options": [
+            "Hybridization",
+            "Photosynthesis",
+            "Respiration",
+            "Evaporation"
+        ],
+        "answer": 0,
+        "explanation": "Hybridization mixes genes and increases genetic diversity."
+    },
+    {
+        "question": "‘Silent Spring’, a book that led to global awareness of biodiversity loss, was written by:",
+        "options": [
+            "Rachel Carson",
+            "E. O. Wilson",
+            "Charles Darwin",
+            "Aldo Leopold"
+        ],
+        "answer": 0,
+        "explanation": "Rachel Carson’s work inspired the environmental movement."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

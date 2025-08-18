@@ -1,0 +1,3601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active And Passive Voice Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">ACTIVE & PASSIVE VOICE</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "Many things may be accomplished by a little effort.",
+        "options": [
+            "A little effort may accomplish many things.",
+            "Many things can be accomplished by effort.",
+            "They can accomplish many things by a little effort.",
+            "Effort accomplishes many things."
+        ],
+        "answer": 2,
+        "explanation": "Passive changed to active. 'They can accomplish many things by a little effort.' maintains the meaning and correct voice conversion."
+    },
+    {
+        "question": "Do the work at once.",
+        "options": [
+            "Let the work be done at once.",
+            "The work should done at once.",
+            "Let the work to be done at once.",
+            "Work must be done at once."
+        ],
+        "answer": 0,
+        "explanation": "Imperative sentences in passive use 'Let + object + be + past participle': 'Let the work be done at once.'"
+    },
+    {
+        "question": "We expect good news.",
+        "options": [
+            "Good news is expected.",
+            "Good news are expected.",
+            "Good news will be expected.",
+            "News expect us."
+        ],
+        "answer": 0,
+        "explanation": "Active to passive: 'Good news is expected.' is grammatically correct and matches the tense."
+    },
+    {
+        "question": "The keys have been forgotten by Jyoti.",
+        "options": [
+            "Jyoti has forgot the keys.",
+            "The keys were forgotten by Jyoti.",
+            "Jyoti have forgotten the keys.",
+            "Jyoti has forgotten the keys."
+        ],
+        "answer": 3,
+        "explanation": "Present perfect passive: 'has been forgotten by Jyoti' becomes 'Jyoti has forgotten the keys.'"
+    },
+    {
+        "question": "The states of Maharashtra and Gujarat have been alerted about the impending cyclone by NDRF.",
+        "options": [
+            "NDRF has alerted the states of Maharashtra and Gujarat about the impending cyclone.",
+            "NDRF alerted the cyclone in Maharashtra and Gujarat.",
+            "Maharashtra and Gujarat were alerted about cyclone.",
+            "The impending cyclone was alerted by NDRF."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive to active: 'have been alerted by NDRF' → 'NDRF has alerted...'"
+    },
+    {
+        "question": "It is time to revise the syllabi.",
+        "options": [
+            "It is time for the syllabi to be revised.",
+            "Syllabi should be revised now.",
+            "The time for revising the syllabi is now.",
+            "Revise the syllabi now."
+        ],
+        "answer": 0,
+        "explanation": "Passive construction for infinitive: 'It is time for the syllabi to be revised.'"
+    },
+    {
+        "question": "Success requires hard work.",
+        "options": [
+            "Success is required by hard work.",
+            "Hard work requires success.",
+            "Hard work is required for success.",
+            "Success is required for hard work."
+        ],
+        "answer": 2,
+        "explanation": "Object (hard work) becomes subject; verb changed accordingly."
+    },
+    {
+        "question": "A defamation case is being filed by him against his business partner.",
+        "options": [
+            "His business partner files a defamation case.",
+            "He filed a defamation case.",
+            "He is filing a defamation case against his business partner.",
+            "His business partner is being filed a defamation case against."
+        ],
+        "answer": 2,
+        "explanation": "Present continuous passive → active: 'is being filed by him' → 'He is filing...'"
+    },
+    {
+        "question": "His behaviour shocked me.",
+        "options": [
+            "I was shocked by his behaviour.",
+            "I will be shocked by his behaviour.",
+            "I am shocked at his behaviour.",
+            "I was shocked at his behaviour."
+        ],
+        "answer": 3,
+        "explanation": "'Shocked at' (correct preposition) used for passive; past simple form."
+    },
+    {
+        "question": "This surface feels smooth.",
+        "options": [
+            "This surface is smooth when it is felt.",
+            "This surface is felt smooth.",
+            "This surface will be smooth if felt.",
+            "Surface feels smooth when felt."
+        ],
+        "answer": 0,
+        "explanation": "Common passive pattern with adjectives: 'is smooth when it is felt.'"
+    },
+    {
+        "question": "Shut the door.",
+        "options": [
+            "Let the door to be shut.",
+            "The door is to be shut.",
+            "Let the door be shut.",
+            "The door is shut by you."
+        ],
+        "answer": 2,
+        "explanation": "Orders in passive: 'Let the door be shut.'"
+    },
+    {
+        "question": "All the examinees have answered one particular question in the long answer writing section.",
+        "options": [
+            "One particular question is answered by all examinees.",
+            "All the examinees have been answered one particular question.",
+            "One particular question have answered all examinees.",
+            "One particular question has been answered by all the examinees in the long answer writing section."
+        ],
+        "answer": 3,
+        "explanation": "Present perfect structure: 'Object + has/have + been + past participle (V3) + by + subject.'"
+    },
+    {
+        "question": "The members of the parliament elect their group leader either by consensus or by voice vote.",
+        "options": [
+            "The group leader is elected by the members of the parliament either by consensus or by voice vote.",
+            "Either by consensus or by voice vote, the group leader elected members of the parliament.",
+            "Members of parliament were elected by the group leader.",
+            "The parliament's members elect by groups either by consensus or by voice vote."
+        ],
+        "answer": 0,
+        "explanation": "Simple present active → passive: 'is elected by...'"
+    },
+    {
+        "question": "India won freedom with the blood and sweat of hundreds and thousands of Indians.",
+        "options": [
+            "Freedom was won by India with the blood and sweat of hundreds and thousands of Indians.",
+            "India was won freedom with blood and sweat.",
+            "Hundreds and thousands of Indians won the freedom for India.",
+            "India's freedom was by blood and sweat."
+        ],
+        "answer": 0,
+        "explanation": "Past simple tense: Object + was/were + V3 + by + subject"
+    },
+    {
+        "question": "The principal discovered a new lake.",
+        "options": [
+            "A new lake was discovered by the principal.",
+            "The principal was discovered by a new lake.",
+            "New lakes is discovery of principal.",
+            "The principal had discovered the new lake."
+        ],
+        "answer": 0,
+        "explanation": "Past simple active → passive voice"
+    },
+    {
+        "question": "People claim to have seen the wild and mad elephant in several cities.",
+        "options": [
+            "The wild and mad elephant claimed by people to be seen in several cities.",
+            "Several cities have seen the wild and mad elephant.",
+            "People claim seeing wild and mad elephant.",
+            "The wild and mad elephant is claimed to have been seen in several cities."
+        ],
+        "answer": 3,
+        "explanation": "Passive structure: 'is claimed to have been seen...'"
+    },
+    {
+        "question": "While playing polo, one of the girls broke the second-floor windowpane.",
+        "options": [
+            "The second-floor windowpane was broken by one of the girls while playing polo.",
+            "One of the girls was broken by the second-floor windowpane while playing polo.",
+            "Windowpane broke the girl while playing polo.",
+            "Girls were playing polo and broke a windowpane."
+        ],
+        "answer": 0,
+        "explanation": "Past simple active → passive, phrase preserved."
+    },
+    {
+        "question": "He writes letters.",
+        "options": [
+            "Letters write by him.",
+            "Letters are written by him.",
+            "He was written by letters.",
+            "Letters are wrote by him."
+        ],
+        "answer": 1,
+        "explanation": "Simple present: 'are written by him.'"
+    },
+    {
+        "question": "She will finish the work soon.",
+        "options": [
+            "The work will be finished soon by her.",
+            "Work is being finished soon by her.",
+            "She will be finished soon.",
+            "The work is finished soon by her."
+        ],
+        "answer": 0,
+        "explanation": "Future simple: 'will be finished...by her.'"
+    },
+    {
+        "question": "Someone is helping the old man.",
+        "options": [
+            "The old man is being helped by someone.",
+            "Someone has helped the old man.",
+            "The old man was helped by someone.",
+            "The old man is helped by someone."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous: 'is being helped...'"
+    },
+    {
+        "question": "They made him captain.",
+        "options": [
+            "He was made captain by them.",
+            "He made captain by them.",
+            "Captain was made by them.",
+            "He is made captain by them."
+        ],
+        "answer": 0,
+        "explanation": "Past simple with object complement."
+    },
+    {
+        "question": "I am reading a book.",
+        "options": [
+            "A book is read by me.",
+            "A book is being read by me.",
+            "A book will be read by me.",
+            "A book has read by me."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous passive: 'is being read by me.'"
+    },
+    {
+        "question": "They have completed the project.",
+        "options": [
+            "The project has completed by them.",
+            "The project have completed by them.",
+            "The project has been completed by them.",
+            "The project is being completed by them."
+        ],
+        "answer": 2,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "Who taught you English?",
+        "options": [
+            "By whom were you taught English?",
+            "By whom are you taught English?",
+            "Whom taught you English?",
+            "By whom will you be taught English?"
+        ],
+        "answer": 0,
+        "explanation": "Question transformation."
+    },
+    {
+        "question": "The children are playing games.",
+        "options": [
+            "Games are played by the children.",
+            "Games are being played by the children.",
+            "Games have been played by the children.",
+            "Games will be played by the children."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "The police have arrested the thief.",
+        "options": [
+            "The thief has arrested by police.",
+            "The thief is arrested by police.",
+            "The thief has been arrested by the police.",
+            "The thief was arrested by police."
+        ],
+        "answer": 2,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "Open the window.",
+        "options": [
+            "Let the window be opened.",
+            "Let opened be the window.",
+            "The window is being opened.",
+            "The window should open."
+        ],
+        "answer": 0,
+        "explanation": "Imperative passive structure."
+    },
+    {
+        "question": "He told them the truth.",
+        "options": [
+            "The truth was told to them by him.",
+            "The truth told them by him.",
+            "They were told truth by him.",
+            "The truth is telling by him."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive with indirect object."
+    },
+    {
+        "question": "She has posted the letter.",
+        "options": [
+            "The letter has posted by her.",
+            "The letter has been posted by her.",
+            "The letter was posted by her.",
+            "The letter is posted by her."
+        ],
+        "answer": 1,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "Can you solve this problem?",
+        "options": [
+            "Can this problem solve by you?",
+            "Can this problem be solved by you?",
+            "Can this problem solved by you?",
+            "This problem can solved by you?"
+        ],
+        "answer": 1,
+        "explanation": "Modal passive structure."
+    },
+    {
+        "question": "She was singing a song.",
+        "options": [
+            "A song was being sung by her.",
+            "A song was sung by her.",
+            "A song sung by her.",
+            "A song will be sung by her."
+        ],
+        "answer": 0,
+        "explanation": "Past continuous passive."
+    },
+    {
+        "question": "The teacher is correcting the papers.",
+        "options": [
+            "The papers are being corrected by the teacher.",
+            "The papers is corrected by the teacher.",
+            "The papers has corrected by the teacher.",
+            "The papers will be corrected by the teacher."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "The company is launching a new product.",
+        "options": [
+            "A new product is being launched by the company.",
+            "A new product launched by the company.",
+            "New products launched by company.",
+            "A new product will be launched by the company."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "They have sent the parcel.",
+        "options": [
+            "The parcel has sent by them.",
+            "The parcel was being sent by them.",
+            "The parcel has been sent by them.",
+            "The parcel were sent by them."
+        ],
+        "answer": 2,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "She did not like the movie.",
+        "options": [
+            "The movie was not liked by her.",
+            "The movie did not liked by her.",
+            "The movie is not liked by her.",
+            "The movie has not liked by her."
+        ],
+        "answer": 0,
+        "explanation": "Past simple negative passive."
+    },
+    {
+        "question": "People speak English all over the world.",
+        "options": [
+            "English is spoken all over the world by people.",
+            "English spoken all over the world.",
+            "English was spoken by people all over the world.",
+            "English is speak all over the world."
+        ],
+        "answer": 0,
+        "explanation": "Simple present passive, agent mention optional (common structure)."
+    },
+    {
+        "question": "They will announce the results tomorrow.",
+        "options": [
+            "The results will announce by them tomorrow.",
+            "The results will be announced by them tomorrow.",
+            "The results are announced by them tomorrow.",
+            "Tomorrow the results are announced by them."
+        ],
+        "answer": 1,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "She is preparing dinner.",
+        "options": [
+            "Dinner is being prepared by her.",
+            "Dinner was prepared by her.",
+            "Dinner has prepared by her.",
+            "Dinner is prepare by her."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Someone stole my bag.",
+        "options": [
+            "My bag stole by someone.",
+            "My bag was stolen by someone.",
+            "My bag is stolen by someone.",
+            "My bag will be stolen by someone."
+        ],
+        "answer": 1,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "They offered her a job.",
+        "options": [
+            "A job was offered to her by them.",
+            "She was offered a job by them.",
+            "She has offered a job by them.",
+            "A job had been offered to her by them."
+        ],
+        "answer": 1,
+        "explanation": "Indirect object passive with 'was offered'."
+    },
+    {
+        "question": "The chef cooked a delicious meal.",
+        "options": [
+            "A delicious meal was cooked by the chef.",
+            "A delicious meal cooked by the chef.",
+            "Delicious meal is cooked by chef.",
+            "Chef deliciously cooked a meal."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "She can speak four languages.",
+        "options": [
+            "Four languages can be spoken by her.",
+            "Four languages could be spoken by her.",
+            "She could speak four languages.",
+            "Four languages have been spoken by her."
+        ],
+        "answer": 0,
+        "explanation": "Modal passive: 'can be spoken by her.'"
+    },
+    {
+        "question": "He will deliver the lecture at 5 pm.",
+        "options": [
+            "The lecture will deliver by him at 5 pm.",
+            "The lecture will be delivered by him at 5 pm.",
+            "The lecture delivered by him at 5 pm.",
+            "He will have delivered the lecture at 5 pm."
+        ],
+        "answer": 1,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "The manager approved your leave.",
+        "options": [
+            "Your leave was approved by the manager.",
+            "Your leave is being approved by the manager.",
+            "Your leave will be approved by the manager.",
+            "Your leave has been approved by the manager."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "They invited all the guests to the party.",
+        "options": [
+            "All the guests invite to the party.",
+            "All the guests were invited to the party by them.",
+            "All the guests are invited to the party by them.",
+            "All the guests will invite to the party."
+        ],
+        "answer": 1,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Who is writing this report?",
+        "options": [
+            "By whom is this report being written?",
+            "Who this report is written by?",
+            "This report is being written by whom?",
+            "By whom this report written?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "The engineer is repairing the bridge.",
+        "options": [
+            "The bridge is being repaired by the engineer.",
+            "The bridge repaired by the engineer.",
+            "The bridge is repaired by the engineer.",
+            "The bridge will be repaired by the engineer."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Her mother has made a cake.",
+        "options": [
+            "A cake had made by her mother.",
+            "A cake has been made by her mother.",
+            "A cake is made by her mother.",
+            "A cake was made by her mother."
+        ],
+        "answer": 1,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "They are washing the car.",
+        "options": [
+            "The car is being washed by them.",
+            "The car was washed by them.",
+            "The car has been washed by them.",
+            "The car will be washed by them."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Rahul solved the problem.",
+        "options": [
+            "The problem was solved by Rahul.",
+            "The problem is solved by Rahul.",
+            "Rahul is solved by the problem.",
+            "Problem has solved by Rahul."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+	
+    {
+        "question": "The team will complete the assignment next week.",
+        "options": [
+            "The assignment will be completed next week by the team.",
+            "Next week the assignment is completed by the team.",
+            "The assignment is being completed by the team next week.",
+            "The team completed the assignment next week."
+        ],
+        "answer": 0,
+        "explanation": "Future simple: 'will be completed by the team.'"
+    },
+    {
+        "question": "Doctors recommend regular exercise.",
+        "options": [
+            "Regular exercise is recommended by doctors.",
+            "Doctors are recommended regular exercise.",
+            "Regular exercise was recommended by doctors.",
+            "Doctors were recommending regular exercise."
+        ],
+        "answer": 0,
+        "explanation": "Simple present passive."
+    },
+    {
+        "question": "Close the door quietly.",
+        "options": [
+            "Let the door be closed quietly.",
+            "The door should be closed quietly.",
+            "Let closed quietly be the door.",
+            "Close quietly the door."
+        ],
+        "answer": 0,
+        "explanation": "Imperative passive with an adverb."
+    },
+    {
+        "question": "She gifted him a book.",
+        "options": [
+            "He was gifted a book by her.",
+            "A book was gifted him by her.",
+            "A book was gifted to him by her.",
+            "She was gifted a book by him."
+        ],
+        "answer": 2,
+        "explanation": "Past simple passive with indirect object."
+    },
+    {
+        "question": "A solution to the problem is being sought by the scientists.",
+        "options": [
+            "The scientists have sought a solution.",
+            "Scientists are seeking a solution to the problem.",
+            "The scientists is seeking a solution.",
+            "The scientists were seeking a problem."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous passive to active."
+    },
+    {
+        "question": "They have chosen him captain.",
+        "options": [
+            "He has been chosen captain by them.",
+            "He was chosen captain by them.",
+            "He is being chosen captain.",
+            "He had been chosen captain by them."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive with object complement."
+    },
+    {
+        "question": "Who told you this joke?",
+        "options": [
+            "By whom were you told this joke?",
+            "Who this joke told you?",
+            "By whom are you told this joke?",
+            "By whom was this joke told to you?"
+        ],
+        "answer": 3,
+        "explanation": "Question passive structure with indirect object."
+    },
+    {
+        "question": "They will plant more trees in the park.",
+        "options": [
+            "More trees will be planted in the park by them.",
+            "More trees planted in the park by them.",
+            "More trees are planted in the park by them.",
+            "Trees planted by them in the park."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Did you finish your homework?",
+        "options": [
+            "Was your homework finished by you?",
+            "Were your homework finished by you?",
+            "Is your homework finished by you?",
+            "Have your homework finished by you?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "The artist painted a beautiful portrait.",
+        "options": [
+            "A beautiful portrait painted by the artist.",
+            "A beautiful portrait was painted by the artist.",
+            "Artist painted beautifully the portrait.",
+            "A portrait was painted by the artist beautifully."
+        ],
+        "answer": 1,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Will she organize the event?",
+        "options": [
+            "Will the event be organized by her?",
+            "Will she been organized the event?",
+            "Will organized by her be the event?",
+            "The event will organized by her."
+        ],
+        "answer": 0,
+        "explanation": "Future simple question passive."
+    },
+    {
+        "question": "The committee approved the proposal.",
+        "options": [
+            "The proposal was approved by the committee.",
+            "The proposal approved by the committee.",
+            "The committee is approved proposal.",
+            "The proposal has been approved by the committee."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "The cleaners remove the garbage every morning.",
+        "options": [
+            "The garbage is removed every morning by the cleaners.",
+            "Garbage was removed by the cleaners every morning.",
+            "Garbage removed by the cleaners every morning.",
+            "Every morning, garbage is removed cleaners."
+        ],
+        "answer": 0,
+        "explanation": "Present simple passive."
+    },
+    {
+        "question": "Has he completed the experiment?",
+        "options": [
+            "Has the experiment been completed by him?",
+            "The experiment was completed by him.",
+            "Was the experiment completed by him?",
+            "Has the experiment completed by him?"
+        ],
+        "answer": 0,
+        "explanation": "Present perfect question passive."
+    },
+    {
+        "question": "They are playing cricket.",
+        "options": [
+            "Cricket is being played by them.",
+            "Cricket played by them.",
+            "Cricket was played by them.",
+            "Cricket has been played by them."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "The company announced the results yesterday.",
+        "options": [
+            "The results were announced by the company yesterday.",
+            "The results was announced yesterday.",
+            "Yesterday the results announced by the company.",
+            "Yesterday the company announces the results."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "She was watering the plants.",
+        "options": [
+            "The plants were being watered by her.",
+            "The plants was watered by her.",
+            "The plants are watered by her.",
+            "The plants has been watered by her."
+        ],
+        "answer": 0,
+        "explanation": "Past continuous passive."
+    },
+    {
+        "question": "Did the clerk check the documents?",
+        "options": [
+            "Were the documents checked by the clerk?",
+            "Was the documents checked by the clerk?",
+            "Documents checked by the clerk?",
+            "Are documents checked by the clerk?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "The fire destroyed the warehouse.",
+        "options": [
+            "The warehouse was destroyed by the fire.",
+            "The fire was destroyed by the warehouse.",
+            "Warehouse destroyed by fire.",
+            "Warehouse destruction by fire."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Who will teach you French?",
+        "options": [
+            "By whom will you be taught French?",
+            "Who French will be taught you by?",
+            "French will be taught to you by whom?",
+            "By whom you will taught French?"
+        ],
+        "answer": 0,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "He will not attend the meeting.",
+        "options": [
+            "The meeting will not be attended by him.",
+            "The meeting will not attended by him.",
+            "The meeting is not attended by him.",
+            "He will not be attended the meeting."
+        ],
+        "answer": 0,
+        "explanation": "Future negative passive."
+    },
+    {
+        "question": "Did the manager submit the report?",
+        "options": [
+            "Was the report submitted by the manager?",
+            "The report was submitted by the manager.",
+            "Did the report submitted by the manager?",
+            "Report submitted by the manager?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "The postman delivers letters every day.",
+        "options": [
+            "Letters are delivered every day by the postman.",
+            "Letters every day deliver by postman.",
+            "Letters delivered by postman every day.",
+            "Postman delivers letters every day."
+        ],
+        "answer": 0,
+        "explanation": "Present simple passive."
+    },
+    {
+        "question": "The students are writing the test.",
+        "options": [
+            "The test is being written by the students.",
+            "Test being written by students.",
+            "The test has been written by the students.",
+            "Test was written by the students."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Someone is making arrangements for the function.",
+        "options": [
+            "Arrangements for the function are being made by someone.",
+            "Arrangements are made by someone for the function.",
+            "Arrangements function being made.",
+            "Arrangements for function has made by someone."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "The driver parked the car.",
+        "options": [
+            "The car was parked by the driver.",
+            "The car parked by the driver.",
+            "Driver was parked the car.",
+            "The car will be parked by the driver."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "They will not allow smoking here.",
+        "options": [
+            "Smoking will not be allowed here.",
+            "Smoking was not allowed here.",
+            "Smoking will not allow here.",
+            "Smoking is not allowed here."
+        ],
+        "answer": 0,
+        "explanation": "Future negative passive."
+    },
+    {
+        "question": "Did you lock the door?",
+        "options": [
+            "Was the door locked by you?",
+            "Is the door locked by you?",
+            "The door locked by you?",
+            "Have the door locked by you?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "The teacher explains the lesson.",
+        "options": [
+            "The lesson is explained by the teacher.",
+            "Lesson explained by teacher.",
+            "Lesson is explaining by teacher.",
+            "Lesson has explained by teacher."
+        ],
+        "answer": 0,
+        "explanation": "Present simple passive."
+    },
+    {
+        "question": "She invited me to her birthday party.",
+        "options": [
+            "I was invited to her birthday party by her.",
+            "I am invited to her birthday party by her.",
+            "I had invited to her birthday party by her.",
+            "I will invited to her birthday party by her."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Did Rahul eat the cake?",
+        "options": [
+            "Was the cake eaten by Rahul?",
+            "The cake was eaten by Rahul.",
+            "Is the cake eaten by Rahul?",
+            "Cake was eaten by Rahul?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "The staff organizes the conference every year.",
+        "options": [
+            "The conference is organized every year by the staff.",
+            "Conference is organized by staff every year.",
+            "Conference organized every year by staff.",
+            "Staff every year is organized by conference."
+        ],
+        "answer": 0,
+        "explanation": "Present simple passive."
+    },
+    {
+        "question": "She washes the clothes every Saturday.",
+        "options": [
+            "The clothes are washed every Saturday by her.",
+            "Clothes are washing every Saturday by her.",
+            "Clothes washed by her every Saturday.",
+            "Clothes is washed by her every Saturday."
+        ],
+        "answer": 0,
+        "explanation": "Present simple passive."
+    },
+    {
+        "question": "My sister prepared the food.",
+        "options": [
+            "The food was prepared by my sister.",
+            "Food was prepared by sister.",
+            "The food prepared by my sister.",
+            "Food prepared by my sister."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Did they decorate the hall?",
+        "options": [
+            "Was the hall decorated by them?",
+            "Is the hall decorated by them?",
+            "Hall decorated by them?",
+            "Hall is decorated by them?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "She will write a poem.",
+        "options": [
+            "A poem will be written by her.",
+            "A poem was written by her.",
+            "A poem is written by her.",
+            "A poem will written by her."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "The chef will cook dinner.",
+        "options": [
+            "Dinner will be cooked by the chef.",
+            "Dinner will cooked by chef.",
+            "Dinner is being cooked by chef.",
+            "Dinner cooked by chef."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Did the students solve the puzzle?",
+        "options": [
+            "Was the puzzle solved by the students?",
+            "Puzzle solved by the students?",
+            "Is the puzzle solved by the students?",
+            "Puzzle is solved by the students?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "They will play the match tomorrow.",
+        "options": [
+            "The match will be played tomorrow by them.",
+            "The match played tomorrow by them.",
+            "The match tomorrow played by them.",
+            "Tomorrow the match will played by them."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "She has painted the fence.",
+        "options": [
+            "The fence has been painted by her.",
+            "The fence was painted by her.",
+            "Fence painted by her.",
+            "Fence is painted by her."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "The director will announce the winner.",
+        "options": [
+            "The winner will be announced by the director.",
+            "Winner will be announced by director.",
+            "The winner announced by the director.",
+            "Winner announced by director."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Did you buy the tickets?",
+        "options": [
+            "Were the tickets bought by you?",
+            "Tickets were bought by you?",
+            "Is the ticket bought by you?",
+            "Have tickets bought by you?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "He will solve the problem.",
+        "options": [
+            "The problem will be solved by him.",
+            "The problem will solved by him.",
+            "Problem will be solved by him.",
+            "The problem is being solved by him."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "The children drew a beautiful picture.",
+        "options": [
+            "A beautiful picture was drawn by the children.",
+            "Beautiful picture was drawn by children.",
+            "A beautiful picture drawn by children.",
+            "Children drew beautiful picture."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Will they clean the classroom?",
+        "options": [
+            "Will the classroom be cleaned by them?",
+            "Will the classroom cleaned by them?",
+            "Classroom cleaned by them?",
+            "Classroom will be cleaned by them?"
+        ],
+        "answer": 0,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "He has repaired my laptop.",
+        "options": [
+            "My laptop has been repaired by him.",
+            "My laptop was repaired by him.",
+            "My laptop is repaired by him.",
+            "My laptop has repaired by him."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "Did the waiter serve the food?",
+        "options": [
+            "Was the food served by the waiter?",
+            "Food was served by the waiter?",
+            "Is the food served by the waiter?",
+            "Food served by waiter?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+	{
+        "question": "Who broke the cup?",
+        "options": [
+            "Who was the cup broken by?",
+            "By whom was the cup broken?",
+            "Who has broken the cup?",
+            "The cup was broken by whom?"
+        ],
+        "answer": 1,
+        "explanation": "Correct passive: 'By whom was the cup broken?'"
+    },
+    {
+        "question": "Have they repaired the bridge?",
+        "options": [
+            "The bridge was repaired by them.",
+            "Has the bridge repaired by them?",
+            "Has the bridge been repaired by them?",
+            "The bridge was being repaired by them."
+        ],
+        "answer": 2,
+        "explanation": "Present perfect question passive."
+    },
+    {
+        "question": "They will publish the results tomorrow.",
+        "options": [
+            "Tomorrow the results are published by them.",
+            "The results will be published by them tomorrow.",
+            "Tomorrow they publish the results.",
+            "Results will publish by them tomorrow."
+        ],
+        "answer": 1,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "The teacher is explaining the answer.",
+        "options": [
+            "The answer is explained by the teacher.",
+            "The answer was explained by the teacher.",
+            "The answer is being explained by the teacher.",
+            "The answer are explained by the teacher."
+        ],
+        "answer": 2,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "The cat killed the mouse.",
+        "options": [
+            "Mouse was killed by cat.",
+            "The mouse was killed by the cat.",
+            "The cat has killed the mouse.",
+            "Mouse killed by cat."
+        ],
+        "answer": 1,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Are they cleaning the park?",
+        "options": [
+            "Is the park being cleaned by them?",
+            "Park cleaning by them?",
+            "The park is cleaned by them?",
+            "Was the park cleaned by them?"
+        ],
+        "answer": 0,
+        "explanation": "Present continuous question passive."
+    },
+    {
+        "question": "She gave me a gift.",
+        "options": [
+            "I was given a gift by her.",
+            "She was given a gift by me.",
+            "A gift is given me by her.",
+            "She had given a gift to me."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive with indirect object."
+    },
+    {
+        "question": "Did you see the rainbow?",
+        "options": [
+            "The rainbow is seen by you?",
+            "Rainbow was seen by you?",
+            "Was the rainbow seen by you?",
+            "The rainbow seen by you?"
+        ],
+        "answer": 2,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "She will not open the shop tomorrow.",
+        "options": [
+            "The shop will not be opened by her tomorrow.",
+            "Tomorrow shop will be opened by her.",
+            "The shop was not opened by her tomorrow.",
+            "Shop will not open tomorrow by her."
+        ],
+        "answer": 0,
+        "explanation": "Future negative passive."
+    },
+    {
+        "question": "The manager has signed the contract.",
+        "options": [
+            "The contract has signed by the manager.",
+            "The contract has been signed by the manager.",
+            "Contract has signed by manager.",
+            "The contract had been signed by the manager."
+        ],
+        "answer": 1,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "Who teaches Physics to the class?",
+        "options": [
+            "Physics is taught to the class by whom?",
+            "Physics to the class is taught by whom?",
+            "By whom is Physics taught to the class?",
+            "Physics is teaching to the class by whom?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure, correct placement."
+    },
+    {
+        "question": "She has lost her wallet.",
+        "options": [
+            "The wallet lost by her.",
+            "Her wallet has lost by her.",
+            "Her wallet is lost by her.",
+            "Her wallet has been lost by her."
+        ],
+        "answer": 3,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "The police will arrest the culprit.",
+        "options": [
+            "The culprit was arrested by the police.",
+            "The culprit is arrested by police.",
+            "The culprit will be arrested by the police.",
+            "The culprit has been arrested by police."
+        ],
+        "answer": 2,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "The class is preparing a project.",
+        "options": [
+            "A project was prepared by the class.",
+            "A project is being prepared by the class.",
+            "A project had been prepared by the class.",
+            "A project prepares by the class."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Does she learn French?",
+        "options": [
+            "Is French learned by her?",
+            "Was French learned by her?",
+            "French was being learnt by her?",
+            "French has been learned by her?"
+        ],
+        "answer": 0,
+        "explanation": "Present simple question passive."
+    },
+    {
+        "question": "The editor corrected the manuscript.",
+        "options": [
+            "The manuscript corrected by the editor.",
+            "The manuscript was corrected by the editor.",
+            "Editor corrected the manuscript.",
+            "The manuscript has corrected by the editor."
+        ],
+        "answer": 1,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "The jury selected the winner.",
+        "options": [
+            "The winner had been selected by the jury.",
+            "The winner was selected by the jury.",
+            "The winner selects by the jury.",
+            "The winner is selected by the jury."
+        ],
+        "answer": 1,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Do they encourage new artists?",
+        "options": [
+            "Are new artists encouraged by them?",
+            "New artists are encourage by them?",
+            "New artists is encouraged by them?",
+            "New artists were encouraged by them?"
+        ],
+        "answer": 0,
+        "explanation": "Present simple question passive."
+    },
+    {
+        "question": "The chef is cooking delicious food.",
+        "options": [
+            "Delicious food was cooked by the chef.",
+            "Delicious food is being cooked by the chef.",
+            "Delicious food was being cooked by the chef.",
+            "Delicious foods cooked by chef."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "She will finish the assignment soon.",
+        "options": [
+            "The assignment is finished by her soon.",
+            "The assignment was finished by her soon.",
+            "The assignment will be finished by her soon.",
+            "Assignment will finish soon by her."
+        ],
+        "answer": 2,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Did he give you advice?",
+        "options": [
+            "Were you given advice by him?",
+            "Was advice given you by him?",
+            "Was advice given to you by him?",
+            "Is advice given to you by him?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive with indirect object."
+    },
+    {
+        "question": "The storm damaged crops in the region.",
+        "options": [
+            "Crops in the region was damaged by the storm.",
+            "Crops in the region have been damaged by the storm.",
+            "Crops in the region were damaged by the storm.",
+            "Crops damaged by the storm in the region."
+        ],
+        "answer": 2,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Will they award him a medal?",
+        "options": [
+            "Will a medal be awarded to him by them?",
+            "Will he be awarded a medal by them?",
+            "Will him be awarded a medal by them?",
+            "Will a medal awarded to him?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive with indirect object."
+    },
+    {
+        "question": "Her father lent her some money.",
+        "options": [
+            "She was lent some money by her father.",
+            "Her father was lent some money by her.",
+            "Some money is being lent her by her father.",
+            "She has been lent some money by her father."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive with indirect object."
+    },
+    {
+        "question": "They are sending invitations.",
+        "options": [
+            "Invitations are sent by them.",
+            "Invitations are being sent by them.",
+            "They sent invitations.",
+            "Invitations will be sent by them."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Who wrote the novel?",
+        "options": [
+            "Who was written the novel?",
+            "By whom was the novel written?",
+            "The novel was written by whom?",
+            "Who was the novel written by?"
+        ],
+        "answer": 1,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Is someone cleaning the classroom?",
+        "options": [
+            "Is the classroom being cleaned by someone?",
+            "Is the classroom cleaned by someone?",
+            "Was the classroom being cleaned by someone?",
+            "Is the classroom has been cleaned by someone?"
+        ],
+        "answer": 0,
+        "explanation": "Present continuous question passive."
+    },
+    {
+        "question": "Our team will win the trophy.",
+        "options": [
+            "The trophy will be won by our team.",
+            "The trophy will won by our team.",
+            "The trophy is won by our team.",
+            "The trophy won by our team."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Has the postman delivered the parcels?",
+        "options": [
+            "The parcels has been delivered by the postman.",
+            "Have the parcels delivered by the postman?",
+            "Have the parcels been delivered by the postman?",
+            "The parcels are delivered by the postman."
+        ],
+        "answer": 2,
+        "explanation": "Present perfect question passive."
+    },
+    {
+        "question": "Who will solve this mystery?",
+        "options": [
+            "By whom will this mystery be solved?",
+            "Who will be solved this mystery?",
+            "Who will be solving this mystery?",
+            "This mystery will be solved by whom?"
+        ],
+        "answer": 0,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did she answer all the questions?",
+        "options": [
+            "Were all the questions answered by her?",
+            "All the questions are answered by her?",
+            "All the questions answered by her?",
+            "All the questions was answered by her?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "The gardener waters the plants every evening.",
+        "options": [
+            "The plants are watered every evening by the gardener.",
+            "The plants will be watered every evening by the gardener.",
+            "The plants watered every evening by the gardener.",
+            "The gardener watering the plants every evening."
+        ],
+        "answer": 0,
+        "explanation": "Present simple passive."
+    },
+    {
+        "question": "Did they paint the house?",
+        "options": [
+            "Was the house painted by them?",
+            "The house painted by them?",
+            "Were the house painted by them?",
+            "House is painted by them?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will you pack the luggage?",
+        "options": [
+            "The luggage will be packed by you.",
+            "Luggage will pack by you.",
+            "Will the luggage packed by you?",
+            "The luggage packed by you."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Are they conducting the experiment?",
+        "options": [
+            "Is the experiment being conducted by them?",
+            "Is experiment conducted by them?",
+            "Was the experiment conducted by them?",
+            "Experiment has been conducted by them?"
+        ],
+        "answer": 0,
+        "explanation": "Present continuous question passive."
+    },
+    {
+        "question": "She baked a cake for my birthday.",
+        "options": [
+            "A cake was baked for my birthday by her.",
+            "A cake is baked for my birthday by her.",
+            "A cake will be baked for my birthday by her.",
+            "My birthday was baked cake by her."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Who repaired your watch?",
+        "options": [
+            "Who your watch was repaired by?",
+            "Who was your watch repaired by?",
+            "By whom your watch was repaired?",
+            "By whom was your watch repaired?"
+        ],
+        "answer": 3,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the scientist discover a new element?",
+        "options": [
+            "Was a new element discovered by the scientist?",
+            "Was have a new element discovered by the scientist?",
+            "A new element was discovered by scientist?",
+            "A new element is discovered by the scientist?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Who will clean the kitchen?",
+        "options": [
+            "Who will be clean the kitchen?",
+            "Who will cleaning the kitchen?",
+            "By whom will the kitchen be cleaned?",
+            "Who cleaned the kitchen?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "The staff has organized a seminar.",
+        "options": [
+            "A seminar was organized by the staff.",
+            "A seminar is organized by the staff.",
+            "A seminar has been organized by the staff.",
+            "A seminar will be organized by the staff."
+        ],
+        "answer": 2,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "Did the committee review the policy?",
+        "options": [
+            "Was the policy reviewed by the committee?",
+            "The policy is reviewed by the committee?",
+            "The policy reviewed by the committee?",
+            "Policy was reviewed by the committee?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Is she baking cookies now?",
+        "options": [
+            "Are cookies being baked by her now?",
+            "Cookies baked by her now?",
+            "Cookies is baked by her now?",
+            "Cookies are being baking by her now?"
+        ],
+        "answer": 0,
+        "explanation": "Present continuous question passive."
+    },
+    {
+        "question": "Did he design the poster?",
+        "options": [
+            "Was the poster designed by him?",
+            "Poster was designed by him?",
+            "Is the poster designed by him?",
+            "Poster is being designed by him?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Who will check your assignment?",
+        "options": [
+            "By whom will your assignment be checked?",
+            "Who will your assignment checked by?",
+            "Your assignment will be checked by who?",
+            "Who checked your assignment?"
+        ],
+        "answer": 0,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "My friend solved the puzzle.",
+        "options": [
+            "Puzzle solved by my friend.",
+            "The puzzle was solved by my friend.",
+            "Friend solved by the puzzle.",
+            "The puzzle is solved by my friend."
+        ],
+        "answer": 1,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "Who discovered penicillin?",
+        "options": [
+            "Who was penicillin discovered by?",
+            "By whom was penicillin discovered?",
+            "Penicillin was discovered by whom?",
+            "Who discovered penicillin?"
+        ],
+        "answer": 1,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Will you call the technician?",
+        "options": [
+            "Will the technician be called by you?",
+            "Technician will be called by you?",
+            "Technician was called by you?",
+            "Technician is called by you?"
+        ],
+        "answer": 0,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did the students attend the workshop?",
+        "options": [
+            "Was the workshop attended by the students?",
+            "The workshop attended by students?",
+            "Workshop attended by the students?",
+            "Workshop was attended by students?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+	  {
+        "question": "Has the company received your application?",
+        "options": [
+            "Has your application been received by the company?",
+            "Your application was received by the company?",
+            "Was your application received by company?",
+            "Application has been received by the company?"
+        ],
+        "answer": 0,
+        "explanation": "Present perfect question passive."
+    },
+    {
+        "question": "Who stole the jewels?",
+        "options": [
+            "Jewels were stolen by whom?",
+            "Who the jewels were stolen by?",
+            "By whom were the jewels stolen?",
+            "Jewels stolen by whom?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Will they visit the museum?",
+        "options": [
+            "Museum will be visited by them?",
+            "Will the museum be visited by them?",
+            "Will the museum being visited by them?",
+            "Museum is visited by them?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did he clean his shoes?",
+        "options": [
+            "Were his shoes cleaned by him?",
+            "His shoes cleaned by him?",
+            "Shoes cleaned by him?",
+            "His shoes was cleaned by him?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Who will photograph the ceremony?",
+        "options": [
+            "Who the ceremony will be photographed by?",
+            "Ceremony will be photographed by whom?",
+            "By whom will the ceremony be photographed?",
+            "Who photographed the ceremony?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did the librarian lend the book?",
+        "options": [
+            "Was the book lent by the librarian?",
+            "The book lent by librarian?",
+            "Book was lent by the librarian?",
+            "Book is lent by the librarian?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the teacher grade your test?",
+        "options": [
+            "Will your test be graded by the teacher?",
+            "Will be graded by the teacher your test?",
+            "Test will be graded by teacher?",
+            "Test is graded by the teacher?"
+        ],
+        "answer": 0,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did you lock the cupboard?",
+        "options": [
+            "Was the cupboard locked by you?",
+            "Cupboard locked by you?",
+            "Cupboard was locked by you?",
+            "Cupboard is locked by you?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will he check the details?",
+        "options": [
+            "Will be checked by him the details?",
+            "The details will be checked by him.",
+            "Details are checked by him.",
+            "Details will checked by him."
+        ],
+        "answer": 1,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Who painted this masterpiece?",
+        "options": [
+            "By whom was this masterpiece painted?",
+            "Who painted by this masterpiece?",
+            "Who was this masterpiece painted by?",
+            "This masterpiece was painted by who?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did they repair the road?",
+        "options": [
+            "Was the road repaired by them?",
+            "The road was repaired by them?",
+            "Road is repaired by them?",
+            "Road repaired by them?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the shopkeeper exchange the product?",
+        "options": [
+            "Will the product exchanged by the shopkeeper?",
+            "Shopkeeper exchanged the product?",
+            "Will the product be exchanged by the shopkeeper?",
+            "Shopkeeper exchanges the product?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who will lead the team?",
+        "options": [
+            "Who the team will be led by?",
+            "By whom will the team be led?",
+            "Team will be led by whom?",
+            "Who will be led the team?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Has the mechanic fixed the engine?",
+        "options": [
+            "Has the engine fixed by the mechanic?",
+            "The engine was fixed by the mechanic?",
+            "Has the engine been fixed by the mechanic?",
+            "Engine has been fixed by mechanic?"
+        ],
+        "answer": 2,
+        "explanation": "Present perfect question passive."
+    },
+    {
+        "question": "Did the students ask a question?",
+        "options": [
+            "Was a question asked by the students?",
+            "A question was asked by the students?",
+            "Was the students asked a question?",
+            "Question was asked by the students?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the company launch a new phone?",
+        "options": [
+            "A new phone will be launched by the company.",
+            "Will be launched by the company a new phone?",
+            "New phone will launched by company.",
+            "New phone launched by company?"
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Has the host served dinner?",
+        "options": [
+            "Has dinner been served by the host?",
+            "Dinner has been served by host?",
+            "Host has served dinner?",
+            "Dinner was served by the host?"
+        ],
+        "answer": 0,
+        "explanation": "Present perfect question passive."
+    },
+    {
+        "question": "Who will sign the agreement?",
+        "options": [
+            "Who will the agreement be signed by?",
+            "By whom will the agreement be signed?",
+            "Agreement will be signed by whom?",
+            "Agreement will be signing by whom?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did the athletes break the record?",
+        "options": [
+            "Was the record broken by the athletes?",
+            "Record was broken by athletes?",
+            "The record was broken by the athletes?",
+            "Athletes broke the record?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the director release the film?",
+        "options": [
+            "Film will released by the director?",
+            "Will the film released by the director?",
+            "Will the film be released by the director?",
+            "Director will release the film?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did the engineer design the bridge?",
+        "options": [
+            "Was the bridge designed by the engineer?",
+            "Engineer designed the bridge?",
+            "Bridge was designed by engineer?",
+            "Bridge is designed by the engineer?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the chef prepare lunch?",
+        "options": [
+            "Chef prepared lunch?",
+            "Lunch will be prepared by the chef.",
+            "Lunch will prepared by chef?",
+            "Lunch prepared by chef?"
+        ],
+        "answer": 1,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Who solved the mystery?",
+        "options": [
+            "Who was the mystery solved by?",
+            "By whom was the mystery solved?",
+            "Mystery solved by whom?",
+            "Who solved by the mystery?"
+        ],
+        "answer": 1,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the children make a sandcastle?",
+        "options": [
+            "Was a sandcastle made by the children?",
+            "A sandcastle made by children?",
+            "The sandcastle made by children?",
+            "Children made the sandcastle?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the publisher print the book?",
+        "options": [
+            "Book will printed by publisher?",
+            "Will the book be printed by the publisher?",
+            "Publisher prints the book?",
+            "Book printed by the publisher?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who decorated the hall?",
+        "options": [
+            "Hall decorated by whom?",
+            "Who decorated by the hall?",
+            "By whom was the hall decorated?",
+            "Who was the hall decorated by?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Will the company promote him?",
+        "options": [
+            "He will promoted by the company?",
+            "Will he be promoted by the company?",
+            "He promoted by the company?",
+            "Will he promoted by company?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Has she submitted her assignment?",
+        "options": [
+            "Assignment has been submitted by her?",
+            "Her assignment has been submitted by her?",
+            "Has her assignment been submitted by her?",
+            "Her assignment submitted by her?"
+        ],
+        "answer": 2,
+        "explanation": "Present perfect question passive."
+    },
+    {
+        "question": "Did the student complete the survey?",
+        "options": [
+            "Was the survey completed by the student?",
+            "Survey was completed by student?",
+            "Survey completed by the student?",
+            "Student completed the survey?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Who will judge the contest?",
+        "options": [
+            "Who judged by the contest?",
+            "The contest will be judged by whom?",
+            "By whom will the contest be judged?",
+            "Contest judged by whom?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Will the employee sign the contract?",
+        "options": [
+            "Employee signed the contract?",
+            "The contract will be signed by the employee.",
+            "Contract will signed by employee?",
+            "Contract is signed by employee?"
+        ],
+        "answer": 1,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Has the professor explained the topic?",
+        "options": [
+            "Topic has been explained by professor?",
+            "The topic has been explained by the professor.",
+            "Has explained the topic by the professor?",
+            "The topic explained by the professor?"
+        ],
+        "answer": 1,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "Did the nurse administer the injection?",
+        "options": [
+            "Was the injection administered by the nurse?",
+            "Injection administered by nurse?",
+            "Nurse administered the injection?",
+            "Injection was administered by nurse?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the agency send an email?",
+        "options": [
+            "An email will be sent by the agency.",
+            "Email will sent by the agency?",
+            "Email sent by the agency?",
+            "Agency will send an email?"
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Did the players score a goal?",
+        "options": [
+            "A goal was scored by the players?",
+            "Was a goal scored by the players?",
+            "Players scored the goal?",
+            "Goal was scored by players?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the bank approve your loan?",
+        "options": [
+            "Will your loan be approved by the bank?",
+            "Loan will approved by the bank?",
+            "Loan approved by bank?",
+            "Loan is being approved by bank?"
+        ],
+        "answer": 0,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who opened the account?",
+        "options": [
+            "By whom was the account opened?",
+            "Account was opened by who?",
+            "Account is opened by whom?",
+            "Who was the account opened by?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the team win the match?",
+        "options": [
+            "Was the match won by the team?",
+            "Team won the match?",
+            "Match was won by the team?",
+            "Match was winning by team?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the author write the story?",
+        "options": [
+            "The story will be written by the author.",
+            "Author is writing the story?",
+            "Story will written by author?",
+            "Story written by author?"
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Did the musician compose the song?",
+        "options": [
+            "The song was composed by the musician?",
+            "Was the song composed by the musician?",
+            "Song composed by musician?",
+            "Musician composed the song?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the gardener plant roses?",
+        "options": [
+            "Roses will be planted by the gardener.",
+            "Gardener planted roses?",
+            "Roses will planted by gardener?",
+            "Roses planted by gardener?"
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Did the chef bake bread?",
+        "options": [
+            "Was bread baked by the chef?",
+            "Bread was baked by chef?",
+            "Was the bread baked by the chef?",
+            "Bread is baked by chef?"
+        ],
+        "answer": 2,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Who called the doctor?",
+        "options": [
+            "By whom was the doctor called?",
+            "Who the doctor was called by?",
+            "Doctor called by whom?",
+            "Who called by the doctor?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the clerk issue the cheque?",
+        "options": [
+            "Was the cheque issued by the clerk?",
+            "Cheque was issued by clerk?",
+            "Cheque issued by clerk?",
+            "Clerk issued the cheque?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+	{
+        "question": "Will they publish the article?",
+        "options": [
+            "Will the article publish by them?",
+            "Will the article be published by them?",
+            "Article will published by them?",
+            "The article was published by them?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did the parents support the project?",
+        "options": [
+            "Project supported by the parents?",
+            "Was the project supported by the parents?",
+            "Project was supporting by parents?",
+            "Parents supported the project?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Who organized the festival?",
+        "options": [
+            "By whom was the festival organized?",
+            "Festival organized by whom?",
+            "Who organized by the festival?",
+            "Who was the festival organized by?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Will the host invite the guests?",
+        "options": [
+            "Guests will be invited by the host.",
+            "Host will invite guests.",
+            "The guests will be invited by the host?",
+            "Guests invited by host."
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Did the children solve the puzzle?",
+        "options": [
+            "Puzzle was solved by the children?",
+            "Was the puzzle solved by the children?",
+            "Puzzle solved by children?",
+            "Children solved puzzle?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will they build the bridge?",
+        "options": [
+            "Bridge will be built by them?",
+            "Will be built by them the bridge?",
+            "Will the bridge be built by them?",
+            "Bridge built by them?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who designed the logo?",
+        "options": [
+            "Logo was designed by whom?",
+            "By whom was the logo designed?",
+            "Who designed by the logo?",
+            "Who was the logo designed by?"
+        ],
+        "answer": 1,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the speaker address the meeting?",
+        "options": [
+            "Was the meeting addressed by the speaker?",
+            "Meeting was addressed by the speaker?",
+            "Meeting addressed by speaker?",
+            "Speaker addressed meeting?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the shop owner display the product?",
+        "options": [
+            "Product will be displayed by the shop owner.",
+            "Shop owner displayed the product?",
+            "Will the product be displayed by the shop owner?",
+            "Product displayed by shop owner?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who wrote the article?",
+        "options": [
+            "Article written by whom?",
+            "Who was the article written by?",
+            "Who wrote by the article?",
+            "By whom was the article written?"
+        ],
+        "answer": 3,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the team achieve the target?",
+        "options": [
+            "Was the target achieved by the team?",
+            "Target was achieved by team?",
+            "Team achieved target?",
+            "Target achieved by the team?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the government pass the bill?",
+        "options": [
+            "Bill will be passed by government?",
+            "Government passed the bill?",
+            "Will the bill be passed by the government?",
+            "Bill passed by government?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who painted this mural?",
+        "options": [
+            "Who painted by mural?",
+            "Who was this mural painted by?",
+            "By whom was this mural painted?",
+            "Mural painted by whom?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the coach train the players?",
+        "options": [
+            "Coach trained the players?",
+            "Was the coach trained by the players?",
+            "Were the players trained by the coach?",
+            "Players trained by coach?"
+        ],
+        "answer": 2,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the committee propose a solution?",
+        "options": [
+            "Solution will be proposed by the committee.",
+            "Committe proposed solution?",
+            "Will a solution be proposed by the committee?",
+            "Committee propose solution?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who discovered gravity?",
+        "options": [
+            "Who gravity was discovered by?",
+            "Who discovered by gravity?",
+            "By whom was gravity discovered?",
+            "Gravity discovered by whom?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the artist draw the sketch?",
+        "options": [
+            "Was the sketch drawn by the artist?",
+            "Sketch was drawn by the artist?",
+            "Artist drew the sketch?",
+            "Sketch drawn by artist?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the hospital provide free treatment?",
+        "options": [
+            "Hospital provides free treatment?",
+            "Treatment will be provided by hospital?",
+            "Will free treatment be provided by the hospital?",
+            "Free treatment provided by hospital?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who invented the computer?",
+        "options": [
+            "By whom was the computer invented?",
+            "Computer invented by whom?",
+            "Who invented by the computer?",
+            "Who was the computer invented by?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the teacher explain the lesson?",
+        "options": [
+            "Lesson explained by teacher?",
+            "Was the lesson explained by the teacher?",
+            "Teacher explained the lesson?",
+            "Lesson was explained by teacher?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the factory produce the goods?",
+        "options": [
+            "Goods will be produced by the factory.",
+            "Factory produced the goods?",
+            "Will the goods be produced by the factory?",
+            "Goods produced by factory?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who composed this melody?",
+        "options": [
+            "Who composed by melody?",
+            "Melody composed by whom?",
+            "By whom was this melody composed?",
+            "Who was this melody composed by?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the students submit their assignments?",
+        "options": [
+            "Assignments submitted by students?",
+            "Were the assignments submitted by the students?",
+            "Students submitted assignments?",
+            "Assignments was submitted by students?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the company distribute the prize?",
+        "options": [
+            "Prize will be distributed by company?",
+            "Will the prize be distributed by the company?",
+            "Company distributed the prize?",
+            "Prize distributed by company?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who built the monument?",
+        "options": [
+            "Monument built by whom?",
+            "Built by whom the monument was?",
+            "By whom was the monument built?",
+            "Who was the monument built by?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the team complete the project?",
+        "options": [
+            "Was the project completed by the team?",
+            "Project completed by team?",
+            "Project was completed by the team?",
+            "Team completed the project?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the chef prepare a dessert?",
+        "options": [
+            "Chef prepared a dessert?",
+            "Dessert will be prepared by chef?",
+            "Will a dessert be prepared by the chef?",
+            "Dessert prepared by chef?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who discovered the vaccine?",
+        "options": [
+            "Vaccine discovered by whom?",
+            "By whom was the vaccine discovered?",
+            "Who was the vaccine discovered by?",
+            "Who discovered by the vaccine?"
+        ],
+        "answer": 1,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the author complete the manuscript?",
+        "options": [
+            "Manuscript completed by author?",
+            "Was the manuscript completed by the author?",
+            "Author completed the manuscript?",
+            "Manuscript was completed by author?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the painter finish the artwork?",
+        "options": [
+            "Artwork will be finished by the painter.",
+            "Painter finished the artwork?",
+            "Will the artwork be finished by the painter?",
+            "Artwork finished by painter?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who arranged the event?",
+        "options": [
+            "By whom was the event arranged?",
+            "Who arranged by the event?",
+            "Event arranged by whom?",
+            "Who was the event arranged by?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the judge announce the verdict?",
+        "options": [
+            "Judge announced the verdict?",
+            "Verdict was announced by judge?",
+            "Was the verdict announced by the judge?",
+            "Judge announced the verdict was?"
+        ],
+        "answer": 2,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the school organize the function?",
+        "options": [
+            "Will the function be organized by the school?",
+            "School organized the function?",
+            "Function organized by school?",
+            "Function will be organized by school?"
+        ],
+        "answer": 0,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who wrote the poem?",
+        "options": [
+            "Who written by the poem?",
+            "Poem written by whom?",
+            "By whom was the poem written?",
+            "Who was the poem written by?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the factory export the goods?",
+        "options": [
+            "Exported by the factory the goods?",
+            "Goods exported by factory?",
+            "Was the goods exported by the factory?",
+            "Were the goods exported by the factory?"
+        ],
+        "answer": 3,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will they conduct the interview?",
+        "options": [
+            "Interview will be conducted by them?",
+            "Will the interview be conducted by them?",
+            "Conducted the interview by them?",
+            "Interview conducted by them?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who invented the telephone?",
+        "options": [
+            "By whom was the telephone invented?",
+            "Telephone invented by whom?",
+            "Who invented by the telephone?",
+            "Who was the telephone invented by?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the principal announce the results?",
+        "options": [
+            "Principal announced the results?",
+            "Were the results announced by the principal?",
+            "Results announced by principal?",
+            "Was the results announced by the principal?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the manager approve your request?",
+        "options": [
+            "Your request will be approved by the manager.",
+            "Manager approves your request?",
+            "Request is approved by manager?",
+            "Will your request approved by manager?"
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Who cleaned the house?",
+        "options": [
+            "House cleaned by whom?",
+            "Who cleaned by the house?",
+            "By whom was the house cleaned?",
+            "Who was the house cleaned by?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the doctor treat the patient?",
+        "options": [
+            "Was the patient treated by the doctor?",
+            "Patient was treated by doctor?",
+            "Doctor treated the patient?",
+            "Patient treated by doctor?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the chef serve the meal?",
+        "options": [
+            "Meal will be served by the chef.",
+            "Chef served the meal?",
+            "Will the meal be served by the chef?",
+            "Meal served by chef?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who invented the radio?",
+        "options": [
+            "By whom was the radio invented?",
+            "Radio invented by whom?",
+            "Who was the radio invented by?",
+            "Who invented by the radio?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+	 {
+        "question": "Who directed the movie?",
+        "options": [
+            "Who was the movie directed by?",
+            "By whom was the movie directed?",
+            "Movie directed by whom?",
+            "Who directed by the movie?"
+        ],
+        "answer": 1,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the engineers construct the building?",
+        "options": [
+            "Was the building constructed by the engineers?",
+            "Building constructed by engineers?",
+            "Engineers constructed the building?",
+            "Building was constructed by engineers?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the government implement the policy?",
+        "options": [
+            "Policy will be implemented by the government.",
+            "Will the policy be implemented by the government?",
+            "Government will implement the policy?",
+            "Policy implemented by government?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who wrote the report?",
+        "options": [
+            "By whom was the report written?",
+            "Report was written by whom?",
+            "Who was the report written by?",
+            "Who wrote by the report?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the doctor examine the patient?",
+        "options": [
+            "Was the patient examined by the doctor?",
+            "Patient examined by doctor?",
+            "Doctor examined the patient?",
+            "Patient was examined by doctor?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the teacher prepare the syllabus?",
+        "options": [
+            "Syllabus will be prepared by the teacher.",
+            "Will the syllabus be prepared by the teacher?",
+            "Teacher will prepare the syllabus?",
+            "Syllabus prepared by teacher?"
+        ],
+        "answer": 1,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who painted the wall?",
+        "options": [
+            "Wall painted by whom?",
+            "By whom was the wall painted?",
+            "Who was the wall painted by?",
+            "Who painted by the wall?"
+        ],
+        "answer": 1,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the team win the championship?",
+        "options": [
+            "Was the championship won by the team?",
+            "Team won championship?",
+            "Championship won by team?",
+            "Championship was won by the team?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the company launch the product?",
+        "options": [
+            "Product will be launched by the company.",
+            "Company will launch the product?",
+            "Will the product be launched by the company?",
+            "Product launched by the company?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who discovered electricity?",
+        "options": [
+            "Who was electricity discovered by?",
+            "Electricity was discovered by who?",
+            "By whom was electricity discovered?",
+            "Who discovered by electricity?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the scientist conduct the experiment?",
+        "options": [
+            "Was the experiment conducted by the scientist?",
+            "Experiment conducted by scientist?",
+            "Scientist conducted experiment?",
+            "Experiment was conducted by scientist?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the chef prepare the meal?",
+        "options": [
+            "The meal will be prepared by the chef.",
+            "Chef will prepare the meal?",
+            "Will the meal be prepared by the chef?",
+            "Meal prepared by the chef?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who invented the airplane?",
+        "options": [
+            "By whom was the airplane invented?",
+            "Airplane invented by whom?",
+            "Who was the airplane invented by?",
+            "Who invented by the airplane?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the teacher grade the papers?",
+        "options": [
+            "Were the papers graded by the teacher?",
+            "Papers graded by teacher?",
+            "Teacher graded the papers?",
+            "Papers was graded by teacher?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the manager approve the budget?",
+        "options": [
+            "The budget will be approved by the manager.",
+            "Manager will approve the budget?",
+            "Will the budget be approved by the manager?",
+            "Budget approved by manager?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who cleaned the office?",
+        "options": [
+            "Who was the office cleaned by?",
+            "By whom was the office cleaned?",
+            "Office was cleaned by whom?",
+            "Who cleaned by the office?"
+        ],
+        "answer": 1,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the doctor prescribe the medicine?",
+        "options": [
+            "Medicine was prescribed by the doctor?",
+            "Was the medicine prescribed by the doctor?",
+            "Doctor prescribed the medicine?",
+            "Medicine prescribed by doctor?"
+        ],
+        "answer": 1,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the company hire new employees?",
+        "options": [
+            "New employees will be hired by the company.",
+            "Company will hire new employees?",
+            "Will new employees be hired by the company?",
+            "Employees hired by company?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+    {
+        "question": "Who manufactured the vehicle?",
+        "options": [
+            "Vehicle manufactured by whom?",
+            "Who was the vehicle manufactured by?",
+            "By whom was the vehicle manufactured?",
+            "Who manufactured by the vehicle?"
+        ],
+        "answer": 2,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Did the students complete the assignment?",
+        "options": [
+            "Was the assignment completed by the students?",
+            "Assignment completed by students?",
+            "Students completed the assignment?",
+            "Assignment was completed by students?"
+        ],
+        "answer": 0,
+        "explanation": "Past simple question passive."
+    },
+    {
+        "question": "Will the company introduce new policies?",
+        "options": [
+            "New policies will be introduced by the company.",
+            "Company introduced new policies?",
+            "Will new policies be introduced by the company?",
+            "Policies introduced by company?"
+        ],
+        "answer": 2,
+        "explanation": "Future question passive."
+    },
+	 {
+        "question": "It is time the experiment was conducted.",
+        "options": [
+            "It is time to conduct the experiment.",
+            "It is time for conducting the experiment.",
+            "It is time for the experiment to be conducted.",
+            "It is time to have conducted the experiment."
+        ],
+        "answer": 2,
+        "explanation": "Passive construction for expressing necessity with 'It is time'."
+    },
+    {
+        "question": "People believe the pyramids were built by aliens.",
+        "options": [
+            "It is believed that the pyramids were built by aliens.",
+            "The pyramids are believed to have been built by aliens.",
+            "Aliens are to be believed for building the pyramids.",
+            "The pyramids were believed to be built by aliens."
+        ],
+        "answer": 1,
+        "explanation": "Use of 'are believed to have been built' for past events in passive reporting."
+    },
+    {
+        "question": "They suggested that the proposal be revised.",
+        "options": [
+            "It was suggested that the proposal has been revised.",
+            "It is suggested that the proposal is revised.",
+            "It was suggested that the proposal be revised.",
+            "They suggested revising the proposal."
+        ],
+        "answer": 2,
+        "explanation": "Passive remains unchanged with reporting verbs and subjunctive ('be revised')."
+    },
+    {
+        "question": "Let the documents be signed by the witnesses before submission.",
+        "options": [
+            "Have the witnesses sign the documents before you submit them.",
+            "Let the witnesses sign the documents before submission.",
+            "Let signing of documents be done before submission.",
+            "Get the documents signed by the witnesses before submitting them."
+        ],
+        "answer": 3,
+        "explanation": "Passive instructions converted to active in a purpose/imperative clause."
+    },
+    {
+        "question": "Nobody was seen entering the restricted zone.",
+        "options": [
+            "Entering the restricted zone, nobody was seen.",
+            "Somebody saw nobody enter the restricted zone.",
+            "Nobody saw to enter the restricted zone.",
+            "Nobody saw anyone enter the restricted zone."
+        ],
+        "answer": 3,
+        "explanation": "Using 'Nobody saw anyone enter' is the correct active voice transformation."
+    },
+    {
+        "question": "The students were made to rewrite their assignments.",
+        "options": [
+            "The teacher made the students rewrite their assignments.",
+            "The students were rewriting their assignments by force.",
+            "The teacher let the students rewrite assignments.",
+            "Assignments rewritten by students were made by teacher."
+        ],
+        "answer": 0,
+        "explanation": "Passive causative verb 'were made to' becomes 'made the students'."
+    },
+    {
+        "question": "He was heard to say something important.",
+        "options": [
+            "He said something important that was heard.",
+            "People heard him say something important.",
+            "He had heard something important being said.",
+            "His important statement was heard."
+        ],
+        "answer": 1,
+        "explanation": "Passive of perception verb (heard) becomes 'People heard him say...'."
+    },
+    {
+        "question": "Preparations for the conference have been completed.",
+        "options": [
+            "They have completed the preparations for the conference.",
+            "The conference was completed with all preparations.",
+            "The preparations conference completed them.",
+            "Conference preparations completed."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive to active: 'They have completed...'."
+    },
+    {
+        "question": "You are requested not to talk loudly.",
+        "options": [
+            "They request you to not talk loudly.",
+            "Please do not talk loudly.",
+            "Do not talk loudly, you are requested.",
+            "Requesting not to talk loudly."
+        ],
+        "answer": 1,
+        "explanation": "Passive requests are expressed with 'please' in active."
+    },
+    {
+        "question": "Rarely have such incidents been reported in the city.",
+        "options": [
+            "The city rarely reports such incidents.",
+            "Rarely do people report such incidents in the city.",
+            "People did not report such incidents in the city.",
+            "Rarely has anyone reported such incidents in the city."
+        ],
+        "answer": 1,
+        "explanation": "Active construction after 'rarely' requires inversion: 'Rarely do people report...'."
+    },
+    {
+        "question": "The plan was supposed to be finalized by now.",
+        "options": [
+            "They were supposed to finalize the plan by now.",
+            "Supposed to be finalized is the plan now.",
+            "The plan supposed to finalize now.",
+            "Finalizing was supposed to happen now."
+        ],
+        "answer": 0,
+        "explanation": "Implied agent with modal verbs in passive: 'They were supposed to finalize...'."
+    },
+    {
+        "question": "Had the warning been given earlier, the damage could have been avoided.",
+        "options": [
+            "Giving the warning earlier could avoid the damage.",
+            "If they had given the warning earlier, they could have avoided the damage.",
+            "The damage avoided only if warning was given earlier.",
+            "Warning could have been avoided if the damage happened earlier."
+        ],
+        "answer": 1,
+        "explanation": "Conditional perfect passive to active: introduce 'they had given'."
+    },
+    {
+        "question": "The assignment will have been submitted before the deadline.",
+        "options": [
+            "Someone will submit the assignment before the deadline.",
+            "They have submitted the assignment before the deadline.",
+            "The assignment will submit before the deadline.",
+            "They will have submitted the assignment before the deadline."
+        ],
+        "answer": 3,
+        "explanation": "Future perfect passive to active: 'they will have submitted...'."
+    },
+    {
+        "question": "One must be careful not to miss the instructions.",
+        "options": [
+            "One must not miss the instructions.",
+            "You must be careful to not miss the instructions.",
+            "Careful instructions must not be missed.",
+            "Missing the instructions must be avoided."
+        ],
+        "answer": 0,
+        "explanation": "Passive advice to active: 'One must not miss the instructions.'"
+    },
+    {
+        "question": "The guests were being welcomed by the host.",
+        "options": [
+            "The host welcomes the guests.",
+            "The host was welcoming the guests.",
+            "Guests welcome the host.",
+            "The host have welcomed the guests."
+        ],
+        "answer": 1,
+        "explanation": "Past continuous passive to active: 'was welcoming'."
+    },
+	{
+        "question": "They have been repairing the bridge for months.",
+        "options": [
+            "The bridge has been repaired for months.",
+            "The bridge has been being repaired for months.",
+            "The bridge is repaired for months.",
+            "The bridge was repaired for months."
+        ],
+        "answer": 1,
+        "explanation": "Present perfect continuous passive: 'has been being repaired'."
+    },
+    {
+        "question": "People consider him a genius.",
+        "options": [
+            "He is considered a genius.",
+            "He considered a genius.",
+            "He has been considering a genius.",
+            "He was considered a genius."
+        ],
+        "answer": 0,
+        "explanation": "Passive of 'consider' with object complement."
+    },
+    {
+        "question": "They are watching a movie at the moment.",
+        "options": [
+            "A movie was being watched by them at the moment.",
+            "A movie is being watched by them at the moment.",
+            "A movie has been watched by them at the moment.",
+            "A movie will be watched by them at the moment."
+        ],
+        "answer": 1,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "The government will have completed the project by next year.",
+        "options": [
+            "The project will be completed by the government by next year.",
+            "The project will have been completed by the government by next year.",
+            "The government completed the project by next year.",
+            "The project is completed by the government by next year."
+        ],
+        "answer": 1,
+        "explanation": "Future perfect passive."
+    },
+    {
+        "question": "Everybody knew the truth.",
+        "options": [
+            "The truth was known by everybody.",
+            "The truth was being known by everybody.",
+            "The truth is known by everybody.",
+            "The truth has been known by everybody."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "They should have informed us earlier.",
+        "options": [
+            "We should have been informed earlier.",
+            "We should be informed earlier.",
+            "We should have been informing earlier.",
+            "We should have informed earlier."
+        ],
+        "answer": 0,
+        "explanation": "Perfect modal passive."
+    },
+    {
+        "question": "Someone is writing the report.",
+        "options": [
+            "The report is being written by someone.",
+            "The report was written by someone.",
+            "The report has been written by someone.",
+            "The report will be written by someone."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "The police will investigate the case.",
+        "options": [
+            "The case will be investigated by the police.",
+            "The case will be investigating by the police.",
+            "The case will investigate by the police.",
+            "The case will be investigate by the police."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "People expect a rise in temperature tomorrow.",
+        "options": [
+            "A rise in temperature is expected tomorrow.",
+            "A rise in temperature was expected tomorrow.",
+            "A rise in temperature will be expecting tomorrow.",
+            "A rise in temperature has been expecting tomorrow."
+        ],
+        "answer": 0,
+        "explanation": "Simple present passive for expected events."
+    },
+    {
+        "question": "They have canceled the meeting.",
+        "options": [
+            "The meeting has been canceled.",
+            "The meeting has canceled.",
+            "The meeting have been canceled.",
+            "The meeting was canceled."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "Someone broke the window last night.",
+        "options": [
+            "The window was broken last night.",
+            "The window has been broken last night.",
+            "The window has broken last night.",
+            "The window is broken last night."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "They must complete the project on time.",
+        "options": [
+            "The project must be completed on time.",
+            "The project must be completing on time.",
+            "The project must completed on time.",
+            "The project is to be completed on time."
+        ],
+        "answer": 0,
+        "explanation": "Modal passive with 'must'."
+    },
+    {
+        "question": "Who wrote this book?",
+        "options": [
+            "By whom was this book written?",
+            "Who this book was written by?",
+            "Who was this book written?",
+            "This book was written by whom?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "Everyone speaks English here.",
+        "options": [
+            "English is spoken here.",
+            "English was spoken here.",
+            "English has spoken here.",
+            "English spoken here."
+        ],
+        "answer": 0,
+        "explanation": "Present simple passive."
+    },
+    {
+        "question": "She is painting the wall.",
+        "options": [
+            "The wall is being painted.",
+            "The wall has been painted.",
+            "The wall was painted.",
+            "The wall will be painted."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Someone will fix the computer tomorrow.",
+        "options": [
+            "The computer will be fixed tomorrow.",
+            "The computer will fix tomorrow.",
+            "The computer is fixed tomorrow.",
+            "The computer has been fixed tomorrow."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "They had completed the work before the deadline.",
+        "options": [
+            "The work had been completed before the deadline.",
+            "The work was completed before the deadline.",
+            "The work has been completed before the deadline.",
+            "The work is completed before the deadline."
+        ],
+        "answer": 0,
+        "explanation": "Past perfect passive."
+    },
+    {
+        "question": "He might have lost his keys.",
+        "options": [
+            "His keys might have been lost.",
+            "His keys might be lost.",
+            "His keys might lost.",
+            "His keys might have lost."
+        ],
+        "answer": 0,
+        "explanation": "Perfect modal passive."
+    },
+    {
+        "question": "The chef is preparing dinner.",
+        "options": [
+            "Dinner is being prepared by the chef.",
+            "Dinner was prepared by the chef.",
+            "Dinner has been prepared by the chef.",
+            "Dinner will be prepared by the chef."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "They were discussing the project.",
+        "options": [
+            "The project was being discussed.",
+            "The project has been discussed.",
+            "The project is discussed.",
+            "The project will be discussed."
+        ],
+        "answer": 0,
+        "explanation": "Past continuous passive."
+    },
+    {
+        "question": "Does he deliver the mail every morning?",
+        "options": [
+            "Is the mail delivered every morning?",
+            "Was the mail delivered every morning?",
+            "Has the mail delivered every morning?",
+            "The mail delivered every morning?"
+        ],
+        "answer": 0,
+        "explanation": "Present simple question passive."
+    },
+    {
+        "question": "They had repaired the road before the festival.",
+        "options": [
+            "The road had been repaired before the festival.",
+            "The road was repaired before the festival.",
+            "The road has been repaired before the festival.",
+            "The road is repaired before the festival."
+        ],
+        "answer": 0,
+        "explanation": "Past perfect passive."
+    },
+    {
+        "question": "Someone is cleaning the windows.",
+        "options": [
+            "The windows are being cleaned.",
+            "The windows were cleaned.",
+            "The windows have been cleaned.",
+            "The windows will be cleaned."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Who wrote the letter?",
+        "options": [
+            "By whom was the letter written?",
+            "Who the letter was written by?",
+            "Who was the letter written?",
+            "The letter was written by whom?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "They have sent the invitations.",
+        "options": [
+            "The invitations have been sent.",
+            "The invitations have sent.",
+            "The invitations were sent.",
+            "The invitations are sent."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "He will complete the task soon.",
+        "options": [
+            "The task will be completed soon.",
+            "The task will completed soon.",
+            "The task is completed soon.",
+            "The task will have completed soon."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "They are discussing the budget.",
+        "options": [
+            "The budget is being discussed.",
+            "The budget was discussed.",
+            "The budget has been discussed.",
+            "The budget will be discussed."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Someone stole my bike yesterday.",
+        "options": [
+            "My bike was stolen yesterday.",
+            "My bike has been stolen yesterday.",
+            "My bike is stolen yesterday.",
+            "My bike was stealing yesterday."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "He may have forgotten the meeting.",
+        "options": [
+            "The meeting may have been forgotten.",
+            "The meeting may be forgotten.",
+            "The meeting may forgotten.",
+            "The meeting has been forgotten."
+        ],
+        "answer": 0,
+        "explanation": "Perfect modal passive."
+    },
+    {
+        "question": "The manager has approved the plan.",
+        "options": [
+            "The plan has been approved.",
+            "The plan was approved.",
+            "The plan is approved.",
+            "The plan will be approved."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "They were painting the house.",
+        "options": [
+            "The house was being painted.",
+            "The house has been painted.",
+            "The house is painted.",
+            "The house was painted."
+        ],
+        "answer": 0,
+        "explanation": "Past continuous passive."
+    },
+    {
+        "question": "Has she submitted the report?",
+        "options": [
+            "Has the report been submitted?",
+            "Has the report submitted?",
+            "Is the report submitted?",
+            "Was the report submitted?"
+        ],
+        "answer": 0,
+        "explanation": "Present perfect question passive."
+    },
+    {
+        "question": "They will announce the results tomorrow.",
+        "options": [
+            "The results will be announced tomorrow.",
+            "The results will announce tomorrow.",
+            "The results are announced tomorrow.",
+            "The results were announced tomorrow."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "Someone is repairing the car.",
+        "options": [
+            "The car is being repaired.",
+            "The car was repaired.",
+            "The car has been repaired.",
+            "The car will be repaired."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Who wrote the speech?",
+        "options": [
+            "By whom was the speech written?",
+            "Who the speech was written by?",
+            "Who was the speech written?",
+            "The speech was written by whom?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "They have canceled the event.",
+        "options": [
+            "The event has been canceled.",
+            "The event has canceled.",
+            "The event was canceled.",
+            "The event is canceled."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive."
+    },
+    {
+        "question": "He will clean the room soon.",
+        "options": [
+            "The room will be cleaned soon.",
+            "The room will cleaned soon.",
+            "The room is cleaned soon.",
+            "The room has cleaned soon."
+        ],
+        "answer": 0,
+        "explanation": "Future simple passive."
+    },
+    {
+        "question": "They are preparing for the exam.",
+        "options": [
+            "The exam is being prepared for.",
+            "The exam was prepared for.",
+            "The exam will be prepared for.",
+            "The exam has been prepared for."
+        ],
+        "answer": 0,
+        "explanation": "Present continuous passive."
+    },
+    {
+        "question": "Someone repaired the roof.",
+        "options": [
+            "The roof was repaired.",
+            "The roof has been repaired.",
+            "The roof is repaired.",
+            "The roof was repairing."
+        ],
+        "answer": 0,
+        "explanation": "Past simple passive."
+    },
+    {
+        "question": "They might have completed the project.",
+        "options": [
+            "The project might have been completed.",
+            "The project might be completed.",
+            "The project might completed.",
+            "The project has been completed."
+        ],
+        "answer": 0,
+        "explanation": "Perfect modal passive."
+    },
+    {
+        "question": "Who designed the building?",
+        "options": [
+            "By whom was the building designed?",
+            "Who the building was designed by?",
+            "Who was the building designed?",
+            "The building was designed by whom?"
+        ],
+        "answer": 0,
+        "explanation": "Question passive structure."
+    },
+    {
+        "question": "He has completed the work.",
+        "options": [
+            "The work has been completed.",
+            "The work is completed.",
+            "The work was completed.",
+            "The work will be completed."
+        ],
+        "answer": 0,
+        "explanation": "Present perfect passive."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">BUDGET & ECONOMIC SURVEY</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "What is the projected GDP growth rate of India for the fiscal year 2025-26, as per the Economic Survey?",
+        "options": ["5.9%", "6.3-6.8%", "7.5%", "5.4%"],
+        "answer": 1,
+        "explanation": "The Economic Survey 2025-26 projects India's GDP growth rate between 6.3% and 6.8%."
+    },
+    {
+        "question": "What is the fiscal deficit target set by the Government of India for FY 2025-26?",
+        "options": ["3.5% of GDP", "4.4% of GDP", "5.1% of GDP", "6.8% of GDP"],
+        "answer": 1,
+        "explanation": "The Union Budget estimates the fiscal deficit at 4.4% of GDP for FY 2025-26."
+    },
+    {
+        "question": "According to the India Budget 2025-26, how much capital expenditure has the government earmarked?",
+        "options": ["₹5.9 lakh crore", "₹8.2 lakh crore", "₹11.21 lakh crore", "₹6.2 lakh crore"],
+        "answer": 2,
+        "explanation": "The government has earmarked ₹11.21 lakh crore for capital expenditure in FY2025-26."
+    },
+    {
+        "question": "Which scheme is launched under 'Agriculture as the 1st engine of development' in the Union Budget 2025-26?",
+        "options": ["PM Dhan-Dhaanya Krishi Yojana", "PM Kisan Maan Dhan Yojana", "Samrudha Krushak Yojana", "National Mission on High Yielding Seeds"],
+        "answer": 0,
+        "explanation": "PM Dhan-Dhaanya Krishi Yojana is launched as a key agricultural programme in the Union Budget 2025-26."
+    },
+    {
+        "question": "What is the new standard deduction for salaried employees in India from FY 2025-26?",
+        "options": ["₹50,000", "₹60,000", "₹75,000", "₹1,00,000"],
+        "answer": 2,
+        "explanation": "Standard deduction for salaried employees has been increased from ₹50,000 to ₹75,000."
+    },
+    {
+        "question": "For the fiscal year 2025-26, what is the capital outlay for Odisha State?",
+        "options": ["₹37,838 crore", "₹2,90,000 crore", "₹65,012 crore", "₹31,800 crore"],
+        "answer": 2,
+        "explanation": "Odisha's capital outlay for FY 2025-26 is ₹65,012 crore."
+    },
+    {
+        "question": "The Odisha Budget for 2025-26 allocates the highest sectoral outlay to which sector?",
+        "options": ["Agriculture", "Healthcare", "Education", "Rural Development"],
+        "answer": 2,
+        "explanation": "Education receives the highest sectoral allocation in Odisha's Budget 2025-26."
+    },
+    {
+        "question": "How much is allocated for Rural Development in the Odisha Budget 2025-26?",
+        "options": ["₹39,221 crore", "₹8,000 crore", "₹17,998 crore", "₹41,273 crore"],
+        "answer": 0,
+        "explanation": "Odisha government proposed ₹39,221 crore for rural development."
+    },
+    {
+        "question": "Under the Union Budget 2025-26, what tax rate is applicable for total income between ₹4 lakh and ₹8 lakh?",
+        "options": ["Nil", "5%", "10%", "15%"],
+        "answer": 1,
+        "explanation": "Income between ₹4 lakh and ₹8 lakh is taxed at 5% under the new regime."
+    },
+    {
+        "question": "What is the revised deduction on family pension for pensioners announced in the Union Budget 2025-26?",
+        "options": ["₹10,000", "₹15,000", "₹25,000", "₹50,000"],
+        "answer": 2,
+        "explanation": "Deduction on family pension for pensioners increased from ₹15,000 to ₹25,000."
+    },
+    {
+        "question": "What is Odisha's estimated economic growth rate for FY 2025-26?",
+        "options": ["6.4%", "7.2%", "8-8.5%", "9.5%"],
+        "answer": 2,
+        "explanation": "Odisha's economy is expected to witness a growth rate of 8-8.5% in FY26."
+    },
+    {
+        "question": "As per the Odisha Economic Survey 2025-26, what is Odisha's rank in per-capita income among Indian states?",
+        "options": ["5th", "11th", "20th", "1st"],
+        "answer": 1,
+        "explanation": "Odisha ranks 11th among states in terms of per-capita income as per the latest data."
+    },
+    {
+        "question": "The net tax receipts for the Union Budget 2025-26 are estimated at?",
+        "options": ["₹50.65 lakh crore", "₹34.96 lakh crore", "₹28.37 lakh crore", "₹14.82 lakh crore"],
+        "answer": 2,
+        "explanation": "Net tax receipts in the Union Budget are estimated at ₹28.37 lakh crore."
+    },
+    {
+        "question": "Which major scheme aims to provide housing for the poor in Odisha?",
+        "options": ["Antyodaya Gruha Yojana", "PM Awas Yojana", "Subhadra Yojana", "Gopabandhu Jana Arogya Yojana"],
+        "answer": 0,
+        "explanation": "Antyodaya Gruha Yojana is a flagship scheme for housing for the poor in Odisha."
+    },
+    {
+        "question": "What is the fiscal deficit as percent of GSDP projected for Odisha in FY2025-26?",
+        "options": ["2%", "3.2%", "4.4%", "5.1%"],
+        "answer": 1,
+        "explanation": "Odisha's fiscal deficit is projected to be 3.2% of GSDP in FY 2025-26."
+    },
+    {
+        "question": "Which program aims to promote millets in Odisha?",
+        "options": ["Shree Anna Abhiyan", "Rice Revolution", "Samrudha Krushak Yojana", "Mukhyamantri Swasthya Seva Mission"],
+        "answer": 0,
+        "explanation": "Shree Anna Abhiyan is for promotion of millets in Odisha."
+    },
+    {
+        "question": "How much is allocated for Odisha's CM Kisan Yojana in 2025-26?",
+        "options": ["₹2,020 crore", "₹6,000 crore", "₹37,838 crore", "₹695 crore"],
+        "answer": 0,
+        "explanation": "CM Kisan Yojana receives ₹2,020 crore allocation in Odisha Budget 2025-26."
+    },
+    {
+        "question": "What is the year-end debt stock as percent of GSDP in Odisha for the fiscal year 2025-26?",
+        "options": ["8.2%", "16%", "12.7%", "21.9%"],
+        "answer": 2,
+        "explanation": "Odisha's year-end debt stock is projected at 12.7% of GSDP."
+    },
+    {
+        "question": "What is the total expenditure estimated in Odisha Budget 2025-26 (excluding debt repayment)?",
+        "options": ["₹2,32,600 crore", "₹2,66,800 crore", "₹2,90,000 crore", "₹65,012 crore"],
+        "answer": 1,
+        "explanation": "Total expenditure (excluding debt repayment) in Odisha 2025-26 is estimated at ₹2,66,800 crore."
+    },
+    {
+        "question": "What is the projected revenue surplus for Odisha in FY 2025-26?",
+        "options": ["2.9% of GSDP", "3% of GSDP", "4% of GSDP", "6.11% of GSDP"],
+        "answer": 1,
+        "explanation": "Revenue surplus for Odisha in 2025-26 is projected at 3% of GSDP."
+    },
+    {
+        "question": "Under India's new tax regime (FY2025-26), what tax rate is applicable for income above ₹24 lakh?",
+        "options": ["30%", "25%", "20%", "15%"],
+        "answer": 0,
+        "explanation": "Income above ₹24 lakh is taxed at 30% in the new regime for FY2025-26."
+    },
+    {
+        "question": "Which sector in Odisha received an allocation of ₹23,635 crore in 2025-26?",
+        "options": ["Education", "Healthcare", "Rural Development", "Social Security"],
+        "answer": 1,
+        "explanation": "Healthcare receives ₹23,635 crore in Odisha's Budget 2025-26."
+    },
+    {
+        "question": "What was the estimated size of Odisha's economy in 2024-25, as per the Economic Survey?",
+        "options": ["₹5 lakh crore", "₹7.2 lakh crore", "₹9.5 lakh crore", "₹12 lakh crore"],
+        "answer": 2,
+        "explanation": "Odisha's economy is valued at ₹9.5 lakh crore in 2024-25."
+    },
+    {
+        "question": "Odisha's urbanisation rate in 2024-25 is approximately:",
+        "options": ["10%", "18%", "24%", "35%"],
+        "answer": 1,
+        "explanation": "Odisha's urbanisation rate stands at nearly 18%."
+    },
+    {
+        "question": "Under PM Kisan and CM Kisan integration, what is the main benefit for Odisha's farmers?",
+        "options": ["High crop prices", "Direct benefit transfer", "Free seeds", "Tax exemption"],
+        "answer": 1,
+        "explanation": "Integration ensures direct benefit transfer to farmers' bank accounts."
+    },
+    {
+        "question": "Which mission focuses on skill development for youth in the Union Budget 2025-26?",
+        "options": ["Saksham Anganwadi", "Atal Tinkering Labs", "Viksit Bharat Skill Mission", "Poshan 2.0"],
+        "answer": 2,
+        "explanation": "Viksit Bharat Skill Mission aims to skill 4.1 crore youth and make them job-ready."
+    },
+    {
+        "question": "How much has the MLA assistance fund been increased to in Odisha Budget 2025-26?",
+        "options": ["₹2 crore", "₹5 crore", "₹3 crore", "₹10 crore"],
+        "answer": 1,
+        "explanation": "MLA assistance fund increased from ₹3 crore to ₹5 crore."
+    },
+    {
+        "question": "The Union Budget 2025-26 provides how much for Defence expenditure?",
+        "options": ["₹4,54,773 crore", "₹1,51,851 crore", "₹63,511.91 crore", "₹6,249 crore"],
+        "answer": 0,
+        "explanation": "Defence expenditure is ₹4,54,773 crore in FY2025-26."
+    },
+    {
+        "question": "What is the focus of 'Saksham Anganwadi and Poshan 2.0' initiative?",
+        "options": ["Infrastructure development", "Nutrition and child welfare", "Employment generation", "Tax reforms"],
+        "answer": 1,
+        "explanation": "Saksham Anganwadi and Poshan 2.0 focus on nutrition and child welfare."
+    },
+    {
+        "question": "What is the key objective of 'Zero Poverty' and '100% Good Quality School Education' in Union Budget 2025-26?",
+        "options": ["Sabka Vikas theme", "Digital India campaign", "MSME boosting", "Make in India"],
+        "answer": 0,
+        "explanation": "These objectives align with the 'Sabka Vikas' theme of balanced regional growth."
+    },
+    {
+        "question": "Odisha aims to establish Tier-IV data centres in which city according to Economic Survey 2025-26?",
+        "options": ["Cuttack", "Sambalpur", "Bhubaneswar", "Berhampur"],
+        "answer": 2,
+        "explanation": "Network of Tier-IV data centres planned for Bhubaneswar."
+    },
+    {
+        "question": "Which scheme in Odisha Budget 2025-26 is aimed at crop diversification?",
+        "options": ["Mukhyamantri Swasthya", "Crop Diversification Scheme", "CM KISAN", "Shree Anna Abhiyan"],
+        "answer": 1,
+        "explanation": "₹695 crore allocated for crop diversification in Odisha."
+    },
+    {
+        "question": "In Odisha Budget 2025-26, how much is allocated for the Finance Department?",
+        "options": ["₹37,838 crore", "₹63,511.91 crore", "₹9,985 crore", "₹8,000 crore"],
+        "answer": 1,
+        "explanation": "Finance Department is allocated ₹63,511.91 crore."
+    },
+    {
+        "question": "Which Odisha scheme has budgeted ₹600 crore for millet promotion?",
+        "options": ["CM KISAN Yojana", "Samrudha Krushak Yojana", "Shree Anna Abhiyan", "Mukhyamantri Maschyajibi Yojana"],
+        "answer": 2,
+        "explanation": "Shree Anna Abhiyan receives ₹600 crore for millets."
+    },
+    {
+        "question": "Which measure in Union Budget 2025-26 supports micro enterprises?",
+        "options": ["Credit Cards for Micro Enterprises", "GST Rate Reduction", "MSME Subsidies", "Toy Sector Mission"],
+        "answer": 0,
+        "explanation": "Credit Cards for Micro Enterprises support small businesses."
+    },
+    {
+        "question": "Gross market borrowings of the Government of India for FY 2025-26 are estimated at:",
+        "options": ["₹11.21 lakh crore", "₹14.82 lakh crore", "₹4,54,773 crore", "₹8.2 lakh crore"],
+        "answer": 1,
+        "explanation": "Gross market borrowings for FY2025-26 are ₹14.82 lakh crore."
+    },
+    {
+        "question": "What is the projected inflation rate for India in FY 2025-26?",
+        "options": ["4.2%", "2.9%", "6.8%", "8.5%"],
+        "answer": 0,
+        "explanation": "The projected inflation rate for FY2025-26 is 4.2%."
+    },
+    {
+        "question": "Which Odisha scheme provides financial assistance for cold storage units?",
+        "options": ["Mukhyamantri Maschyajibi Yojana", "CM KISAN Yojana", "Crop Diversification", "Cold Storage Scheme"],
+        "answer": 3,
+        "explanation": "The scheme provides ₹252 crore for cold storage units in Odisha."
+    },
+    {
+        "question": "Service sector's share in India's total GVA in FY2025-26 is approximately:",
+        "options": ["50.6%", "55.3%", "38.8%", "16%"],
+        "answer": 1,
+        "explanation": "Service sector contributes 55.3% to total GVA in FY25."
+    },
+    {
+        "question": "Growth rate of Odisha's per-capita income during 2024-25?",
+        "options": ["7.2%", "10.6%", "12%", "15.3%"],
+        "answer": 1,
+        "explanation": "Odisha's per-capita income rose by 10.6% in 2024-25."
+    },
+    {
+        "question": "Which sector contributes 16% to India's GDP in Economic Survey 2025?",
+        "options": ["Agriculture", "Industry", "Services", "Mining"],
+        "answer": 0,
+        "explanation": "Agriculture and allied activities contribute 16% to GDP."
+    },
+    {
+        "question": "What is the total outlay of the Odisha State Budget 2025-26?",
+        "options": ["₹2,66,800 crore", "₹2,32,600 crore", "₹2,90,000 crore", "₹31,800 crore"],
+        "answer": 2,
+        "explanation": "Odisha State Budget 2025-26 has a total outlay of ₹2,90,000 crore."
+    },
+    {
+        "question": "Which program focuses on women's empowerment in Odisha's Budget?",
+        "options": ["Subhadra Yojana", "Antyodaya Gruha Yojana", "Gopabandhu Jana Arogya Yojana", "Mukhyamantri Swasthya Seva Mission"],
+        "answer": 0,
+        "explanation": "Subhadra Yojana promotes women's welfare and empowerment."
+    },
+    {
+        "question": "How much outlay is proposed for social security in Odisha Budget 2025-26?",
+        "options": ["₹24,250 crore", "₹17,998 crore", "₹23,635 crore", "₹41,273 crore"],
+        "answer": 0,
+        "explanation": "Odisha has proposed ₹24,250 crore for social security in 2025-26."
+    },
+    {
+        "question": "Which Odisha scheme is earmarked at ₹245 crore for fisheries development?",
+        "options": ["Pradhan Mantri Matsya Sampad Yojana", "Mukhyamantri Maschyajibi Yojana", "Gopabandhu Jana Arogya Yojana", "PM KISAN"],
+        "answer": 0,
+        "explanation": "Pradhan Mantri Matsya Sampad Yojana is allocated ₹245 crore for fisheries."
+    },
+    {
+        "question": "Sectoral allocation to Education in Odisha Budget 2025-26 is?",
+        "options": ["₹23,635 crore", "₹41,273 crore", "₹24,250 crore", "₹39,221 crore"],
+        "answer": 1,
+        "explanation": "Education gets ₹41,273 crore allocation in Odisha Budget 2025-26."
+    },
+    {
+        "question": "The Union Budget 2025-26 emphasizes job creation through which main avenue?",
+        "options": ["Tax reforms", "Capital spending and targeted social programs", "Subsidies", "Exports"],
+        "answer": 1,
+        "explanation": "The focus is on job creation through capital spending and targeted programs."
+    },
+    {
+        "question": "In Odisha, which scheme is provided ₹235 crore for fishing communities?",
+        "options": ["Mukhyamantri Maschyajibi Yojana", "PM Matsya Sampad Yojana", "CM KISAN", "Samrudha Krushak Yojana"],
+        "answer": 0,
+        "explanation": "Mukhyamantri Maschyajibi Yojana is provided ₹235 crore for fishing communities."
+    },
+    {
+        "question": "What is the revised allocation for Agriculture & Allied sector in Odisha Budget 2025-26?",
+        "options": ["₹37,838 crore", "₹17,998 crore", "₹39,221 crore", "₹24,250 crore"],
+        "answer": 0,
+        "explanation": "Allocation for Agriculture & Allied sector is ₹37,838 crore."
+    },
+    {
+        "question": "Which Union Budget 2025-26 initiative is aimed at improving nutrition among children?",
+        "options": ["Saksham Anganwadi and Poshan 2.0", "Make in India", "Shree Anna Abhiyan", "PM KISAN"],
+        "answer": 0,
+        "explanation": "Saksham Anganwadi and Poshan 2.0 focus on nutrition for children."
+    },
+    {
+        "question": "For earnings between ₹16 lakh and ₹20 lakh under the new tax regime, what is the tax rate for FY2025-26?",
+        "options": ["10%", "15%", "20%", "25%"],
+        "answer": 2,
+        "explanation": "Income between ₹16 lakh and ₹20 lakh is taxed at 20% under the new tax regime."
+    },
+	{
+        "question": "What is the estimated total receipts in Odisha Budget 2025-26?",
+        "options": ["₹2,50,000 crore", "₹2,90,000 crore", "₹1,80,000 crore", "₹3,10,000 crore"],
+        "answer": 1,
+        "explanation": "Estimated total receipts in Odisha Budget 2025-26 are ₹2,90,000 crore."
+    },
+    {
+        "question": "Which Union Budget 2025-26 initiative caters to the MSME sector?",
+        "options": ["Toy sector mission", "Credit Card for MSMEs", "Digital India Expansion", "PM Shree Schools"],
+        "answer": 1,
+        "explanation": "Credit Card for MSMEs provides easy credit to micro, small, and medium enterprises."
+    },
+    {
+        "question": "The Pradhan Mantri Matsya Sampada Yojana aims to promote which sector?",
+        "options": ["Fisheries", "Agriculture", "Health", "Infrastructure"],
+        "answer": 0,
+        "explanation": "Pradhan Mantri Matsya Sampada Yojana aims to promote the fisheries sector."
+    },
+    {
+        "question": "Odisha's annual budget for 2025-26 focuses on...",
+        "options": ["Reducing social sector spending", "Massive capital outlay, social security, education", "Industrial subsidies only", "No rural development"],
+        "answer": 1,
+        "explanation": "Odisha’s budget 2025-26 focuses on capital outlay, education, and social security."
+    },
+    {
+        "question": "What income limit is set for zero tax in India's new tax regime for FY2025-26?",
+        "options": ["₹2.5 lakh", "₹4 lakh", "₹5 lakh", "₹3 lakh"],
+        "answer": 1,
+        "explanation": "Zero tax limit is ₹4 lakh in FY2025-26 new tax regime."
+    },
+    {
+        "question": "Which major health scheme continues strong funding in Union Budget 2025-26?",
+        "options": ["Ayushman Bharat PM-JAY", "PM KISAN", "Antyodaya Gruha Yojana", "Viksit Bharat Skill Mission"],
+        "answer": 0,
+        "explanation": "Ayushman Bharat PM-JAY remains a major health insurance scheme."
+    },
+    {
+        "question": "Odisha Budget 2025-26 sets aside how much for Women and Child Development?",
+        "options": ["₹6,249 crore", "₹10,000 crore", "₹41,273 crore", "₹23,635 crore"],
+        "answer": 0,
+        "explanation": "Women and Child Development gets ₹6,249 crore allocation."
+    },
+    {
+        "question": "Which sector in India received the largest budgetary allocation for FY2025-26?",
+        "options": ["Infrastructure", "Education", "Defence", "Agriculture"],
+        "answer": 2,
+        "explanation": "Defence received the largest budget allocation among sectors."
+    },
+    {
+        "question": "Odisha Budget 2025-26 has increased allocation for MLA Local Area Development Fund to?",
+        "options": ["₹2 crore", "₹5 crore", "₹3 crore", "₹10 crore"],
+        "answer": 1,
+        "explanation": "MLA LAD Fund increased to ₹5 crore per MLA in Odisha."
+    },
+    {
+        "question": "Which program in Budget aims to universalize pre-primary education?",
+        "options": ["Poshan 2.0", "PM SHRI Schools", "Saksham Anganwadi", "Beti Bachao Beti Padhao"],
+        "answer": 2,
+        "explanation": "Saksham Anganwadi aims to universalize pre-primary education."
+    },
+    {
+        "question": "As per Economic Survey 2025-26, India's merchandise export target for FY2025-26 is:",
+        "options": ["$400 billion", "$500 billion", "$600 billion", "$200 billion"],
+        "answer": 2,
+        "explanation": "Merchandise export target is $600 billion."
+    },
+    {
+        "question": "Odisha's share of public expenditure targeted for agriculture in FY2025-26 is:",
+        "options": ["13%", "25%", "6.2%", "16%"],
+        "answer": 1,
+        "explanation": "25% of Odisha budget outlay is targeted for agriculture."
+    },
+    {
+        "question": "What is the total capital expenditure planned by the Union Government for FY2025-26?",
+        "options": ["₹8.2 lakh crore", "₹11.21 lakh crore", "₹4.54 lakh crore", "₹2.22 lakh crore"],
+        "answer": 1,
+        "explanation": "Total capital expenditure planned is ₹11.21 lakh crore."
+    },
+    {
+        "question": "What is the fiscal deficit target for Odisha according to Budget 2025-26?",
+        "options": ["3.2% of GSDP", "5.1% of GSDP", "4.4% of GSDP", "2.5% of GSDP"],
+        "answer": 0,
+        "explanation": "Fiscal deficit target is 3.2% of GSDP for Odisha."
+    },
+    {
+        "question": "Odisha Budget 2025-26 allocates how much for Pension & Social Security?",
+        "options": ["₹24,250 crore", "₹17,998 crore", "₹2,020 crore", "₹65,012 crore"],
+        "answer": 0,
+        "explanation": "Pension & Social Security get ₹24,250 crore allocation."
+    },
+    {
+        "question": "Union Budget 2025-26 continues support to which infrastructure mission?",
+        "options": ["Smart Cities Mission", "PM Gram Sadak Yojana", "Namami Gange", "Pradhan Mantri Awas Yojana"],
+        "answer": 0,
+        "explanation": "Smart Cities Mission receives continued support."
+    },
+    {
+        "question": "What is the revised corporate tax rate for new manufacturing companies for FY2025-26?",
+        "options": ["15%", "17.5%", "20%", "25%"],
+        "answer": 0,
+        "explanation": "Corporate tax rate for new manufacturing set at 15%."
+    },
+    {
+        "question": "PM Shree Schools scheme relates to which sector?",
+        "options": ["Health", "Education", "MSME", "Agriculture"],
+        "answer": 1,
+        "explanation": "PM Shree Schools scheme focuses on the education sector."
+    },
+    {
+        "question": "Odisha Economic Survey 2025-26 highlights which rate of urbanization?",
+        "options": ["25%", "21%", "18%", "12%"],
+        "answer": 2,
+        "explanation": "Odisha’s urbanization rate stands at 18%."
+    },
+    {
+        "question": "Annual plan outlay for healthcare in Odisha Budget 2025-26?",
+        "options": ["₹65,012 crore", "₹23,635 crore", "₹8,000 crore", "₹41,273 crore"],
+        "answer": 1,
+        "explanation": "Annual plan outlay for healthcare is ₹23,635 crore."
+    },
+    {
+        "question": "Which major social security scheme finds place in Union Budget 2025-26?",
+        "options": ["PM Atmanirbhar", "PM Fasal Bima Yojana", "PM Vishwakarma Yojana", "Ayushman Bharat"],
+        "answer": 3,
+        "explanation": "Ayushman Bharat is a major social security/insurance scheme."
+    },
+    {
+        "question": "India's agricultural growth rate for 2025-26 is projected at:",
+        "options": ["5.9%", "2.9%", "4.3%", "6.8%"],
+        "answer": 1,
+        "explanation": "Agricultural growth rate projected at 2.9%."
+    },
+    {
+        "question": "Under Odisha Budget 2025-26, funding for cold storage infrastructure is:",
+        "options": ["₹2,020 crore", "₹252 crore", "₹65,012 crore", "₹8,000 crore"],
+        "answer": 1,
+        "explanation": "₹252 crore allocated for cold storage infrastructure."
+    },
+    {
+        "question": "The Economic Survey 2025-26 recommends which reform for MSMEs?",
+        "options": ["Tax reduction", "Easier licensing", "Special credit support", "Export incentives only"],
+        "answer": 2,
+        "explanation": "Special credit support recommended for MSMEs."
+    },
+    {
+        "question": "Odisha Budget 2025-26 introduces which new women empowerment scheme?",
+        "options": ["Subhadra Yojana", "Gruha Jyoti Yojana", "Samrudha Krushak", "Gruha Samrudha Yojana"],
+        "answer": 0,
+        "explanation": "Subhadra Yojana has been introduced for women's empowerment."
+    },
+    {
+        "question": "India allocated maximum resources to which sector in the FY2025-26 Union Budget?",
+        "options": ["Education", "Health", "Defence", "Agriculture"],
+        "answer": 2,
+        "explanation": "Defence is the sector with maximum allocation."
+    },
+    {
+        "question": "Odisha's economic growth driver in FY2025-26 is mainly:",
+        "options": ["Mining", "Agriculture", "Service sector", "Industry"],
+        "answer": 2,
+        "explanation": "The service sector is identified as a main growth driver."
+    },
+    {
+        "question": "Union Budget 2025-26 enhanced allocation to which digital infrastructure scheme?",
+        "options": ["BharatNet", "Jan Dhan Yojana", "Digital India", "PMAY"],
+        "answer": 0,
+        "explanation": "BharatNet funding enhanced for digital connectivity."
+    },
+    {
+        "question": "Increase in MLA LAD Fund in Odisha Budget 2025-26 is primarily for:",
+        "options": ["Roads and bridges", "Education", "Strengthening local infrastructure and development", "Health and sanitation"],
+        "answer": 2,
+        "explanation": "Fund increase to strengthen local infrastructure and development."
+    },
+    {
+        "question": "Which Odisha Budget 2025-26 program supports fisheries and aquaculture?",
+        "options": ["Mukhyamantri Maschyajibi Yojana", "CM Kisan Scheme", "PM KISAN", "Shree Anna Abhiyan"],
+        "answer": 0,
+        "explanation": "Mukhyamantri Maschyajibi Yojana supports fisheries."
+    },
+    {
+        "question": "Union Budget 2025-26 ramps up allocation for which railway modernization scheme?",
+        "options": ["Eastern Dedicated Freight Corridor", "Western Dedicated Freight Corridor", "Vande Bharat Express", "Bharat Gaurav scheme"],
+        "answer": 2,
+        "explanation": "Vande Bharat Express expansion is funded."
+    },
+    {
+        "question": "At what rate is income above ₹24 lakh taxed in India's new regime FY2025-26?",
+        "options": ["20%", "25%", "30%", "15%"],
+        "answer": 2,
+        "explanation": "Highest slab rate is 30% for income above ₹24 lakh."
+    },
+    {
+        "question": "Odisha's per-capita income in 2024-25 according to Economic Survey?",
+        "options": ["₹1,31,700", "₹83,300", "₹64,500", "₹3,50,000"],
+        "answer": 0,
+        "explanation": "Per-capita income in Odisha is ₹1,31,700."
+    },
+    {
+        "question": "Union Budget 2025-26 promotes digital public infrastructure under which flagship?",
+        "options": ["Digital India", "BharatNet", "Jan Dhan", "Startup India"],
+        "answer": 0,
+        "explanation": "Digital India is the flagship for digital infrastructure."
+    },
+    {
+        "question": "Allocation for crop diversification in Odisha Budget 2025-26?",
+        "options": ["₹695 crore", "₹2,020 crore", "₹6,249 crore", "₹23,635 crore"],
+        "answer": 0,
+        "explanation": "₹695 crore allocated for crop diversification."
+    },
+    {
+        "question": "India's targeted GDP growth for FY2025-26 in Economic Survey projection?",
+        "options": ["5.4%", "6.3-6.8%", "7.5%", "8.0%"],
+        "answer": 1,
+        "explanation": "Economic survey projects 6.3-6.8% GDP growth."
+    },
+    {
+        "question": "Gross State Domestic Product (GSDP) growth rate in Odisha for FY2025-26?",
+        "options": ["6.9%", "8.5%", "10.2%", "4.4%"],
+        "answer": 1,
+        "explanation": "Odisha GSDP growth projected at 8-8.5%."
+    },
+    {
+        "question": "Which mission in Union Budget 2025-26 emphasizes on startups and innovation?",
+        "options": ["Viksit Bharat Startup Mission", "Digital India", "BharatNet", "Atal Innovation Mission"],
+        "answer": 3,
+        "explanation": "Atal Innovation Mission promotes startups and innovation."
+    },
+    {
+        "question": "Odisha's allocation for rural development for FY2025-26 stands at?",
+        "options": ["₹6,249 crore", "₹39,221 crore", "₹17,998 crore", "₹24,250 crore"],
+        "answer": 1,
+        "explanation": "₹39,221 crore is set aside for rural development."
+    },
+    {
+        "question": "Which scheme in Odisha receives ₹37,838 crore allocation in 2025-26 budget?",
+        "options": ["Crop Diversification", "Agriculture & Allied Sectors", "Social Security", "Women & Child Development"],
+        "answer": 1,
+        "explanation": "Agriculture & Allied sectors get ₹37,838 crore."
+    },
+    {
+        "question": "Union Budget 2025-26 provides tax relief to:",
+        "options": ["Salaried class only", "Small business owners only", "Salaried and pensioners", "Real estate industry only"],
+        "answer": 2,
+        "explanation": "Tax relief is provided to both salaried and pensioners."
+    },
+    {
+        "question": "Estimated year-end debt stock as percent of GSDP for Odisha in FY2025-26?",
+        "options": ["8.2%", "12.7%", "21.9%", "4.4%"],
+        "answer": 1,
+        "explanation": "Debt stock projected at 12.7% of GSDP."
+    },
+    {
+        "question": "PM Shree Schools are meant for which purpose?",
+        "options": ["Upgradation of health facilities", "Establishment of modern schools", "Fisheries promotion", "Promotion of startups"],
+        "answer": 1,
+        "explanation": "Purpose is establishment and upgradation of modern schools."
+    },
+    {
+        "question": "What is the revised deduction for family pension for pensioners in 2025-26?",
+        "options": ["₹10,000", "₹15,000", "₹25,000", "₹75,000"],
+        "answer": 2,
+        "explanation": "Deduction increased to ₹25,000."
+    },
+    {
+        "question": "Odisha introduced which flagship housing scheme in Budget 2025-26?",
+        "options": ["Antyodaya Gruha Yojana", "PMAY", "Jaga mission", "Gopabandhu Jana Yojana"],
+        "answer": 0,
+        "explanation": "Antyodaya Gruha Yojana is the flagship housing scheme."
+    },
+    {
+        "question": "Total proposed expenditure (excluding debt repayment) in Odisha Budget 2025-26?",
+        "options": ["₹2,66,800 crore", "₹2,90,000 crore", "₹65,012 crore", "₹8,000 crore"],
+        "answer": 0,
+        "explanation": "Expenditure (excluding debt repayment) is ₹2,66,800 crore."
+    },
+    {
+        "question": "Union Budget 2025-26 directs major funds for which nutritional program?",
+        "options": ["PM Poshan", "Saksham Anganwadi and Poshan 2.0", "Ayushman Bharat", "Khelo India"],
+        "answer": 1,
+        "explanation": "Saksham Anganwadi and Poshan 2.0 are major nutrition programs."
+    },
+	{
+        "question": "What is the projected fiscal deficit as a percentage of GDP for India in FY 2025-26?",
+        "options": ["3.0%", "4.4%", "5.5%", "6.8%"],
+        "answer": 1,
+        "explanation": "The fiscal deficit target for India in FY 2025-26 is 4.4% of GDP."
+    },
+    {
+        "question": "Which initiative in the Union Budget 2025-26 focuses on development of power infrastructure?",
+        "options": ["Power for All", "National Solar Mission", "Power Infrastructure Development Fund", "Energy Efficiency Mission"],
+        "answer": 2,
+        "explanation": "The Power Infrastructure Development Fund aims at strengthening power infrastructure."
+    },
+    {
+        "question": "What is the Union Budget 2025-26 allocation for capital expenditure relative to total expenditure?",
+        "options": ["15%", "21.5%", "25.2%", "30%"],
+        "answer": 2,
+        "explanation": "Capital expenditure constitutes 25.2% of total expenditure in the Union Budget 2025-26."
+    },
+    {
+        "question": "Which Odisha social welfare scheme focuses on providing insurance and pension benefits to unorganized workers?",
+        "options": ["Mukhyamantri Swasthya Seva Mission", "Gopabandhu Jana Arogya Yojana", "Mukhyamantri Maschyajibi Yojana", "Subhadra Yojana"],
+        "answer": 2,
+        "explanation": "Mukhyamantri Maschyajibi Yojana provides insurance and pension for unorganized sector workers."
+    },
+    {
+        "question": "In the India Budget 2025-26, which sector is targeted for ₹2,000 crore investment to boost exports?",
+        "options": ["Textiles", "Electronic goods", "Pharmaceuticals", "Toy Sector"],
+        "answer": 3,
+        "explanation": "A ₹2,000 crore investment is planned for promoting the Toy Sector exports."
+    },
+    {
+        "question": "How much has Odisha budgeted for the Agriculture & Allied sector in FY 2025-26?",
+        "options": ["₹31,800 crore", "₹37,838 crore", "₹41,273 crore", "₹24,250 crore"],
+        "answer": 1,
+        "explanation": "The Agriculture & Allied sector has been allocated ₹37,838 crore."
+    },
+    {
+        "question": "What is the target for Infrastructure development expenditure in Odisha's Budget 2025-26?",
+        "options": ["₹16,500 crore", "₹22,000 crore", "₹31,000 crore", "₹39,000 crore"],
+        "answer": 2,
+        "explanation": "Odisha has targeted ₹31,000 crore for infrastructure development."
+    },
+    {
+        "question": "In Economic Survey 2025-26, what is the primary driver of India's exports growth?",
+        "options": ["Agricultural products", "Manufacturing sector", "Software services", "Textiles and garments"],
+        "answer": 1,
+        "explanation": "Manufacturing sector is cited as primary driver of exports."
+    },
+    {
+        "question": "Which tax rebate is available for individuals with income up to ₹7 lakh under the new tax regime for FY 2025-26?",
+        "options": ["₹50,000", "₹60,000", "₹70,000", "₹80,000"],
+        "answer": 0,
+        "explanation": "Tax rebate of up to ₹50,000 is available for income up to ₹7 lakh."
+    },
+    {
+        "question": "What is the Odisha Budget allocation for Health and Family Welfare in 2025-26?",
+        "options": ["₹23,635 crore", "₹6,249 crore", "₹41,273 crore", "₹17,998 crore"],
+        "answer": 0,
+        "explanation": "Health & Family Welfare sector receives ₹23,635 crore."
+    },
+    {
+        "question": "Which flagship program in Odisha's Budget aims at skill development of youth?",
+        "options": ["Viksit Bharat Skill Mission", "Mukhyamantri Shramik Yojana", "Saksham Yuva Yojana", "Pradhan Mantri Kaushal Vikas Yojana"],
+        "answer": 0,
+        "explanation": "Viksit Bharat Skill Mission focuses on youth skill development."
+    },
+    {
+        "question": "What is the revenue surplus projected for Odisha in FY 2025-26 as percent of GSDP?",
+        "options": ["3%", "2.5%", "4.5%", "1.9%"],
+        "answer": 0,
+        "explanation": "Odisha’s revenue surplus has been projected at 3% of GSDP."
+    },
+    {
+        "question": "Under the Union Budget 2025-26, which category of income is taxed at 10%?",
+        "options": ["₹4 lakh to ₹8 lakh", "₹8 lakh to ₹12 lakh", "₹12 lakh to ₹15 lakh", "Nil"],
+        "answer": 1,
+        "explanation": "Income from ₹8 lakh to ₹12 lakh is taxed at 10%."
+    },
+    {
+        "question": "Which tax relief was extended to senior citizens in the Union Budget 2025-26?",
+        "options": ["Higher exemption limit for interest income", "Rebate on capital gains tax", "No change", "Reduction of health cess"],
+        "answer": 0,
+        "explanation": "Exemption limit for interest income earned by senior citizens was increased."
+    },
+    {
+        "question": "What is the allocation to Odisha's Women and Child Development sector in 2025-26?",
+        "options": ["₹6,249 crore", "₹5,000 crore", "₹7,100 crore", "₹6,500 crore"],
+        "answer": 0,
+        "explanation": "Women and Child Development sector allocated ₹6,249 crore."
+    },
+    {
+        "question": "Economic Survey 2025-26 highlights which sector as critical to India's employment generation?",
+        "options": ["Manufacturing", "Agriculture", "Services", "Construction"],
+        "answer": 2,
+        "explanation": "Services sector is recognized as critical for employment generation."
+    },
+    {
+        "question": "What is the budgetary allocation in Odisha for Rural Development in 2025-26?",
+        "options": ["₹39,221 crore", "₹20,000 crore", "₹28,500 crore", "₹33,000 crore"],
+        "answer": 0,
+        "explanation": "Rural Development gets ₹39,221 crore allocation."
+    },
+    {
+        "question": "Which scheme in Union Budget 2025-26 supports micro-credit for women entrepreneurs?",
+        "options": ["Stand Up India", "Credit Cards for Micro Enterprises", "Startup India", "Mudra Yojana"],
+        "answer": 1,
+        "explanation": "Credit Card for Micro Enterprises supports women entrepreneurs."
+    },
+    {
+        "question": "Odisha Budget 2025-26 allocates approximately how much for Social Security and Welfare?",
+        "options": ["₹24,250 crore", "₹27,000 crore", "₹18,000 crore", "₹20,000 crore"],
+        "answer": 0,
+        "explanation": "₹24,250 crore allocated for Social Security."
+    },
+    {
+        "question": "Which program launched to promote milk production and allied activities in Odisha Budget 2025-26?",
+        "options": ["Mukhyamantri Pashudhan Yojana", "PM KISAN", "Shree Anna Abhiyan", "Antyodaya Gruha Yojana"],
+        "answer": 0,
+        "explanation": "Mukhyamantri Pashudhan Yojana promotes dairy and allied activities."
+    },
+    {
+        "question": "What is the corporate tax rate for new manufacturing companies under the new tax regime FY 2025-26?",
+        "options": ["15%", "17.5%", "20%", "25%"],
+        "answer": 0,
+        "explanation": "New manufacturing companies are taxed at 15% corporate tax."
+    },
+    {
+        "question": "Union Budget 2025-26 allocated how much for MSMEs sector promotion?",
+        "options": ["₹7,500 crore", "₹5,000 crore", "₹2,000 crore", "₹10,000 crore"],
+        "answer": 2,
+        "explanation": "₹2,000 crore allocated for MSMEs sector."
+    },
+    {
+        "question": "What is the projected inflation rate for India in FY 2025-26, as per Economic Survey?",
+        "options": ["3%", "4.2%", "5.5%", "6.0%"],
+        "answer": 1,
+        "explanation": "Inflation rate projected at 4.2% for FY 2025-26."
+    },
+    {
+        "question": "Which Odisha scheme provides financial aid to fishermen?",
+        "options": ["Mukhyamantri Maschyajibi Yojana", "PM Matsya Sampad Yojana", "Pradhan Mantri Fasal Bima Yojana", "Antyodaya Gruha Yojana"],
+        "answer": 0,
+        "explanation": "Mukhyamantri Maschyajibi Yojana provides aid to fishermen."
+    },
+    {
+        "question": "What is the total outlay of Odisha State Budget 2025-26?",
+        "options": ["₹2,66,800 crore", "₹2,90,000 crore", "₹2,32,600 crore", "₹2,50,000 crore"],
+        "answer": 1,
+        "explanation": "Odisha's total budget outlay for 2025-26 is ₹2,90,000 crore."
+    },
+    {
+        "question": "Odisha Budget 2025-26 allocates how much to Education?",
+        "options": ["₹41,273 crore", "₹23,635 crore", "₹37,838 crore", "₹17,998 crore"],
+        "answer": 0,
+        "explanation": "Education gets ₹41,273 crore allocation."
+    },
+    {
+        "question": "Which initiative in Union Budget 2025-26 aims to universalize early childhood education?",
+        "options": ["Saksham Anganwadi", "PM SHRI Schools", "Poshan 2.0", "Digital India"],
+        "answer": 0,
+        "explanation": "Saksham Anganwadi aims to universalize early childhood education."
+    },
+    {
+        "question": "What is the revised deduction limit on family pension for pensioners as announced in Union Budget?",
+        "options": ["₹15,000", "₹20,000", "₹25,000", "₹30,000"],
+        "answer": 2,
+        "explanation": "The deduction limit increased to ₹25,000."
+    },
+    {
+        "question": "State's fiscal deficit as percentage of GSDP projected for Odisha FY 2025-26?",
+        "options": ["3.2%", "3.5%", "4.0%", "4.4%"],
+        "answer": 0,
+        "explanation": "Fiscal deficit is targeted at 3.2% of GSDP for Odisha."
+    },
+    {
+        "question": "Which Union Budget 2025-26 initiative is focused on promoting startups?",
+        "options": ["Atal Innovation Mission", "Make in India", "Viksit Bharat Skill Mission", "Startup India"],
+        "answer": 0,
+        "explanation": "Atal Innovation Mission supports startup promotion."
+    },
+    {
+        "question": "Odisha's annual plan for Health and Family Welfare for 2025-26 is?",
+        "options": ["₹23,635 crore", "₹22,000 crore", "₹21,500 crore", "₹20,000 crore"],
+        "answer": 0,
+        "explanation": "Health and Family Welfare annual plan is ₹23,635 crore."
+    },
+    {
+        "question": "Which Odisha scheme targets millet promotion?",
+        "options": ["Shree Anna Abhiyan", "Crop Diversification Scheme", "Mukhyamantri Maschyajibi Yojana", "Pradhan Mantri Kisan Samman Nidhi"],
+        "answer": 0,
+        "explanation": "Shree Anna Abhiyan promotes millets."
+    },
+    {
+        "question": "What is Odisha's projected GSDP growth rate for FY 2025-26?",
+        "options": ["7-7.5%", "8-8.5%", "9-9.5%", "6-6.5%"],
+        "answer": 1,
+        "explanation": "Odisha's GSDP growth is projected at 8-8.5%."
+    },
+    {
+        "question": "Which sector received the highest outlay in Union Budget 2025-26?",
+        "options": ["Agriculture", "Education", "Defence", "Infrastructure"],
+        "answer": 2,
+        "explanation": "Defence sector received the highest outlay."
+    },
+    {
+        "question": "Total capital outlay estimated for Odisha in FY 2025-26?",
+        "options": ["₹55,000 crore", "₹65,012 crore", "₹40,000 crore", "₹72,500 crore"],
+        "answer": 1,
+        "explanation": "Capital outlay for Odisha is ₹65,012 crore."
+    },
+    {
+        "question": "Which fiscal consolidation step is planned by Odisha in 2025-26 budget?",
+        "options": ["Reducing debt-to-GSDP ratio", "Increasing fiscal deficit", "Increasing borrowings", "Increasing tax rates"],
+        "answer": 0,
+        "explanation": "Odisha plans to reduce its debt-to-GSDP ratio."
+    },
+    {
+        "question": "Which scheme targets universal health coverage in India’s Budget 2025-26?",
+        "options": ["Ayushman Bharat", "PM SHRI Schools", "Viksit Bharat Skill Mission", "Saksham Anganwadi"],
+        "answer": 0,
+        "explanation": "Ayushman Bharat targets universal health coverage."
+    },
+	{
+        "question": "What is the estimated inflation rate for India in the fiscal year 2025-26?",
+        "options": ["3.5%", "4.2%", "5.1%", "6.0%"],
+        "answer": 1,
+        "explanation": "The projected inflation rate for India in FY 2025-26 is 4.2%."
+    },
+    {
+        "question": "Which sector in Odisha’s Budget 2025-26 receives the highest allocation?",
+        "options": ["Rural Development", "Education", "Health", "Agriculture"],
+        "answer": 1,
+        "explanation": "Education sector receives the highest allocation in Odisha’s 2025-26 budget."
+    },
+    {
+        "question": "What is the fiscal deficit target for Odisha in FY 2025-26 as a percentage of GSDP?",
+        "options": ["2.5%", "3.0%", "3.2%", "4.0%"],
+        "answer": 2,
+        "explanation": "Odisha’s fiscal deficit target is 3.2% of GSDP for FY 2025-26."
+    },
+    {
+        "question": "How much capital outlay has Odisha planned for FY 2025-26?",
+        "options": ["₹55,500 crore", "₹65,012 crore", "₹70,000 crore", "₹60,000 crore"],
+        "answer": 1,
+        "explanation": "Odisha has budgeted ₹65,012 crore for capital outlay in FY 2025-26."
+    },
+    {
+        "question": "Which scheme in Union Budget 2025-26 is launched to support MSMEs via credit facilities?",
+        "options": ["Credit Card for Micro Enterprises", "Mudra Yojana", "Startup India", "Stand Up India"],
+        "answer": 0,
+        "explanation": "Credit Card for Micro Enterprises scheme supports MSMEs with credit."
+    },
+    {
+        "question": "What is the Union Budget 2025-26 allocation for Defence?",
+        "options": ["₹4,54,773 crore", "₹4,00,000 crore", "₹3,50,000 crore", "₹5,00,000 crore"],
+        "answer": 0,
+        "explanation": "Defence receives ₹4,54,773 crore in Union Budget 2025-26."
+    },
+    {
+        "question": "At what tax rate is income between ₹4 lakh and ₹8 lakh taxed as per the new regime in FY 2025-26?",
+        "options": ["NIL", "5%", "10%", "15%"],
+        "answer": 1,
+        "explanation": "Income between ₹4 lakh and ₹8 lakh is taxed at 5%."
+    },
+    {
+        "question": "What is the projected growth rate of Odisha’s economy in 2025-26?",
+        "options": ["6-7%", "7-7.5%", "8-8.5%", "9-9.5%"],
+        "answer": 2,
+        "explanation": "Odisha's economy is projected to grow at 8-8.5%."
+    },
+    {
+        "question": "Which Odisha scheme is allocated ₹600 crore for millet promotion?",
+        "options": ["Shree Anna Abhiyan", "Mukhyamantri Maschyajibi Yojana", "Crop Diversification Scheme", "PM KISAN"],
+        "answer": 0,
+        "explanation": "Shree Anna Abhiyan receives ₹600 crore for millet promotion."
+    },
+    {
+        "question": "Which flagship program aims at universalizing pre-primary education in Union Budget 2025-26?",
+        "options": ["Saksham Anganwadi", "PM SHRI Schools", "Poshan 2.0", "Mid-day meal scheme"],
+        "answer": 0,
+        "explanation": "Saksham Anganwadi aims to universalize pre-primary education."
+    },
+    {
+        "question": "What is the increased standard deduction for salaried employees from FY 2025-26?",
+        "options": ["₹50,000", "₹60,000", "₹75,000", "₹1,00,000"],
+        "answer": 2,
+        "explanation": "Standard deduction increased to ₹75,000."
+    },
+    {
+        "question": "What is the union budget estimate for net tax receipts in FY 2025-26?",
+        "options": ["₹28.37 lakh crore", "₹30.00 lakh crore", "₹25.00 lakh crore", "₹32.00 lakh crore"],
+        "answer": 0,
+        "explanation": "Net tax receipts estimated at ₹28.37 lakh crore."
+    },
+    {
+        "question": "Which sector in Odisha gets an allocation of ₹39,221 crore in FY 2025-26?",
+        "options": ["Rural Development", "Agriculture", "Social Security", "Infrastructure"],
+        "answer": 0,
+        "explanation": "Rural development is allocated ₹39,221 crore."
+    },
+    {
+        "question": "What is the projected year-end debt stock of Odisha as percentage of GSDP in FY 2025-26?",
+        "options": ["8.2%", "10.0%", "12.7%", "14.5%"],
+        "answer": 2,
+        "explanation": "Debt stock projected at 12.7% of GSDP."
+    },
+    {
+        "question": "Which scheme is aimed at housing for the poor in Odisha Budget 2025-26?",
+        "options": ["Antyodaya Gruha Yojana", "PMAY", "Subhadra Yojana", "Odisha Housing Mission"],
+        "answer": 0,
+        "explanation": "Antyodaya Gruha Yojana is the flagship housing scheme for poor."
+    },
+    {
+        "question": "The Union Budget 2025-26 proposed how much for capital expenditure?",
+        "options": ["₹8.2 lakh crore", "₹11.21 lakh crore", "₹12.5 lakh crore", "₹7.5 lakh crore"],
+        "answer": 1,
+        "explanation": "Capital expenditure proposed at ₹11.21 lakh crore."
+    },
+    {
+        "question": "What tax relief was extended to senior citizens in FY 2025-26?",
+        "options": ["Higher exemption limit on interest income", "Increased standard deduction", "No tax on pension", "Reduced GST rates"],
+        "answer": 0,
+        "explanation": "Higher exemption limit on interest income for senior citizens."
+    },
+    {
+        "question": "Which Odisha sector is allocated ₹24,250 crore in Budget 2025-26?",
+        "options": ["Pension & Social Security", "Health", "Education", "Rural Development"],
+        "answer": 0,
+        "explanation": "Pension & Social Security receives ₹24,250 crore allocation."
+    },
+    {
+        "question": "India’s merchandise export target for FY 2025-26 is?",
+        "options": ["$400 billion", "$500 billion", "$600 billion", "$700 billion"],
+        "answer": 2,
+        "explanation": "Merchandise export target set at $600 billion."
+    },
+    {
+        "question": "Which Union Budget 2025-26 initiative supports the toy sector?",
+        "options": ["Toy Sector Mission", "Startup India", "Make in India", "Credit Cards for MSMEs"],
+        "answer": 0,
+        "explanation": "Toy Sector Mission supports growth of the toy industry."
+    },
+    {
+        "question": "What is the budget estimate for Odisha’s Education sector for FY 2025-26?",
+        "options": ["₹41,273 crore", "₹23,635 crore", "₹17,998 crore", "₹6,249 crore"],
+        "answer": 0,
+        "explanation": "Education sector is allocated ₹41,273 crore."
+    },
+    {
+        "question": "The GST rate slabs in India for FY 2025-26 include:",
+        "options": ["5%, 12%, 18%, 28%", "0%, 8%, 16%, 24%", "4%, 12%, 20%, 32%", "None of these"],
+        "answer": 0,
+        "explanation": "GST slabs are 5%, 12%, 18%, and 28%."
+    },
+    {
+        "question": "What is the new corporate tax rate on new manufacturing companies in FY 2025-26?",
+        "options": ["17.5%", "15%", "20%", "25%"],
+        "answer": 1,
+        "explanation": "New manufacturing companies taxed at 15%."
+    },
+    {
+        "question": "Which flagship scheme focuses on skill development of Indian youth?",
+        "options": ["Viksit Bharat Skill Mission", "PM Kaushal Vikas Yojana", "Startup India", "Digital India"],
+        "answer": 0,
+        "explanation": "Viksit Bharat Skill Mission focuses on skill development."
+    },
+    {
+        "question": "Which is the biggest revenue source for Odisha Government?",
+        "options": ["State GST", "Central Transfers", "Excise Duty", "Property Tax"],
+        "answer": 1,
+        "explanation": "Central transfers form the largest revenue source."
+    },
+    {
+        "question": "What is the allocation for Odisha’s Rural Development in FY 2025-26?",
+        "options": ["₹39,221 crore", "₹17,998 crore", "₹8,000 crore", "₹41,273 crore"],
+        "answer": 0,
+        "explanation": "Rural Development receives ₹39,221 crore allocation."
+    },
+    {
+        "question": "Which scheme in Odisha Budget 2025-26 is aimed at fisheries development?",
+        "options": ["Pradhan Mantri Matsya Sampada Yojana", "Mukhyamantri Maschyajibi Yojana", "PM KISAN", "Subhadra Yojana"],
+        "answer": 0,
+        "explanation": "PMMSY promoted fisheries development."
+    },
+    {
+        "question": "What is the projected inflation rate for India in 2025-26 as per Economic Survey?",
+        "options": ["3.9%", "4.2%", "4.5%", "5.0%"],
+        "answer": 1,
+        "explanation": "Projected inflation is 4.2%."
+    },
+    {
+        "question": "Which sector contributes the largest share in Odisha’s GSDP?",
+        "options": ["Agriculture", "Industry", "Service", "Mining"],
+        "answer": 2,
+        "explanation": "Service sector contributes the largest to Odisha's GSDP."
+    },
+    {
+        "question": "What is the Odisha Government’s target for fiscal deficit in FY 2025-26?",
+        "options": ["3.5%", "3.2%", "2.8%", "3.8%"],
+        "answer": 1,
+        "explanation": "Fiscal deficit target is 3.2% of GSDP."
+    },
+    {
+        "question": "Which scheme in Union Budget 2025-26 focuses on child nutrition?",
+        "options": ["Poshan 2.0", "Saksham Anganwadi", "PM POSHAN", "All of the above"],
+        "answer": 3,
+        "explanation": "All listed schemes target child nutrition."
+    },
+    {
+        "question": "How much is allocated for Odisha’s Social Security in 2025-26 budget?",
+        "options": ["₹24,250 crore", "₹22,000 crore", "₹30,500 crore", "₹20,000 crore"],
+        "answer": 0,
+        "explanation": "₹24,250 crore allocated for social security."
+    },
+    {
+        "question": "What is the purpose of Antyodaya Gruha Yojana in Odisha?",
+        "options": ["Housing for Poor", "Skill development", "Health insurance", "Agricultural subsidies"],
+        "answer": 0,
+        "explanation": "Scheme aims to provide housing to the poor."
+    },
+    {
+        "question": "Which sector in Odisha received the least allocation in Budget 2025-26?",
+        "options": ["Health", "Education", "Agriculture", "Women & Child Development"],
+        "answer": 3,
+        "explanation": "Women & Child Development has the lowest among given options."
+    },
+    {
+        "question": "Which new tax slab was introduced in FY 2025-26 Union Budget?",
+        "options": ["No tax for income under ₹4 lakhs", "5% tax for income ₹4-8 lakhs", "10% tax for income ₹8-12 lakhs", "All of the above"],
+        "answer": 3,
+        "explanation": "These new slabs are introduced for FY25-26."
+    },
+    {
+        "question": "What was the estimated nominal GDP of India for FY 2025-26?",
+        "options": ["₹270 lakh crore", "₹300 lakh crore", "₹320 lakh crore", "₹350 lakh crore"],
+        "answer": 0,
+        "explanation": "Nominal GDP estimated around ₹270 lakh crore."
+    },
+    {
+        "question": "Which initiative supports easy credit to micro & small enterprises?",
+        "options": ["Credit Cards for Micro Enterprises", "Mudra Yojana", "Startup India", "Stand Up India"],
+        "answer": 0,
+        "explanation": "Credit Cards scheme provides easy credit to micro & small enterprises."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

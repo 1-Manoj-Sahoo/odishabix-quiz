@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">ARTICLES</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+ {
+        "question": "She finds him to be _____ irksome fellow, and thus loses patience when she sees him around.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An' is used before words with a vowel sound, as in 'irksome'."
+    },
+    {
+        "question": "The scientist won _____ Nobel Prize for her groundbreaking research.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "The definite article 'the' is needed for unique awards like the Nobel Prize."
+    },
+    {
+        "question": "Rabindranath Tagore, _____ poet, was famous for his poetical work, Gitanjali.",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 0,
+        "explanation": "'A' is used before 'poet' (not specific, starts with consonant sound)."
+    },
+    {
+        "question": "Learn _____ new skill every six months to take out _____ boredom of repetitive work.",
+        "options": ["a, a", "the, a", "an, the", "a, the"],
+        "answer": 3,
+        "explanation": "'A' for any new skill; 'the' for the specific boredom."
+    },
+    {
+        "question": "_____ Gita is considered to be a dialogue between the Pandava prince, Arjuna, and Lord Krishna.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 1,
+        "explanation": "'The' Gita for a specific famous text."
+    },
+    {
+        "question": "It was _____ very well-directed film and we enjoyed it.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 2,
+        "explanation": "'A very well-directed film' (not 'the')."
+    },
+    {
+        "question": "_____ antique diamond necklace was stolen from the museum.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 2,
+        "explanation": "'An' before 'antique' (vowel sound)."
+    },
+    {
+        "question": "This is too grave _____ sin to be pardoned.",
+        "options": ["the", "a", "an", "No article required"],
+        "answer": 1,
+        "explanation": "The structure is 'too + adjective + a/an + noun'."
+    },
+    {
+        "question": "After knowing _____ truth, the jury took the right decision in the case.",
+        "options": ["a", "No article required", "the", "an"],
+        "answer": 2,
+        "explanation": "'The truth' as it has been identified for both listener and reader."
+    },
+    {
+        "question": "Sunil refused to attend the meeting of _____ association on Saturday.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 0,
+        "explanation": "'The' association (specific group)."
+    },
+    {
+        "question": "There is _____ very little time for them to prepare for the show.",
+        "options": ["a", "the", "No article required", "an"],
+        "answer": 2,
+        "explanation": "Uncountable noun 'time' takes no article."
+    },
+    {
+        "question": "Karun has _____ X-ray machine which is very significant for him.",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 2,
+        "explanation": "'An' before 'X-ray' (vowel sound)."
+    },
+    {
+        "question": "This is _____ unique thing I have ever seen in my life.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 1,
+        "explanation": "'The unique thing' because 'unique' is an absolute."
+    },
+    {
+        "question": "She is _____ most diligent employee and I will recommend her name for promotion.",
+        "options": ["the", "a", "No article required", "an"],
+        "answer": 0,
+        "explanation": "Superlatives use 'the', as in 'the most diligent employee'."
+    },
+    {
+        "question": "Today, in _____ fit of frenzied rage and jealousy, you would have killed me, your brother.",
+        "options": ["No article required", "the", "an", "a"],
+        "answer": 3,
+        "explanation": "'A fit' is the correct countable usage."
+    },
+    {
+        "question": "He is _____ honest man.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 0,
+        "explanation": "'An' for words starting with vowel sound like 'honest'."
+    },
+    {
+        "question": "King Arthur was _____ just king.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 2,
+        "explanation": "'A' before 'just king' (consonant sound)."
+    },
+    {
+        "question": "_____ lion let go of _____ mouse.",
+        "options": ["The, the", "A, a", "A, the", "The, a"],
+        "answer": 0,
+        "explanation": "Definite article 'the' for specific animals previously mentioned."
+    },
+    {
+        "question": "I have _____ account in this bank.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 3,
+        "explanation": "'A' before words starting with consonant sound unless specific."
+    },
+    {
+        "question": "_____ earth revolves round _____ sun.",
+        "options": ["The, the", "A, the", "The, a", "No article required"],
+        "answer": 0,
+        "explanation": "Use 'the' with unique things (earth, sun)."
+    },
+    {
+        "question": "He is _____ European writer.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 2,
+        "explanation": "'A' for 'European' (yoo- sound, not a vowel)."
+    },
+    {
+        "question": "He went to _____ university for higher education.",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 0,
+        "explanation": "'A university' (yoo-niversity: consonant sound)."
+    },
+    {
+        "question": "_____ Himalayas are the highest mountain range in the world.",
+        "options": ["A", "No article required", "An", "The"],
+        "answer": 3,
+        "explanation": "'The' for names of mountain ranges."
+    },
+    {
+        "question": "He has _____ MBA from Harvard.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An' before MBA (sounds like 'em')."
+    },
+    {
+        "question": "This is _____ best pizza I have ever eaten.",
+        "options": ["a", "No article required", "the", "an"],
+        "answer": 2,
+        "explanation": "Superlative 'best' requires 'the'."
+    },
+    {
+        "question": "_____ elephant never forgets.",
+        "options": ["A", "No article required", "An", "The"],
+        "answer": 3,
+        "explanation": "'The' elephant refers to the species as a whole."
+    },
+    {
+        "question": "He waited for _____ hour before the meeting started.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 2,
+        "explanation": "'An' before 'hour' (silent 'h', vowel sound)."
+    },
+    {
+        "question": "She is _____ expert in accountancy.",
+        "options": ["the", "a", "an", "No article required"],
+        "answer": 2,
+        "explanation": "'An' before words starting with vowel sound."
+    },
+    {
+        "question": "They have built _____ house on the hill.",
+        "options": ["No article required", "the", "a", "an"],
+        "answer": 2,
+        "explanation": "'A house' (first mention, not specific)."
+    },
+    {
+        "question": "_____ Pacific is the largest ocean.",
+        "options": ["A", "The", "No article required", "An"],
+        "answer": 1,
+        "explanation": "'The' Pacific (names of oceans take 'the')."
+    },
+    {
+        "question": "Can you lend me _____ umbrella?",
+        "options": ["an", "the", "No article required", "a"],
+        "answer": 0,
+        "explanation": "'An' umbrella (vowel sound)."
+    },
+    {
+        "question": "She is _____ youngest player in the team.",
+        "options": ["the", "a", "No article required", "an"],
+        "answer": 0,
+        "explanation": "'The' superlative."
+    },
+    {
+        "question": "He has _____ honest approach in life.",
+        "options": ["an", "the", "No article required", "a"],
+        "answer": 0,
+        "explanation": "'An' before vowel sound."
+    },
+    {
+        "question": "There is _____ unending queue at the ticket counter.",
+        "options": ["a", "the", "No article required", "an"],
+        "answer": 3,
+        "explanation": "'An' before 'unending' (vowel sound)."
+    },
+    {
+        "question": "_____ Taj Mahal is a symbol of love.",
+        "options": ["A", "An", "No article required", "The"],
+        "answer": 3,
+        "explanation": "'The' for unique monuments."
+    },
+    {
+        "question": "She sent me _____ email yesterday.",
+        "options": ["a", "the", "No article required", "an"],
+        "answer": 0,
+        "explanation": "'An' would be used only if the next word starts with vowel sound. Here it's 'a'."
+    },
+    {
+        "question": "India is _____ country famous for its culture.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 2,
+        "explanation": "'A' country (not specified or unique)."
+    },
+    {
+        "question": "He read _____ interesting novel last week.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 0,
+        "explanation": "'An' before 'interesting' (vowel sound)."
+    },
+    {
+        "question": "He is _____ M.P. from Lucknow.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An' before M.P. (pronounced 'em', vowel sound)."
+    },
+    {
+        "question": "_____ Nile is the longest river in the world.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The' before river names."
+    },
+    {
+        "question": "The meeting will take place in _____ hour.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An' hour (silent h, vowel sound)."
+    },
+    {
+        "question": "He wants to become _____ engineer when he grows up.",
+        "options": ["the", "a", "No article required", "an"],
+        "answer": 3,
+        "explanation": "'An' before 'engineer' (vowel sound)."
+    },
+    {
+        "question": "_____ Ganges is considered sacred in India.",
+        "options": ["No article required", "A", "The", "An"],
+        "answer": 2,
+        "explanation": "'The' before river names."
+    },
+    {
+        "question": "He is _____ only child of his parents.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 0,
+        "explanation": "'The' for 'only'."
+    },
+    {
+        "question": "_____ Ramayana is an epic.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 1,
+        "explanation": "'The' for famous books/epics."
+    },
+    {
+        "question": "She is _____ European artist.",
+        "options": ["the", "a", "an", "No article required"],
+        "answer": 1,
+        "explanation": "'A' (yoo-sound)."
+    },
+    {
+        "question": "I want to buy _____ pair of shoes.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 3,
+        "explanation": "'A' pair (general mention)."
+    },
+    {
+        "question": "She has _____ umbrella with her.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 2,
+        "explanation": "'An' umbrella (vowel sound)."
+    },
+    {
+        "question": "_____ Himalayas are covered with snow throughout the year.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 1,
+        "explanation": "'The' for specific ranges."
+    },
+    {
+        "question": "We saw _____ eagle soaring in the sky.",
+        "options": ["No article required", "the", "an", "a"],
+        "answer": 2,
+        "explanation": "'An' eagle (vowel sound)."
+    },
+    {
+        "question": "_____ western coast of India receives heavy rainfall.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The' for directions/regions."
+    },
+    {
+        "question": "_____ English is spoken all over the world.",
+        "options": ["The", "An", "No article required", "A"],
+        "answer": 0,
+        "explanation": "Languages can take 'the' in a global context."
+    },
+    {
+        "question": "_____ rich should help the poor.",
+        "options": ["The", "A", "No article required", "An"],
+        "answer": 0,
+        "explanation": "'The' rich as a group/class."
+    },
+	{
+        "question": "She dreams of becoming _____ astronaut one day.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 0,
+        "explanation": "'An' before 'astronaut' (vowel sound)."
+    },
+    {
+        "question": "_____ oldest tree in the park was cut down.",
+        "options": ["A", "The", "No article required", "An"],
+        "answer": 1,
+        "explanation": "'The' for superlative degree."
+    },
+    {
+        "question": "Mohit bought _____ umbrella for his sister.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 1,
+        "explanation": "'An' umbrella (vowel sound)."
+    },
+    {
+        "question": "My uncle is _____ engineer by profession.",
+        "options": ["the", "a", "No article required", "an"],
+        "answer": 3,
+        "explanation": "'An' engineer (vowel sound)."
+    },
+    {
+        "question": "_____ apple a day keeps the doctor away.",
+        "options": ["An", "The", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'An' apple (vowel sound); referring to any apple."
+    },
+    {
+        "question": "The students are waiting in _____ hall for the announcement.",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 1,
+        "explanation": "'The hall' refers to a specific place."
+    },
+    {
+        "question": "She wants to be _____ pilot when she grows up.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 2,
+        "explanation": "'A pilot' (consonant sound)."
+    },
+    {
+        "question": "We usually have breakfast at _____ 8 o'clock.",
+        "options": ["a", "No article required", "the", "an"],
+        "answer": 1,
+        "explanation": "No article before times."
+    },
+    {
+        "question": "_____ Taj Mahal attracts tourists from all over the world.",
+        "options": ["No article required", "The", "An", "A"],
+        "answer": 1,
+        "explanation": "'The Taj Mahal' as a specific monument."
+    },
+    {
+        "question": "She is _____ one who won the medal.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 1,
+        "explanation": "'The one' (something unique/specific)."
+    },
+    {
+        "question": "He played _____ violin beautifully.",
+        "options": ["the", "a", "an", "No article required"],
+        "answer": 0,
+        "explanation": "'The violin' for musical instruments in general."
+    },
+    {
+        "question": "_____ Nile flows through several African countries.",
+        "options": ["No article required", "An", "A", "The"],
+        "answer": 3,
+        "explanation": "'The Nile', as a specific river."
+    },
+    {
+        "question": "He bought _____ Eurostar ticket to Paris.",
+        "options": ["the", "a", "an", "No article required"],
+        "answer": 1,
+        "explanation": "'A Eurostar ticket' (consonant sound)."
+    },
+    {
+        "question": "_____ Parliament adjourned for the day.",
+        "options": ["An", "A", "No article required", "The"],
+        "answer": 3,
+        "explanation": "'The Parliament' (specific institution)."
+    },
+    {
+        "question": "She is reading _____ interesting book.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 0,
+        "explanation": "'An' interesting book (vowel sound)."
+    },
+    {
+        "question": "_____ information you gave was incorrect.",
+        "options": ["A", "No article required", "The", "An"],
+        "answer": 2,
+        "explanation": "'The information' (definite, particular one)."
+    },
+    {
+        "question": "He wears _____ uniform to work every day.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'A uniform' (yoo-niform)."
+    },
+    {
+        "question": "_____ Alps are in Europe.",
+        "options": ["A", "An", "No article required", "The"],
+        "answer": 3,
+        "explanation": "'The Alps', for mountain ranges."
+    },
+    {
+        "question": "He gave me _____ ten-rupee note.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 2,
+        "explanation": "'An' ten-rupee note (vowel sound)."
+    },
+    {
+        "question": "There is _____ hotel near the station.",
+        "options": ["the", "a", "an", "No article required"],
+        "answer": 1,
+        "explanation": "'A hotel' (consonant sound)."
+    },
+    {
+        "question": "_____ water of this river is very clean.",
+        "options": ["An", "No article required", "A", "The"],
+        "answer": 3,
+        "explanation": "'The water' (specific)."
+    },
+    {
+        "question": "He wants to be _____ IAS officer.",
+        "options": ["the", "an", "No article required", "a"],
+        "answer": 1,
+        "explanation": "'An' IAS officer (pronounced 'ai', vowel sound)."
+    },
+    {
+        "question": "They visited _____ Red Fort last summer.",
+        "options": ["an", "No article required", "the", "a"],
+        "answer": 2,
+        "explanation": "'The Red Fort', specific place."
+    },
+    {
+        "question": "She is _____ tallest player on the team.",
+        "options": ["an", "a", "No article required", "the"],
+        "answer": 3,
+        "explanation": "'The tallest', superlative."
+    },
+    {
+        "question": "This is _____ European custom.",
+        "options": ["an", "No article required", "the", "a"],
+        "answer": 3,
+        "explanation": "'A European' (yoo-sound)."
+    },
+    {
+        "question": "I would like to have _____ cup of coffee.",
+        "options": ["the", "a", "No article required", "an"],
+        "answer": 1,
+        "explanation": "'A cup' (first mention)."
+    },
+    {
+        "question": "_____ Mount Everest is the highest peak.",
+        "options": ["No article required", "An", "A", "The"],
+        "answer": 3,
+        "explanation": "'The Mount Everest', unique peak."
+    },
+    {
+        "question": "_____ sun rises in the east.",
+        "options": ["No article required", "The", "An", "A"],
+        "answer": 1,
+        "explanation": "'The sun', unique in our context."
+    },
+    {
+        "question": "_____ honest man always speaks the truth.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 2,
+        "explanation": "'An honest' (vowel sound)."
+    },
+    {
+        "question": "She got _____ job she wanted.",
+        "options": ["No article required", "a", "an", "the"],
+        "answer": 3,
+        "explanation": "'The job', specific one."
+    },
+    {
+        "question": "This is _____ only way to solve the puzzle.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 0,
+        "explanation": "'The only' (unique, specific)."
+    },
+    {
+        "question": "Have you ever been to _____ United Kingdom?",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 1,
+        "explanation": "'The United Kingdom', name of a country."
+    },
+    {
+        "question": "He wants to be _____ doctor.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A doctor' (general, profession)."
+    },
+    {
+        "question": "My father is _____ honest man.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 1,
+        "explanation": "'An honest' (vowel sound – h is silent)."
+    },
+    {
+        "question": "_____ moon revolves around the earth.",
+        "options": ["The", "A", "No article required", "An"],
+        "answer": 0,
+        "explanation": "'The moon', unique."
+    },
+    {
+        "question": "She bought _____ Indian saree from the fair.",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 0,
+        "explanation": "'A saree' (consonant sound)."
+    },
+    {
+        "question": "_____ French speak French.",
+        "options": ["A", "The", "No article required", "An"],
+        "answer": 1,
+        "explanation": "'The French' (for the people as a whole group)."
+    },
+    {
+        "question": "He gave me _____ orange for lunch.",
+        "options": ["No article required", "the", "a", "an"],
+        "answer": 3,
+        "explanation": "'An orange' (vowel sound)."
+    },
+    {
+        "question": "_____ Indian Ocean is to the south of India.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The Indian Ocean', specific ocean."
+    },
+    {
+        "question": "She is _____ teacher you met yesterday.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 0,
+        "explanation": "'The teacher' (specific)."
+    },
+    {
+        "question": "He bought _____ unique painting.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 2,
+        "explanation": "'A unique' (yoo-sound, consonant sound)."
+    },
+    {
+        "question": "He wants to become _____ engineer, but he is also interested in law.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 1,
+        "explanation": "'An engineer' (vowel sound)."
+    },
+    {
+        "question": "_____ Ganges is worshipped in India.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The Ganges', specific river."
+    },
+    {
+        "question": "He kept _____ umbrella on the table.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The umbrella' (already mentioned/known item)."
+    },
+    {
+        "question": "Could you please pass me _____ salt?",
+        "options": ["the", "an", "No article required", "a"],
+        "answer": 0,
+        "explanation": "'The' salt (specific/known to listener)."
+    },
+    {
+        "question": "She is _____ only person I trust.",
+        "options": ["no article", "an", "the", "a"],
+        "answer": 2,
+        "explanation": "'The only' (unique/specific)."
+    },
+    {
+        "question": "_____ apple is good for health.",
+        "options": ["A", "An", "No article required", "The"],
+        "answer": 1,
+        "explanation": "'An' apple (any apple, vowel sound)."
+    },
+    {
+        "question": "_____ Andaman Islands are known for their beauty.",
+        "options": ["The", "No article required", "A", "An"],
+        "answer": 0,
+        "explanation": "'The Andaman Islands', specific place/group."
+    },
+    {
+        "question": "He is _____ most experienced teacher in the school.",
+        "options": ["an", "the", "No article required", "a"],
+        "answer": 1,
+        "explanation": "'The most experienced', superlative use."
+    },
+    {
+        "question": "She was appointed as _____ Head Girl of the school.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 0,
+        "explanation": "'The Head Girl', unique position."
+    },
+    {
+        "question": "He is planning to buy _____ house in Pune.",
+        "options": ["No article required", "the", "an", "a"],
+        "answer": 3,
+        "explanation": "'A house' general mention, not specific."
+    },
+	{
+        "question": "_____ person who called you is waiting outside.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The person' (specific/particular)."
+    },
+    {
+        "question": "She is _____ oldest member of the club.",
+        "options": ["No article required", "an", "the", "a"],
+        "answer": 2,
+        "explanation": "'The oldest', superlative use."
+    },
+    {
+        "question": "He works for _____ European company.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 2,
+        "explanation": "'A European', because it sounds like 'yoo'."
+    },
+    {
+        "question": "I saw _____ owl sitting on the branch.",
+        "options": ["the", "No article required", "a", "an"],
+        "answer": 3,
+        "explanation": "'An owl', vowel sound."
+    },
+    {
+        "question": "_____ engineer should have knowledge of mathematics.",
+        "options": ["An", "The", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'An engineer', for any individual of the class."
+    },
+    {
+        "question": "I will meet you at _____ airport.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 1,
+        "explanation": "'The airport', specific known location."
+    },
+    {
+        "question": "He sent me _____ urgent message last night.",
+        "options": ["a", "No article required", "the", "an"],
+        "answer": 3,
+        "explanation": "'An urgent' (vowel sound)."
+    },
+    {
+        "question": "_____ Himalayas form the boundary of northern India.",
+        "options": ["A", "No article required", "The", "An"],
+        "answer": 2,
+        "explanation": "'The Himalayas', unique mountain range."
+    },
+    {
+        "question": "Sam travels by _____ train daily.",
+        "options": ["an", "the", "No article required", "a"],
+        "answer": 3,
+        "explanation": "'A train', unspecified; general mode."
+    },
+    {
+        "question": "_____ little knowledge is a dangerous thing.",
+        "options": ["No article required", "A", "The", "An"],
+        "answer": 2,
+        "explanation": "'The little', meaning not much but what exists."
+    },
+    {
+        "question": "She has _____ unique talent.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 3,
+        "explanation": "'A unique' (yoo-sound)."
+    },
+    {
+        "question": "He is _____ honorable man.",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 2,
+        "explanation": "'An honorable', silent 'h' (vowel sound)."
+    },
+    {
+        "question": "Rahul went to _____ school by bicycle.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 3,
+        "explanation": "No article, it's a general institution."
+    },
+    {
+        "question": "_____ Amazon is the second longest river.",
+        "options": ["The", "A", "No article required", "An"],
+        "answer": 0,
+        "explanation": "'The Amazon', specific river."
+    },
+    {
+        "question": "This is _____ novel I recommended.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The novel', specific/particular."
+    },
+    {
+        "question": "He is _____ MLA from that area.",
+        "options": ["an", "No article required", "the", "a"],
+        "answer": 0,
+        "explanation": "'An MLA', pronounced 'em'."
+    },
+    {
+        "question": "_____ honest policy is always the best.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The honest policy', referring to a known/specific kind."
+    },
+    {
+        "question": "_____ Nile flows into the Mediterranean Sea.",
+        "options": ["A", "The", "No article required", "An"],
+        "answer": 1,
+        "explanation": "'The Nile', unique river."
+    },
+    {
+        "question": "He bought _____ apple from the market.",
+        "options": ["the", "a", "No article required", "an"],
+        "answer": 3,
+        "explanation": "'An apple', vowel sound."
+    },
+    {
+        "question": "There is _____ elephant in the zoo.",
+        "options": ["the", "a", "No article required", "an"],
+        "answer": 3,
+        "explanation": "'An elephant', vowel sound."
+    },
+    {
+        "question": "_____ wounded soldier was taken to the hospital.",
+        "options": ["An", "A", "No article required", "The"],
+        "answer": 3,
+        "explanation": "'The wounded soldier', specific/known case."
+    },
+    {
+        "question": "He is _____ university student.",
+        "options": ["the", "an", "No article required", "a"],
+        "answer": 3,
+        "explanation": "'A university', yoo-sound."
+    },
+    {
+        "question": "_____ poverty is a curse on society.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The poverty', a specific/identified issue."
+    },
+    {
+        "question": "She is _____ best candidate for this job.",
+        "options": ["an", "No article required", "the", "a"],
+        "answer": 2,
+        "explanation": "'The best' (superlative)."
+    },
+    {
+        "question": "Did you see _____ eclipse last night?",
+        "options": ["the", "an", "no article", "a"],
+        "answer": 1,
+        "explanation": "'An eclipse', vowel sound."
+    },
+    {
+        "question": "He is _____ oldest son of Mr. Smith.",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 1,
+        "explanation": "'The oldest', superlative."
+    },
+    {
+        "question": "\"_____ Ramayana\" is an epic written in Sanskrit.",
+        "options": ["The", "No article required", "A", "An"],
+        "answer": 0,
+        "explanation": "'The Ramayana', unique epic."
+    },
+    {
+        "question": "We are expecting _____ honest answer from him.",
+        "options": ["the", "an", "No article required", "a"],
+        "answer": 1,
+        "explanation": "'An honest', silent h."
+    },
+    {
+        "question": "_____ Parliament has decided to pass the bill.",
+        "options": ["The", "An", "No article required", "A"],
+        "answer": 0,
+        "explanation": "'The Parliament', specific institution."
+    },
+    {
+        "question": "Could you lend me _____ pen, please?",
+        "options": ["No article required", "the", "a", "an"],
+        "answer": 2,
+        "explanation": "'A pen', general/any."
+    },
+    {
+        "question": "He was wearing _____ unusual hat.",
+        "options": ["the", "an", "No article required", "a"],
+        "answer": 1,
+        "explanation": "'An unusual', vowel sound."
+    },
+    {
+        "question": "He is _____ eldest of the siblings.",
+        "options": ["No article required", "an", "the", "a"],
+        "answer": 2,
+        "explanation": "'The eldest', superlative use."
+    },
+    {
+        "question": "Ravi is _____ engineer in our team.",
+        "options": ["an", "no article", "the", "a"],
+        "answer": 0,
+        "explanation": "'An engineer', vowel sound."
+    },
+    {
+        "question": "_____ reason he gave was not satisfactory.",
+        "options": ["The", "No article required", "A", "An"],
+        "answer": 0,
+        "explanation": "'The reason', specific one discussed before."
+    },
+    {
+        "question": "She is _____ unique artist.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'A unique' (yoo-sound)."
+    },
+    {
+        "question": "_____ Spanish is spoken in many countries.",
+        "options": ["A", "No article required", "The", "An"],
+        "answer": 2,
+        "explanation": "'The Spanish', referring to the language."
+    },
+    {
+        "question": "He is the captain of _____ team.",
+        "options": ["an", "the", "No article required", "a"],
+        "answer": 1,
+        "explanation": "'The team', specific."
+    },
+    {
+        "question": "Delhi is _____ capital of India.",
+        "options": ["the", "No article required", "a", "an"],
+        "answer": 0,
+        "explanation": "'The capital', only one."
+    },
+    {
+        "question": "_____ Red Sea lies between Africa and Asia.",
+        "options": ["An", "A", "No article required", "The"],
+        "answer": 3,
+        "explanation": "'The Red Sea', specific sea."
+    },
+    {
+        "question": "He wants to buy _____ motorcycle.",
+        "options": ["the", "No article required", "a", "an"],
+        "answer": 2,
+        "explanation": "'A motorcycle', general."
+    },
+    {
+        "question": "_____ Sheikhs of Dubai are very rich.",
+        "options": ["The", "A", "No article required", "An"],
+        "answer": 0,
+        "explanation": "'The Sheikhs', specifying that group."
+    },
+    {
+        "question": "I went to _____ market yesterday.",
+        "options": ["the", "No article required", "an", "a"],
+        "answer": 0,
+        "explanation": "'The market', specific/known."
+    },
+    {
+        "question": "_____ Earth is the third planet from the Sun.",
+        "options": ["No article required", "A", "The", "An"],
+        "answer": 2,
+        "explanation": "'The Earth', unique planet name."
+    },
+    {
+        "question": "She bought _____ umbrella but forgot it at home.",
+        "options": ["No article required", "an", "the", "a"],
+        "answer": 1,
+        "explanation": "'An umbrella', vowel sound."
+    },
+    {
+        "question": "He is _____ only candidate who qualified.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 1,
+        "explanation": "'The only candidate', unique."
+    },
+    {
+        "question": "_____ Amazon is known for its biodiversity.",
+        "options": ["The", "A", "No article required", "An"],
+        "answer": 0,
+        "explanation": "'The Amazon', specific river/region."
+    },
+    {
+        "question": "He has _____ M.A. in History.",
+        "options": ["an", "No article required", "the", "a"],
+        "answer": 0,
+        "explanation": "'An M.A.', pronounced 'em-ay'."
+    },
+    {
+        "question": "This is _____ honest suggestion.",
+        "options": ["the", "No article required", "a", "an"],
+        "answer": 3,
+        "explanation": "'An honest', silent 'h' (vowel sound)."
+    },
+    {
+        "question": "_____ child was playing in the park.",
+        "options": ["An", "No article required", "The", "A"],
+        "answer": 3,
+        "explanation": "'A child', general."
+    },
+    {
+        "question": "She went to _____ hospital to see her friend.",
+        "options": ["No article required", "the", "an", "a"],
+        "answer": 1,
+        "explanation": "'The hospital', specific known place."
+    },
+    {
+        "question": "_____ Statue of Liberty is in New York.",
+        "options": ["No article required", "A", "The", "An"],
+        "answer": 2,
+        "explanation": "'The Statue of Liberty', unique monument."
+    },
+	{
+        "question": "_____ moon was shining brightly last night.",
+        "options": ["The", "A", "No article required", "An"],
+        "answer": 0,
+        "explanation": "'The moon', unique celestial body."
+    },
+    {
+        "question": "He is _____ actor known for his versatility.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An actor', vowel sound (starts with a vowel)."
+    },
+    {
+        "question": "We live in _____ world full of opportunities.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A world', general description."
+    },
+    {
+        "question": "She has been appointed as _____ ambassador of peace.",
+        "options": ["an", "the", "a", "No article required"],
+        "answer": 0,
+        "explanation": "'An ambassador', vowel sound."
+    },
+    {
+        "question": "_____ Pacific Ocean is the largest ocean on Earth.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Pacific Ocean', specific ocean."
+    },
+    {
+        "question": "He bought _____ orange from the basket.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An orange', vowel sound."
+    },
+    {
+        "question": "She wears _____ uniform to her school.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The uniform', specific known."
+    },
+    {
+        "question": "_____ Mount Everest is the highest peak in the world.",
+        "options": ["No article required", "A", "An", "The"],
+        "answer": 3,
+        "explanation": "'The Mount Everest', unique."
+    },
+    {
+        "question": "Have you seen _____ eagle soaring in the sky?",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An eagle', vowel sound."
+    },
+    {
+        "question": "He is _____ honest man with great integrity.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An honest', silent 'h' (vowel sound)."
+    },
+    {
+        "question": "She adopted _____ cat from the shelter.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A cat', general mention."
+    },
+    {
+        "question": "_____ Earth revolves around the Sun.",
+        "options": ["No article required", "The", "A", "An"],
+        "answer": 1,
+        "explanation": "'The Earth', unique planet."
+    },
+    {
+        "question": "They live in _____ small town near the mountains.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'A small town', consonant sound."
+    },
+    {
+        "question": "_____ British are known for their tea culture.",
+        "options": ["No article required", "The", "A", "An"],
+        "answer": 1,
+        "explanation": "'The British', referring to people."
+    },
+    {
+        "question": "My father is _____ engineer by profession.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An engineer', vowel sound."
+    },
+    {
+        "question": "He is _____ one responsible for the mistake.",
+        "options": ["a", "the", "an", "No article required"],
+        "answer": 1,
+        "explanation": "'The one', specific."
+    },
+    {
+        "question": "_____ Taj Mahal is a UNESCO World Heritage Site.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Taj Mahal', unique monument."
+    },
+    {
+        "question": "She found _____ umbrella in the lost and found.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The umbrella', specific."
+    },
+    {
+        "question": "_____ moonlight created a magical ambiance.",
+        "options": ["A", "The", "No article required", "An"],
+        "answer": 1,
+        "explanation": "'The moonlight', unique."
+    },
+    {
+        "question": "He wants to be _____ astronaut when he grows up.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An astronaut', vowel sound."
+    },
+    {
+        "question": "The book is set in _____ India of the 19th century.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The India', specific period."
+    },
+    {
+        "question": "_____ sun sets in the west.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 1,
+        "explanation": "'The sun', unique."
+    },
+    {
+        "question": "They caught _____ fish in the river.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A fish', unspecified."
+    },
+    {
+        "question": "_____ Amazon is known for its dense forest.",
+        "options": ["The", "No article required", "A", "An"],
+        "answer": 0,
+        "explanation": "'The Amazon', specific."
+    },
+    {
+        "question": "He gave me _____ hour to complete the task.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An hour', silent 'h' (vowel sound)."
+    },
+    {
+        "question": "She is _____ editor of the local newspaper.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The editor', specific."
+    },
+    {
+        "question": "_____ Toyota is a popular brand of car.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Toyota', specific brand."
+    },
+    {
+        "question": "He went to _____ university in London.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A university', consonant 'y' sound."
+    },
+    {
+        "question": "_____ Rio de Janeiro is a famous city in Brazil.",
+        "options": ["No article required", "A", "An", "The"],
+        "answer": 3,
+        "explanation": "'The Rio de Janeiro', specific place."
+    },
+    {
+        "question": "She will meet _____ doctor tomorrow.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A doctor', general mention."
+    },
+    {
+        "question": "_____ Pacific Ocean is vast and deep.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 1,
+        "explanation": "'The Pacific Ocean', specific ocean."
+    },
+    {
+        "question": "He found _____ old book in the attic.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An old book', vowel sound."
+    },
+    {
+        "question": "_____ United States is a large country.",
+        "options": ["An", "A", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The United States', country name."
+    },
+    {
+        "question": "She wore _____ elegant dress to the party.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An elegant', vowel sound."
+    },
+    {
+        "question": "_____ Nile is the longest river in the world.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 1,
+        "explanation": "'The Nile', unique river."
+    },
+    {
+        "question": "He ate _____ apple for breakfast.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An apple', vowel sound."
+    },
+    {
+        "question": "_____ Eiffel Tower is located in Paris.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Eiffel Tower', specific landmark."
+    },
+    {
+        "question": "She is _____ excellent student.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An excellent', vowel sound."
+    },
+    {
+        "question": "_____ Earth revolves around the Sun.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The Earth', unique."
+    },
+    {
+        "question": "_____ Pacific is the largest ocean.",
+        "options": ["An", "No article required", "The", "A"],
+        "answer": 2,
+        "explanation": "'The Pacific', specific ocean."
+    },
+    {
+        "question": "_____ Himalayas are snow-covered mountains.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Himalayas', mountain range."
+    },
+    {
+        "question": "He bought _____ orange from the market.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An orange', vowel sound."
+    },
+    {
+        "question": "She lives in _____ old house near the river.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An old house', vowel sound."
+    },
+    {
+        "question": "_____ Amazon River flows through the rainforest.",
+        "options": ["An", "A", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Amazon River', specific river."
+    },
+    {
+        "question": "He gave me _____ hour to finish my work.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An hour', silent 'h'."
+    },
+    {
+        "question": "_____ moonlight lit the path.",
+        "options": ["The", "A", "No article required", "An"],
+        "answer": 0,
+        "explanation": "'The moonlight', unique."
+    },
+    {
+        "question": "My father is _____ honest man.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An honest', vowel sound."
+    },
+    {
+        "question": "_____ Taj Mahal is a symbol of love.",
+        "options": ["An", "The", "A", "No article required"],
+        "answer": 1,
+        "explanation": "'The Taj Mahal', unique monument."
+    },
+    {
+        "question": "He is _____ artist famous for his landscapes.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An artist', vowel sound."
+    },
+	{
+        "question": "He is _____ honest person who always speaks the truth.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An honest', silent 'h' (vowel sound starts the word)."
+    },
+    {
+        "question": "_____ Indian Ocean is located south of India.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The Indian Ocean', specific ocean."
+    },
+    {
+        "question": "She booked _____ airline ticket to New York.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'A airline' because 'airline' starts with consonant sound 'eɪ'."
+    },
+    {
+        "question": "He was born on _____ island of Mauritius.",
+        "options": ["the", "a", "an", "No article required"],
+        "answer": 0,
+        "explanation": "'The island', specific location."
+    },
+    {
+        "question": "_____ Great Wall of China is visible from space.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The Great Wall of China', unique structure."
+    },
+    {
+        "question": "They have _____ old car that needs repair.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An old car', vowel sound."
+    },
+    {
+        "question": "_____ earth is the third planet from the sun.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Earth', unique planet."
+    },
+    {
+        "question": "She found _____ umbrella in the rain.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An umbrella', vowel sound."
+    },
+    {
+        "question": "He caught _____ eagle flying over the forest.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An eagle', vowel sound."
+    },
+    {
+        "question": "_____ Amazon River flows through Brazil.",
+        "options": ["An", "A", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Amazon River', specific name."
+    },
+    {
+        "question": "She is _____ excellent painter.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An excellent', vowel sound."
+    },
+    {
+        "question": "_____ Pacific Ocean is vast and deep.",
+        "options": ["An", "A", "No article required", "The"],
+        "answer": 3,
+        "explanation": "'The Pacific Ocean', specific ocean."
+    },
+    {
+        "question": "They live in _____ beautiful house near the lake.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'A beautiful house', first mention."
+    },
+    {
+        "question": "_____ Eiffel Tower is in Paris.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Eiffel Tower', specific landmark."
+    },
+    {
+        "question": "He has _____ MBA degree from Harvard.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An MBA', vowel sound 'em'."
+    },
+    {
+        "question": "_____ Taj Mahal attracts millions of tourists.",
+        "options": ["An", "The", "A", "No article required"],
+        "answer": 1,
+        "explanation": "'The Taj Mahal', unique monument."
+    },
+    {
+        "question": "We stayed at _____ hotel near the beach.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A hotel', first mention."
+    },
+    {
+        "question": "_____ Ganges is a holy river in India.",
+        "options": ["A", "An", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Ganges', specific river."
+    },
+    {
+        "question": "He is _____ MBA graduate.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An MBA', vowel sound."
+    },
+    {
+        "question": "_____ Sahara is the largest desert in the world.",
+        "options": ["An", "A", "The", "No article required"],
+        "answer": 2,
+        "explanation": "'The Sahara', unique desert."
+    },
+    {
+        "question": "She has _____ unique style of painting.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A unique', consonant 'yoo' sound."
+    },
+    {
+        "question": "_____ moon was shining brightly in the night sky.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The moon', unique."
+    },
+    {
+        "question": "He gave me _____ honest answer.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An honest', silent 'h'."
+    },
+    {
+        "question": "_____ Red Fort is a historical monument in Delhi.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Red Fort', specific landmark."
+    },
+    {
+        "question": "They are staying at _____ university hostel.",
+        "options": ["the", "a", "an", "No article required"],
+        "answer": 0,
+        "explanation": "'The university hostel', specific."
+    },
+    {
+        "question": "I need _____ umbrella for the rain.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An umbrella', vowel sound."
+    },
+    {
+        "question": "She bought _____ earring from the market.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An earring', vowel sound."
+    },
+    {
+        "question": "_____ Taj Mahal is known as a symbol of love.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Taj Mahal', unique monument."
+    },
+    {
+        "question": "He is known as _____ honest man in the village.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An honest', silent 'h'."
+    },
+    {
+        "question": "_____ Himalayas are covered with snow all year.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Himalayas', mountain range."
+    },
+    {
+        "question": "She wants to buy _____ house near the beach.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'A house', consonant sound."
+    },
+    {
+        "question": "_____ Nile is the longest river in the world.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 1,
+        "explanation": "'The Nile', specific river."
+    },
+    {
+        "question": "He is _____ actor in the movie.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An actor', vowel sound."
+    },
+    {
+        "question": "_____ Pacific Ocean is vast and deep.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Pacific Ocean', unique ocean."
+    },
+    {
+        "question": "I saw _____ owl in the garden.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An owl', vowel sound."
+    },
+    {
+        "question": "He caught _____ tiger in the forest.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A tiger', first mention."
+    },
+    {
+        "question": "She has _____ MBA degree.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An MBA', vowel sound."
+    },
+    {
+        "question": "_____ moonlight was shining on the lake.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The moonlight', unique."
+    },
+    {
+        "question": "They crossed _____ bridge before reaching the city.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The bridge', specific known item."
+    },
+    {
+        "question": "He is _____ honest man always ready to help.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An honest', silent 'h' sound."
+    },
+    {
+        "question": "I want to be _____ engineer.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An engineer', vowel sound."
+    },
+    {
+        "question": "_____ Red Sea is located between Africa and Asia.",
+        "options": ["A", "The", "An", "No article required"],
+        "answer": 1,
+        "explanation": "'The Red Sea', specific sea."
+    },
+    {
+        "question": "She found _____ eagle's feather on the ground.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An eagle's feather', vowel sound."
+    },
+    {
+        "question": "He bought _____ house near the river.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A house', general mention."
+    },
+	{
+        "question": "She is _____ artist known for her abstract paintings.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An artist', vowel sound."
+    },
+    {
+        "question": "He was elected as _____ president of the club.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The president', specific title."
+    },
+    {
+        "question": "_____ sun rises from the east.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The sun', unique."
+    },
+    {
+        "question": "They live in _____ small apartment downtown.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A small apartment', general mention."
+    },
+    {
+        "question": "I bought _____ umbrella because it started raining.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An umbrella', vowel sound."
+    },
+    {
+        "question": "_____ Nile is the longest river in Africa.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Nile', specific river."
+    },
+    {
+        "question": "He has _____ MBA degree from a prestigious university.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An MBA', vowel sound."
+    },
+    {
+        "question": "She wants to be _____ engineer in the future.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An engineer', vowel sound."
+    },
+    {
+        "question": "_____ Pacific Ocean is vast and deep.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Pacific Ocean', specific."
+    },
+    {
+        "question": "____ Eiffel Tower is a famous landmark in Paris.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Eiffel Tower', unique monument."
+    },
+    {
+        "question": "He caught _____ eagle in the forest.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An eagle', vowel sound."
+    },
+    {
+        "question": "My father bought _____ old car last year.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An old car', vowel sound."
+    },
+    {
+        "question": "She is _____ honest woman.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An honest', silent 'h' (vowel sound)."
+    },
+    {
+        "question": "_____ Red Fort is located in Delhi.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Red Fort', specific landmark."
+    },
+    {
+        "question": "He will meet you at _____ airport.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The airport', specific place."
+    },
+    {
+        "question": "_____ Himalayas stretch across northern India.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Himalayas', mountain range."
+    },
+    {
+        "question": "She has _____ MBA degree from Harvard.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An MBA', vowel sound."
+    },
+    {
+        "question": "I read _____ interesting book yesterday.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An interesting', vowel sound."
+    },
+    {
+        "question": "_____ Earth revolves around the Sun.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Earth', unique."
+    },
+    {
+        "question": "She adopted _____ cat from the shelter.",
+        "options": ["the", "an", "a", "No article required"],
+        "answer": 2,
+        "explanation": "'A cat', general mention."
+    },
+    {
+        "question": "He lives on _____ island in the Caribbean.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An island', vowel sound."
+    },
+    {
+        "question": "_____ Atlantic Ocean is between America and Europe.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Atlantic Ocean', specific ocean."
+    },
+    {
+        "question": "She is _____ honest girl with a kind heart.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An honest', silent 'h'."
+    },
+    {
+        "question": "_____ sun will set soon.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The sun', unique."
+    },
+    {
+        "question": "They went to _____ zoo last weekend.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The zoo', specific known place."
+    },
+    {
+        "question": "She bought _____ orange from the basket.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An orange', vowel sound."
+    },
+    {
+        "question": "He is _____ engineer with many years of experience.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An engineer', vowel sound."
+    },
+    {
+        "question": "We stayed at _____ hotel near the beach.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A hotel', first mention."
+    },
+    {
+        "question": "_____ moon was bright last night.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The moon', unique."
+    },
+    {
+        "question": "My grandmother plays _____ piano beautifully.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The piano' (musical instruments take 'the')."
+    },
+    {
+        "question": "He works as _____ actor in many films.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An actor', vowel sound."
+    },
+    {
+        "question": "_____ Taj Mahal attracts tourists from all over the world.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The Taj Mahal', unique monument."
+    },
+    {
+        "question": "She wants to be _____ astronaut.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An astronaut', vowel sound."
+    },
+    {
+        "question": "_____ Amazon is the largest rainforest on Earth.",
+        "options": ["The", "A", "An", "No article required"],
+        "answer": 0,
+        "explanation": "'The Amazon', specific rainforest."
+    },
+    {
+        "question": "He caught _____ fish in the river.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A fish', unspecified."
+    },
+    {
+        "question": "She bought _____ elephant toy for her son.",
+        "options": ["an", "a", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'An elephant', vowel sound."
+    },
+    {
+        "question": "_____ Pacific Ocean is the largest in the world.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Pacific Ocean', specific."
+    },
+    {
+        "question": "He is _____ honest man I know.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An honest', silent 'h'."
+    },
+    {
+        "question": "They are planning to visit _____ Himalayas next year.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 2,
+        "explanation": "'The Himalayas', mountain range."
+    },
+    {
+        "question": "She reads _____ interesting book every month.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 1,
+        "explanation": "'An interesting', vowel sound."
+    },
+    {
+        "question": "_____ Statue of Liberty is in New York.",
+        "options": ["The", "An", "A", "No article required"],
+        "answer": 0,
+        "explanation": "'The Statue of Liberty', unique monument."
+    },
+    {
+        "question": "He bought _____ car last week.",
+        "options": ["a", "an", "the", "No article required"],
+        "answer": 0,
+        "explanation": "'A car', general mention."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

@@ -1,0 +1,2884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MS Excel Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">MS Excel</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+    "question": "What is the default file extension of an Excel 2010 workbook?",
+    "options": [".xls", ".xlsx", ".csv", ".xlsm"],
+    "answer": 1,
+    "explanation": "The default file extension for Excel 2007 and later versions is .xlsx."
+},
+{
+    "question": "Which function in Excel is used to sum up the numbers in a range?",
+    "options": ["SUM()", "AVERAGE()", "COUNT()", "MAX()"],
+    "answer": 0,
+    "explanation": "SUM() adds all the numbers in the specified range."
+},
+{
+    "question": "What is the shortcut key to insert a new worksheet in Excel?",
+    "options": ["Ctrl+N", "Shift+F11", "Ctrl+W", "Alt+N"],
+    "answer": 1,
+    "explanation": "Shift+F11 inserts a new worksheet in the current workbook."
+},
+{
+    "question": "Which Excel feature is used to create a drop-down list in a cell?",
+    "options": ["Conditional Formatting", "Data Validation", "Filter", "Sort"],
+    "answer": 1,
+    "explanation": "Data Validation allows creation of drop-down lists to restrict input to predefined values."
+},
+{
+    "question": "What does the IF function in Excel do?",
+    "options": ["Counts cells", "Performs a logical test and returns different values", "Sums values", "Rounds numbers"],
+    "answer": 1,
+    "explanation": "The IF function returns one value if a condition is TRUE, otherwise another value."
+},
+{
+    "question": "How can you quickly select all cells in a worksheet?",
+    "options": ["Ctrl+A", "Ctrl+C", "Ctrl+S", "Ctrl+O"],
+    "answer": 0,
+    "explanation": "Ctrl+A selects the entire worksheet or data region."
+},
+{
+    "question": "What does the VLOOKUP function do?",
+    "options": ["Looks up values vertically in a table", "Looks up values horizontally", "Filters data", "Sorts data"],
+    "answer": 0,
+    "explanation": "VLOOKUP searches for data in the first column of a range vertically and returns corresponding values."
+},
+{
+    "question": "Which symbol must all Excel formulas begin with?",
+    "options": ["#", "=", "+"],
+    "answer": 1,
+    "explanation": "All formulas in Excel start with an equals sign (=)."
+},
+{
+    "question": "What is the maximum number of rows in an Excel 2019 worksheet?",
+    "options": ["65,536", "1,048,576", "32,768", "2,097,152"],
+    "answer": 1,
+    "explanation": "Excel versions 2007 and later support up to 1,048,576 rows."
+},
+{
+    "question": "Which shortcut key opens the 'Find and Replace' dialog box?",
+    "options": ["Ctrl+F", "Ctrl+H", "Ctrl+R", "Ctrl+Shift+F"],
+    "answer": 1,
+    "explanation": "Ctrl+H opens the Find and Replace dialog directly in Replace mode."
+},
+{
+    "question": "How do you freeze panes to lock rows or columns in view?",
+    "options": ["View tab -> Freeze Panes", "Insert tab -> Freeze", "Data tab -> Freeze", "Formulas tab -> Freeze"],
+    "answer": 0,
+    "explanation": "The Freeze Panes option under the View tab locks specified rows or columns while scrolling."
+},
+{
+    "question": "Which cell reference type does NOT change when dragged to another cell?",
+    "options": ["Relative reference", "Absolute reference", "Mixed reference", "Indirect reference"],
+    "answer": 1,
+    "explanation": "Absolute references (e.g., $A$1) remain constant when copied or dragged."
+},
+{
+    "question": "What is the name of the intersection of a row and a column in Excel?",
+    "options": ["Box", "Cell", "Block", "Grid"],
+    "answer": 1,
+    "explanation": "A cell is the block where a row and a column intersect."
+},
+{
+    "question": "Which Excel function returns the current date and time?",
+    "options": ["NOW()", "DATE()", "TIME()", "CURRENT()"],
+    "answer": 0,
+    "explanation": "NOW() returns the current system date and time."
+},
+{
+    "question": "Which function counts the number of non-empty cells in a range?",
+    "options": ["COUNTA()", "COUNT()", "COUNTBLANK()", "ISBLANK()"],
+    "answer": 0,
+    "explanation": "COUNTA() counts all cells that are not empty."
+},
+{
+    "question": "To insert a chart quickly of a selected range, which shortcut key is used?",
+    "options": ["F11", "Alt+F1", "Shift+F11", "Ctrl+F1"],
+    "answer": 0,
+    "explanation": "F11 inserts a base chart in a new chart sheet using selected data."
+},
+{
+    "question": "Which operator is used to concatenate text strings in Excel?",
+    "options": ["&", "+", "*", "-"],
+    "answer": 0,
+    "explanation": "The ampersand (&) joins text strings together."
+},
+{
+    "question": "What is the purpose of the 'Pivot Table' feature?",
+    "options": ["To create summarized views and analysis of large data", "To format tables", "To filter data", "To apply conditional formatting"],
+    "answer": 0,
+    "explanation": "Pivot Tables allow dynamic summarization and analysis of data."
+},
+{
+    "question": "Which function returns the largest number in a range?",
+    "options": ["LARGE()", "MAX()", "MIN()", "MAXIMUM()"],
+    "answer": 1,
+    "explanation": "MAX() returns the maximum value in a specified range."
+},
+{
+    "question": "What happens if you press Ctrl+Shift+L in Excel?",
+    "options": ["Creates a filter on selected data", "Formats cells", "Opens the local menu", "Locks selected cells"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+L toggles filters on the header row."
+},
+{
+    "question": "Which function is used for conditional summing in a range?",
+    "options": ["SUMIF()", "COUNTIF()", "IF()", "SUM()"],
+    "answer": 0,
+    "explanation": "SUMIF() sums values based on given criteria."
+},
+{
+    "question": "Which shortcut is used to toggle between displaying formulas and results?",
+    "options": ["Ctrl+` (grave accent)", "Ctrl+F3", "Alt+F9", "Ctrl+~"],
+    "answer": 3,
+    "explanation": "Ctrl+~ toggles showing formulas or their calculated results."
+},
+{
+    "question": "How can you remove duplicate values from a range?",
+    "options": ["Data tab -> Remove Duplicates", "Home tab -> Clear", "Formulas tab -> Evaluate Formula", "Insert tab -> Remove"],
+    "answer": 0,
+    "explanation": "Remove Duplicates under the Data tab deletes duplicate entries."
+},
+{
+    "question": "What is the use of the $ symbol in Excel cell references?",
+    "options": ["Makes row and/or column absolute in formulas", "Multiplies values", "Indicates currency format", "Denotes comments"],
+    "answer": 0,
+    "explanation": "The $ fixes either the row or column or both for absolute reference."
+},
+{
+    "question": "Which feature allows you to automatically fill cells based on patterns?",
+    "options": ["AutoFill", "Flash Fill", "Fill Handle", "AutoComplete"],
+    "answer": 0,
+    "explanation": "AutoFill uses patterns to fill adjacent cells automatically."
+},
+{
+    "question": "What function rounds a number to a specified number of digits?",
+    "options": ["ROUND()", "ROUNDDOWN()", "ROUNDUP()", "INT()"],
+    "answer": 0,
+    "explanation": "ROUND() rounds a number to the indicated number of decimal places."
+},
+{
+    "question": "Which function returns the position of a substring within a text string?",
+    "options": ["FIND()", "SEARCH()", "LOCATE()", "MATCH()"],
+    "answer": 0,
+    "explanation": "FIND() returns the starting position of one text string within another."
+},
+{
+    "question": "How do you insert the current sheet name into a cell?",
+    "options": ["=CELL(\"filename\",A1)", "SHEETNAME()", "=SHEET()", "=TABNAME()"],
+    "answer": 0,
+    "explanation": "CELL(\"filename\",A1) can return the full path including the sheet name."
+},
+{
+    "question": "Which feature checks for errors in formulas and helps audit them?",
+    "options": ["Formula Auditing", "Spell Check", "Data Validation", "Track Changes"],
+    "answer": 0,
+    "explanation": "Formula Auditing tools help trace precedents and dependents and evaluate formulas."
+},
+{
+    "question": "What is the keyboard shortcut to save a workbook?",
+    "options": ["Ctrl+S", "Ctrl+Shift+S", "F12", "Alt+F4"],
+    "answer": 0,
+    "explanation": "Ctrl+S saves the current workbook."
+},
+{
+    "question": "Which function compares two values and returns TRUE if they are equal?",
+    "options": ["IF()", "EXACT()", "MATCH()", "VLOOKUP()"],
+    "answer": 1,
+    "explanation": "EXACT() returns TRUE only if two text strings are exactly the same."
+},
+{
+    "question": "What does the COUNTIF function do?",
+    "options": ["Counts all numbers", "Counts cells meeting a specific criteria", "Counts empty cells", "Counts non-numeric data"],
+    "answer": 1,
+    "explanation": "COUNTIF() counts the number of cells that match the given condition."
+},
+{
+    "question": "Which function returns the number of days between two dates?",
+    "options": ["DATEDIF()", "DATE()", "DAY()", "NETWORKDAYS()"],
+    "answer": 0,
+    "explanation": "DATEDIF() calculates the difference between dates in days, months, or years."
+},
+{
+    "question": "Which of the following is NOT a valid chart type in Excel?",
+    "options": ["Pie", "Column", "Text", "Line"],
+    "answer": 2,
+    "explanation": "Text is not a chart type. Pie, Column, and Line are valid."
+},
+{
+    "question": "What is the keyboard shortcut to undo an action?",
+    "options": ["Ctrl+Z", "Ctrl+Y", "Ctrl+U", "Ctrl+X"],
+    "answer": 0,
+    "explanation": "Ctrl+Z undoes the last action."
+},
+{
+    "question": "Which function in Excel returns the average of numbers in a range?",
+    "options": ["SUM()", "AVERAGE()", "COUNT()", "MEDIAN()"],
+    "answer": 1,
+    "explanation": "AVERAGE() computes the arithmetic mean of numbers."
+},
+{
+    "question": "What does the function TRIM() do in Excel?",
+    "options": ["Removes all spaces", "Removes extra spaces leaving single spaces", "Converts text to uppercase", "Removes line breaks"],
+    "answer": 1,
+    "explanation": "TRIM() removes all extra spaces except single spaces between words."
+},
+{
+    "question": "Which Excel feature allows you to protect cells from being edited?",
+    "options": ["Data Protection", "Cell Locking", "Sheet Protection", "Workbook Protection"],
+    "answer": 2,
+    "explanation": "Sheet Protection prevents users from editing locked cells."
+},
+{
+    "question": "What is the maximum number of worksheets allowed in an Excel workbook?",
+    "options": ["255", "100", "Limited by memory", "50"],
+    "answer": 2,
+    "explanation": "The maximum number depends on system memory, not a fixed limit."
+},
+{
+    "question": "Which Excel function returns the remainder after division?",
+    "options": ["MOD()", "QUOTIENT()", "INT()", "ROUND()"],
+    "answer": 0,
+    "explanation": "MOD() returns the remainder of a division operation."
+},
+{
+    "question": "How do you group rows or columns for collapsing/expanding?",
+    "options": ["Select rows/columns -> Data tab -> Group", "Insert tab -> Group", "Home tab -> Group", "Review tab -> Group"],
+    "answer": 0,
+    "explanation": "Grouping is done from the Data tab to collapse and expand sections."
+},
+{
+    "question": "What does conditional formatting do?",
+    "options": ["Formats data based on rules", "Formats all cells", "Changes cell size", "Locks cells"],
+    "answer": 0,
+    "explanation": "Conditional formatting applies custom formatting based on conditions."
+},
+{
+    "question": "Which shortcut key opens the Format Cells dialog box?",
+    "options": ["Ctrl+1", "Ctrl+F1", "Ctrl+Shift+F", "F12"],
+    "answer": 0,
+    "explanation": "Ctrl+1 opens the Format Cells dialog."
+},
+{
+    "question": "Which formula will count the number of blank cells in a range?",
+    "options": ["COUNTBLANK()", "COUNTA()", "COUNTIF(range, \"\")", "ISBLANK()"],
+    "answer": 0,
+    "explanation": "COUNTBLANK() counts the empty cells in a range."
+},
+{
+    "question": "In Excel, which command will remove all filters applied to a dataset?",
+    "options": ["Data -> Clear", "Data -> Filter", "Data -> Remove Filter", "Data -> Select All"],
+    "answer": 1,
+    "explanation": "Toggling the Filter command off removes all filters."
+},
+{
+    "question": "Which Excel function is used to count the number of cells that meet a criteria?",
+    "options": ["COUNT()", "COUNTA()", "COUNTIF()", "COUNTBLANK()"],
+    "answer": 2,
+    "explanation": "COUNTIF() counts the number of cells that meet a given criteria."
+},
+{
+    "question": "What does the TRIM() function do in Excel?",
+    "options": ["Removes all spaces", "Removes extra spaces except single spaces", "Converts text to lowercase", "Counts spaces"],
+    "answer": 1,
+    "explanation": "TRIM() removes extra spaces from text, leaving only single spaces between words."
+},
+{
+    "question": "Which shortcut key is used to switch between worksheets in Excel?",
+    "options": ["Ctrl+Page Up/Down", "Ctrl+Tab", "Alt+Tab", "Ctrl+Shift+Tab"],
+    "answer": 0,
+    "explanation": "Ctrl+Page Up and Ctrl+Page Down switch between worksheets within the same workbook."
+},
+{
+    "question": "Which symbol is used to make a cell reference absolute in Excel?",
+    "options": ["#", "$", "&", "*"],
+    "answer": 1,
+    "explanation": "The dollar sign ($) fixes the row and/or column reference in formulas."
+},
+{
+    "question": "What function would you use to look up a value in the first column of a range and return a value in the same row?",
+    "options": ["VLOOKUP()", "HLOOKUP()", "INDEX()", "MATCH()"],
+    "answer": 0,
+    "explanation": "VLOOKUP() searches for a value in the first column and returns data from a specified column."
+},
+{
+    "question": "How do you create a chart with a selected range of data in Excel?",
+    "options": ["Press F11", "Press Ctrl+N", "Right-click the data", "Insert -> Chart"],
+    "answer": 0,
+    "explanation": "Pressing F11 creates a chart in a new sheet based on selected data."
+},
+{
+    "question": "In Excel, what does the Paste Special 'Transpose' option do?",
+    "options": ["Copies values and formatting", "Switches rows and columns", "Pastes formulas only", "Pastes values only"],
+    "answer": 1,
+    "explanation": "Transpose swaps rows and columns of pasted data."
+},
+{
+    "question": "Which function returns the current date in Excel?",
+    "options": ["TODAY()", "NOW()", "DATE()", "CURRENT_DATE()"],
+    "answer": 0,
+    "explanation": "TODAY() returns the current date without time."
+},
+{
+    "question": "Which keyboard shortcut opens the Format Cells dialog box?",
+    "options": ["Ctrl+1", "Ctrl+F", "Alt+Enter", "Ctrl+Shift+F"],
+    "answer": 0,
+    "explanation": "Ctrl+1 opens the Format Cells dialog in Excel."
+},
+{
+    "question": "What does the COUNTBLANK() function do?",
+    "options": ["Counts non-empty cells", "Counts empty cells", "Counts numerical values", "Counts cells with text"],
+    "answer": 1,
+    "explanation": "COUNTBLANK() counts empty cells in a range."
+},
+{
+    "question": "What is the maximum number of columns in Excel 2016 worksheet?",
+    "options": ["16,384", "1,048,576", "65536", "256"],
+    "answer": 0,
+    "explanation": "Excel 2016 supports up to 16,384 columns."
+},
+{
+    "question": "Which Excel tool helps to analyze data by creating summary tables?",
+    "options": ["Pivot Table", "Data Validation", "Solver", "Scenario Manager"],
+    "answer": 0,
+    "explanation": "Pivot Tables summarize data dynamically for analysis."
+},
+{
+    "question": "What does the function ROUNDUP() do?",
+    "options": ["Rounds a number up, away from zero", "Rounds a number down, toward zero", "Rounds to nearest even number", "Truncates decimals"],
+    "answer": 0,
+    "explanation": "ROUNDUP() rounds numbers up regardless of decimal value."
+},
+{
+    "question": "Which key is used to fill the selected cells with the content of the active cell?",
+    "options": ["Ctrl+Enter", "Shift+Enter", "Alt+Enter", "Enter"],
+    "answer": 0,
+    "explanation": "Ctrl+Enter fills all selected cells with the content of the active cell."
+},
+{
+    "question": "Which Excel feature allows you to see a visual trend in a single cell?",
+    "options": ["Sparkline", "Chart", "Graph", "Table"],
+    "answer": 0,
+    "explanation": "Sparklines are tiny charts inside individual cells."
+},
+{
+    "question": "Which error message appears when a formula tries to divide a number by zero?",
+    "options": ["#DIV/0!", "#N/A", "#VALUE!", "#REF!"],
+    "answer": 0,
+    "explanation": "#DIV/0! error indicates division by zero."
+},
+{
+    "question": "How do you protect a worksheet in Excel?",
+    "options": ["Review tab -> Protect Sheet", "View tab -> Protect Sheet", "Data tab -> Protect Workbook", "Insert tab -> Protect Sheet"],
+    "answer": 0,
+    "explanation": "Protect Sheet option under Review tab locks the sheet."
+},
+{
+    "question": "Which function returns the length of a text string?",
+    "options": ["LEN()", "LENGTH()", "COUNT()", "SIZE()"],
+    "answer": 0,
+    "explanation": "LEN() returns the number of characters in a string."
+},
+{
+    "question": "How can you insert a new column in an Excel worksheet?",
+    "options": ["Right-click a column header -> Insert", "Ctrl+N", "Insert tab -> New Column", "Home tab -> New Column"],
+    "answer": 0,
+    "explanation": "Right-clicking a column header and choosing Insert adds a new column."
+},
+{
+    "question": "Which formula would sum values in cells A1 to A10?",
+    "options": ["=SUM(A1:A10)", "=ADD(A1 TO A10)", "=COUNT(A1:A10)", "=SUM(A1-A10)"],
+    "answer": 0,
+    "explanation": "SUM(A1:A10) correctly sums the range A1 through A10."
+},
+{
+    "question": "Which Excel function returns the current time?",
+    "options": ["NOW()", "TIME()", "DATE()", "CURRENT_TIME()"],
+    "answer": 0,
+    "explanation": "NOW() returns the current date and time."
+},
+{
+    "question": "Which function counts cells containing numbers only?",
+    "options": ["COUNT()", "COUNTA()", "COUNTIF()", "COUNTBLANK()"],
+    "answer": 0,
+    "explanation": "COUNT() counts cells with numeric values."
+},
+{
+    "question": "How do you auto-adjust the width of a column to fit content?",
+    "options": ["Double-click column border", "Right-click column header -> Auto Size", "Home tab -> Format -> AutoFit Column Width", "All of the above"],
+    "answer": 3,
+    "explanation": "All methods resize column width automatically."
+},
+{
+    "question": "Which function returns the smallest number in a range?",
+    "options": ["MIN()", "LOWEST()", "SMALL()", "LEAST()"],
+    "answer": 0,
+    "explanation": "MIN() gives the minimum value in a range."
+},
+{
+    "question": "What keyboard shortcut is used to open the Format Cells dialog?",
+    "options": ["Ctrl+1", "Ctrl+F", "Alt+F", "Shift+F3"],
+    "answer": 0,
+    "explanation": "Ctrl+1 opens the Format Cells dialog box."
+},
+{
+    "question": "Which feature lets you automatically fill cells based on a pattern or series?",
+    "options": ["AutoFill", "Flash Fill", "Fill Handle", "Repeat"],
+    "answer": 0,
+    "explanation": "AutoFill fills cells based on patterns."
+},
+{
+    "question": "Which function returns the position of a specified character or substring within text?",
+    "options": ["FIND()", "SEARCH()", "LOCATE()", "MATCH()"],
+    "answer": 0,
+    "explanation": "FIND() returns the starting position of a string within another."
+},
+{
+    "question": "How can you insert the current file path and name in a cell?",
+    "options": ["=CELL(\"filename\",A1)", "=FILENAME()", "=PATH()", "=INFO()"],
+    "answer": 0,
+    "explanation": "CELL(\"filename\",A1) returns full file path and sheet name."
+},
+{
+    "question": "Which Excel tool helps trace precedents and dependents of formulas?",
+    "options": ["Formula Auditing", "Data Validation", "Goal Seek", "Scenario Manager"],
+    "answer": 0,
+    "explanation": "Formula Auditing tools show formula relationships and errors."
+},
+{
+    "question": "What happens when you press Ctrl+Z in Excel?",
+    "options": ["Undo last action", "Redo last action", "Save workbook", "Open Find dialog"],
+    "answer": 0,
+    "explanation": "Ctrl+Z undoes the previous action."
+},
+{
+    "question": "How do you combine text from two or more cells into one?",
+    "options": ["Use CONCATENATE() or & operator", "Use SUM()", "Use IF()", "Use VLOOKUP()"],
+    "answer": 0,
+    "explanation": "CONCATENATE() or & join text strings."
+},
+{
+    "question": "Which function returns TRUE if two text strings are exactly the same?",
+    "options": ["EXACT()", "IF()", "VLOOKUP()", "MATCH()"],
+    "answer": 0,
+    "explanation": "EXACT() is case-sensitive and compares two strings."
+},
+{
+    "question": "What does the COUNTIF() function do?",
+    "options": ["Counts cells that meet a criterion", "Counts all cells", "Counts blank cells", "Counts cells with errors"],
+    "answer": 0,
+    "explanation": "COUNTIF() counts cells matching specified criteria."
+},
+{
+    "question": "Which function calculates the difference between dates in Excel?",
+    "options": ["DATEDIF()", "DATEDIFF()", "DATE()", "DATEDAYS()"],
+    "answer": 0,
+    "explanation": "DATEDIF() calculates difference in days, months, or years."
+},
+{
+    "question": "What symbol is used to start a formula in Excel?",
+    "options": ["=", "+", "#", "$"],
+    "answer": 0,
+    "explanation": "Formulas start with the equals sign (=)."
+},
+{
+    "question": "Which shortcut key inserts a new row into an Excel worksheet?",
+    "options": ["Ctrl+Shift+Plus", "Ctrl+N", "Ctrl+T", "Ctrl+R"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+Plus inserts a new row or column."
+},
+{
+    "question": "Which error occurs when a formula contains an invalid cell reference?",
+    "options": ["#REF!", "#N/A", "#DIV/0!", "#VALUE!"],
+    "answer": 0,
+    "explanation": "#REF! indicates an invalid cell reference."
+},
+{
+    "question": "What is the use of the Data Validation feature?",
+    "options": ["Restrict input values", "Format data", "Sort data", "Filter data"],
+    "answer": 0,
+    "explanation": "Data Validation restricts user inputs to predefined rules."
+},
+{
+    "question": "Which shortcut switches between showing formulas and formula results?",
+    "options": ["Ctrl+`", "Ctrl+F3", "Alt+F9", "Ctrl+Shift+F"],
+    "answer": 0,
+    "explanation": "Ctrl+` toggles formula view."
+},
+{
+    "question": "How many worksheets are there by default when you open a new workbook in Excel 2016?",
+    "options": ["1", "3", "5", "0"],
+    "answer": 0,
+    "explanation": "Excel 2016 opens with one worksheet by default."
+},
+{
+    "question": "What does the CONCATENATE function do?",
+    "options": ["Joins several text strings into one", "Splits text into separate cells", "Counts characters in a string", "Converts text to uppercase"],
+    "answer": 0,
+    "explanation": "CONCATENATE combines multiple text strings."
+},
+{
+    "question": "Which keyboard shortcut opens the Save As dialog in Excel?",
+    "options": ["F12", "Ctrl+S", "Ctrl+Shift+S", "Alt+F12"],
+    "answer": 0,
+    "explanation": "F12 opens the Save As dialog."
+},
+{
+    "question": "How do you convert a range of cells to a table in Excel?",
+    "options": ["Insert tab -> Table", "Data tab -> Table", "Home tab -> Format as Table", "View tab -> Table"],
+    "answer": 2,
+    "explanation": "Home tab -> Format as Table converts a range into a table."
+},
+{
+    "question": "Which Excel function is used to retrieve data from a specific row and column in a range?",
+    "options": ["INDEX()", "LOOKUP()", "MATCH()", "OFFSET()"],
+    "answer": 0,
+    "explanation": "INDEX() returns the value of a cell at the intersection of a specific row and column in a given range."
+},
+{
+    "question": "What does the MATCH() function return?",
+    "options": ["The value of a cell", "The position of a value in a range", "The address of a cell", "The sum of matched values"],
+    "answer": 1,
+    "explanation": "MATCH() returns the relative position of a specified value within a range."
+},
+{
+    "question": "What is the intersection of a row and column in Excel called?",
+    "options": ["Field", "Block", "Cell", "Table"],
+    "answer": 2,
+    "explanation": "A cell is the intersection point of a row and a column."
+},
+{
+    "question": "Which function in Excel returns one value if a logical condition is TRUE and another if FALSE?",
+    "options": ["IF()", "CHOOSE()", "SWITCH()", "SELECT()"],
+    "answer": 0,
+    "explanation": "IF() returns one value if the condition evaluates to TRUE and another value if FALSE."
+},
+{
+    "question": "Which shortcut key is used to insert the current date in a cell?",
+    "options": ["Ctrl+Shift+;", "Ctrl+;", "Alt+;", "Shift+;"],
+    "answer": 1,
+    "explanation": "Ctrl+; inserts the current date in the active cell."
+},
+{
+    "question": "Which chart type displays data as slices of a circle showing proportions?",
+    "options": ["Column Chart", "Pie Chart", "Bar Chart", "Line Chart"],
+    "answer": 1,
+    "explanation": "A Pie Chart shows data proportions as slices of a circle."
+},
+{
+    "question": "What does the Freeze Panes option do in Excel?",
+    "options": ["Protects cells from changes", "Keeps selected rows/columns visible while scrolling", "Locks workbook", "Stops automatic calculation"],
+    "answer": 1,
+    "explanation": "Freeze Panes keeps specific rows and/or columns visible regardless of scrolling."
+},
+{
+    "question": "Which symbol is used for the range operator in formulas?",
+    "options": [";", ":", ",", "-"],
+    "answer": 1,
+    "explanation": "A colon (:) in formulas specifies a range of cells (e.g., A1:A10)."
+},
+{
+    "question": "What is the default alignment for numbers in Excel?",
+    "options": ["Right-aligned", "Left-aligned", "Center-aligned", "Justified"],
+    "answer": 0,
+    "explanation": "By default, numbers are right-aligned in Excel cells."
+},
+{
+    "question": "What will the formula =PROPER(\"WELCOME to excel\") return?",
+    "options": ["WELCOME TO EXCEL", "Welcome To Excel", "welcome to excel", "Welcome to Excel"],
+    "answer": 1,
+    "explanation": "The PROPER function capitalizes the first letter of each word."
+},
+{
+    "question": "Which function returns the current system time without the date?",
+    "options": ["TIME()", "NOW()", "CURRENTTIME()", "TODAY()"],
+    "answer": 0,
+    "explanation": "TIME() can be used with specific arguments to return only time."
+},
+{
+    "question": "Which feature in Excel allows conditional formatting of cells based on top or bottom values?",
+    "options": ["Value Filters", "Ranking Rules", "Top/Bottom Rules", "Sorting"],
+    "answer": 2,
+    "explanation": "Top/Bottom Rules highlight the highest or lowest values in a range."
+},
+{
+    "question": "What is the keyboard shortcut to insert a hyperlink in Excel?",
+    "options": ["Ctrl+H", "Ctrl+K", "Ctrl+Shift+K", "Alt+K"],
+    "answer": 1,
+    "explanation": "Ctrl+K opens the Insert Hyperlink dialog box."
+},
+{
+    "question": "In Excel, what does pressing F2 do when a cell is selected?",
+    "options": ["Edits the cell in place", "Opens Formula tab", "Insert function", "Opens help"],
+    "answer": 0,
+    "explanation": "F2 allows you to edit the active cell contents directly."
+},
+{
+    "question": "Which function in Excel returns the nth largest number in a range?",
+    "options": ["LARGE()", "MAX()", "RANK()", "BIGGEST()"],
+    "answer": 0,
+    "explanation": "LARGE(range, n) returns the nth largest value."
+},
+{
+    "question": "Which Excel keyboard shortcut fills the selected cell range with the contents of the first cell?",
+    "options": ["Ctrl+Enter", "Ctrl+D", "Ctrl+Shift+D", "Alt+D"],
+    "answer": 1,
+    "explanation": "Ctrl+D fills downward from the cell above in the selection."
+},
+{
+    "question": "Which formula returns the number of text entries in a range?",
+    "options": ["COUNTIF(range, \"*“)", "COUNTA()", "COUNT()", "SUMIF()"],
+    "answer": 0,
+    "explanation": "COUNTIF(range, \"*\") counts cells containing text."
+},
+{
+    "question": "Which error indicates that Excel cannot find the referenced value?",
+    "options": ["#NAME?", "#N/A", "#REF!", "#VALUE!"],
+    "answer": 1,
+    "explanation": "#N/A means data is not available or lookup failed."
+},
+{
+    "question": "What shortcut is used to insert the current time in Excel?",
+    "options": ["Ctrl+Shift+;", "Ctrl+Shift+:", "Alt+;", "Shift+T"],
+    "answer": 1,
+    "explanation": "Ctrl+Shift+: inserts the current time into a cell."
+},
+{
+    "question": "Which Excel function returns TRUE if any of the given conditions are TRUE?",
+    "options": ["IF()", "AND()", "OR()", "XOR()"],
+    "answer": 2,
+    "explanation": "OR() returns TRUE if at least one argument evaluates to TRUE."
+},
+{
+    "question": "How can you quickly sum a column of numbers without typing a formula?",
+    "options": ["Use AutoSum button", "Right-click -> Sum", "Press Ctrl+S", "Sort column"],
+    "answer": 0,
+    "explanation": "AutoSum automatically inserts a SUM formula for the selected range."
+},
+{
+    "question": "Which Excel tool is used for 'what-if' analysis by changing multiple variables?",
+    "options": ["Goal Seek", "Data Table", "Scenario Manager", "Solver"],
+    "answer": 2,
+    "explanation": "Scenario Manager allows you to create and save different sets of variable values."
+},
+{
+    "question": "What does the TEXT() function do in Excel?",
+    "options": ["Converts numbers to text in a specified format", "Changes text to uppercase", "Splits text into columns", "Finds text in cells"],
+    "answer": 0,
+    "explanation": "TEXT(value, format_text) converts numbers to text according to a specified format."
+},
+{
+    "question": "Which function in Excel can combine text from multiple ranges and includes a delimiter?",
+    "options": ["CONCAT()", "CONCATENATE()", "TEXTJOIN()", "JOIN()"],
+    "answer": 2,
+    "explanation": "TEXTJOIN(delimiter, ignore_empty, text1, ...) combines ranges with a delimiter."
+},
+{
+    "question": "What does pressing Ctrl+Home do in Excel?",
+    "options": ["Moves to first cell of row", "Moves to cell A1", "Opens Home tab", "Selects entire sheet"],
+    "answer": 1,
+    "explanation": "Ctrl+Home moves the cursor to cell A1."
+},
+{
+    "question": "Which formula will return the month from a date in cell A1?",
+    "options": ["=MONTH(A1)", "=DATE(A1)", "=TEXT(A1,\"MM\")", "Both 1 and 3"],
+    "answer": 3,
+    "explanation": "Both MONTH() and TEXT() can be used to extract month."
+},
+{
+    "question": "Which function is best for looking up a value from the end of a row or column?",
+    "options": ["INDEX()", "LOOKUP()", "VLOOKUP()", "HLOOKUP()"],
+    "answer": 1,
+    "explanation": "LOOKUP can return results from the end as it finds the largest value less than or equal to lookup_value."
+},
+{
+    "question": "Which function removes all non-printable characters from a string?",
+    "options": ["TRIM()", "CLEAN()", "REMOVE()", "DELETE()"],
+    "answer": 1,
+    "explanation": "CLEAN() removes all non-printable ASCII characters."
+},
+{
+    "question": "The shortcut Ctrl+Shift+L in Excel is used for what?",
+    "options": ["Apply filters", "Clear filters", "Sort data", "Lock cells"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+L toggles the filter buttons on/off for the selected range."
+},
+{
+    "question": "Which Excel function capitalizes the first letter of each word in a text string?",
+    "options": ["UPPER()", "LOWER()", "PROPER()", "CAPS()"],
+    "answer": 2,
+    "explanation": "PROPER() capitalizes the first letter of each word."
+},
+{
+    "question": "Which Excel feature can you use to show data from multiple sheets in one place for analysis?",
+    "options": ["Pivot Table with multiple consolidation ranges", "Data Validation", "Conditional Formatting", "AutoFilter"],
+    "answer": 0,
+    "explanation": "Pivot Tables can consolidate data from multiple sources."
+},
+{
+    "question": "Which reference type changes when a formula is copied to another cell?",
+    "options": ["Absolute", "Relative", "Mixed", "Named"],
+    "answer": 1,
+    "explanation": "Relative references adjust automatically when copied."
+},
+{
+    "question": "What is the shortcut to edit the active cell?",
+    "options": ["F4", "F2", "Ctrl+E", "Alt+E"],
+    "answer": 1,
+    "explanation": "F2 enables editing mode for the active cell."
+},
+{
+    "question": "Which function will count only numeric values in a range?",
+    "options": ["COUNT()", "COUNTA()", "COUNTIF()", "COUNTBLANK()"],
+    "answer": 0,
+    "explanation": "COUNT() counts numeric values only."
+},
+{
+    "question": "What does Ctrl+Spacebar do in Excel?",
+    "options": ["Selects the current row", "Selects the current column", "Selects the sheet", "Adds space in cell"],
+    "answer": 1,
+    "explanation": "Ctrl+Spacebar selects the entire column of the active cell."
+},
+{
+    "question": "Which Excel function will return the rank of a number in a list?",
+    "options": ["SORT()", "POSITION()", "RANK()", "INDEX()"],
+    "answer": 2,
+    "explanation": "RANK() returns the ranking of a number in a dataset."
+},
+{
+    "question": "Which function will combine two text strings and insert a space between them?",
+    "options": ["=A1&\" \"&B1", "TEXTJOIN(\" \",TRUE,A1,B1)", "CONCATENATE(A1,\" \",B1)", "All of the above"],
+    "answer": 3,
+    "explanation": "All listed formulas combine two text strings with a space."
+},
+{
+    "question": "What is the shortcut key to delete selected rows in Excel?",
+    "options": ["Ctrl+-", "Ctrl+D", "Alt+-", "Shift+-"],
+    "answer": 0,
+    "explanation": "Ctrl+- deletes the selected rows or columns."
+},
+{
+    "question": "What does the NETWORKDAYS() function calculate?",
+    "options": ["Total days between dates", "Working days between dates excluding weekends/holidays", "Net payments days", "Business hours"],
+    "answer": 1,
+    "explanation": "NETWORKDAYS() returns the number of working days between two dates."
+},
+{
+    "question": "Which Excel feature allows color coding cells based on their values?",
+    "options": ["Conditional Formatting", "Cell Styles", "Themes", "Data Validation"],
+    "answer": 0,
+    "explanation": "Conditional Formatting changes cell style based on conditions."
+},
+{
+    "question": "Which function returns the character specified by a number code?",
+    "options": ["CHAR()", "CODE()", "ASCII()", "SYMBOL()"],
+    "answer": 0,
+    "explanation": "CHAR() returns the character for a given ASCII/Unicode number."
+},
+{
+    "question": "What does the OFFSET() function do?",
+    "options": ["Offsets range references by given rows and columns", "Removes cell alignment", "Shifts data values", "Moves charts"],
+    "answer": 0,
+    "explanation": "OFFSET returns a reference to a range offset from a starting cell."
+},
+{
+    "question": "Which Excel formula would you use to get the year from a date in cell A1?",
+    "options": ["=YEAR(A1)", "=TEXT(A1,\"YYYY\")", "=DATE(A1)", "Both 1 and 2"],
+    "answer": 3,
+    "explanation": "YEAR() and TEXT() can both extract the year."
+},
+{
+    "question": "Which shortcut key in Excel allows you to select the entire row of the active cell?",
+    "options": ["Shift+Space", "Ctrl+Space", "Alt+Space", "Ctrl+Shift+Space"],
+    "answer": 0,
+    "explanation": "Shift+Space selects the entire row where the active cell is located."
+},
+{
+    "question": "Which Excel error code indicates an invalid numeric calculation such as dividing by zero?",
+    "options": ["#REF!", "#NUM!", "#DIV/0!", "#VALUE!"],
+    "answer": 2,
+    "explanation": "#DIV/0! occurs when a formula tries to divide by zero or an empty cell."
+},
+{
+    "question": "What does the REPLACE() function do in Excel?",
+    "options": ["Replaces characters in text with other characters", "Replaces cell references", "Replaces formulas", "Replaces values in ranges"],
+    "answer": 0,
+    "explanation": "REPLACE() substitutes a part of text with a different string based on position and length."
+},
+{
+    "question": "Which function would you use to determine the ASCII numeric code of the first character in a text string?",
+    "options": ["CHAR()", "CODE()", "UNICODE()", "ASCII()"],
+    "answer": 1,
+    "explanation": "CODE() returns the numeric ASCII code for the first character in a string."
+},
+{
+    "question": "In Excel, what is the default direction when pressing the Enter key after entering data?",
+    "options": ["Right", "Left", "Up", "Down"],
+    "answer": 3,
+    "explanation": "By default, pressing Enter moves the selection down one cell."
+},
+{
+    "question": "Which feature in Excel allows you to visually outline levels of data for collapsing and expanding?",
+    "options": ["Grouping", "Filtering", "Sorting", "Conditional Formatting"],
+    "answer": 0,
+    "explanation": "Grouping allows you to create an outline view to collapse or expand related data."
+},
+{
+    "question": "How can you quickly apply the default filter to a dataset?",
+    "options": ["Data -> Filter", "Ctrl+Shift+L", "Alt+D+F+F", "All of the above"],
+    "answer": 3,
+    "explanation": "The filter can be applied through Data tab or using shortcuts Ctrl+Shift+L and Alt+D+F+F."
+},
+{
+    "question": "Which date function returns the day of the week as a number?",
+    "options": ["DAY()", "WEEKDAY()", "DATE()", "WEEKNUM()"],
+    "answer": 1,
+    "explanation": "WEEKDAY() returns a number indicating the day of the week."
+},
+{
+    "question": "What is the default column width in Excel?",
+    "options": ["8.43", "10", "9", "8"],
+    "answer": 0,
+    "explanation": "The default column width is 8.43 characters."
+},
+{
+    "question": "Which function returns the number of characters in a text string including spaces?",
+    "options": ["LEN()", "LENGTH()", "COUNT()", "SIZE()"],
+    "answer": 0,
+    "explanation": "LEN() counts the total characters in a string including spaces."
+},
+{
+    "question": "What does the PMT() function calculate?",
+    "options": ["Total amount", "Loan interest", "Periodic loan payment", "Principal"],
+    "answer": 2,
+    "explanation": "PMT() returns the periodic payment amount for a loan based on constant interest rate and time."
+},
+{
+    "question": "Which feature in Excel allows recording and running small programs to automate tasks?",
+    "options": ["Macros", "Power Query", "Pivot Table", "Solver"],
+    "answer": 0,
+    "explanation": "Macros automate repetitive tasks using recorded or written VBA code."
+},
+{
+    "question": "Which logical function will return TRUE only if all conditions are TRUE?",
+    "options": ["OR()", "ALL()", "AND()", "IF()"],
+    "answer": 2,
+    "explanation": "AND() returns TRUE only if all its arguments evaluate to TRUE."
+},
+{
+    "question": "What is the keyboard shortcut to insert a new worksheet?",
+    "options": ["Shift+F11", "Ctrl+N", "Alt+Insert", "Ctrl+T"],
+    "answer": 0,
+    "explanation": "Shift+F11 inserts a new worksheet into the workbook."
+},
+{
+    "question": "Which Excel function removes all spaces from text except single spaces between words?",
+    "options": ["REMOVE()", "TRIM()", "CLEAN()", "SUBSTITUTE()"],
+    "answer": 1,
+    "explanation": "TRIM() deletes extra spaces except single spaces between words."
+},
+{
+    "question": "What will the formula =ROUND(25.75,0) return?",
+    "options": ["25", "26", "25.8", "26.0"],
+    "answer": 1,
+    "explanation": "ROUND(25.75,0) rounds to the nearest whole number, which is 26."
+},
+{
+    "question": "Which chart type is best suited to show trends over time?",
+    "options": ["Pie Chart", "Column Chart", "Line Chart", "Scatter Plot"],
+    "answer": 2,
+    "explanation": "Line charts are ideal for displaying trends over a period of time."
+},
+{
+    "question": "Which function will you use to calculate compound interest in Excel?",
+    "options": ["FV()", "PV()", "PMT()", "RATE()"],
+    "answer": 0,
+    "explanation": "FV() returns the future value of an investment based on periodic rate and payment."
+},
+{
+    "question": "What does conditional formatting allow you to do?",
+    "options": ["Format only specific parts of text", "Format cells based on criteria", "Format entire worksheet", "Format pivot tables automatically"],
+    "answer": 1,
+    "explanation": "Conditional formatting changes cell styles dynamically based on set rules."
+},
+{
+    "question": "What is the function of the TEXT() function in Excel?",
+    "options": ["Converts a value to text in a specified format", "Changes font to text format", "Adds text formatting", "Formats text to uppercase"],
+    "answer": 0,
+    "explanation": "TEXT() converts numeric values to text strings with specified format."
+},
+{
+    "question": "Which formula returns the value in cell C5 from the worksheet named April?",
+    "options": ["=April!C5", "=SheetAprilC5", "=April.C5", "=Apr$C5"],
+    "answer": 0,
+    "explanation": "April!C5 refers to cell C5 in the worksheet named April."
+},
+{
+    "question": "Which function returns the type of value, such as number or text, stored in a cell?",
+    "options": ["TYPE()", "INFO()", "VALUE()", "CELL()"],
+    "answer": 0,
+    "explanation": "TYPE() returns a number indicating the type of value in a cell."
+},
+{
+    "question": "What is the result of =INT(89.99)?",
+    "options": ["90", "89", "89.9", "88"],
+    "answer": 1,
+    "explanation": "INT() rounds a number down to the nearest integer."
+},
+{
+    "question": "Which Excel view is best for preparing for printing?",
+    "options": ["Normal View", "Page Layout View", "Page Break Preview", "Full Screen View"],
+    "answer": 1,
+    "explanation": "Page Layout View shows how the sheet will look when printed."
+},
+{
+    "question": "Which function gives you the serial number of the current date and time?",
+    "options": ["NOW()", "DATE()", "TODAY()", "TIME()"],
+    "answer": 0,
+    "explanation": "NOW() returns current date and time as a serial number."
+},
+{
+    "question": "Which formula would you use to combine text from A1 and B1 with a space in between?",
+    "options": ["=A1&B1", "=A1&\" \"&B1", "=CONCAT(A1,B1)", "=TEXTJOIN(\"\",TRUE,A1,B1)"],
+    "answer": 1,
+    "explanation": "The & operator with a space string between combines A1 and B1 with space."
+},
+{
+    "question": "Which Excel tool can be used to find and highlight duplicate values?",
+    "options": ["Conditional Formatting", "Remove Duplicates", "Advanced Filter", "Data Validation"],
+    "answer": 0,
+    "explanation": "Conditional Formatting can highlight duplicates in a dataset."
+},
+{
+    "question": "What does the LEFT(text, num_chars) function do?",
+    "options": ["Returns the last characters from the text", "Returns the first num_chars from the text", "Removes characters from left", "Aligns text left"],
+    "answer": 1,
+    "explanation": "LEFT() extracts a given number of characters from the start of a text string."
+},
+{
+    "question": "Which Excel function would you use to convert all characters in a text to lowercase?",
+    "options": ["LOWER()", "PROPER()", "TEXT()", "TRIM()"],
+    "answer": 0,
+    "explanation": "LOWER() converts text to lowercase letters."
+},
+{
+    "question": "What is the shortcut to recalculate all formulas in Excel?",
+    "options": ["F9", "Shift+F9", "Ctrl+R", "Ctrl+Alt+F9"],
+    "answer": 0,
+    "explanation": "F9 recalculates all formulas in the sheet."
+},
+{
+    "question": "Which function will replace existing text with new text within a string?",
+    "options": ["REPLACE()", "SUBSTITUTE()", "CHANGE()", "ALTER()"],
+    "answer": 1,
+    "explanation": "SUBSTITUTE() replaces existing text occurrences with new text."
+},
+{
+    "question": "How do you add a comment to a cell in Excel?",
+    "options": ["Right-click cell -> Insert Comment", "View -> Comment", "Data -> Comment", "Home -> Comment"],
+    "answer": 0,
+    "explanation": "Right-click on the desired cell and choose 'Insert Comment'."
+},
+{
+    "question": "Which function will extract the year from a given date?",
+    "options": ["=DATE()", "=YEAR()", "=TEXT()", "=MONTH()"],
+    "answer": 1,
+    "explanation": "YEAR() returns the year of the date."
+},
+{
+    "question": "The ISERROR() function returns TRUE when?",
+    "options": ["The cell contains text", "The cell contains a formula error", "The cell is empty", "The cell contains a number"],
+    "answer": 1,
+    "explanation": "ISERROR() checks if a value results in an error."
+},
+{
+    "question": "What feature lets you view two different parts of a worksheet simultaneously?",
+    "options": ["Split", "Freeze Panes", "Zoom", "Arrange"],
+    "answer": 0,
+    "explanation": "Split divides the worksheet window so you can scroll each section separately."
+},
+{
+    "question": "Which Excel function is used to capitalize every letter in a text string?",
+    "options": ["UPPER()", "PROPER()", "CAPS()", "TEXT()"],
+    "answer": 0,
+    "explanation": "UPPER() converts text to uppercase."
+},
+{
+    "question": "Which function would you use to round a number up to the nearest integer?",
+    "options": ["ROUND()", "ROUNDUP()", "ROUNDDOWN()", "CEILING()"],
+    "answer": 1,
+    "explanation": "ROUNDUP() always rounds numbers up, away from zero."
+},
+{
+    "question": "In Excel, what happens if you press Ctrl+Arrow Key?",
+    "options": ["Moves to the last non-empty cell in a direction", "Moves one cell", "Selects cells", "Moves to A1"],
+    "answer": 0,
+    "explanation": "Ctrl+Arrow moves to the edge of the data region in the arrow's direction."
+},
+{
+    "question": "Which Excel function returns the numeric code for the first character of a text string in Unicode?",
+    "options": ["CODE()", "CHAR()", "UNICODE()", "NUMCHAR()"],
+    "answer": 2,
+    "explanation": "UNICODE() returns the Unicode code number of the first character."
+},
+{
+    "question": "What does the HLOOKUP() function do?",
+    "options": ["Looks up a value horizontally in a table", "Looks up a value vertically in a table", "Highlights a lookup value", "Hides lookup results"],
+    "answer": 0,
+    "explanation": "HLOOKUP() searches for a value in the top row of a table, then returns a value in the same column."
+},
+{
+    "question": "Which statistical function returns the most frequently occurring value in a range?",
+    "options": ["MODE()", "MEDIAN()", "AVERAGE()", "STDEV()"],
+    "answer": 0,
+    "explanation": "MODE() returns the mode, or most common number, in a dataset."
+},
+{
+    "question": "Which function returns the middle characters from a text string in Excel?",
+    "options": ["MID()", "LEFT()", "RIGHT()", "CENTER()"],
+    "answer": 0,
+    "explanation": "MID() returns a specific number of characters from the middle of a text string."
+},
+{
+    "question": "What is the function of the SUBSTITUTE() function in Excel?",
+    "options": ["Replaces part of text based on position", "Replaces specified text with new text", "Removes spaces", "Removes non-printable characters"],
+    "answer": 1,
+    "explanation": "SUBSTITUTE() replaces all or specific instances of old text with new text."
+},
+{
+    "question": "What shortcut key is used to force a manual calculation in Excel?",
+    "options": ["F9", "Ctrl+Alt+F9", "Shift+F9", "All of the above"],
+    "answer": 3,
+    "explanation": "F9 calculates all worksheets, Ctrl+Alt+F9 calculates all formulas, Shift+F9 calculates active sheet."
+},
+{
+    "question": "Which formula would return the highest value in a range A1:A10?",
+    "options": ["=MAX(A1:A10)", "=HIGH(A1:A10)", "=LARGE(A1:A10,1)", "Both 1 and 3"],
+    "answer": 3,
+    "explanation": "MAX() and LARGE(range,1) both return the largest value."
+},
+{
+    "question": "Which date function returns the week number of a date?",
+    "options": ["WEEKNUM()", "WEEKDAY()", "DAY()", "DATE()"],
+    "answer": 0,
+    "explanation": "WEEKNUM() returns the week number of a date."
+},
+{
+    "question": "In Excel, what does the shortcut Alt+= do?",
+    "options": ["Inserts SUM function", "Opens formula tab", "Auto-fills range", "Applies filter"],
+    "answer": 0,
+    "explanation": "Alt+= automatically inserts the SUM function for the selected range."
+},
+{
+    "question": "Which chart is best suited for comparing parts of a whole?",
+    "options": ["Pie Chart", "Column Chart", "Line Chart", "Area Chart"],
+    "answer": 0,
+    "explanation": "Pie charts display percentages or parts of a whole."
+},
+{
+    "question": "What will be the result of =ROUNDUP(4.2,0)?",
+    "options": ["4", "5", "4.2", "4.0"],
+    "answer": 1,
+    "explanation": "ROUNDUP(4.2,0) rounds the value up to the next integer, resulting in 5."
+},
+{
+    "question": "Which function is used to join text from two or more cells in Excel 2019 and later?",
+    "options": ["CONCAT()", "CONCATENATE()", "TEXTJOIN()", "JOIN()"],
+    "answer": 0,
+    "explanation": "CONCAT() replaces the older CONCATENATE() in newer versions of Excel."
+},
+{
+    "question": "Which Excel feature can be used to transform and clean large datasets before analysis?",
+    "options": ["Power Query", "Pivot Tables", "Solver", "Data Validation"],
+    "answer": 0,
+    "explanation": "Power Query cleans, transforms, and loads large datasets for analysis."
+},
+{
+    "question": "What is the default file extension for Excel macro-enabled workbooks?",
+    "options": [".xls", ".xlsx", ".xlsm", ".xltm"],
+    "answer": 2,
+    "explanation": ".xlsm is used for macro-enabled Excel workbooks."
+},
+{
+    "question": "The function CEILING(4.3,1) will return what value?",
+    "options": ["4", "5", "4.3", "4.0"],
+    "answer": 1,
+    "explanation": "CEILING() rounds a number up to the nearest specified multiple."
+},
+{
+    "question": "Which function in Excel returns the number of working days between two dates excluding weekends?",
+    "options": ["NETWORKDAYS()", "DATEDIF()", "WORKDAYS()", "BUSINESSDAYS()"],
+    "answer": 0,
+    "explanation": "NETWORKDAYS() calculates working days excluding weekends and optional holidays."
+},
+{
+    "question": "What does pressing Ctrl+` (grave accent) in Excel do?",
+    "options": ["Shows formulas instead of results", "Adds backtick in cell", "Clears cell formatting", "Opens formula tab"],
+    "answer": 0,
+    "explanation": "Ctrl+` toggles between displaying formulas and their calculated results."
+},
+{
+    "question": "Which function returns the numerical rank of a value within a dataset?",
+    "options": ["RANK()", "ORDER()", "POSITION()", "SORT()"],
+    "answer": 0,
+    "explanation": "RANK() returns the position of a number relative to other numbers in the list."
+},
+{
+    "question": "Which Excel function generates a random decimal number between 0 and 1?",
+    "options": ["RAND()", "RANDBETWEEN()", "RANDOM()", "GENRAND()"],
+    "answer": 0,
+    "explanation": "RAND() returns a random number greater than or equal to 0 and less than 1."
+},
+{
+    "question": "Which formula would return only the integer portion of a number?",
+    "options": ["INT()", "TRUNC()", "ROUND()", "ROUNDUP()"],
+    "answer": 0,
+    "explanation": "INT() returns the integer part by rounding down."
+},
+{
+    "question": "What does the ISNA() function check for in Excel?",
+    "options": ["#NAME? error", "#N/A error", "#VALUE! error", "All errors"],
+    "answer": 1,
+    "explanation": "ISNA() returns TRUE if the cell contains the #N/A error value."
+},
+{
+    "question": "Which Excel shortcut key repeats the last action?",
+    "options": ["Ctrl+Y", "Ctrl+Shift+Y", "F4", "Both Ctrl+Y and F4"],
+    "answer": 3,
+    "explanation": "Both Ctrl+Y and F4 repeat the most recent action."
+},
+{
+    "question": "Which function can be used to split first and last names if they are separated by a space?",
+    "options": ["LEFT(), RIGHT()", "TEXTSPLIT()", "SPLIT()", "All of the above"],
+    "answer": 3,
+    "explanation": "You can use combinations of LEFT/RIGHT, new TEXTSPLIT(), or SPLIT in Excel 365."
+},
+{
+    "question": "Which formula returns TRUE if cell A1 contains the word 'Excel'?",
+    "options": ["=ISNUMBER(SEARCH(\"Excel\",A1))", "=A1=\"Excel\"", "=FIND(\"Excel\",A1)", "None of these"],
+    "answer": 0,
+    "explanation": "SEARCH() within ISNUMBER() returns TRUE if the text is found."
+},
+{
+    "question": "In Excel, which function would you use to find the position of a value in a vertical range?",
+    "options": ["MATCH()", "VLOOKUP()", "INDEX()", "LOOKUP()"],
+    "answer": 0,
+    "explanation": "MATCH() returns the position of a lookup value in a single row or column."
+},
+{
+    "question": "Which Excel feature captures cell values and formats to duplicate them onto another range?",
+    "options": ["Format Painter", "Duplicate Tool", "Copy-Paste", "Cell Reproduce"],
+    "answer": 0,
+    "explanation": "Format Painter copies formatting from one cell to another."
+},
+{
+    "question": "What is the purpose of the 'Evaluate Formula' tool?",
+    "options": ["Runs formulas automatically", "Breaks down calculations step-by-step", "Checks grammar", "Formats cells"],
+    "answer": 1,
+    "explanation": "Evaluate Formula allows you to observe each step of formula evaluation."
+},
+{
+    "question": "Which Excel function counts only the empty cells in a range?",
+    "options": ["COUNTA()", "COUNT()", "COUNTIF()", "COUNTBLANK()"],
+    "answer": 3,
+    "explanation": "COUNTBLANK() counts all blank cells."
+},
+{
+    "question": "Which type of cell reference keeps the column constant but allows the row to change?",
+    "options": ["$A1", "A$1", "$A$1", "A1"],
+    "answer": 0,
+    "explanation": "$A1 is mixed reference with fixed column and relative row."
+},
+{
+    "question": "The REPT() function in Excel is used for?",
+    "options": ["Repeating a text a given number of times", "Repeating calculations", "Repeating cells", "Repeating sheet names"],
+    "answer": 0,
+    "explanation": "REPT(text, number_times) repeats text as many times as specified."
+},
+{
+    "question": "Which Excel tool allows predefined cell formats based on value thresholds?",
+    "options": ["Data Bars", "Conditional Formatting", "Themes", "Cell Style"],
+    "answer": 1,
+    "explanation": "Conditional Formatting applies styles based on conditions."
+},
+{
+    "question": "Which function returns the cosine of a given angle?",
+    "options": ["COS()", "COSINE()", "COSTAN()", "SIN()"],
+    "answer": 0,
+    "explanation": "COS() returns the cosine of an angle provided in radians."
+},
+{
+    "question": "Which keyboard shortcut inserts a new worksheet to the right of active sheet tab?",
+    "options": ["Shift+F11", "Alt+Shift+F11", "Ctrl+Shift+F11", "Ctrl+N"],
+    "answer": 0,
+    "explanation": "Shift+F11 inserts a new worksheet, usually to the left of the current one."
+},
+{
+    "question": "Which function in Excel returns the inverse cosine of a number?",
+    "options": ["ACOS()", "COSINV()", "COS()", "ARCCOS()"],
+    "answer": 0,
+    "explanation": "ACOS() returns the arccosine of a value, result in radians."
+},
+{
+    "question": "If you want to lock both column and row references, which format is used?",
+    "options": ["A1", "$A1", "A$1", "$A$1"],
+    "answer": 3,
+    "explanation": "$A$1 locks both column and row."
+},
+{
+    "question": "Which Excel function would you use to return the square root of a number?",
+    "options": ["ROOT()", "SQRT()", "SQUARE()", "POW()"],
+    "answer": 1,
+    "explanation": "SQRT() returns the positive square root of a number."
+},
+{
+    "question": "Which Excel tool is used to restrict data entry into cells based on criteria?",
+    "options": ["Data Validation", "Conditional Formatting", "Solver", "Goal Seek"],
+    "answer": 0,
+    "explanation": "Data Validation controls the type of data or values that users enter into a cell."
+},
+{
+    "question": "Which formula would extract the last 3 characters of a string in cell A1?",
+    "options": ["=RIGHT(A1,3)", "=LEFT(A1,3)", "=MID(A1,3)", "=LEN(A1,3)"],
+    "answer": 0,
+    "explanation": "RIGHT(A1,3) returns the last three characters from text."
+},
+{
+    "question": "Which keyboard shortcut opens the Create Table dialog with data selected?",
+    "options": ["Ctrl+T", "Ctrl+Shift+T", "Alt+T", "Shift+T"],
+    "answer": 0,
+    "explanation": "Ctrl+T converts the selected range into an Excel table."
+},
+{
+    "question": "What is the output of =POWER(2,4) in Excel?",
+    "options": ["6", "16", "8", "12"],
+    "answer": 1,
+    "explanation": "POWER(2,4) calculates 2 raised to the power 4, resulting in 16."
+},
+{
+    "question": "Which error type indicates that Excel cannot interpret text as a valid number or formula?",
+    "options": ["#VALUE!", "#REF!", "#NAME?", "#N/A"],
+    "answer": 0,
+    "explanation": "#VALUE! occurs when the wrong type of argument or operand is used."
+},
+{
+    "question": "Which function returns the natural logarithm of a number?",
+    "options": ["LOG()", "LN()", "LOG10()", "LOGN()"],
+    "answer": 1,
+    "explanation": "LN() returns the natural log (base e) of a number."
+},
+{
+    "question": "Which shortcut allows you to enter the same data in multiple selected cells?",
+    "options": ["Ctrl+Enter", "Alt+Enter", "Shift+Enter", "Ctrl+Shift+Enter"],
+    "answer": 0,
+    "explanation": "Ctrl+Enter fills all selected cells with the entry."
+},
+{
+    "question": "Which Excel function returns the sine of a given angle in radians?",
+    "options": ["SIN()", "SINE()", "ASIN()", "TRIG()"],
+    "answer": 0,
+    "explanation": "SIN() returns the sine of an angle provided in radians."
+},
+{
+    "question": "What does the TRANSPOSE() function do in Excel?",
+    "options": ["Converts text to uppercase", "Switches rows and columns of an array", "Reverses text string", "Rotates chart axes"],
+    "answer": 1,
+    "explanation": "TRANSPOSE() flips rows into columns and columns into rows."
+},
+{
+    "question": "Which function in Excel converts a number into text with a currency format?",
+    "options": ["TEXT()", "DOLLAR()", "FIXED()", "FORMAT()"],
+    "answer": 1,
+    "explanation": "DOLLAR() converts a number to text using currency formatting."
+},
+{
+    "question": "Which function will always round a number toward zero?",
+    "options": ["ROUND()", "TRUNC()", "INT()", "ROUNDUP()"],
+    "answer": 1,
+    "explanation": "TRUNC() removes decimal part without rounding, moving toward zero."
+},
+{
+    "question": "Which formula calculates the cube root of a number in Excel?",
+    "options": ["=POWER(number,1/3)", "=CUBEROOT(number)", "=SQRT(number,3)", "=ROOT(number,3)"],
+    "answer": 0,
+    "explanation": "POWER(number,1/3) returns the cube root."
+},
+{
+    "question": "Which function returns the tangent of an angle?",
+    "options": ["TAN()", "TANGENT()", "ATAN()", "TRIGTAN()"],
+    "answer": 0,
+    "explanation": "TAN() gives the tangent of an angle in radians."
+},
+{
+    "question": "How do you display numbers as percentages in Excel?",
+    "options": ["Home -> Number -> Percentage", "Data -> Format -> Percentage", "Insert -> Format", "Right-click -> Text Format"],
+    "answer": 0,
+    "explanation": "The Percentage format is available under Home -> Number group."
+},
+{
+    "question": "The ISNUMBER() function returns TRUE when?",
+    "options": ["The cell contains text", "The cell contains a number", "The cell contains an error", "The cell is empty"],
+    "answer": 1,
+    "explanation": "ISNUMBER() checks if a cell's value is numeric."
+},
+{
+    "question": "Which function returns the standard deviation based on a sample?",
+    "options": ["STDEV.S()", "STDEV.P()", "VAR.S()", "VAR.P()"],
+    "answer": 0,
+    "explanation": "STDEV.S() calculates standard deviation based on a sample data set."
+},
+{
+    "question": "Which Excel feature allows you to create your own functions using VBA?",
+    "options": ["Custom Function", "User Defined Function", "Macro Function", "VBA Script"],
+    "answer": 1,
+    "explanation": "User Defined Functions (UDFs) are created through VBA."
+},
+{
+    "question": "Which function combines ranges and returns the intersection of them with duplicate values removed?",
+    "options": ["UNIQUE()", "INTERSECT()", "FILTER()", "SORT()"],
+    "answer": 1,
+    "explanation": "INTERSECT() is not an Excel function, but Range.Intersect in VBA can do this; UNIQUE() returns unique values only."
+},
+{
+    "question": "Which function extracts text from the right side of a string?",
+    "options": ["LEFT()", "RIGHT()", "MID()", "TRIM()"],
+    "answer": 1,
+    "explanation": "RIGHT(text, num_chars) extracts characters from the end."
+},
+{
+    "question": "What is the keyboard shortcut to insert current date and time together?",
+    "options": ["Ctrl+Shift+;", "Ctrl+;", "Ctrl+;", "Ctrl+; then Space then Ctrl+Shift+:"],
+    "answer": 3,
+    "explanation": "Date and time can be entered together by combining date shortcut and time shortcut."
+},
+{
+    "question": "Which function changes a text string to all uppercase?",
+    "options": ["PROPER()", "UPPER()", "LOWER()", "TITLE()"],
+    "answer": 1,
+    "explanation": "UPPER() converts all letters in text to uppercase."
+},
+{
+    "question": "Which financial function calculates the present value of an investment?",
+    "options": ["FV()", "PV()", "NPV()", "PMT()"],
+    "answer": 1,
+    "explanation": "PV() returns the present value of an investment based on a discount rate."
+},
+{
+    "question": "Which logical function returns TRUE if exactly one of the arguments is TRUE?",
+    "options": ["XOR()", "OR()", "AND()", "IF()"],
+    "answer": 0,
+    "explanation": "XOR() returns TRUE if either but not both conditions are true."
+},
+{
+    "question": "What does the CLEAN() function do in Excel?",
+    "options": ["Removes extra spaces", "Removes all non-printable characters", "Removes formatting", "Removes formulas"],
+    "answer": 1,
+    "explanation": "CLEAN() removes non-printable characters from text."
+},
+{
+    "question": "Which function will find the smallest number in a dataset excluding logical values and text?",
+    "options": ["MIN()", "MINA()", "SMALL()", "VALUE()"],
+    "answer": 0,
+    "explanation": "MIN() ignores logical values and text in determining the smallest number."
+},
+{
+    "question": "Which function in Excel extracts the numerical part of a date serial number?",
+    "options": ["DAY()", "DATE()", "MONTH()", "YEAR()"],
+    "answer": 0,
+    "explanation": "DAY() returns the day of the month from a date serial."
+},
+{
+    "question": "Which function converts radians to degrees?",
+    "options": ["RAD2DEG()", "DEGREES()", "RADIANS()", "ROTATE()"],
+    "answer": 1,
+    "explanation": "DEGREES() converts radian values to degree values."
+},
+{
+    "question": "Which function will extract the file name from a full file path stored in a cell?",
+    "options": ["RIGHT()", "TEXTAFTER()", "MID()", "TEXTBEFORE()"],
+    "answer": 2,
+    "explanation": "MID() can be combined with FIND() to extract the filename from a path."
+},
+{
+    "question": "In Excel, how do you apply a strikethrough to selected text?",
+    "options": ["Ctrl+T", "Ctrl+5", "Ctrl+Shift+S", "Alt+S"],
+    "answer": 1,
+    "explanation": "Ctrl+5 applies or removes strikethrough formatting."
+},
+{
+    "question": "Which function calculates the internal rate of return for a series of cash flows?",
+    "options": ["IRR()", "NPV()", "ROI()", "RATE()"],
+    "answer": 0,
+    "explanation": "IRR() returns the internal rate of return for periodic cash flows."
+},
+{
+    "question": "Which function returns a value from a table by matching both row and column numbers?",
+    "options": ["INDEX()", "OFFSET()", "VLOOKUP()", "HLOOKUP()"],
+    "answer": 0,
+    "explanation": "INDEX() can return the value at a specific row and column from a range."
+},
+{
+    "question": "Which Excel add-in is used for solving optimization problems?",
+    "options": ["Solver", "Power Query", "Analysis ToolPak", "Scenario Manager"],
+    "answer": 0,
+    "explanation": "Solver is used to find the optimal value for a formula in a cell."
+},
+{
+    "question": "Which function returns the hyperbolic sine of a number?",
+    "options": ["SINH()", "HSIN()", "HYPERSIN()", "SINEH()"],
+    "answer": 0,
+    "explanation": "SINH() returns the hyperbolic sine of a number."
+},
+{
+    "question": "Which built-in Excel feature helps visualizing data trends with small charts inside cells?",
+    "options": ["Sparkline", "Microchart", "Data Bar", "Small Chart"],
+    "answer": 0,
+    "explanation": "Sparklines are mini charts that fit within a cell."
+},
+{
+    "question": "If you want to always round a number away from zero to a specific multiple, which function is used?",
+    "options": ["ROUNDUP()", "CEILING()", "MROUND()", "FLOOR()"],
+    "answer": 1,
+    "explanation": "CEILING() rounds a number up to the nearest multiple specified."
+},
+{
+    "question": "Which function can find the k-th smallest value in a range?",
+    "options": ["MIN()", "SMALL()", "RANK()", "LARGE()"],
+    "answer": 1,
+    "explanation": "SMALL(range,k) returns the k-th smallest value in a dataset."
+},
+{
+    "question": "Which formula will give the absolute value of a number?",
+    "options": ["ABS()", "ABSOLUTE()", "POSITIVE()", "VALUE()"],
+    "answer": 0,
+    "explanation": "ABS() returns the positive magnitude of a number."
+},
+{
+    "question": "Which text function extracts characters from a starting point to a given length?",
+    "options": ["LEFT()", "RIGHT()", "MID()", "TEXT()"],
+    "answer": 2,
+    "explanation": "MID() extracts text starting at a specified position for a given number of characters."
+},
+{
+    "question": "Which function in Excel returns the square of a number?",
+    "options": ["SQUARE()", "POWER(number,2)", "SQRT()", "POW()"],
+    "answer": 1,
+    "explanation": "POWER(number,2) returns the square of a number."
+},
+{
+    "question": "Which function returns the decimal representation of the fraction of a year between two dates?",
+    "options": ["DAYS()", "YEARFRAC()", "DATEDIF()", "FRACTIONYEAR()"],
+    "answer": 1,
+    "explanation": "YEARFRAC() returns the fraction of the year between dates."
+},
+{
+    "question": "What does the EXACT() function do?",
+    "options": ["Checks if two text strings are identical", "Replaces text", "Extracts exact characters", "Makes text uppercase"],
+    "answer": 0,
+    "explanation": "EXACT() compares two text strings and returns TRUE if they are identical."
+},
+{
+    "question": "Which Excel shortcut is used to insert a function into a cell?",
+    "options": ["Shift+F3", "Alt+F3", "Ctrl+F3", "F3"],
+    "answer": 0,
+    "explanation": "Shift+F3 opens the Insert Function dialog box."
+},
+{
+    "question": "Which function converts a number to text in a specified number format?",
+    "options": ["FORMAT()", "TEXT()", "CONVERT()", "STYLE()"],
+    "answer": 1,
+    "explanation": "TEXT() converts numbers to text in a given formatting pattern."
+},
+{
+    "question": "Which lookup function can search both horizontally and vertically in Excel?",
+    "options": ["VLOOKUP()", "HLOOKUP()", "XLOOKUP()", "LOOKUP()"],
+    "answer": 2,
+    "explanation": "XLOOKUP() searches both vertically and horizontally."
+},
+{
+    "question": "What does the ISBLANK() function check for?",
+    "options": ["Blank or empty cell", "Zero value", "Space character", "Formula errors"],
+    "answer": 0,
+    "explanation": "ISBLANK() returns TRUE if a cell is truly empty."
+},
+{
+    "question": "How do you name a cell range in Excel?",
+    "options": ["Formulas -> Define Name", "Data -> Define Name", "Home -> Name Cell", "Insert -> Name"],
+    "answer": 0,
+    "explanation": "You can define a name for a range from Formulas -> Define Name."
+},
+{
+    "question": "Which function changes degrees to radians?",
+    "options": ["DEGREES()", "RADIANS()", "DEGTORAD()", "RAD()"],
+    "answer": 1,
+    "explanation": "RADIANS() converts degree values to radian values."
+},
+{
+    "question": "Which logical function returns TRUE only if all supplied arguments are FALSE?",
+    "options": ["NOR()", "NOT(OR())", "XNOR()", "AND()"],
+    "answer": 1,
+    "explanation": "NOT(OR()) returns TRUE if all conditions are FALSE."
+},
+{
+    "question": "Which key combination is used to copy selected cells in Excel?",
+    "options": ["Ctrl+C", "Ctrl+X", "Ctrl+V", "Ctrl+S"],
+    "answer": 0,
+    "explanation": "Ctrl+C copies the selected cells to the clipboard."
+},
+{
+    "question": "Which key combination is used to paste copied data in Excel?",
+    "options": ["Ctrl+C", "Ctrl+P", "Ctrl+V", "Ctrl+Shift+V"],
+    "answer": 2,
+    "explanation": "Ctrl+V pastes copied content into the selected cell range."
+},
+{
+    "question": "What is the default file extension for Excel workbooks?",
+    "options": [".xls", ".xlsx", ".csv", ".docx"],
+    "answer": 1,
+    "explanation": "Excel 2007 and later versions use .xlsx as the default workbook extension."
+},
+{
+    "question": "Which bar in Excel displays the address of the active cell?",
+    "options": ["Taskbar", "Title Bar", "Formula Bar", "Status Bar"],
+    "answer": 2,
+    "explanation": "The Formula Bar shows the address and contents of the active cell."
+},
+{
+    "question": "Which operator is used for multiplication in Excel formulas?",
+    "options": ["x", "*", "%", "#"],
+    "answer": 1,
+    "explanation": "The asterisk (*) is used for multiplication in Excel formulas."
+},
+{
+    "question": "In Excel, what is a cell?",
+    "options": ["A single box where a row and column intersect", "A column name", "A group of charts", "A page in Excel"],
+    "answer": 0,
+    "explanation": "A cell is the intersection of a row and a column."
+},
+{
+    "question": "Which function adds up a range of values in Excel?",
+    "options": ["ADD()", "SUM()", "TOTAL()", "COUNT()"],
+    "answer": 1,
+    "explanation": "SUM() calculates the total of numbers in a range."
+},
+{
+    "question": "Which Excel shortcut saves the workbook?",
+    "options": ["Ctrl+S", "Ctrl+W", "Ctrl+P", "Ctrl+N"],
+    "answer": 0,
+    "explanation": "Ctrl+S saves the active workbook."
+},
+{
+    "question": "How do you start writing a formula in Excel?",
+    "options": ["By typing #", "By typing =", "By typing +", "By typing @"],
+    "answer": 1,
+    "explanation": "All formulas in Excel must start with an equals sign (=)."
+},
+{
+    "question": "Which key is used to undo the last action in Excel?",
+    "options": ["Ctrl+U", "Ctrl+Y", "Ctrl+Z", "Ctrl+Shift+Z"],
+    "answer": 2,
+    "explanation": "Ctrl+Z undoes the most recent action."
+},
+{
+    "question": "Which Excel feature is used to arrange data in ascending or descending order?",
+    "options": ["Filter", "Sort", "Group", "Format"],
+    "answer": 1,
+    "explanation": "The Sort feature organizes data in ascending or descending order."
+},
+{
+    "question": "What is the keyboard shortcut to create a new blank workbook?",
+    "options": ["Ctrl+W", "Ctrl+N", "Ctrl+Shift+N", "Alt+N"],
+    "answer": 1,
+    "explanation": "Ctrl+N opens a new blank workbook."
+},
+{
+    "question": "Which function in Excel returns the average of selected numbers?",
+    "options": ["SUM()", "AVERAGE()", "COUNT()", "MEAN()"],
+    "answer": 1,
+    "explanation": "AVERAGE() calculates the arithmetic mean of a range."
+},
+{
+    "question": "Which option in Excel is used to duplicate the format of a cell?",
+    "options": ["Duplicate Tool", "Format Painter", "Copy Style", "Design Brush"],
+    "answer": 1,
+    "explanation": "Format Painter copies formatting from one place to another."
+},
+{
+    "question": "Which Excel chart is used to show data over time?",
+    "options": ["Pie Chart", "Bar Chart", "Line Chart", "Scatter Chart"],
+    "answer": 2,
+    "explanation": "Line charts are best for showing trends over time."
+},
+{
+    "question": "How do you select an entire column in Excel?",
+    "options": ["Click the column header", "Click the row number", "Press Ctrl+C", "Press Ctrl+Shift+End"],
+    "answer": 0,
+    "explanation": "Clicking the column header selects the entire column."
+},
+{
+    "question": "How can you rename a worksheet tab?",
+    "options": ["Right-click tab -> Rename", "Double-click tab name", "Use Format menu", "All of the above"],
+    "answer": 3,
+    "explanation": "You can rename a sheet by all the listed methods."
+},
+{
+    "question": "Which Excel function counts numeric values in a range?",
+    "options": ["COUNT()", "COUNTA()", "COUNTIF()", "COUNTNUM()"],
+    "answer": 0,
+    "explanation": "COUNT() counts only numerical entries in the range."
+},
+{
+    "question": "What is the shortcut to print an Excel worksheet?",
+    "options": ["Ctrl+Shift+P", "Ctrl+P", "Alt+P", "Ctrl+Alt+P"],
+    "answer": 1,
+    "explanation": "Ctrl+P opens the print dialog for the worksheet."
+},
+{
+    "question": "Which Excel view shows how the sheet will look when printed?",
+    "options": ["Normal View", "Page Layout View", "Full Screen View", "Data View"],
+    "answer": 1,
+    "explanation": "Page Layout View shows margins, headers, and page breaks."
+},
+{
+    "question": "Which file type is used for Excel templates?",
+    "options": [".xlsx", ".xltx", ".xlsm", ".csv"],
+    "answer": 1,
+    "explanation": ".xltx is the extension for Excel template files."
+},
+{
+    "question": "Which key combination cuts selected data?",
+    "options": ["Ctrl+V", "Ctrl+X", "Ctrl+C", "Ctrl+Shift+X"],
+    "answer": 1,
+    "explanation": "Ctrl+X cuts the selection for moving elsewhere."
+},
+{
+    "question": "What does AutoFill do in Excel?",
+    "options": ["Fills cells with a pattern", "Saves data automatically", "Copies formats only", "Deletes blank rows"],
+    "answer": 0,
+    "explanation": "AutoFill fills cells with a pattern, series, or repetition."
+},
+{
+    "question": "Which Excel function returns the highest number in a range?",
+    "options": ["MAX()", "UPPER()", "LARGE()", "HIGH()"],
+    "answer": 0,
+    "explanation": "MAX() returns the largest value from the range."
+},
+{
+    "question": "What is the shortcut to close the current workbook?",
+    "options": ["Ctrl+W", "Ctrl+Q", "Ctrl+Shift+W", "Alt+W"],
+    "answer": 0,
+    "explanation": "Ctrl+W closes the current workbook."
+},
+{
+    "question": "Which Excel tool is used to restrict cell input to specific values?",
+    "options": ["Conditional Formatting", "Data Validation", "Sort & Filter", "Password Protection"],
+    "answer": 1,
+    "explanation": "Data Validation controls what data can be entered into a cell."
+},
+{
+    "question": "Which function displays the current date?",
+    "options": ["TODAY()", "DATE()", "DAY()", "NOW()"],
+    "answer": 0,
+    "explanation": "TODAY() returns only the current date."
+},
+{
+    "question": "In Excel, text data is aligned how by default?",
+    "options": ["Center", "Right", "Left", "Justified"],
+    "answer": 2,
+    "explanation": "Text is left-aligned in cells by default."
+},
+{
+    "question": "Which chart type is best for showing proportions?",
+    "options": ["Bar Chart", "Pie Chart", "Line Chart", "Column Chart"],
+    "answer": 1,
+    "explanation": "Pie charts represent proportions of a whole."
+},
+{
+    "question": "What does the Merge & Center tool do?",
+    "options": ["Merges text strings", "Merges selected cells and centers the text", "Centers content only", "Creates cell links"],
+    "answer": 1,
+    "explanation": "Merge & Center combines cells into one and centers its content."
+},
+{
+    "question": "Which function in Excel counts all non-empty cells in a range?",
+    "options": ["COUNTA()", "COUNT()", "COUNTIF()", "COUNTBLANK()"],
+    "answer": 0,
+    "explanation": "COUNTA() counts the number of non-empty cells."
+},
+{
+    "question": "Where is the Freeze Panes option located?",
+    "options": ["Home tab", "View tab", "Data tab", "Insert tab"],
+    "answer": 1,
+    "explanation": "Freeze Panes is found in the View tab."
+},
+{
+    "question": "Which symbol is used for text concatenation in Excel?",
+    "options": ["@", "&", "+", "#"],
+    "answer": 1,
+    "explanation": "The & (ampersand) joins text from multiple cells."
+},
+{
+    "question": "How to quickly select all cells in a worksheet?",
+    "options": ["Ctrl+A", "Shift+A", "Alt+A", "Ctrl+Shift+A"],
+    "answer": 0,
+    "explanation": "Ctrl+A selects all cells in the active worksheet."
+},
+{
+    "question": "Which tab contains the Chart tools in Excel?",
+    "options": ["Insert", "Data", "Home", "Review"],
+    "answer": 0,
+    "explanation": "You can insert different types of charts from the Insert tab."
+},
+{
+    "question": "Which option in Save As lets you save an Excel file as a comma-separated file?",
+    "options": ["Text File", "CSV", "Template", "PDF"],
+    "answer": 1,
+    "explanation": "CSV is used for saving Excel data as comma-separated values."
+},
+{
+    "question": "The cell reference B$3 is an example of?",
+    "options": ["Relative reference", "Absolute reference", "Mixed reference", "3D reference"],
+    "answer": 2,
+    "explanation": "B$3 is a mixed reference with fixed row and relative column."
+},
+{
+    "question": "Which Excel table feature makes column headings stay visible as you scroll?",
+    "options": ["Split", "Freeze Panes", "Filter", "AutoFit Columns"],
+    "answer": 1,
+    "explanation": "Freeze Panes keeps headers in view while scrolling."
+},
+{
+    "question": "In Excel, what is the name for a predefined set of formatting options?",
+    "options": ["Cell Style", "Theme", "Template", "Layout"],
+    "answer": 0,
+    "explanation": "Cell Styles apply predefined formats to selected cells."
+},
+{
+    "question": "Which chart type uses bars to represent data values?",
+    "options": ["Pie", "Bar", "Line", "Area"],
+    "answer": 1,
+    "explanation": "Bar charts represent values with horizontal bars."
+},
+{
+    "question": "What is the default font in Excel 2016?",
+    "options": ["Calibri", "Arial", "Times New Roman", "Cambria"],
+    "answer": 0,
+    "explanation": "Calibri is set as the default font in Excel 2016."
+},
+{
+    "question": "How can you adjust a column to fit its content automatically?",
+    "options": ["Double-click column border", "Right-click column -> AutoFit", "Use Format menu -> AutoFit", "All of the above"],
+    "answer": 3,
+    "explanation": "All these methods adjust column width to content."
+},
+{
+    "question": "Which shortcut key moves to the first cell in the current row?",
+    "options": ["Home", "Ctrl+Home", "End", "Ctrl+End"],
+    "answer": 0,
+    "explanation": "The Home key moves the cursor to the first cell in the row."
+},
+{
+    "question": "How do you add borders to selected cells?",
+    "options": ["Home tab -> Borders", "Insert -> Borders", "Data tab -> Borders", "View tab -> Borders"],
+    "answer": 0,
+    "explanation": "Borders can be added from the Borders menu in the Home tab."
+},
+{
+    "question": "How do you create a new worksheet within a workbook?",
+    "options": ["Click + icon next to sheet tabs", "Insert -> Worksheet", "Shift+F11", "All of the above"],
+    "answer": 3,
+    "explanation": "All methods listed can create a new worksheet."
+},
+{
+    "question": "What does the Zoom feature in Excel do?",
+    "options": ["Enlarges or reduces the view of the sheet", "Changes font size", "Magnifies text only", "Expands cell size"],
+    "answer": 0,
+    "explanation": "Zoom adjusts the magnification of the sheet on screen."
+},
+{
+    "question": "Which keyboard shortcut is used to open an existing workbook in Excel?",
+    "options": ["Ctrl+O", "Ctrl+N", "Ctrl+S", "Ctrl+W"],
+    "answer": 0,
+    "explanation": "Ctrl+O opens the dialog to browse and open an existing Excel workbook."
+},
+{
+    "question": "Which option is used to center text across multiple cells without merging them?",
+    "options": ["Align Center", "Center Across Selection", "Merge & Center", "Text Wrap"],
+    "answer": 1,
+    "explanation": "Center Across Selection aligns the text across selected cells without merging them."
+},
+{
+    "question": "Which key combination is used to insert a new row in Excel?",
+    "options": ["Ctrl+Shift++", "Ctrl+Plus", "Alt+Plus", "Shift+Plus"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift++ inserts a new row or column based on selection."
+},
+{
+    "question": "Which toolbar in Excel allows quick access to commonly used commands like Save and Undo?",
+    "options": ["Status Bar", "Quick Access Toolbar", "Formula Bar", "Navigation Bar"],
+    "answer": 1,
+    "explanation": "Quick Access Toolbar provides quick access to frequently used commands."
+},
+{
+    "question": "Which feature can be used to color alternate rows automatically?",
+    "options": ["Table Formatting", "Conditional Formatting", "Manual Fill", "Theme Fill"],
+    "answer": 0,
+    "explanation": "Formatting a range as a Table can automatically apply alternate row shading."
+},
+{
+    "question": "Which tab contains options for inserting shapes in Excel?",
+    "options": ["Insert", "Home", "View", "Data"],
+    "answer": 0,
+    "explanation": "The Insert tab contains options for shapes, charts, tables, and more."
+},
+{
+    "question": "Which Excel function will display the smallest value in a range?",
+    "options": ["MIN()", "LOW()", "SMALL()", "BOTTOM()"],
+    "answer": 0,
+    "explanation": "MIN() returns the minimum numeric value in a range."
+},
+{
+    "question": "What is displayed in the Name Box in Excel?",
+    "options": ["Address of the active cell", "Cell content", "Sheet name", "Workbook name"],
+    "answer": 0,
+    "explanation": "The Name Box displays the address of the currently selected cell."
+},
+{
+    "question": "Which Excel view should you use to adjust page margins before printing?",
+    "options": ["Normal View", "Page Break Preview", "Page Layout View", "Custom View"],
+    "answer": 2,
+    "explanation": "Page Layout View shows margins and allows easy adjustment."
+},
+{
+    "question": "Which key combination is used to open the 'Find' dialog in Excel?",
+    "options": ["Ctrl+F", "Ctrl+H", "Ctrl+G", "Ctrl+Shift+F"],
+    "answer": 0,
+    "explanation": "Ctrl+F opens the Find dialog to search for specific data."
+},
+{
+    "question": "Which Excel tool allows you to display only rows that meet a certain condition?",
+    "options": ["Sort", "Filter", "Data Validation", "Conditional Formatting"],
+    "answer": 1,
+    "explanation": "The Filter tool hides rows that do not meet filter criteria."
+},
+{
+    "question": "Which function shows the number of characters in a cell?",
+    "options": ["CHAR()", "CODE()", "LEN()", "SIZE()"],
+    "answer": 2,
+    "explanation": "LEN() returns the length of the text string, including spaces."
+},
+{
+    "question": "In Excel, what will CTRL+ARROW keys do?",
+    "options": ["Move one cell", "Move to edge of data region", "Select cells", "Insert a row"],
+    "answer": 1,
+    "explanation": "Ctrl+Arrow moves to the last non-empty cell in the given direction."
+},
+{
+    "question": "Which tool will you use to quickly change the width of multiple columns?",
+    "options": ["AutoFit Column Width", "Format Painter", "Merge & Center", "Text Wrap"],
+    "answer": 0,
+    "explanation": "AutoFit Column Width adjusts columns to fit their content."
+},
+{
+    "question": "Which Excel symbol is used for division in formulas?",
+    "options": ["/", "\\", "#", ":"],
+    "answer": 0,
+    "explanation": "A forward slash (/) is used for division."
+},
+{
+    "question": "Which chart type is suitable for showing changes in data over time?",
+    "options": ["Line Chart", "Pie Chart", "Doughnut Chart", "Bar Chart"],
+    "answer": 0,
+    "explanation": "Line charts show trends and changes over intervals."
+},
+{
+    "question": "Which feature allows you to combine multiple cells into one?",
+    "options": ["Center Align", "Merge Cells", "Wrap Text", "AutoFit"],
+    "answer": 1,
+    "explanation": "Merge Cells combines two or more cells into one larger cell."
+},
+{
+    "question": "Which option in Excel will arrange numeric data from smallest to largest?",
+    "options": ["Sort Descending", "Ascending Sort", "Filter Values", "Auto Arrange"],
+    "answer": 1,
+    "explanation": "Ascending sort arranges numbers from smallest to largest."
+},
+{
+    "question": "What does Wrap Text do in Excel?",
+    "options": ["Aligns text to center", "Adjusts text size", "Displays text on multiple lines within a cell", "Merges cells"],
+    "answer": 2,
+    "explanation": "Wrap Text displays all cell content on multiple lines."
+},
+{
+    "question": "Which key will cancel a cell entry before it is completed?",
+    "options": ["Esc", "Tab", "Enter", "Delete"],
+    "answer": 0,
+    "explanation": "Pressing Esc cancels the current entry and leaves the cell value unchanged."
+},
+{
+    "question": "Where can you apply bold, italic, and underline formatting in Excel?",
+    "options": ["Insert Tab", "Home Tab", "View Tab", "Data Tab"],
+    "answer": 1,
+    "explanation": "The Home Tab contains font formatting tools."
+},
+{
+    "question": "Which Excel function is used to find the largest value in a range?",
+    "options": ["MAX()", "LARGE()", "HIGH()", "TOP()"],
+    "answer": 0,
+    "explanation": "MAX() returns the maximum numeric value from the range."
+},
+{
+    "question": "Which shortcut key is used to redo the last undone action?",
+    "options": ["Ctrl+Z", "Ctrl+Y", "Ctrl+Shift+Z", "Ctrl+R"],
+    "answer": 1,
+    "explanation": "Ctrl+Y redoes the last action that was undone."
+},
+{
+    "question": "Which chart type displays data in columns or bars for visual comparison?",
+    "options": ["Column/Bar Chart", "Pie Chart", "Line Chart", "Scatter Plot"],
+    "answer": 0,
+    "explanation": "Column and bar charts are best for comparing values side-by-side."
+},
+{
+    "question": "What is the intersection of a column and a row called?",
+    "options": ["Cell", "Range", "Sheet", "Box"],
+    "answer": 0,
+    "explanation": "A cell is where a row and column intersect."
+},
+{
+    "question": "Which file format should you choose to save Excel data for use in other programs?",
+    "options": ["CSV", "TXT", "XLSX", "DOCX"],
+    "answer": 0,
+    "explanation": "CSV is widely compatible with many applications."
+},
+{
+    "question": "How can you increase decimal places displayed in a numeric cell?",
+    "options": ["Increase Decimal button", "Format as Number", "Percent Style", "Wrap Text"],
+    "answer": 0,
+    "explanation": "The Increase Decimal button displays more decimal places."
+},
+{
+    "question": "Which Excel tab contains the Freeze Panes command?",
+    "options": ["Home", "Insert", "View", "Data"],
+    "answer": 2,
+    "explanation": "Freeze Panes is located under the View tab."
+},
+{
+    "question": "How can you quickly select an entire worksheet?",
+    "options": ["Click Select All button", "Ctrl+A", "Press F8", "All of these"],
+    "answer": 3,
+    "explanation": "All methods mentioned will select the entire sheet."
+},
+{
+    "question": "In Excel, which data type is right-aligned by default?",
+    "options": ["Text", "Numbers", "Dates", "Both Numbers and Dates"],
+    "answer": 3,
+    "explanation": "Numbers and dates are right-aligned by default."
+},
+{
+    "question": "Which button removes all formatting from the selected cells?",
+    "options": ["Clear Formats", "Delete", "Reset", "Erase"],
+    "answer": 0,
+    "explanation": "Clear Formats removes applied formatting but keeps data."
+},
+{
+    "question": "Which chart type is best for showing percentages of a whole?",
+    "options": ["Pie Chart", "Bar Chart", "Line Chart", "Area Chart"],
+    "answer": 0,
+    "explanation": "Pie charts are ideal for displaying parts of a whole in percentages."
+},
+{
+    "question": "Which shortcut key inserts a new worksheet?",
+    "options": ["Ctrl+N", "Ctrl+Shift+N", "Shift+F11", "Ctrl+W"],
+    "answer": 2,
+    "explanation": "Shift+F11 adds a new worksheet to the workbook."
+},
+{
+    "question": "How can you zoom in or out quickly in Excel?",
+    "options": ["Zoom control on Status Bar", "View Tab -> Zoom", "Ctrl + Mouse Scroll", "All of these"],
+    "answer": 3,
+    "explanation": "All three methods can be used to adjust zoom."
+},
+{
+    "question": "Which Excel function counts all cells with numbers, text, and errors?",
+    "options": ["COUNT()", "COUNTA()", "COUNTIF()", "COUNTBLANK()"],
+    "answer": 1,
+    "explanation": "COUNTA() includes numbers, text, and error values in the count."
+},
+{
+    "question": "Which option adjusts text to fit the cell width automatically?",
+    "options": ["Wrap Text", "Shrink to Fit", "Merge Cells", "AutoFit"],
+    "answer": 1,
+    "explanation": "Shrink to Fit reduces font size so content fits into the cell."
+},
+{
+    "question": "How do you rename an Excel worksheet?",
+    "options": ["Double-click sheet tab", "Right-click -> Rename", "From Format menu", "All of these"],
+    "answer": 3,
+    "explanation": "You can rename a sheet using all listed methods."
+},
+{
+    "question": "Which key combination applies italic formatting?",
+    "options": ["Ctrl+B", "Ctrl+I", "Ctrl+U", "Ctrl+Shift+I"],
+    "answer": 1,
+    "explanation": "Ctrl+I applies italics to selected text."
+},
+{
+    "question": "Which function returns the current system date and time?",
+    "options": ["NOW()", "TODAY()", "TIME()", "DATE()"],
+    "answer": 0,
+    "explanation": "NOW() returns both current date and time."
+},
+{
+    "question": "How do you select non-adjacent cells in Excel?",
+    "options": ["Click + drag", "Ctrl + Click", "Shift + Click", "Alt + Click"],
+    "answer": 1,
+    "explanation": "Holding Ctrl while clicking allows selecting multiple non-adjacent cells."
+},
+{
+    "question": "Which option in Excel lets you change the background color of a cell?",
+    "options": ["Cell Fill Color", "Text Color", "Border Color", "Theme"],
+    "answer": 0,
+    "explanation": "Cell Fill Color changes the background color of selected cells."
+},
+{
+    "question": "Which Excel option allows applying a predefined color, font, and effect theme?",
+    "options": ["Themes", "Cell Styles", "Templates", "Format Painter"],
+    "answer": 0,
+    "explanation": "Themes apply a coordinated set of colors, fonts, and effects."
+},
+{
+    "question": "How can you quickly insert the current date into a cell?",
+    "options": ["Ctrl+D", "Ctrl+;", "Ctrl+Shift+;", "Alt+D"],
+    "answer": 1,
+    "explanation": "Ctrl+; inserts the current date."
+},
+{
+    "question": "Which Excel shortcut key is used to create a new worksheet?",
+    "options": ["Shift+F11", "Ctrl+N", "Ctrl+Shift+N", "Ctrl+W"],
+    "answer": 0,
+    "explanation": "Shift+F11 quickly inserts a new worksheet in the current workbook."
+},
+{
+    "question": "What is the default alignment of numbers in Excel?",
+    "options": ["Left", "Center", "Right", "Justify"],
+    "answer": 2,
+    "explanation": "Numbers are aligned to the right by default in Excel."
+},
+{
+    "question": "Which feature automatically fills in values based on patterns?",
+    "options": ["AutoFill", "AutoFit", "AutoCorrect", "AutoComplete"],
+    "answer": 0,
+    "explanation": "AutoFill continues a sequence or pattern automatically in adjacent cells."
+},
+{
+    "question": "Which Excel function would you use to find the average of numbers in a range?",
+    "options": ["SUM()", "AVERAGE()", "COUNT()", "COUNTA()"],
+    "answer": 1,
+    "explanation": "AVERAGE() calculates the arithmetic mean of numbers in a range."
+},
+{
+    "question": "How do you access the Format Cells dialog box quickly?",
+    "options": ["Ctrl+Shift+F", "Ctrl+1", "F12", "Alt+F1"],
+    "answer": 1,
+    "explanation": "Pressing Ctrl+1 opens the Format Cells dialog box."
+},
+{
+    "question": "Which tool would you use to remove duplicate entries from a dataset?",
+    "options": ["Remove Duplicates", "Filter", "Sort", "Clear"],
+    "answer": 0,
+    "explanation": "The Remove Duplicates command under the Data tab removes duplicate values from a selection."
+},
+{
+    "question": "How can you make the column width fit its content automatically?",
+    "options": ["Double-click the column border", "Use AutoFit", "Home -> Format -> AutoFit Column Width", "All of these"],
+    "answer": 3,
+    "explanation": "Any of these methods will set the column width to fit its content."
+},
+{
+    "question": "Which Excel chart type is most suitable for displaying trends?",
+    "options": ["Pie Chart", "Line Chart", "Doughnut Chart", "Scatter Chart"],
+    "answer": 1,
+    "explanation": "Line charts are ideal for showing trends over time."
+},
+{
+    "question": "What is the shortcut to bold selected text in Excel?",
+    "options": ["Ctrl+U", "Ctrl+B", "Ctrl+I", "Ctrl+Shift+B"],
+    "answer": 1,
+    "explanation": "Ctrl+B applies or removes bold formatting."
+},
+{
+    "question": "Which Excel function displays the current system time?",
+    "options": ["NOW()", "TODAY()", "TIME()", "DATE()"],
+    "answer": 0,
+    "explanation": "NOW() displays the current date and time from system settings."
+},
+{
+    "question": "Which cell reference remains fixed when copied to another cell?",
+    "options": ["Relative reference", "Absolute reference", "Mixed reference", "Dynamic reference"],
+    "answer": 1,
+    "explanation": "An absolute reference (e.g., $A$1) stays constant when the formula is copied."
+},
+{
+    "question": "In Excel, what does the Wrap Text option do?",
+    "options": ["Centers text", "Aligns text vertically", "Displays long text in multiple lines within a cell", "Shrinks text to fit"],
+    "answer": 2,
+    "explanation": "Wrap Text breaks long text into multiple lines to fit the cell width."
+},
+{
+    "question": "Which tab contains the Sort & Filter commands?",
+    "options": ["Home", "Insert", "Data", "Review"],
+    "answer": 2,
+    "explanation": "The Data tab includes Sort & Filter tools."
+},
+{
+    "question": "Which key combination is used to cut selected cells in Excel?",
+    "options": ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Shift+X"],
+    "answer": 2,
+    "explanation": "Ctrl+X cuts the selected cells for moving to another location."
+},
+{
+    "question": "What is the default file format for Excel 2016 workbooks?",
+    "options": [".xls", ".xlsx", ".csv", ".xlsm"],
+    "answer": 1,
+    "explanation": "Excel 2007 and later versions save workbooks in .xlsx format by default."
+},
+{
+    "question": "Which function counts only empty cells in a range?",
+    "options": ["COUNT()", "COUNTA()", "COUNTBLANK()", "COUNTIF()"],
+    "answer": 2,
+    "explanation": "COUNTBLANK() counts the number of empty cells in the given range."
+},
+{
+    "question": "Which Excel feature allows you to convert a range into a table with filters and formatting?",
+    "options": ["Insert Table", "Format as Table", "Data Table", "Table Style"],
+    "answer": 1,
+    "explanation": "'Format as Table' applies table styling, filters, and structured references."
+},
+{
+    "question": "Which function returns the largest value from a range?",
+    "options": ["MAX()", "LARGE()", "TOP()", "HIGH()"],
+    "answer": 0,
+    "explanation": "MAX() identifies the highest numeric value in a specified range."
+},
+{
+    "question": "What is the shortcut to apply underline to selected text in Excel?",
+    "options": ["Ctrl+L", "Ctrl+U", "Ctrl+Shift+U", "Ctrl+Alt+U"],
+    "answer": 1,
+    "explanation": "Ctrl+U applies or removes underline formatting."
+},
+{
+    "question": "Which chart type uses horizontal bars to compare values?",
+    "options": ["Line Chart", "Bar Chart", "Pie Chart", "Scatter Chart"],
+    "answer": 1,
+    "explanation": "A bar chart uses horizontal bars to represent comparative values."
+},
+{
+    "question": "Which formula finds the sum of cells A1 to A10?",
+    "options": ["=ADD(A1:A10)", "=SUM(A1:A10)", "=TOTAL(A1:A10)", "=COMBINE(A1:A10)"],
+    "answer": 1,
+    "explanation": "The SUM function adds together all numbers in the specified range."
+},
+{
+    "question": "Which Excel view previews how a sheet will look when printed?",
+    "options": ["Page Layout View", "Page Break Preview", "Normal View", "Custom View"],
+    "answer": 0,
+    "explanation": "Page Layout View shows margins, headers, and actual print layout."
+},
+{
+    "question": "Which shortcut key opens the Save As dialog?",
+    "options": ["Ctrl+S", "F12", "Ctrl+Shift+S", "Alt+S"],
+    "answer": 1,
+    "explanation": "F12 opens the Save As dialog box to save the file with a new name or format."
+},
+{
+    "question": "Which feature visually highlights cells based on their values?",
+    "options": ["Themes", "Conditional Formatting", "Data Validation", "Cell Styles"],
+    "answer": 1,
+    "explanation": "Conditional Formatting changes cell format based on conditions."
+},
+{
+    "question": "How do you start editing an active cell without using the mouse?",
+    "options": ["Press F2", "Press Enter", "Press Esc", "Press Tab"],
+    "answer": 0,
+    "explanation": "F2 starts in-cell editing for the selected cell."
+},
+{
+    "question": "Which tab in Excel contains the PivotTable command?",
+    "options": ["Insert", "Data", "Home", "Review"],
+    "answer": 0,
+    "explanation": "The PivotTable command is found in the Insert tab."
+},
+{
+    "question": "Which function returns the smallest numeric value in a range?",
+    "options": ["MIN()", "LOW()", "LEAST()", "SMALL()"],
+    "answer": 0,
+    "explanation": "MIN() identifies the lowest numeric value in a range."
+},
+{
+    "question": "Which chart type is best for showing proportions of categories?",
+    "options": ["Pie Chart", "Line Chart", "Column Chart", "Bar Chart"],
+    "answer": 0,
+    "explanation": "Pie charts are ideal for showing proportions in a dataset."
+},
+{
+    "question": "What is the intersection of a column and a row called?",
+    "options": ["Cell", "Range", "Table", "Block"],
+    "answer": 0,
+    "explanation": "A cell is the point where a column and a row meet."
+},
+{
+    "question": "Which shortcut selects all cells in the current worksheet?",
+    "options": ["Ctrl+A", "Ctrl+C", "Shift+A", "Alt+A"],
+    "answer": 0,
+    "explanation": "Ctrl+A selects the entire worksheet content."
+},
+{
+    "question": "Which function displays the number of numeric values in a range?",
+    "options": ["COUNT()", "COUNTA()", "COUNTBLANK()", "COUNTIF()"],
+    "answer": 0,
+    "explanation": "COUNT() counts only numeric entries in a specified range."
+},
+{
+    "question": "Where are the Zoom controls located in Excel?",
+    "options": ["On the Status Bar", "On the Home Tab", "In the Data Tab", "In the View Tab only"],
+    "answer": 0,
+    "explanation": "Zoom controls are available at the bottom right on the Status Bar."
+},
+{
+    "question": "Which tool is used to quickly copy formatting from one cell to another?",
+    "options": ["Format Painter", "Copy Tool", "Clone Style", "Style Brush"],
+    "answer": 0,
+    "explanation": "Format Painter copies formatting and applies it to another cell."
+},
+{
+    "question": "Which option allows you to lock the top row while scrolling?",
+    "options": ["Split", "Freeze Panes -> Freeze Top Row", "View Lock", "Table Header Lock"],
+    "answer": 1,
+    "explanation": "The Freeze Top Row option under Freeze Panes keeps the top row visible."
+},
+{
+    "question": "Which option is used to join text from two different cells?",
+    "options": ["Combine Cells", "Concatenate", "Merge", "Join Cells"],
+    "answer": 1,
+    "explanation": "CONCATENATE (or &) merges text from multiple cells."
+},
+{
+    "question": "Which part of Excel displays the content of the active cell?",
+    "options": ["Name Box", "Formula Bar", "Status Bar", "Title Bar"],
+    "answer": 1,
+    "explanation": "The Formula Bar shows the cell's content or formula."
+},
+{
+    "question": "Which shortcut key applies italic formatting to selected text?",
+    "options": ["Ctrl+U", "Ctrl+B", "Ctrl+I", "Ctrl+Shift+I"],
+    "answer": 2,
+    "explanation": "Ctrl+I italicizes the selected text."
+},
+{
+    "question": "How do you delete the contents of selected cells without removing the cells?",
+    "options": ["Press Delete key", "Press Backspace key", "Clear All", "All of these"],
+    "answer": 3,
+    "explanation": "You can remove cell content with Delete, Backspace, or Home -> Clear."
+},
+{
+    "question": "Which Excel tool splits a cell's content into separate columns?",
+    "options": ["Text to Columns", "Split Cells", "Separate Tool", "Data Splitter"],
+    "answer": 0,
+    "explanation": "The Text to Columns feature in the Data tab separates content into columns."
+},
+{
+    "question": "Which key combination is used to open the Save As dialog in Excel?",
+    "options": ["Ctrl+S", "F12", "Ctrl+Shift+S", "Alt+S"],
+    "answer": 1,
+    "explanation": "Pressing F12 opens the Save As dialog where you can choose the file name and format."
+},
+{
+    "question": "What is the default font in Excel 2019?",
+    "options": ["Arial", "Calibri", "Times New Roman", "Cambria"],
+    "answer": 1,
+    "explanation": "The default font for Excel 2019 is Calibri."
+},
+{
+    "question": "Which tool in Excel can be used to change cell background color?",
+    "options": ["Fill Color", "Font Color", "Cell Theme", "Highlight"],
+    "answer": 0,
+    "explanation": "The Fill Color tool changes the background color of selected cells."
+},
+{
+    "question": "What is the default alignment for text in Excel cells?",
+    "options": ["Right", "Left", "Center", "Justify"],
+    "answer": 1,
+    "explanation": "Text is left-aligned in Excel by default."
+},
+{
+    "question": "Which menu option is used to insert a chart in Excel?",
+    "options": ["Data", "Insert", "Home", "Review"],
+    "answer": 1,
+    "explanation": "The Insert tab contains options to create charts."
+},
+{
+    "question": "Which shortcut key closes the Excel application?",
+    "options": ["Ctrl+Q", "Alt+F4", "Ctrl+W", "Ctrl+Shift+Q"],
+    "answer": 1,
+    "explanation": "Alt+F4 closes the Excel application."
+},
+{
+    "question": "Which function is used to count the number of numeric entries in a range?",
+    "options": ["COUNT()", "COUNTA()", "COUNTIF()", "COUNTNUM()"],
+    "answer": 0,
+    "explanation": "COUNT() counts only numeric values in the specified range."
+},
+{
+    "question": "Which action merges multiple selected cells into one?",
+    "options": ["Merge & Center", "Wrap Text", "Align Center", "Combine Cells"],
+    "answer": 0,
+    "explanation": "Merge & Center merges cells into one and centers the text."
+},
+{
+    "question": "Which chart is best for visualizing parts of a whole?",
+    "options": ["Pie Chart", "Line Chart", "Column Chart", "Scatter Chart"],
+    "answer": 0,
+    "explanation": "Pie charts display proportions of a whole."
+},
+{
+    "question": "Which key combination is used to apply bold formatting?",
+    "options": ["Ctrl+U", "Ctrl+B", "Ctrl+I", "Ctrl+Shift+B"],
+    "answer": 1,
+    "explanation": "Ctrl+B applies or removes bold formatting."
+},
+{
+    "question": "How can you quickly zoom in or out in Excel?",
+    "options": ["Zoom control", "Ctrl + Mouse Scroll", "View tab -> Zoom", "All of these"],
+    "answer": 3,
+    "explanation": "All methods allow you to change zoom level."
+},
+{
+    "question": "Which function will return today's date?",
+    "options": ["=NOW()", "=DATE()", "=TODAY()", "=TIME()"],
+    "answer": 2,
+    "explanation": "=TODAY() returns the current date without the time."
+},
+{
+    "question": "What does the shortcut Ctrl+P do?",
+    "options": ["Paste", "Print", "Page Setup", "Protect Sheet"],
+    "answer": 1,
+    "explanation": "Ctrl+P opens the Print dialog box."
+},
+{
+    "question": "Which Excel feature automatically adjusts a cell's width to fit its contents?",
+    "options": ["AutoSize", "AutoFit", "Resize", "Adjust Width"],
+    "answer": 1,
+    "explanation": "AutoFit adjusts the column width to match its contents."
+},
+{
+    "question": "Which tool lets you fill cells with a series of dates or numbers?",
+    "options": ["Series Fill", "AutoFill", "Fill Options", "Data Fill"],
+    "answer": 1,
+    "explanation": "AutoFill fills cells with a sequential pattern based on starting values."
+},
+{
+    "question": "Which shortcut key is used to select the entire row of the active cell?",
+    "options": ["Shift+Space", "Ctrl+Space", "Ctrl+A", "Alt+Space"],
+    "answer": 0,
+    "explanation": "Shift+Space selects the whole row of the active cell."
+},
+{
+    "question": "Which Excel tab contains cell formatting options such as font and alignment?",
+    "options": ["Home", "Insert", "Data", "View"],
+    "answer": 0,
+    "explanation": "The Home tab includes formatting tools for font, alignment, and more."
+},
+{
+    "question": "Which method can be used to rename a worksheet?",
+    "options": ["Double-click the sheet tab", "Right-click and select Rename", "Format menu option", "All of these"],
+    "answer": 3,
+    "explanation": "All listed methods can rename a worksheet."
+},
+{
+    "question": "Which feature is used to color alternate rows for better readability?",
+    "options": ["Cell Fill", "Table Design", "Conditional Formatting", "Alternate Color Tool"],
+    "answer": 1,
+    "explanation": "Excel Tables can automatically format alternate rows using Table Design."
+},
+{
+    "question": "Which function in Excel counts the number of cells with any data?",
+    "options": ["COUNT()", "COUNTA()", "COUNTIF()", "COUNTBLANK()"],
+    "answer": 1,
+    "explanation": "COUNTA() counts all non-empty cells."
+},
+{
+    "question": "What does pressing F2 in Excel do?",
+    "options": ["Saves workbook", "Edits the active cell", "Opens Find dialog", "Refreshes data"],
+    "answer": 1,
+    "explanation": "F2 puts the active cell in edit mode."
+},
+{
+    "question": "Which tab in Excel is used to insert PivotTables?",
+    "options": ["Data", "Insert", "Formulas", "Review"],
+    "answer": 1,
+    "explanation": "PivotTable options are available in the Insert tab."
+},
+{
+    "question": "Which function returns the smallest number in a range?",
+    "options": ["MIN()", "SMALL()", "LOW()", "LEAST()"],
+    "answer": 0,
+    "explanation": "MIN() returns the lowest numeric value from a range."
+},
+{
+    "question": "Which file format is used for Excel template files?",
+    "options": [".xlsx", ".xltx", ".xls", ".csv"],
+    "answer": 1,
+    "explanation": ".xltx is the default extension for Excel templates."
+},
+{
+    "question": "How do you insert a new column in Excel?",
+    "options": ["Select a column -> Right-click -> Insert", "Insert from Home tab", "Ctrl+Shift+Plus", "All of these"],
+    "answer": 3,
+    "explanation": "All these methods insert a new column."
+},
+{
+    "question": "Which Excel feature keeps row or column headings visible while scrolling?",
+    "options": ["Split", "Freeze Panes", "Lock View", "Anchor"],
+    "answer": 1,
+    "explanation": "Freeze Panes keeps headings visible while navigating."
+},
+{
+    "question": "What does Ctrl+Z do in Excel?",
+    "options": ["Redo", "Undo", "Zoom Out", "Select All"],
+    "answer": 1,
+    "explanation": "Ctrl+Z undoes the last action."
+},
+{
+    "question": "What is the use of the Merge & Center option?",
+    "options": ["Combine text", "Merge cells and center content", "Center only", "Combine formatting"],
+    "answer": 1,
+    "explanation": "Merge & Center merges selected cells and centers the text."
+},
+{
+    "question": "Which command changes the background color of a cell?",
+    "options": ["Font Color", "Fill Color", "Highlight", "Style Color"],
+    "answer": 1,
+    "explanation": "Fill Color is used to change the background color of a cell."
+},
+{
+    "question": "Which function in Excel adds up selected values?",
+    "options": ["SUM()", "ADD()", "TOTAL()", "PLUS()"],
+    "answer": 0,
+    "explanation": "SUM() is used to add values in one or more ranges."
+},
+{
+    "question": "What does the 'Wrap Text' option do?",
+    "options": ["Merge cells", "Display long text on multiple lines", "Change font size", "Center text"],
+    "answer": 1,
+    "explanation": "Wrap Text displays all cell content on multiple lines within a cell."
+},
+{
+    "question": "Which key quits Excel?",
+    "options": ["Ctrl+Q", "Alt+F4", "Ctrl+Alt+F4", "Shift+F4"],
+    "answer": 1,
+    "explanation": "Alt+F4 closes Excel completely."
+},
+{
+    "question": "How can you insert the current date into a cell?",
+    "options": ["Ctrl+Shift+;", "Ctrl+;", "Ctrl+D", "Ctrl+Alt+D"],
+    "answer": 1,
+    "explanation": "Ctrl+; inserts the current date."
+},
+{
+    "question": "How do you make text italic in Excel?",
+    "options": ["Ctrl+B", "Ctrl+U", "Ctrl+I", "Ctrl+Shift+I"],
+    "answer": 2,
+    "explanation": "Ctrl+I makes the selected text italic."
+},
+{
+    "question": "Which key shortcut saves an Excel file?",
+    "options": ["Ctrl+N", "Ctrl+S", "Ctrl+P", "Ctrl+O"],
+    "answer": 1,
+    "explanation": "Ctrl+S saves the active workbook."
+},
+{
+    "question": "Which function displays the number of rows in a table or range?",
+    "options": ["ROWS()", "ROW()", "COUNT()", "COUNTIF()"],
+    "answer": 0,
+    "explanation": "ROWS() returns the total number of rows in a reference."
+},
+{
+    "question": "Which tab contains the 'Remove Duplicates' button?",
+    "options": ["Home", "Data", "Insert", "Review"],
+    "answer": 1,
+    "explanation": "Remove Duplicates is found on the Data tab."
+},
+{
+    "question": "Which shortcut opens the Find and Replace dialog?",
+    "options": ["Ctrl+F", "Ctrl+H", "Ctrl+Shift+F", "Alt+H"],
+    "answer": 1,
+    "explanation": "Ctrl+H opens the Replace tab in the Find and Replace dialog."
+},
+{
+    "question": "How do you insert a comment in Excel?",
+    "options": ["Shift+F2", "F2", "Alt+I+C", "Ctrl+Shift+C"],
+    "answer": 0,
+    "explanation": "Shift+F2 inserts or edits a comment for the active cell."
+},
+{
+    "question": "What does the Clear Formats option do?",
+    "options": ["Removes cell data", "Removes formatting only", "Resets formula", "Deletes the cell"],
+    "answer": 1,
+    "explanation": "Clear Formats removes all formatting but leaves the content intact."
+},
+{
+    "question": "How do you insert a new row?",
+    "options": ["Right-click row header -> Insert", "Ctrl+Shift++", "Home tab -> Insert", "All of these"],
+    "answer": 3,
+    "explanation": "All the listed methods can be used to insert a row."
+},
+{
+    "question": "Which Excel feature can create drop-down lists?",
+    "options": ["Data Validation", "Conditional Formatting", "Table Formatting", "AutoComplete"],
+    "answer": 0,
+    "explanation": "Data Validation can be set to allow a drop-down list of values."
+},
+{
+    "question": "Which view shows how the page will be divided for printing?",
+    "options": ["Normal View", "Page Layout View", "Page Break Preview", "Custom View"],
+    "answer": 2,
+    "explanation": "Page Break Preview shows how data fits into pages for printing."
+},
+{
+    "question": "Which shortcut refreshes data from external sources?",
+    "options": ["Ctrl+F5", "F5", "F9", "Ctrl+Alt+F5"],
+    "answer": 3,
+    "explanation": "Ctrl+Alt+F5 refreshes all data connections."
+},
+{
+    "question": "In Excel, what will the formula =SUM(2,3,TRUE) return?",
+    "options": ["5", "6", "Error", "True"],
+    "answer": 1,
+    "explanation": "TRUE is treated as 1 in Excel calculations, so 2+3+1 = 6."
+},
+{
+    "question": "If cell A1 contains the text '123' (stored as text), what will =ISNUMBER(A1) return?",
+    "options": ["TRUE", "FALSE", "123", "Error"],
+    "answer": 1,
+    "explanation": "ISNUMBER() returns FALSE because '123' is stored as text, not as a number."
+},
+{
+    "question": "Which of these formulas will correctly return the number of characters in cell A1 including spaces?",
+    "options": ["=LEN(A1)", "=LENGTH(A1)", "=COUNTA(A1)", "=COUNT(A1)"],
+    "answer": 0,
+    "explanation": "LEN() counts all characters including spaces; LENGTH() is not a valid Excel function."
+},
+{
+    "question": "What will =TRIM(\" Excel   Basics \") return?",
+    "options": ["Excel Basics", " Excel Basics ", "Excel   Basics", "ExcelBasics"],
+    "answer": 0,
+    "explanation": "TRIM removes all extra spaces except single spaces between words."
+},
+{
+    "question": "Which formula would give the value in cell B1 if A1 equals 100, otherwise 0?",
+    "options": ["=IF(A1=100,B1,0)", "=IF(A1=100,0,B1)", "=IF(B1=100,A1,0)", "=IF(100=A1,0,B1)"],
+    "answer": 0,
+    "explanation": "IF(A1=100,B1,0) checks if A1=100; if true, returns B1; if false, returns 0."
+},
+{
+    "question": "If you type =A1=10 into a blank cell, what will Excel display?",
+    "options": ["TRUE or FALSE", "10", "A1 value", "Error"],
+    "answer": 0,
+    "explanation": "The formula checks if A1 equals 10 and returns TRUE or FALSE."
+},
+{
+    "question": "What is the result of =ROUND(123.456,1)?",
+    "options": ["123.4", "123.5", "123", "124"],
+    "answer": 1,
+    "explanation": "Rounded to 1 decimal place, 123.456 becomes 123.5."
+},
+{
+    "question": "If a column width is too narrow for a date value, what will Excel display?",
+    "options": ["###", "0", "Blank cell", "Error"],
+    "answer": 0,
+    "explanation": "When column width is insufficient, Excel shows ###."
+},
+{
+    "question": "What will =TEXT(0.5,\"0%\") return?",
+    "options": ["50%", "0.5", "0%", "5%"],
+    "answer": 0,
+    "explanation": "TEXT formats 0.5 as a percentage, which is 50%."
+},
+{
+    "question": "Which function will ignore text values when calculating an average?",
+    "options": ["AVERAGE()", "AVERAGEA()", "AVERAGEIF()", "Mean()"],
+    "answer": 0,
+    "explanation": "AVERAGE() ignores text and blank cells; AVERAGEA() includes text as 0."
+},
+{
+    "question": "If B1 is blank, what will =ISBLANK(B1) return?",
+    "options": ["TRUE", "FALSE", "Blank", "0"],
+    "answer": 0,
+    "explanation": "ISBLANK() returns TRUE if the cell is completely empty."
+},
+{
+    "question": "In Excel, what is the difference between =NOW() and =TODAY()?",
+    "options": ["NOW shows current time only, TODAY shows current date only", "NOW shows current date and time, TODAY shows date only", "Both show current date only", "NOW shows current date only, TODAY shows time only"],
+    "answer": 1,
+    "explanation": "NOW() includes date and time; TODAY() returns only date."
+},
+{
+    "question": "What will COUNTBLANK() count?",
+    "options": ["Only empty cells", "Empty and cells with spaces", "Only text cells", "Only error cells"],
+    "answer": 0,
+    "explanation": "COUNTBLANK() counts truly empty cells; a space character means it's not blank."
+},
+{
+    "question": "Which function will extract just the month from a date in cell A1?",
+    "options": ["=MONTH(A1)", "=TEXT(A1,\"MM\")", "Both 1 and 2", "=DATE(A1)"],
+    "answer": 2,
+    "explanation": "Both MONTH() and TEXT() with format MM can extract the month."
+},
+{
+    "question": "What is the result of =5+TRUE in Excel?",
+    "options": ["6", "5", "Error", "TRUE"],
+    "answer": 0,
+    "explanation": "TRUE is treated as 1 in calculations, so 5+1=6."
+},
+{
+    "question": "What happens if you enter 00123 in a cell formatted as General?",
+    "options": ["00123", "123", "0.00123", "Error"],
+    "answer": 1,
+    "explanation": "Excel removes leading zeros for numbers in General format."
+},
+{
+    "question": "Which Excel feature lets you show only rows that meet a condition?",
+    "options": ["Filter", "Sort", "Conditional Formatting", "Data Validation"],
+    "answer": 0,
+    "explanation": "Filter hides rows that do not meet the specified criteria."
+},
+{
+    "question": "If A1=10 and you type =\"The value is \"&A1, what will be displayed?",
+    "options": ["The value is &A1", "The value is 10", "10", "Error"],
+    "answer": 1,
+    "explanation": "The & operator concatenates text and numbers, producing 'The value is 10'."
+},
+{
+    "question": "Which chart will best display a contribution of each part to a total?",
+    "options": ["Column", "Pie", "Line", "Scatter"],
+    "answer": 1,
+    "explanation": "Pie charts show each category's contribution to a total."
+},
+{
+    "question": "What will =LEN(\" Excel \") return?",
+    "options": ["5", "6", "7", "8"],
+    "answer": 2,
+    "explanation": "LEN counts all characters including spaces. ' Excel ' has 7 characters."
+},
+{
+    "question": "Which keyboard shortcut will quickly select the entire column of the active cell?",
+    "options": ["Shift+Space", "Ctrl+Space", "Ctrl+A", "Ctrl+Shift+Space"],
+    "answer": 1,
+    "explanation": "Ctrl+Space selects the entire column containing the active cell."
+},
+{
+    "question": "What will the function =ABS(-15) return?",
+    "options": ["-15", "15", "0", "Error"],
+    "answer": 1,
+    "explanation": "ABS() returns the absolute value, removing the sign."
+},
+{
+    "question": "If cell A1 has 'Excel ' (with a trailing space), what will LEN(TRIM(A1)) return?",
+    "options": ["5", "6", "Error", "No change"],
+    "answer": 0,
+    "explanation": "TRIM removes extra spaces, so 'Excel' has 5 letters."
+},
+{
+    "question": "If you want a cell to always show the current date automatically, which function should you use?",
+    "options": ["DATE()", "NOW()", "TODAY()", "TIME()"],
+    "answer": 2,
+    "explanation": "TODAY() updates to the current date automatically whenever the sheet recalculates."
+}
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

@@ -1,0 +1,5252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phrasal Verbs Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Phrasal Verbs</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+
+    {
+        "question": "She decided to _______ smoking after her health started deteriorating.",
+        "options": [
+            "give in",
+            "give up",
+            "give away",
+            "give off"
+        ],
+        "answer": 1,
+        "explanation": "'Give up' means to stop doing something."
+    },
+    {
+        "question": "The teacher asked us to _______ our assignments by next week.",
+        "options": [
+            "hand out",
+            "hand over",
+            "hand in",
+            "hand down"
+        ],
+        "answer": 2,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "The mayor promised to _______ pollution in the city.",
+        "options": [
+            "cut off",
+            "cut back on",
+            "cut out",
+            "cut down"
+        ],
+        "answer": 3,
+        "explanation": "'Cut down' means to reduce."
+    },
+    {
+        "question": "Can you _______ the meeting till Monday?",
+        "options": [
+            "put out",
+            "put off",
+            "put up",
+            "put aside"
+        ],
+        "answer": 1,
+        "explanation": "'Put off' means to postpone."
+    },
+    {
+        "question": "I cannot _______ what the speaker said due to the noise.",
+        "options": [
+            "make over",
+            "make up",
+            "make out",
+            "make for"
+        ],
+        "answer": 2,
+        "explanation": "'Make out' means to understand or discern."
+    },
+    {
+        "question": "It took him years to _______ the loss of his pet.",
+        "options": [
+            "get up",
+            "get over",
+            "get by",
+            "get through"
+        ],
+        "answer": 1,
+        "explanation": "'Get over' means to recover from."
+    },
+    {
+        "question": "She will _______ the new project from tomorrow.",
+        "options": [
+            "take off",
+            "take up",
+            "take in",
+            "take on"
+        ],
+        "answer": 1,
+        "explanation": "'Take up' means to start something new."
+    },
+    {
+        "question": "The manager asked everyone to _______ on the main issue.",
+        "options": [
+            "focus in",
+            "focus out",
+            "focus on",
+            "focus up"
+        ],
+        "answer": 2,
+        "explanation": "'Focus on' means to concentrate on."
+    },
+    {
+        "question": "We had to _______ the party due to heavy rain.",
+        "options": [
+            "call in",
+            "call off",
+            "call up",
+            "call away"
+        ],
+        "answer": 1,
+        "explanation": "'Call off' means to cancel."
+    },
+    {
+        "question": "She always _______ her old friends on her birthday.",
+        "options": [
+            "looks after",
+            "looks in",
+            "looks up",
+            "looks back"
+        ],
+        "answer": 2,
+        "explanation": "'Look up' means to visit or search for."
+    },
+    {
+        "question": "The child _______ his grandmother during illness.",
+        "options": [
+            "turned up",
+            "looked after",
+            "came across",
+            "gave in"
+        ],
+        "answer": 1,
+        "explanation": "'Look after' means to take care of."
+    },
+    {
+        "question": "After a long journey, the tourists _______ at the hotel.",
+        "options": [
+            "checked out",
+            "checked off",
+            "checked in",
+            "checked on"
+        ],
+        "answer": 2,
+        "explanation": "'Check in' means to register (at hotel, airport)."
+    },
+    {
+        "question": "He often _______ his notes before the exam.",
+        "options": [
+            "brushes up",
+            "brushes out",
+            "brushes off",
+            "brushes in"
+        ],
+        "answer": 0,
+        "explanation": "'Brush up' means to improve or refresh knowledge."
+    },
+    {
+        "question": "The criminal tried to _______ from the police.",
+        "options": [
+            "run out",
+            "run off",
+            "run on",
+            "run by"
+        ],
+        "answer": 1,
+        "explanation": "'Run off' means to escape."
+    },
+    {
+        "question": "Our plans might _______ due to unexpected problems.",
+        "options": [
+            "fall through",
+            "fall on",
+            "fall over",
+            "fall by"
+        ],
+        "answer": 0,
+        "explanation": "'Fall through' means to fail or not happen."
+    },
+    {
+        "question": "He was asked to _______ the form before joining.",
+        "options": [
+            "fill in",
+            "fill up",
+            "fill out",
+            "fill down"
+        ],
+        "answer": 2,
+        "explanation": "'Fill out' means to complete (a form/application)."
+    },
+    {
+        "question": "Rather than argue, she decided to _______ and accept the decision.",
+        "options": [
+            "give out",
+            "give off",
+            "give away",
+            "give in"
+        ],
+        "answer": 3,
+        "explanation": "'Give in' means to surrender or yield."
+    },
+    {
+        "question": "Can you _______ your ideas with some evidence?",
+        "options": [
+            "bear up",
+            "bear with",
+            "bear down",
+            "bear out"
+        ],
+        "answer": 3,
+        "explanation": "'Bear out' means to support or confirm."
+    },
+    {
+        "question": "Children love to _______ as superheroes on Halloween.",
+        "options": [
+            "dress out",
+            "dress in",
+            "dress up",
+            "dress down"
+        ],
+        "answer": 2,
+        "explanation": "'Dress up' means to wear special clothes."
+    },
+    {
+        "question": "She _______ her illness and gave a great presentation.",
+        "options": [
+            "got over",
+            "got by",
+            "got off",
+            "got in"
+        ],
+        "answer": 0,
+        "explanation": "'Get over' means to recover from."
+    },
+    {
+        "question": "We need to _______ the bad habits to lead a healthy life.",
+        "options": [
+            "cut down",
+            "cut up",
+            "cut in",
+            "cut out"
+        ],
+        "answer": 3,
+        "explanation": "'Cut out' means to stop doing something."
+    },
+    {
+        "question": "He _______ an excuse for being late.",
+        "options": [
+            "made out",
+            "made up",
+            "made off",
+            "made in"
+        ],
+        "answer": 1,
+        "explanation": "'Make up' means to invent or fabricate."
+    },
+    {
+        "question": "My parents will never _______ with my decision to move abroad.",
+        "options": [
+            "go along",
+            "go up",
+            "go over",
+            "go in"
+        ],
+        "answer": 0,
+        "explanation": "'Go along with' means to agree or accept."
+    },
+    {
+        "question": "Due to lack of funds, the project finally _______.",
+        "options": [
+            "gave off",
+            "gave in",
+            "gave up",
+            "gave out"
+        ],
+        "answer": 2,
+        "explanation": "'Give up' means to stop trying."
+    },
+    {
+        "question": "I will _______ the documents to your office tomorrow.",
+        "options": [
+            "drop in",
+            "drop out",
+            "drop over",
+            "drop off"
+        ],
+        "answer": 3,
+        "explanation": "'Drop off' means to deliver."
+    },
+    {
+        "question": "She asked him to _______ his shoes before entering.",
+        "options": [
+            "take in",
+            "take out",
+            "take off",
+            "take on"
+        ],
+        "answer": 2,
+        "explanation": "'Take off' means to remove."
+    },
+    {
+        "question": "He _______ his old classmate at the library yesterday.",
+        "options": [
+            "bumped into",
+            "bumped on",
+            "bumped up",
+            "bumped with"
+        ],
+        "answer": 0,
+        "explanation": "'Bump into' means to meet by accident."
+    },
+    {
+        "question": "She managed to _______ her nerves before the speech.",
+        "options": [
+            "calm up",
+            "calm off",
+            "calm down",
+            "calm over"
+        ],
+        "answer": 2,
+        "explanation": "'Calm down' means to relax."
+    },
+    {
+        "question": "The bank refused to _______ him after the fraud.",
+        "options": [
+            "bank off",
+            "bank on",
+            "bank at",
+            "bank with"
+        ],
+        "answer": 1,
+        "explanation": "'Bank on' means to rely or depend on."
+    },
+    {
+        "question": "The manager _______ the complaint efficiently.",
+        "options": [
+            "dealt with",
+            "dealt in",
+            "dealt out",
+            "dealt up"
+        ],
+        "answer": 0,
+        "explanation": "'Deal with' means to handle."
+    },
+    {
+        "question": "She _______ at the airport two hours before her flight.",
+        "options": [
+            "checked in",
+            "checked out",
+            "checked up",
+            "checked down"
+        ],
+        "answer": 0,
+        "explanation": "'Check in' means to register."
+    },
+    {
+        "question": "The doctor asked him to _______ sugar, as he was diabetic.",
+        "options": [
+            "cut over",
+            "cut out",
+            "cut off",
+            "cut down on"
+        ],
+        "answer": 3,
+        "explanation": "'Cut down on' means to reduce."
+    },
+    {
+        "question": "He tried to _______ the fact that he was scared.",
+        "options": [
+            "cover out",
+            "cover up",
+            "cover in",
+            "cover on"
+        ],
+        "answer": 1,
+        "explanation": "'Cover up' means to hide."
+    },
+    {
+        "question": "She is _______ in for her boss while he is on leave.",
+        "options": [
+            "acting off",
+            "acting on",
+            "acting up",
+            "acting"
+        ],
+        "answer": 3,
+        "explanation": "'Act for' means to work in place of someone."
+    },
+    {
+        "question": "The thieves managed to _______ the police.",
+        "options": [
+            "get out",
+            "get through",
+            "get away from",
+            "get by"
+        ],
+        "answer": 2,
+        "explanation": "'Get away from' means to escape."
+    },
+    {
+        "question": "He always _______ his grandfather for advice.",
+        "options": [
+            "looks on",
+            "looks to",
+            "looks down",
+            "looks about"
+        ],
+        "answer": 1,
+        "explanation": "'Look to' means to depend on."
+    },
+    {
+        "question": "The noise in the hall finally _______ after the speech.",
+        "options": [
+            "died out",
+            "died over",
+            "died off",
+            "died down"
+        ],
+        "answer": 3,
+        "explanation": "'Die down' means to become less strong."
+    },
+    {
+        "question": "She _______ from college to start a business.",
+        "options": [
+            "dropped in",
+            "dropped out",
+            "dropped off",
+            "dropped down"
+        ],
+        "answer": 1,
+        "explanation": "'Drop out' means to leave school without finishing."
+    },
+    {
+        "question": "Scientists will _______ experiments on new medicines.",
+        "options": [
+            "carry up",
+            "carry out",
+            "carry off",
+            "carry over"
+        ],
+        "answer": 1,
+        "explanation": "'Carry out' means to perform."
+    },
+    {
+        "question": "We should _______ junk food for better health.",
+        "options": [
+            "do without",
+            "do within",
+            "do across",
+            "do apart"
+        ],
+        "answer": 0,
+        "explanation": "'Do without' means to manage without."
+    },
+    {
+        "question": "The manager asked us to _______ the outdated policy.",
+        "options": [
+            "do away with",
+            "do off",
+            "do up",
+            "do over"
+        ],
+        "answer": 0,
+        "explanation": "'Do away with' means to get rid of."
+    },
+    {
+        "question": "She suddenly _______ tears during the movie.",
+        "options": [
+            "broke out",
+            "broke off",
+            "broke up",
+            "broke down"
+        ],
+        "answer": 3,
+        "explanation": "'Break down' means to lose control emotionally."
+    },
+    {
+        "question": "He will _______ the new director at the function.",
+        "options": [
+            "call on",
+            "call up",
+            "call in",
+            "call off"
+        ],
+        "answer": 0,
+        "explanation": "'Call on' means to formally invite or request."
+    },
+    {
+        "question": "The witness refused to _______ during questioning.",
+        "options": [
+            "clam up",
+            "clam over",
+            "clam off",
+            "clam on"
+        ],
+        "answer": 0,
+        "explanation": "'Clam up' means to refuse to speak."
+    },
+    {
+        "question": "We _______ on the beach after our journey.",
+        "options": [
+            "ended in",
+            "ended up",
+            "ended out",
+            "ended on"
+        ],
+        "answer": 1,
+        "explanation": "'End up' means to finally reach a state or place."
+    },
+    {
+        "question": "The police asked the suspect to _______ his story with facts.",
+        "options": [
+            "back up",
+            "back off",
+            "back out",
+            "back in"
+        ],
+        "answer": 0,
+        "explanation": "'Back up' means to support."
+    },
+    {
+        "question": "The speaker _______ some important points in her speech.",
+        "options": [
+            "pointed off",
+            "pointed up",
+            "pointed out",
+            "pointed in"
+        ],
+        "answer": 2,
+        "explanation": "'Point out' means to draw attention to."
+    },
+    {
+        "question": "He could not _______ his anger when insulted.",
+        "options": [
+            "hold up",
+            "hold in",
+            "hold off",
+            "hold out"
+        ],
+        "answer": 1,
+        "explanation": "'Hold in' means to control emotions."
+    },
+    {
+        "question": "Many employees _______ holidays from last year.",
+        "options": [
+            "carry in",
+            "carry over",
+            "carry down",
+            "carry around"
+        ],
+        "answer": 1,
+        "explanation": "'Carry over' means to postpone until later."
+    },
+    {
+        "question": "Preeti _______ her old teacher at the mall.",
+        "options": [
+            "came up",
+            "came over",
+            "came across",
+            "came in"
+        ],
+        "answer": 2,
+        "explanation": "'Come across' means to find by chance."
+    },
+    {
+        "question": "The government is planning to _______ new tax reforms.",
+        "options": [
+            "bring in",
+            "bring about",
+            "bring out",
+            "bring off"
+        ],
+        "answer": 1,
+        "explanation": "'Bring about' means to cause something to happen."
+    },
+    {
+        "question": "He _______ his old books to needy children every year.",
+        "options": [
+            "gives out",
+            "gives away",
+            "gives in",
+            "gives up"
+        ],
+        "answer": 1,
+        "explanation": "'Give away' means to distribute something for free."
+    },
+    {
+        "question": "She had to _______ the bad news to the family.",
+        "options": [
+            "break out",
+            "break up",
+            "break down",
+            "break the news"
+        ],
+        "answer": 3,
+        "explanation": "'Break the news' means to tell someone important news."
+    },
+    {
+        "question": "I was _______ by the story he narrated.",
+        "options": [
+            "carried out",
+            "carried away",
+            "carried off",
+            "carried in"
+        ],
+        "answer": 1,
+        "explanation": "'Carried away' means to become overly excited."
+    },
+    {
+        "question": "His business partner tried to _______ him in front of others.",
+        "options": [
+            "run over",
+            "run down",
+            "run up",
+            "run against"
+        ],
+        "answer": 1,
+        "explanation": "'Run down' means to criticize."
+    },
+    {
+        "question": "All participants must _______ for the next round.",
+        "options": [
+            "sign up",
+            "sign in",
+            "sign off",
+            "sign out"
+        ],
+        "answer": 0,
+        "explanation": "'Sign up' means to register."
+    },
+    {
+        "question": "You should _______ the contract carefully before signing.",
+        "options": [
+            "go for",
+            "go out",
+            "go over",
+            "go away"
+        ],
+        "answer": 2,
+        "explanation": "'Go over' means to review or examine."
+    },
+    {
+        "question": "They were able to _______ the truth after much investigation.",
+        "options": [
+            "find up",
+            "find out",
+            "find in",
+            "find off"
+        ],
+        "answer": 1,
+        "explanation": "'Find out' means to discover."
+    },
+    {
+        "question": "She _______ her application for the scholarship.",
+        "options": [
+            "sent out",
+            "sent off",
+            "sent up",
+            "sent in"
+        ],
+        "answer": 3,
+        "explanation": "'Send in' means to submit."
+    },
+    {
+        "question": "All doubts will be _______ in the next class.",
+        "options": [
+            "cleared out",
+            "cleared off",
+            "cleared up",
+            "cleared away"
+        ],
+        "answer": 2,
+        "explanation": "'Clear up' means to resolve."
+    },
+    {
+        "question": "He _______ his work despite challenges.",
+        "options": [
+            "kept on",
+            "kept up",
+            "kept off",
+            "kept out"
+        ],
+        "answer": 0,
+        "explanation": "'Keep on' means to continue."
+    },
+    {
+        "question": "Their marriage _______ after several years.",
+        "options": [
+            "fell in",
+            "fell apart",
+            "fell off",
+            "fell up"
+        ],
+        "answer": 1,
+        "explanation": "'Fall apart' means to break down or collapse."
+    },
+    {
+        "question": "He _______ his brother's advice.",
+        "options": [
+            "acted over",
+            "acted out",
+            "acted up",
+            "acted on"
+        ],
+        "answer": 3,
+        "explanation": "'Act on' means to follow."
+    },
+    {
+        "question": "She _______ the invitations to all her friends.",
+        "options": [
+            "gave up",
+            "gave in",
+            "gave out",
+            "gave away"
+        ],
+        "answer": 2,
+        "explanation": "'Give out' means to distribute."
+    },
+    {
+        "question": "The proposal was _______ after a long discussion.",
+        "options": [
+            "turned up",
+            "turned in",
+            "turned down",
+            "turned on"
+        ],
+        "answer": 2,
+        "explanation": "'Turn down' means to refuse."
+    },
+    {
+        "question": "He managed to _______ under pressure.",
+        "options": [
+            "pull on",
+            "pull through",
+            "pull out",
+            "pull up"
+        ],
+        "answer": 1,
+        "explanation": "'Pull through' means to survive or succeed."
+    },
+    {
+        "question": "She needs to _______ her expenditure.",
+        "options": [
+            "cut down",
+            "cut in",
+            "cut off",
+            "cut for"
+        ],
+        "answer": 0,
+        "explanation": "'Cut down' means to reduce."
+    },
+    {
+        "question": "He asked me to _______ the alarm before leaving.",
+        "options": [
+            "set in",
+            "set up",
+            "set out",
+            "set on"
+        ],
+        "answer": 1,
+        "explanation": "'Set up' means to arrange or establish."
+    },
+    {
+        "question": "They _______ quickly when the fire started.",
+        "options": [
+            "backed in",
+            "backed up",
+            "backed off",
+            "backed out"
+        ],
+        "answer": 2,
+        "explanation": "'Back off' means to retreat."
+    },
+    {
+        "question": "The students _______ major reforms in education.",
+        "options": [
+            "called up",
+            "called for",
+            "called on",
+            "called in"
+        ],
+        "answer": 1,
+        "explanation": "'Call for' means to demand."
+    },
+    {
+        "question": "He _______ to his promise to help me.",
+        "options": [
+            "stood on",
+            "stood by",
+            "stood up",
+            "stood in"
+        ],
+        "answer": 1,
+        "explanation": "'Stand by' means to support or remain loyal."
+    },
+    {
+        "question": "The spy tried to _______ his real identity.",
+        "options": [
+            "pass away",
+            "pass off",
+            "pass out",
+            "pass up"
+        ],
+        "answer": 1,
+        "explanation": "'Pass off' means to pretend to be someone else."
+    },
+    {
+        "question": "She managed to _______ her competitors easily.",
+        "options": [
+            "see off",
+            "see out",
+            "see in",
+            "see over"
+        ],
+        "answer": 0,
+        "explanation": "'See off' means to defeat or drive away."
+    },
+    {
+        "question": "Can you _______ the solution to this math problem?",
+        "options": [
+            "work out",
+            "work up",
+            "work in",
+            "work off"
+        ],
+        "answer": 0,
+        "explanation": "'Work out' means to solve."
+    },
+    {
+        "question": "The situation _______ after the manager arrived.",
+        "options": [
+            "sorted in",
+            "sorted out",
+            "sorted up",
+            "sorted away"
+        ],
+        "answer": 1,
+        "explanation": "'Sort out' means to resolve."
+    },
+    {
+        "question": "The new law will _______ from next month.",
+        "options": [
+            "come on",
+            "come in",
+            "come into force",
+            "come off"
+        ],
+        "answer": 2,
+        "explanation": "'Come into force' means to start to apply."
+    },
+    {
+        "question": "His dedication helped him _______ obstacles.",
+        "options": [
+            "get over",
+            "get out",
+            "get across",
+            "get at"
+        ],
+        "answer": 0,
+        "explanation": "'Get over' means to overcome."
+    },
+    {
+        "question": "She _______ with a brilliant idea.",
+        "options": [
+            "came up",
+            "came out",
+            "came over",
+            "came along"
+        ],
+        "answer": 0,
+        "explanation": "'Come up with' means to suggest or produce."
+    },
+    {
+        "question": "Due to the strike, the workers _______ from their tasks.",
+        "options": [
+            "walked out",
+            "walked in",
+            "walked up",
+            "walked on"
+        ],
+        "answer": 0,
+        "explanation": "'Walk out' means to leave in protest."
+    },
+    {
+        "question": "His rude behavior _______ everyone.",
+        "options": [
+            "put up",
+            "put out",
+            "put off",
+            "put in"
+        ],
+        "answer": 2,
+        "explanation": "'Put off' means to discourage or repel."
+    },
+    {
+        "question": "The rescue team _______ the children from the fire.",
+        "options": [
+            "brought out",
+            "brought off",
+            "brought around",
+            "brought up"
+        ],
+        "answer": 0,
+        "explanation": "'Bring out' means to rescue."
+    },
+    {
+        "question": "We need to _______ plans for the annual festival.",
+        "options": [
+            "draw off",
+            "draw out",
+            "draw up",
+            "draw in"
+        ],
+        "answer": 2,
+        "explanation": "'Draw up' means to prepare documents/plans."
+    },
+    {
+        "question": "He hardly _______ after the accident.",
+        "options": [
+            "pulled up",
+            "pulled through",
+            "pulled in",
+            "pulled off"
+        ],
+        "answer": 1,
+        "explanation": "'Pull through' means to recover."
+    },
+    {
+        "question": "Our team _______ after scoring the first goal.",
+        "options": [
+            "cheered up",
+            "cheered on",
+            "cheered over",
+            "cheered off"
+        ],
+        "answer": 1,
+        "explanation": "'Cheer on' means to encourage."
+    },
+    {
+        "question": "Did you _______ the solution from the report?",
+        "options": [
+            "take up",
+            "take in",
+            "take out",
+            "take over"
+        ],
+        "answer": 1,
+        "explanation": "'Take in' means to understand or absorb."
+    },
+    {
+        "question": "She _______ her appearance for the interview.",
+        "options": [
+            "did up",
+            "did over",
+            "did out",
+            "did away with"
+        ],
+        "answer": 0,
+        "explanation": "'Do up' means to improve or decorate."
+    },
+    {
+        "question": "The robber tried to _______ the police.",
+        "options": [
+            "get away with",
+            "get out",
+            "get by",
+            "get off"
+        ],
+        "answer": 0,
+        "explanation": "'Get away with' means to escape punishment."
+    },
+    {
+        "question": "I will _______ the message to my boss.",
+        "options": [
+            "pass on",
+            "pass by",
+            "pass in",
+            "pass over"
+        ],
+        "answer": 0,
+        "explanation": "'Pass on' means to give."
+    },
+    {
+        "question": "He promised to _______ his mistake.",
+        "options": [
+            "make out",
+            "make up for",
+            "make in",
+            "make off"
+        ],
+        "answer": 1,
+        "explanation": "'Make up for' means to compensate."
+    },
+    {
+        "question": "The train finally _______ after a delay.",
+        "options": [
+            "set in",
+            "set off",
+            "set up",
+            "set out"
+        ],
+        "answer": 1,
+        "explanation": "'Set off' means to begin a journey."
+    },
+    {
+        "question": "Can you _______ the heater? It’s cold.",
+        "options": [
+            "turn up",
+            "turn out",
+            "turn in",
+            "turn on"
+        ],
+        "answer": 3,
+        "explanation": "'Turn on' means to switch on."
+    },
+    {
+        "question": "She _______ all her difficulties with courage.",
+        "options": [
+            "faced out",
+            "faced up to",
+            "faced off",
+            "faced away"
+        ],
+        "answer": 1,
+        "explanation": "'Face up to' means to confront."
+    },
+    {
+        "question": "The inspector asked me to _______ the details.",
+        "options": [
+            "write out",
+            "write down",
+            "write in",
+            "write off"
+        ],
+        "answer": 1,
+        "explanation": "'Write down' means to record."
+    },
+    {
+        "question": "He tried to _______ the importance of the event.",
+        "options": [
+            "play out",
+            "play up",
+            "play down",
+            "play off"
+        ],
+        "answer": 2,
+        "explanation": "'Play down' means to minimize."
+    },
+    {
+        "question": "She _______ the offer for a better job.",
+        "options": [
+            "turned up",
+            "turned down",
+            "turned in",
+            "turned out"
+        ],
+        "answer": 1,
+        "explanation": "'Turn down' means to reject."
+    },
+    {
+        "question": "After losing money, he _______ for help.",
+        "options": [
+            "turned aside",
+            "turned up",
+            "turned in",
+            "turned to"
+        ],
+        "answer": 3,
+        "explanation": "'Turn to' means to seek help."
+    },
+    {
+        "question": "The results will _______ in next week’s meeting.",
+        "options": [
+            "come up",
+            "come out",
+            "come across",
+            "come in"
+        ],
+        "answer": 0,
+        "explanation": "'Come up' means to be mentioned."
+    },
+    {
+        "question": "Did you ____ all the lights before leaving?",
+        "options": [
+            "turn out",
+            "turn up",
+            "turn down",
+            "turn away"
+        ],
+        "answer": 0,
+        "explanation": "'Turn out' means to switch off."
+    },
+    {
+        "question": "He _______ his career after the scandal.",
+        "options": [
+            "gave out",
+            "gave in",
+            "gave up",
+            "gave off"
+        ],
+        "answer": 2,
+        "explanation": "'Give up' means to leave."
+    },
+    {
+        "question": "Disagreements _______ between the leaders.",
+        "options": [
+            "cropped out",
+            "cropped in",
+            "cropped up",
+            "cropped off"
+        ],
+        "answer": 2,
+        "explanation": "'Crop up' means to appear suddenly."
+    },
+    {
+        "question": "She will _______ the new manager in the office.",
+        "options": [
+            "show up",
+            "show in",
+            "show over",
+            "show out"
+        ],
+        "answer": 1,
+        "explanation": "'Show in' means to introduce or escort."
+    },
+    {
+        "question": "How did he _______ the problem?",
+        "options": [
+            "deal in",
+            "deal up",
+            "deal with",
+            "deal by"
+        ],
+        "answer": 2,
+        "explanation": "'Deal with' means to handle."
+    },
+    {
+        "question": "He always _______ his mistakes and learns from them.",
+        "options": [
+            "makes up",
+            "makes out",
+            "makes for",
+            "makes over"
+        ],
+        "answer": 0,
+        "explanation": "'Make up' means to compensate or resolve."
+    },
+    {
+        "question": "The new policy will _______ from January next year.",
+        "options": [
+            "come into effect",
+            "come out",
+            "come across",
+            "come up"
+        ],
+        "answer": 0,
+        "explanation": "'Come into effect' means to start being valid."
+    },
+    {
+        "question": "She _______ her old clothes to charity.",
+        "options": [
+            "hands out",
+            "hands over",
+            "hands in",
+            "hands down"
+        ],
+        "answer": 0,
+        "explanation": "'Hand out' means to distribute."
+    },
+    {
+        "question": "They _______ a plan to improve the system.",
+        "options": [
+            "put forward",
+            "put off",
+            "put up",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put forward' means to propose."
+    },
+    {
+        "question": "The teacher told him to _______ the question carefully.",
+        "options": [
+            "read over",
+            "read on",
+            "read out",
+            "read up"
+        ],
+        "answer": 2,
+        "explanation": "'Read out' means to read aloud."
+    },
+    {
+        "question": "She _______ her fears and spoke confidently.",
+        "options": [
+            "came over",
+            "came down",
+            "came through",
+            "came out"
+        ],
+        "answer": 2,
+        "explanation": "'Come through' means to succeed or survive."
+    },
+    {
+        "question": "The company _______ a new product last week.",
+        "options": [
+            "gave off",
+            "gave out",
+            "came out",
+            "gave away"
+        ],
+        "answer": 2,
+        "explanation": "'Come out' means to launch or release."
+    },
+    {
+        "question": "He _______ the contract before signing it.",
+        "options": [
+            "looked over",
+            "looked up",
+            "looked after",
+            "looked into"
+        ],
+        "answer": 0,
+        "explanation": "'Look over' means to examine."
+    },
+    {
+        "question": "She promised to _______ her parents’ advice.",
+        "options": [
+            "set aside",
+            "set out",
+            "set up",
+            "set in"
+        ],
+        "answer": 0,
+        "explanation": "'Set aside' means to ignore or save for later."
+    },
+    {
+        "question": "I _______ an old friend at the market yesterday.",
+        "options": [
+            "ran into",
+            "ran over",
+            "ran away",
+            "ran across"
+        ],
+        "answer": 0,
+        "explanation": "'Run into' means to meet unexpectedly."
+    },
+    {
+        "question": "We need to _______ the problem quickly.",
+        "options": [
+            "sort out",
+            "sort in",
+            "sort up",
+            "sort off"
+        ],
+        "answer": 0,
+        "explanation": "'Sort out' means to resolve."
+    },
+    {
+        "question": "The plane _______ at 7 pm sharp.",
+        "options": [
+            "took off",
+            "took in",
+            "took up",
+            "took on"
+        ],
+        "answer": 0,
+        "explanation": "'Take off' means to leave the ground."
+    },
+    {
+        "question": "She _______ her work even during illness.",
+        "options": [
+            "carried on",
+            "carried out",
+            "carried in",
+            "carried off"
+        ],
+        "answer": 0,
+        "explanation": "'Carry on' means to continue."
+    },
+    {
+        "question": "They _______ a complaint about the faulty product.",
+        "options": [
+            "made out",
+            "made up",
+            "made off",
+            "made in"
+        ],
+        "answer": 0,
+        "explanation": "'Make out' means to write or complete."
+    },
+    {
+        "question": "He _______ to his promise and helped her.",
+        "options": [
+            "stood by",
+            "stood up",
+            "stood in",
+            "stood over"
+        ],
+        "answer": 0,
+        "explanation": "'Stand by' means to support."
+    },
+    {
+        "question": "The workers _______ work due to the strike.",
+        "options": [
+            "called off",
+            "called on",
+            "called out",
+            "called up"
+        ],
+        "answer": 2,
+        "explanation": "'Call out' means to stop work in protest."
+    },
+    {
+        "question": "She _______ the baby while the mother was away.",
+        "options": [
+            "looked at",
+            "looked after",
+            "looked over",
+            "looked in"
+        ],
+        "answer": 1,
+        "explanation": "'Look after' means to take care of."
+    },
+    {
+        "question": "The bank _______ services early on Sunday.",
+        "options": [
+            "closed down",
+            "closed off",
+            "closed up",
+            "closed in"
+        ],
+        "answer": 0,
+        "explanation": "'Close down' means to stop business."
+    },
+    {
+        "question": "He _______ his old hobbies to spend time with family.",
+        "options": [
+            "gave up",
+            "gave in",
+            "gave out",
+            "gave away"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop doing."
+    },
+    {
+        "question": "Make sure you _______ your time efficiently.",
+        "options": [
+            "set out",
+            "set off",
+            "set up",
+            "set in"
+        ],
+        "answer": 0,
+        "explanation": "'Set out' means to begin a task or journey."
+    },
+    {
+        "question": "They _______ the truth in the investigation.",
+        "options": [
+            "broke out",
+            "found out",
+            "broke down",
+            "found in"
+        ],
+        "answer": 1,
+        "explanation": "'Find out' means to discover."
+    },
+    {
+        "question": "She _______ the letter before mailing it.",
+        "options": [
+            "wrote down",
+            "wrote out",
+            "wrote up",
+            "wrote in"
+        ],
+        "answer": 1,
+        "explanation": "'Write out' means to write something in full."
+    },
+    {
+        "question": "The audience _______ loudly after the performance.",
+        "options": [
+            "clapped up",
+            "clapped out",
+            "clapped down",
+            "clapped on"
+        ],
+        "answer": 1,
+        "explanation": "'Clap out' means to applaud loudly."
+    },
+    {
+        "question": "Please _______ the lights when you leave the room.",
+        "options": [
+            "turn off",
+            "turn on",
+            "turn up",
+            "turn down"
+        ],
+        "answer": 0,
+        "explanation": "'Turn off' means to switch off."
+    },
+    {
+        "question": "The protesters _______ the roads during the march.",
+        "options": [
+            "blocked up",
+            "blocked out",
+            "blocked off",
+            "blocked down"
+        ],
+        "answer": 2,
+        "explanation": "'Block off' means to close a road or area."
+    },
+    {
+        "question": "She _______ her opinions clearly in the meeting.",
+        "options": [
+            "put across",
+            "put aside",
+            "put up",
+            "put away"
+        ],
+        "answer": 0,
+        "explanation": "'Put across' means to communicate."
+    },
+    {
+        "question": "He _______ the team to victory with his skills.",
+        "options": [
+            "led on",
+            "led up",
+            "led through",
+            "led"
+        ],
+        "answer": 3,
+        "explanation": "'Led' means to guide or direct."
+    },
+    {
+        "question": "The festival _______ every year in December.",
+        "options": [
+            "takes up",
+            "takes place",
+            "takes off",
+            "takes on"
+        ],
+        "answer": 1,
+        "explanation": "'Take place' means to happen."
+    },
+    {
+        "question": "She always _______ friendly with newcomers.",
+        "options": [
+            "acts out",
+            "acts up",
+            "acts in",
+            "acts"
+        ],
+        "answer": 3,
+        "explanation": "'Acts' means behaves in a particular way."
+    },
+    {
+        "question": "They _______ the old building to make way for a mall.",
+        "options": [
+            "tore down",
+            "tore up",
+            "tore off",
+            "tore in"
+        ],
+        "answer": 0,
+        "explanation": "'Tore down' means to demolish."
+    },
+    {
+        "question": "He _______ the problem easily with his knowledge.",
+        "options": [
+            "worked out",
+            "worked up",
+            "worked on",
+            "worked off"
+        ],
+        "answer": 0,
+        "explanation": "'Work out' means to solve."
+    },
+    {
+        "question": "She _______ for her mistake and apologized.",
+        "options": [
+            "owned up",
+            "owned out",
+            "owned in",
+            "owned over"
+        ],
+        "answer": 0,
+        "explanation": "'Own up' means to admit."
+    },
+    {
+        "question": "The manager asked them to _______ on the new project.",
+        "options": [
+            "focus out",
+            "focus on",
+            "focus in",
+            "focus up"
+        ],
+        "answer": 1,
+        "explanation": "'Focus on' means to concentrate."
+    },
+    {
+        "question": "The team will _______ the presentation tomorrow.",
+        "options": [
+            "carry out",
+            "carry in",
+            "carry over",
+            "carry on"
+        ],
+        "answer": 0,
+        "explanation": "'Carry out' means to perform."
+    },
+    {
+        "question": "The company will _______ new recruits next month.",
+        "options": [
+            "take in",
+            "take on",
+            "take out",
+            "take over"
+        ],
+        "answer": 1,
+        "explanation": "'Take on' means to hire."
+    },
+    {
+        "question": "Could you please _______ the window? It’s hot.",
+        "options": [
+            "turn down",
+            "turn off",
+            "turn up",
+            "turn down"
+        ],
+        "answer": 2,
+        "explanation": "'Turn up' means to increase."
+    },
+    {
+        "question": "He _______ his success to hard work and dedication.",
+        "options": [
+            "puts down",
+            "puts off",
+            "puts down to",
+            "puts up"
+        ],
+        "answer": 2,
+        "explanation": "'Put down to' means to attribute."
+    },
+    {
+        "question": "The children _______ happily in the playground.",
+        "options": [
+            "played out",
+            "played up",
+            "played down",
+            "played around"
+        ],
+        "answer": 3,
+        "explanation": "'Play around' means to have fun."
+    },
+    {
+        "question": "She _______ her boss’s instructions carefully.",
+        "options": [
+            "carried on with",
+            "carried through",
+            "carried out",
+            "carried over"
+        ],
+        "answer": 2,
+        "explanation": "'Carry out' means to perform."
+    },
+    {
+        "question": "They _______ their luck by trying their best.",
+        "options": [
+            "tried out",
+            "tried on",
+            "tried away",
+            "tried in"
+        ],
+        "answer": 0,
+        "explanation": "'Try out' means to test."
+    },
+    {
+        "question": "His jokes always _______ the audience.",
+        "options": [
+            "crack up",
+            "crack down",
+            "crack on",
+            "crack out"
+        ],
+        "answer": 0,
+        "explanation": "'Crack up' means to make laugh."
+    },
+    {
+        "question": "I need to _______ my notes before the exam.",
+        "options": [
+            "go over",
+            "go through",
+            "go up",
+            "go by"
+        ],
+        "answer": 1,
+        "explanation": "'Go through' means to review carefully."
+    },
+    {
+        "question": "The doctor advised me to _______ smoking immediately.",
+        "options": [
+            "give up",
+            "give in",
+            "give off",
+            "give away"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop doing something."
+    },
+    {
+        "question": "The meeting was _______ due to the CEO’s absence.",
+        "options": [
+            "called on",
+            "called out",
+            "called off",
+            "called in"
+        ],
+        "answer": 2,
+        "explanation": "'Called off' means canceled."
+    },
+    {
+        "question": "The teacher asked the students to _______ their essays by Monday.",
+        "options": [
+            "hand in",
+            "hand out",
+            "hand over",
+            "hand up"
+        ],
+        "answer": 0,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "She was able to _______ the difficult situation with patience.",
+        "options": [
+            "get through",
+            "get over",
+            "get along",
+            "get by"
+        ],
+        "answer": 1,
+        "explanation": "'Get over' means to recover from."
+    },
+    {
+        "question": "Can you please _______ the volume? It’s too loud.",
+        "options": [
+            "turn down",
+            "turn up",
+            "turn off",
+            "turn on"
+        ],
+        "answer": 1,
+        "explanation": "'Turn up' means to increase."
+    },
+    {
+        "question": "He decided to _______ smoking for his health.",
+        "options": [
+            "give away",
+            "give in",
+            "give up",
+            "give out"
+        ],
+        "answer": 2,
+        "explanation": "'Give up' means to stop doing something."
+    },
+    {
+        "question": "The police had to _______ the suspect for further questioning.",
+        "options": [
+            "hold on",
+            "hold up",
+            "hold back",
+            "hold in"
+        ],
+        "answer": 0,
+        "explanation": "'Hold on' means to detain or wait."
+    },
+    {
+        "question": "We should _______ the meeting till next week.",
+        "options": [
+            "put off",
+            "put on",
+            "put away",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put off' means to postpone."
+    },
+    {
+        "question": "She _______ her old friends during the reunion.",
+        "options": [
+            "looked after",
+            "looked in",
+            "looked up",
+            "looked over"
+        ],
+        "answer": 2,
+        "explanation": "'Look up' means to meet or search for."
+    },
+    {
+        "question": "The company plans to _______ new employees next month.",
+        "options": [
+            "take on",
+            "take up",
+            "take out",
+            "take over"
+        ],
+        "answer": 0,
+        "explanation": "'Take on' means to hire."
+    },
+    {
+        "question": "The fire _______ quickly because of the strong wind.",
+        "options": [
+            "broke out",
+            "broke in",
+            "broke off",
+            "broke down"
+        ],
+        "answer": 0,
+        "explanation": "'Break out' means to start suddenly."
+    },
+    {
+        "question": "He _______ the offer to join the company.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned out",
+            "turned off"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means to reject."
+    },
+    {
+        "question": "Please _______ your seat belts before the journey starts.",
+        "options": [
+            "put on",
+            "put up",
+            "put off",
+            "put in"
+        ],
+        "answer": 0,
+        "explanation": "'Put on' means to wear."
+    },
+    {
+        "question": "They _______ the old bridge last year.",
+        "options": [
+            "tore down",
+            "tore off",
+            "tore up",
+            "tore in"
+        ],
+        "answer": 0,
+        "explanation": "'Tore down' means to demolish."
+    },
+    {
+        "question": "She _______ her homework before going out.",
+        "options": [
+            "did up",
+            "did over",
+            "did out",
+            "did away"
+        ],
+        "answer": 0,
+        "explanation": "'Did up' means to complete or decorate."
+    },
+    {
+        "question": "The teacher asked him to _______ the answer.",
+        "options": [
+            "write down",
+            "write up",
+            "write out",
+            "write in"
+        ],
+        "answer": 0,
+        "explanation": "'Write down' means to note."
+    },
+    {
+        "question": "They _______ the film for the local festival.",
+        "options": [
+            "brought out",
+            "brought up",
+            "brought in",
+            "brought off"
+        ],
+        "answer": 0,
+        "explanation": "'Bring out' means to release."
+    },
+    {
+        "question": "The delegates will _______ the proposal tomorrow.",
+        "options": [
+            "go through",
+            "go over",
+            "go up",
+            "go by"
+        ],
+        "answer": 0,
+        "explanation": "'Go through' means to discuss or review."
+    },
+    {
+        "question": "He always _______ his parents for advice.",
+        "options": [
+            "looks back",
+            "looks after",
+            "looks up to",
+            "looks down on"
+        ],
+        "answer": 2,
+        "explanation": "'Look up to' means to respect."
+    },
+    {
+        "question": "Don’t forget to _______ the lights when you leave.",
+        "options": [
+            "turn off",
+            "turn on",
+            "turn up",
+            "turn down"
+        ],
+        "answer": 0,
+        "explanation": "'Turn off' means to switch off."
+    },
+    {
+        "question": "She successfully _______ the confusion in the meeting.",
+        "options": [
+            "cleared up",
+            "cleared out",
+            "cleared off",
+            "cleared away"
+        ],
+        "answer": 0,
+        "explanation": "'Cleared up' means to clarify."
+    },
+    {
+        "question": "The kids were asked to _______ their toys after playtime.",
+        "options": [
+            "put away",
+            "put off",
+            "put on",
+            "put up"
+        ],
+        "answer": 0,
+        "explanation": "'Put away' means to tidy."
+    },
+    {
+        "question": "The team managed to _______ the challenge successfully.",
+        "options": [
+            "pull off",
+            "pull over",
+            "pull out",
+            "pull up"
+        ],
+        "answer": 0,
+        "explanation": "'Pull off' means to succeed."
+    },
+    {
+        "question": "We will _______ the festival as planned next month.",
+        "options": [
+            "go ahead",
+            "go back",
+            "go up",
+            "go for"
+        ],
+        "answer": 0,
+        "explanation": "'Go ahead' means to proceed."
+    },
+    {
+        "question": "He often _______ to work during rush hours.",
+        "options": [
+            "drives in",
+            "drives up",
+            "drives out",
+            "drives on"
+        ],
+        "answer": 1,
+        "explanation": "'Drive up' means to approach in a vehicle."
+    },
+    {
+        "question": "The company will _______ new products soon.",
+        "options": [
+            "bring up",
+            "bring out",
+            "bring in",
+            "bring over"
+        ],
+        "answer": 1,
+        "explanation": "'Bring out' means to launch."
+    },
+    {
+        "question": "She promised to _______ me in any situation.",
+        "options": [
+            "stand by",
+            "stand up",
+            "stand out",
+            "stand down"
+        ],
+        "answer": 0,
+        "explanation": "'Stand by' means to support."
+    },
+    {
+        "question": "The teacher asked the students to _______ their answers carefully.",
+        "options": [
+            "look over",
+            "look after",
+            "look into",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look over' means to examine."
+    },
+    {
+        "question": "He failed to _______ the exam despite hard work.",
+        "options": [
+            "make out",
+            "make up",
+            "make for",
+            "make off"
+        ],
+        "answer": 0,
+        "explanation": "'Make out' means to succeed or understand."
+    },
+    {
+        "question": "Could you please _______ the window? It’s stuffy.",
+        "options": [
+            "open up",
+            "open out",
+            "open in",
+            "open up to"
+        ],
+        "answer": 0,
+        "explanation": "'Open up' means to open fully."
+    },
+    {
+        "question": "They _______ the old trees to plant new ones.",
+        "options": [
+            "cut down",
+            "cut off",
+            "cut in",
+            "cut out"
+        ],
+        "answer": 0,
+        "explanation": "'Cut down' means to chop or fell."
+    },
+    {
+        "question": "We need to _______ the report before submission.",
+        "options": [
+            "go over",
+            "go through",
+            "go up",
+            "go by"
+        ],
+        "answer": 1,
+        "explanation": "'Go through' means to examine carefully."
+    },
+    {
+        "question": "She _______ the phone call unexpectedly.",
+        "options": [
+            "picked up",
+            "picked out",
+            "picked off",
+            "picked in"
+        ],
+        "answer": 0,
+        "explanation": "'Pick up' means to answer a call."
+    },
+    {
+        "question": "The restaurant _______ new safety measures for hygiene.",
+        "options": [
+            "put across",
+            "put in",
+            "put up",
+            "put forward"
+        ],
+        "answer": 3,
+        "explanation": "'Put forward' means to propose."
+    },
+    {
+        "question": "The festival will _______ next week.",
+        "options": [
+            "take up",
+            "take off",
+            "take place",
+            "take on"
+        ],
+        "answer": 2,
+        "explanation": "'Take place' means to happen."
+    },
+    {
+        "question": "Please _______ the documents at the reception.",
+        "options": [
+            "drop off",
+            "drop in",
+            "drop out",
+            "drop by"
+        ],
+        "answer": 0,
+        "explanation": "'Drop off' means to deliver."
+    },
+    {
+        "question": "The children _______ when they saw their parents.",
+        "options": [
+            "lit up",
+            "lighted up",
+            "lit down",
+            "lighted down"
+        ],
+        "answer": 0,
+        "explanation": "'Lit up' means to brighten or become happy."
+    },
+    {
+        "question": "She _______ the seminar and gave a great presentation.",
+        "options": [
+            "put on",
+            "put up",
+            "put off",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put on' means to conduct or organize."
+    },
+    {
+        "question": "The manager asked everyone to _______ the rules carefully.",
+        "options": [
+            "go over",
+            "go under",
+            "go in",
+            "go through"
+        ],
+        "answer": 3,
+        "explanation": "'Go through' means to examine."
+    },
+    {
+        "question": "He promised to _______ the lost time.",
+        "options": [
+            "make out",
+            "make up",
+            "make for",
+            "make off"
+        ],
+        "answer": 1,
+        "explanation": "'Make up' means to compensate."
+    },
+    {
+        "question": "The employees decided to _______ work to protest unfair policies.",
+        "options": [
+            "call off",
+            "call out",
+            "call in",
+            "call on"
+        ],
+        "answer": 1,
+        "explanation": "'Call out' means to go on strike."
+    },
+    {
+        "question": "She _______ an apology for being late.",
+        "options": [
+            "made out",
+            "made up",
+            "made off",
+            "made in"
+        ],
+        "answer": 1,
+        "explanation": "'Make up' means to apologize."
+    },
+    {
+        "question": "The flight was _______ due to bad weather.",
+        "options": [
+            "put off",
+            "put on",
+            "put out",
+            "put away"
+        ],
+        "answer": 0,
+        "explanation": "'Put off' means postponed."
+    },
+    {
+        "question": "They _______ the offer after careful consideration.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned on",
+            "turned out"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means to reject."
+    },
+    {
+        "question": "We should _______ the mistakes and learn from them.",
+        "options": [
+            "own up to",
+            "own out to",
+            "own in to",
+            "own off to"
+        ],
+        "answer": 0,
+        "explanation": "'Own up to' means to admit."
+    },
+    {
+        "question": "The project _______ after months of hard work.",
+        "options": [
+            "came through",
+            "came apart",
+            "came out",
+            "came along"
+        ],
+        "answer": 2,
+        "explanation": "'Come out' means to be released or result."
+    },
+    {
+        "question": "She always _______ to her duties responsibly.",
+        "options": [
+            "sticks up",
+            "sticks to",
+            "sticks on",
+            "sticks with"
+        ],
+        "answer": 1,
+        "explanation": "'Stick to' means to follow or adhere."
+    },
+    {
+        "question": "The police finally _______ the stolen goods.",
+        "options": [
+            "tracked down",
+            "tracked up",
+            "tracked out",
+            "tracked in"
+        ],
+        "answer": 0,
+        "explanation": "'Track down' means to find after searching."
+    },
+    {
+        "question": "Don't forget to _______ the garbage before leaving.",
+        "options": [
+            "take out",
+            "take over",
+            "take in",
+            "take off"
+        ],
+        "answer": 0,
+        "explanation": "'Take out' means to remove."
+    },
+    {
+        "question": "She _______ her experience in the job interview.",
+        "options": [
+            "talked about",
+            "talked over",
+            "talked in",
+            "talked up"
+        ],
+        "answer": 0,
+        "explanation": "'Talk about' means to discuss."
+    },
+    {
+        "question": "The teacher asked the student to _______ the mistake.",
+        "options": [
+            "point out",
+            "point up",
+            "point off",
+            "point at"
+        ],
+        "answer": 0,
+        "explanation": "'Point out' means to indicate."
+    },
+    {
+        "question": "They decided to _______ the party due to bad weather.",
+        "options": [
+            "call off",
+            "call on",
+            "call out",
+            "call up"
+        ],
+        "answer": 0,
+        "explanation": "'Call off' means to cancel."
+    },
+    {
+        "question": "He _______ his mistakes and apologized sincerely.",
+        "options": [
+            "owned up to",
+            "owned in to",
+            "owned off to",
+            "owned by"
+        ],
+        "answer": 0,
+        "explanation": "'Own up to' means to admit or confess."
+    },
+    {
+        "question": "The workers decided to _______ work until their demands were met.",
+        "options": [
+            "call out",
+            "call in",
+            "call off",
+            "call on"
+        ],
+        "answer": 0,
+        "explanation": "'Call out' means to go on strike."
+    },
+    {
+        "question": "The students must _______ their projects by Friday.",
+        "options": [
+            "hand in",
+            "hand out",
+            "hand over",
+            "hand back"
+        ],
+        "answer": 0,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "He was asked to _______ the documents before the meeting.",
+        "options": [
+            "look out",
+            "look over",
+            "look into",
+            "look after"
+        ],
+        "answer": 1,
+        "explanation": "'Look over' means to examine."
+    },
+    {
+        "question": "She promised to _______ the task by the deadline.",
+        "options": [
+            "carry out",
+            "carry on",
+            "carry over",
+            "carry through"
+        ],
+        "answer": 0,
+        "explanation": "'Carry out' means to perform or complete."
+    },
+    {
+        "question": "Please _______ the volume, I can’t hear clearly.",
+        "options": [
+            "turn up",
+            "turn down",
+            "turn off",
+            "turn on"
+        ],
+        "answer": 0,
+        "explanation": "'Turn up' means to increase."
+    },
+    {
+        "question": "The government decided to _______ new safety regulations.",
+        "options": [
+            "put up",
+            "put off",
+            "put forward",
+            "put down"
+        ],
+        "answer": 2,
+        "explanation": "'Put forward' means to propose."
+    },
+    {
+        "question": "The meeting was _______ due to unforeseen circumstances.",
+        "options": [
+            "put off",
+            "put on",
+            "put away",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put off' means postponed."
+    },
+    {
+        "question": "He _______ the old house to build a new one.",
+        "options": [
+            "tore down",
+            "tore up",
+            "tore off",
+            "tore in"
+        ],
+        "answer": 0,
+        "explanation": "'Tore down' means to demolish."
+    },
+    {
+        "question": "The flight was _______ because of the storm.",
+        "options": [
+            "called off",
+            "called out",
+            "called in",
+            "called up"
+        ],
+        "answer": 0,
+        "explanation": "'Called off' means canceled."
+    },
+    {
+        "question": "She always _______ to help others in need.",
+        "options": [
+            "comes forward",
+            "comes up",
+            "comes out",
+            "comes down"
+        ],
+        "answer": 0,
+        "explanation": "'Come forward' means to offer help or information."
+    },
+    {
+        "question": "The team managed to _______ the project successfully.",
+        "options": [
+            "pull off",
+            "pull over",
+            "pull out",
+            "pull up"
+        ],
+        "answer": 0,
+        "explanation": "'Pull off' means to succeed."
+    },
+    {
+        "question": "He _______ from the challenge with confidence.",
+        "options": [
+            "came through",
+            "came apart",
+            "came up",
+            "came over"
+        ],
+        "answer": 0,
+        "explanation": "'Come through' means to succeed or survive."
+    },
+    {
+        "question": "The teacher asked the students to _______ their notes before the test.",
+        "options": [
+            "go over",
+            "go through",
+            "go in",
+            "go by"
+        ],
+        "answer": 0,
+        "explanation": "'Go over' means to review."
+    },
+    {
+        "question": "She _______ quickly when the police arrived.",
+        "options": [
+            "ran away",
+            "ran off",
+            "ran out",
+            "ran in"
+        ],
+        "answer": 1,
+        "explanation": "'Ran off' means to escape."
+    },
+    {
+        "question": "Please _______ the door when you leave.",
+        "options": [
+            "shut down",
+            "shut out",
+            "shut off",
+            "shut up"
+        ],
+        "answer": 2,
+        "explanation": "'Shut off' means to close."
+    },
+    {
+        "question": "The company plans to _______ its operations in Asia.",
+        "options": [
+            "expand on",
+            "expand in",
+            "expand over",
+            "expand into"
+        ],
+        "answer": 3,
+        "explanation": "'Expand into' means to grow or increase into."
+    },
+    {
+        "question": "The teacher asked the students to _______ their essays by next Monday.",
+        "options": [
+            "hand in",
+            "hand out",
+            "hand over",
+            "hand back"
+        ],
+        "answer": 0,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "He _______ his promises and never let anyone down.",
+        "options": [
+            "keeps up",
+            "keeps on",
+            "keeps to",
+            "keeps at"
+        ],
+        "answer": 2,
+        "explanation": "'Keep to' means to adhere to."
+    },
+    {
+        "question": "The protesters decided to _______ the strike after talks.",
+        "options": [
+            "call off",
+            "call out",
+            "call in",
+            "call on"
+        ],
+        "answer": 0,
+        "explanation": "'Call off' means to cancel."
+    },
+    {
+        "question": "She _______ the phone when it rang suddenly.",
+        "options": [
+            "picked up",
+            "picked out",
+            "picked off",
+            "picked in"
+        ],
+        "answer": 0,
+        "explanation": "'Pick up' means to answer."
+    },
+    {
+        "question": "The children are asked to _______ after their playtime.",
+        "options": [
+            "clean up",
+            "clean out",
+            "clean off",
+            "clean down"
+        ],
+        "answer": 0,
+        "explanation": "'Clean up' means to tidy."
+    },
+    {
+        "question": "They _______ a new method to solve the problem.",
+        "options": [
+            "came up with",
+            "came along with",
+            "came out with",
+            "came over with"
+        ],
+        "answer": 0,
+        "explanation": "'Come up with' means to invent or suggest."
+    },
+    {
+        "question": "He _______ the invitation politely.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned out",
+            "turned off"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means to refuse."
+    },
+    {
+        "question": "Can you _______ the heat? It’s too hot here.",
+        "options": [
+            "turn on",
+            "turn off",
+            "turn down",
+            "turn up"
+        ],
+        "answer": 2,
+        "explanation": "'Turn down' means to reduce."
+    },
+    {
+        "question": "She promised to _______ the job until completion.",
+        "options": [
+            "see off",
+            "see through",
+            "see over",
+            "see to"
+        ],
+        "answer": 1,
+        "explanation": "'See through' means to finish."
+    },
+    {
+        "question": "We need to _______ the meeting to discuss the issue.",
+        "options": [
+            "set up",
+            "set out",
+            "set on",
+            "set off"
+        ],
+        "answer": 0,
+        "explanation": "'Set up' means to arrange."
+    },
+    {
+        "question": "He quickly _______ the matter before anyone noticed.",
+        "options": [
+            "covered up",
+            "covered in",
+            "covered off",
+            "covered on"
+        ],
+        "answer": 0,
+        "explanation": "'Cover up' means to hide."
+    },
+    {
+        "question": "The manager asked the employees to _______ the new software.",
+        "options": [
+            "get on with",
+            "get by with",
+            "get up to",
+            "get along with"
+        ],
+        "answer": 0,
+        "explanation": "'Get on with' means to continue or progress."
+    },
+    {
+        "question": "They have to _______ the delayed payments immediately.",
+        "options": [
+            "fall behind",
+            "fall through",
+            "fall out",
+            "fall in"
+        ],
+        "answer": 0,
+        "explanation": "'Fall behind' means to be late or delayed."
+    },
+    {
+        "question": "The party was _______ due to unforeseen circumstances.",
+        "options": [
+            "called off",
+            "called out",
+            "called up",
+            "called on"
+        ],
+        "answer": 0,
+        "explanation": "'Called off' means canceled."
+    },
+    {
+        "question": "She _______ her coat before entering the room.",
+        "options": [
+            "took off",
+            "took on",
+            "took up",
+            "took over"
+        ],
+        "answer": 0,
+        "explanation": "'Take off' means to remove."
+    },
+    {
+        "question": "We should _______ our goals seriously to succeed.",
+        "options": [
+            "set about",
+            "set in",
+            "set off",
+            "set out"
+        ],
+        "answer": 3,
+        "explanation": "'Set out' means to start."
+    },
+    {
+        "question": "The thief tried to _______ with the stolen jewels.",
+        "options": [
+            "get away",
+            "get out",
+            "get off",
+            "get by"
+        ],
+        "answer": 0,
+        "explanation": "'Get away' means to escape."
+    },
+    {
+        "question": "Can you _______ a few minutes for me?",
+        "options": [
+            "give up",
+            "give in",
+            "give away",
+            "give out"
+        ],
+        "answer": 2,
+        "explanation": "'Give away' means to provide or donate."
+    },
+    {
+        "question": "The manager will _______ the team tomorrow.",
+        "options": [
+            "call in",
+            "call on",
+            "call off",
+            "call up"
+        ],
+        "answer": 0,
+        "explanation": "'Call in' means to summon or invite."
+    },
+    {
+        "question": "She _______ all the invitations for the event.",
+        "options": [
+            "sent out",
+            "sent up",
+            "sent in",
+            "sent off"
+        ],
+        "answer": 0,
+        "explanation": "'Sent out' means to distribute."
+    },
+    {
+        "question": "He _______ to the company last year.",
+        "options": [
+            "joined in",
+            "joined up",
+            "joined off",
+            "joined"
+        ],
+        "answer": 3,
+        "explanation": "'Joined' means became a member."
+    },
+    {
+        "question": "The children were asked to _______ quietly in the room.",
+        "options": [
+            "sit down",
+            "sit in",
+            "sit up",
+            "sit out"
+        ],
+        "answer": 0,
+        "explanation": "'Sit down' means to take a seat."
+    },
+    {
+        "question": "The workers decided to _______ after failing to get their demands.",
+        "options": [
+            "give in",
+            "give up",
+            "give out",
+            "give away"
+        ],
+        "answer": 1,
+        "explanation": "'Give up' means to stop trying."
+    },
+    {
+        "question": "The company will _______ a new branch soon.",
+        "options": [
+            "open up",
+            "open out",
+            "open in",
+            "open down"
+        ],
+        "answer": 0,
+        "explanation": "'Open up' means to establish."
+    },
+    {
+        "question": "She _______ the children while the parents were away.",
+        "options": [
+            "looked after",
+            "looked up",
+            "looked over",
+            "looked into"
+        ],
+        "answer": 0,
+        "explanation": "'Looked after' means to take care of."
+    },
+    {
+        "question": "The students _______ the exam with great enthusiasm.",
+        "options": [
+            "set out",
+            "set up",
+            "set about",
+            "set off"
+        ],
+        "answer": 2,
+        "explanation": "'Set about' means to begin doing."
+    },
+    {
+        "question": "The team _______ the proposal after careful consideration.",
+        "options": [
+            "went through",
+            "went up",
+            "went over",
+            "went in"
+        ],
+        "answer": 0,
+        "explanation": "'Went through' means examined thoroughly."
+    },
+    {
+        "question": "The manager asked everyone to _______ the new policies.",
+        "options": [
+            "take in",
+            "take up",
+            "take over",
+            "take after"
+        ],
+        "answer": 0,
+        "explanation": "'Take in' means to understand."
+    },
+    {
+        "question": "He _______ the old records for his research.",
+        "options": [
+            "looked up",
+            "looked over",
+            "looked into",
+            "looked through"
+        ],
+        "answer": 3,
+        "explanation": "'Looked through' means to examine."
+    },
+    {
+        "question": "The students _______ a cheer when the results were announced.",
+        "options": [
+            "broke out",
+            "broke up",
+            "broke in",
+            "broke off"
+        ],
+        "answer": 0,
+        "explanation": "'Broke out' means to start suddenly."
+    },
+    {
+        "question": "Can you _______ the light? It’s too dark here.",
+        "options": [
+            "put out",
+            "put off",
+            "put on",
+            "put up"
+        ],
+        "answer": 0,
+        "explanation": "'Put out' means to extinguish."
+    },
+    {
+        "question": "He _______ very fast when he joined the race.",
+        "options": [
+            "took off",
+            "took over",
+            "took up",
+            "took in"
+        ],
+        "answer": 0,
+        "explanation": "'Took off' means started quickly."
+    },
+    {
+        "question": "I tried to _______ the problem but it was too complex.",
+        "options": [
+            "work out",
+            "work on",
+            "work up",
+            "work in"
+        ],
+        "answer": 0,
+        "explanation": "'Work out' means to solve or find a solution."
+    },
+    {
+        "question": "She was asked to _______ the report by Friday.",
+        "options": [
+            "hand over",
+            "hand in",
+            "hand out",
+            "hand back"
+        ],
+        "answer": 1,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "They decided to _______ the project after initial failure.",
+        "options": [
+            "give up",
+            "give in",
+            "give out",
+            "give away"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop trying."
+    },
+    {
+        "question": "Please _______ the shoes before entering the house.",
+        "options": [
+            "take off",
+            "take out",
+            "take up",
+            "take in"
+        ],
+        "answer": 0,
+        "explanation": "'Take off' means to remove."
+    },
+    {
+        "question": "He _______ his old friends during the reunion.",
+        "options": [
+            "looked after",
+            "looked up",
+            "looked in",
+            "looked over"
+        ],
+        "answer": 1,
+        "explanation": "'Looked up' means to meet or search for."
+    },
+    {
+        "question": "The teacher asked us to _______ the chapter before the exam.",
+        "options": [
+            "go over",
+            "go through",
+            "go up",
+            "go by"
+        ],
+        "answer": 1,
+        "explanation": "'Go through' means to review thoroughly."
+    },
+    {
+        "question": "The fire _______ quickly due to strong wind.",
+        "options": [
+            "broke out",
+            "broke in",
+            "broke off",
+            "broke down"
+        ],
+        "answer": 0,
+        "explanation": "'Broke out' means to start suddenly."
+    },
+    {
+        "question": "He managed to _______ the difficult situation.",
+        "options": [
+            "get over",
+            "get through",
+            "get along",
+            "get by"
+        ],
+        "answer": 1,
+        "explanation": "'Get through' means to endure or survive."
+    },
+    {
+        "question": "She _______ the invitation to the party.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned out",
+            "turned on"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means to refuse."
+    },
+    {
+        "question": "They _______ the documents before the meeting.",
+        "options": [
+            "looked over",
+            "looked into",
+            "looked after",
+            "looked up"
+        ],
+        "answer": 0,
+        "explanation": "'Looked over' means to examine."
+    },
+    {
+        "question": "The police asked the witnesses to _______ what they saw.",
+        "options": [
+            "come forward",
+            "come out",
+            "come up",
+            "come in"
+        ],
+        "answer": 0,
+        "explanation": "'Come forward' means to offer information."
+    },
+    {
+        "question": "The team was able to _______ the challenge successfully.",
+        "options": [
+            "pull off",
+            "pull over",
+            "pull out",
+            "pull up"
+        ],
+        "answer": 0,
+        "explanation": "'Pull off' means to succeed."
+    },
+    {
+        "question": "Please _______ the volume; it's too loud.",
+        "options": [
+            "turn down",
+            "turn up",
+            "turn off",
+            "turn on"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means to reduce."
+    },
+    {
+        "question": "He decided to _______ smoking for health reasons.",
+        "options": [
+            "give up",
+            "give in",
+            "give off",
+            "give away"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop doing something."
+    },
+    {
+        "question": "The conference was _______ due to bad weather.",
+        "options": [
+            "called off",
+            "called on",
+            "called out",
+            "called up"
+        ],
+        "answer": 0,
+        "explanation": "'Called off' means cancelled."
+    },
+    {
+        "question": "They _______ a new law to protect the environment.",
+        "options": [
+            "put through",
+            "put forward",
+            "put off",
+            "put out"
+        ],
+        "answer": 1,
+        "explanation": "'Put forward' means to propose."
+    },
+    {
+        "question": "She always _______ to her duties diligently.",
+        "options": [
+            "sticks to",
+            "sticks up",
+            "sticks on",
+            "sticks with"
+        ],
+        "answer": 0,
+        "explanation": "'Stick to' means to adhere to."
+    },
+    {
+        "question": "He promised to _______ his promises.",
+        "options": [
+            "keep to",
+            "keep on",
+            "keep up",
+            "keep at"
+        ],
+        "answer": 0,
+        "explanation": "'Keep to' means to fulfill or stick to."
+    },
+    {
+        "question": "We need to _______ the issue before it worsens.",
+        "options": [
+            "look into",
+            "look over",
+            "look after",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look into' means to investigate."
+    },
+    {
+        "question": "The students _______ the exam with full preparation.",
+        "options": [
+            "went through",
+            "went over",
+            "went up",
+            "went by"
+        ],
+        "answer": 0,
+        "explanation": "'Went through' means reviewed thoroughly."
+    },
+    {
+        "question": "She _______ the meeting due to an emergency.",
+        "options": [
+            "called off",
+            "called out",
+            "called up",
+            "called on"
+        ],
+        "answer": 0,
+        "explanation": "'Called off' means cancelled."
+    },
+    {
+        "question": "He _______ a detailed explanation for his actions.",
+        "options": [
+            "gave out",
+            "gave off",
+            "gave in",
+            "gave up"
+        ],
+        "answer": 0,
+        "explanation": "'Gave out' means to provide or distribute."
+    },
+    {
+        "question": "Please _______ your seat belts during the flight.",
+        "options": [
+            "put on",
+            "put up",
+            "put off",
+            "put away"
+        ],
+        "answer": 0,
+        "explanation": "'Put on' means to wear."
+    },
+    {
+        "question": "They _______ the old building to make way for a mall.",
+        "options": [
+            "tore down",
+            "tore up",
+            "tore off",
+            "tore out"
+        ],
+        "answer": 0,
+        "explanation": "'Tore down' means to demolish."
+    },
+    {
+        "question": "She _______ the lights as she left the room.",
+        "options": [
+            "turned off",
+            "turned on",
+            "turned up",
+            "turned down"
+        ],
+        "answer": 0,
+        "explanation": "'Turned off' means switched off."
+    },
+    {
+        "question": "He _______ the proposal to improve the system.",
+        "options": [
+            "put forward",
+            "put off",
+            "put out",
+            "put up"
+        ],
+        "answer": 0,
+        "explanation": "'Put forward' means to suggest."
+    },
+    {
+        "question": "The children were asked to _______ the classroom before leaving.",
+        "options": [
+            "clean up",
+            "clean off",
+            "clean out",
+            "clean down"
+        ],
+        "answer": 0,
+        "explanation": "'Clean up' means to tidy."
+    },
+    {
+        "question": "She _______ the invitation politely.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned on",
+            "turned out"
+        ],
+        "answer": 0,
+        "explanation": "'Turned down' means refused."
+    },
+    {
+        "question": "They will _______ the meeting next week.",
+        "options": [
+            "hold on",
+            "hold up",
+            "hold off",
+            "hold"
+        ],
+        "answer": 3,
+        "explanation": "'Hold' means to conduct."
+    },
+    {
+        "question": "He _______ the stolen items before the police arrived.",
+        "options": [
+            "gave up",
+            "gave away",
+            "gave in",
+            "gave out"
+        ],
+        "answer": 1,
+        "explanation": "'Gave away' means surrendered or offered."
+    },
+    {
+        "question": "The company _______ a new product last month.",
+        "options": [
+            "brought out",
+            "brought in",
+            "brought up",
+            "brought off"
+        ],
+        "answer": 0,
+        "explanation": "'Brought out' means launched."
+    },
+    {
+        "question": "She _______ her studies after completing graduation.",
+        "options": [
+            "carried on",
+            "carried out",
+            "carried through",
+            "carried over"
+        ],
+        "answer": 0,
+        "explanation": "'Carried on' means continued."
+    },
+    {
+        "question": "The manager asked the staff to _______ the new rules carefully.",
+        "options": [
+            "go through",
+            "go over",
+            "go by",
+            "go in"
+        ],
+        "answer": 0,
+        "explanation": "'Go through' means to review carefully."
+    },
+    {
+        "question": "He finally _______ his fears and spoke up.",
+        "options": [
+            "came over",
+            "came through",
+            "came up",
+            "came out"
+        ],
+        "answer": 1,
+        "explanation": "'Came through' means overcame."
+    },
+    {
+        "question": "Please _______ your homework before submitting.",
+        "options": [
+            "look over",
+            "look into",
+            "look after",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look over' means examine."
+    },
+    {
+        "question": "They _______ the documents before signing the contract.",
+        "options": [
+            "went through",
+            "went over",
+            "went in",
+            "went up"
+        ],
+        "answer": 0,
+        "explanation": "'Went through' means examined carefully."
+    },
+    {
+        "question": "He _______ at the airport to pick up his friend.",
+        "options": [
+            "turned up",
+            "turned down",
+            "turned on",
+            "turned off"
+        ],
+        "answer": 0,
+        "explanation": "'Turned up' means arrived."
+    },
+    {
+        "question": "The police asked the witness to _______ details.",
+        "options": [
+            "point out",
+            "point up",
+            "point off",
+            "point at"
+        ],
+        "answer": 0,
+        "explanation": "'Point out' means to indicate."
+    },
+    {
+        "question": "We need to _______ the problem immediately.",
+        "options": [
+            "deal with",
+            "deal in",
+            "deal up",
+            "deal off"
+        ],
+        "answer": 0,
+        "explanation": "'Deal with' means to handle."
+    },
+    {
+        "question": "The team decided to _______ the project after delays.",
+        "options": [
+            "give up",
+            "give in",
+            "give out",
+            "give away"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop trying."
+    },
+    {
+        "question": "She promised to _______ the lost time.",
+        "options": [
+            "make up",
+            "make out",
+            "make for",
+            "make in"
+        ],
+        "answer": 0,
+        "explanation": "'Make up' means to compensate."
+    },
+    {
+        "question": "The festival will _______ next week as planned.",
+        "options": [
+            "take place",
+            "take off",
+            "take up",
+            "take on"
+        ],
+        "answer": 0,
+        "explanation": "'Take place' means to happen."
+    },
+    {
+        "question": "He _______ the injured player to the hospital.",
+        "options": [
+            "carried off",
+            "carried on",
+            "carried in",
+            "carried out"
+        ],
+        "answer": 0,
+        "explanation": "'Carried off' means to remove."
+    },
+    {
+        "question": "They _______ the issue quickly during the meeting.",
+        "options": [
+            "sorted out",
+            "sorted in",
+            "sorted over",
+            "sorted through"
+        ],
+        "answer": 0,
+        "explanation": "'Sorted out' means resolved."
+    },
+    {
+        "question": "The students were asked to _______ quietly during the lecture.",
+        "options": [
+            "sit down",
+            "sit up",
+            "sit in",
+            "sit out"
+        ],
+        "answer": 0,
+        "explanation": "'Sit down' means to take a seat."
+    },
+    {
+        "question": "The manager asked the staff to _______ forms carefully.",
+        "options": [
+            "fill out",
+            "fill in",
+            "fill up",
+            "fill on"
+        ],
+        "answer": 0,
+        "explanation": "'Fill out' means to complete."
+    },
+    {
+        "question": "She _______ an apology for her mistake.",
+        "options": [
+            "made up",
+            "made out",
+            "made off",
+            "made in"
+        ],
+        "answer": 0,
+        "explanation": "'Made up' means apologized or compensated."
+    },
+    {
+        "question": "The team _______ the challenge successfully.",
+        "options": [
+            "pulled off",
+            "pulled over",
+            "pulled out",
+            "pulled up"
+        ],
+        "answer": 0,
+        "explanation": "'Pulled off' means succeeded."
+    },
+    {
+        "question": "He _______ the explanation during the presentation.",
+        "options": [
+            "carried out",
+            "carried on",
+            "carried through",
+            "carried over"
+        ],
+        "answer": 1,
+        "explanation": "'Carried on' means continued."
+    },
+    {
+        "question": "The doctor advised him to _______ smoking immediately.",
+        "options": [
+            "give up",
+            "give in",
+            "give off",
+            "give away"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop."
+    },
+    {
+        "question": "We need to _______ the project timeline to meet the deadline.",
+        "options": [
+            "speed up",
+            "speed out",
+            "speed on",
+            "speed over"
+        ],
+        "answer": 0,
+        "explanation": "'Speed up' means to accelerate."
+    },
+    {
+        "question": "She _______ successfully through all the rounds of the competition.",
+        "options": [
+            "came up",
+            "came over",
+            "came through",
+            "came along"
+        ],
+        "answer": 2,
+        "explanation": "'Come through' means to succeed or survive."
+    },
+    {
+        "question": "Please _______ the details carefully before signing the contract.",
+        "options": [
+            "look over",
+            "look into",
+            "look after",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look over' means to examine."
+    },
+    {
+        "question": "The teacher asked the students to _______ their answers.",
+        "options": [
+            "write down",
+            "write up",
+            "write out",
+            "write in"
+        ],
+        "answer": 0,
+        "explanation": "'Write down' means to note."
+    },
+    {
+        "question": "He _______ an excuse for being late to the meeting.",
+        "options": [
+            "made up",
+            "made out",
+            "made off",
+            "made in"
+        ],
+        "answer": 0,
+        "explanation": "'Make up' means to invent or fabricate."
+    },
+    {
+        "question": "The police managed to _______ the stolen goods.",
+        "options": [
+            "track down",
+            "track in",
+            "track up",
+            "track out"
+        ],
+        "answer": 0,
+        "explanation": "'Track down' means to find after searching."
+    },
+    {
+        "question": "She decided to _______ the offer after careful thought.",
+        "options": [
+            "turn down",
+            "turn up",
+            "turn out",
+            "turn on"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means to refuse."
+    },
+    {
+        "question": "They decided to _______ the party due to heavy rain.",
+        "options": [
+            "call off",
+            "call on",
+            "call out",
+            "call up"
+        ],
+        "answer": 0,
+        "explanation": "'Call off' means to cancel."
+    },
+    {
+        "question": "The students _______ their essays by next Monday.",
+        "options": [
+            "hand in",
+            "hand out",
+            "hand over",
+            "hand back"
+        ],
+        "answer": 0,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "He _______ the volume as it was too loud.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned off",
+            "turned on"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means to reduce."
+    },
+    {
+        "question": "The manager asked everyone to _______ the rules.",
+        "options": [
+            "stick to",
+            "stick up",
+            "stick on",
+            "stick with"
+        ],
+        "answer": 0,
+        "explanation": "'Stick to' means to adhere to."
+    },
+    {
+        "question": "She promised to _______ her work diligently.",
+        "options": [
+            "carry on",
+            "carry out",
+            "carry through",
+            "carry over"
+        ],
+        "answer": 0,
+        "explanation": "'Carry on' means to continue."
+    },
+    {
+        "question": "He _______ in the marathon last year.",
+        "options": [
+            "took part",
+            "took over",
+            "took up",
+            "took off"
+        ],
+        "answer": 0,
+        "explanation": "'Take part' means to participate."
+    },
+    {
+        "question": "The company will _______ new employees soon.",
+        "options": [
+            "take on",
+            "take up",
+            "take out",
+            "take over"
+        ],
+        "answer": 0,
+        "explanation": "'Take on' means to hire."
+    },
+    {
+        "question": "She _______ her old habits for a healthier lifestyle.",
+        "options": [
+            "gave up",
+            "gave in",
+            "gave out",
+            "gave away"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop."
+    },
+    {
+        "question": "They helped to _______ the victims of the disaster.",
+        "options": [
+            "look after",
+            "look into",
+            "look over",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look after' means to take care of."
+    },
+    {
+        "question": "The meeting was _______ due to unexpected issues.",
+        "options": [
+            "put off",
+            "put on",
+            "put away",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put off' means postponed."
+    },
+    {
+        "question": "He _______ his duties with sincerity.",
+        "options": [
+            "carried out",
+            "carried on",
+            "carried over",
+            "carried through"
+        ],
+        "answer": 0,
+        "explanation": "'Carried out' means performed."
+    },
+    {
+        "question": "The train will _______ at 5 pm.",
+        "options": [
+            "set off",
+            "set out",
+            "set up",
+            "set in"
+        ],
+        "answer": 0,
+        "explanation": "'Set off' means to begin a journey."
+    },
+    {
+        "question": "Can you _______ the problem quickly?",
+        "options": [
+            "sort out",
+            "sort in",
+            "sort by",
+            "sort off"
+        ],
+        "answer": 0,
+        "explanation": "'Sort out' means to resolve."
+    },
+    {
+        "question": "She _______ home early due to illness.",
+        "options": [
+            "turned up",
+            "turned in",
+            "turned on",
+            "turned off"
+        ],
+        "answer": 1,
+        "explanation": "'Turned in' means to go to bed or leave."
+    },
+    {
+        "question": "The director _______ a new policy on safety.",
+        "options": [
+            "put forward",
+            "put off",
+            "put away",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put forward' means proposed."
+    },
+    {
+        "question": "He promised to _______ the lost time.",
+        "options": [
+            "make up",
+            "make out",
+            "make in",
+            "make for"
+        ],
+        "answer": 0,
+        "explanation": "'Make up' means to compensate."
+    },
+    {
+        "question": "The company plans to _______ its business internationally.",
+        "options": [
+            "expand on",
+            "expand into",
+            "expand over",
+            "expand up"
+        ],
+        "answer": 1,
+        "explanation": "'Expand into' means to grow into."
+    },
+    {
+        "question": "He _______ his mistakes and apologized.",
+        "options": [
+            "owned up to",
+            "owned in to",
+            "owned off to",
+            "owned on"
+        ],
+        "answer": 0,
+        "explanation": "'Own up to' means to admit."
+    },
+    {
+        "question": "The teacher asked the students to _______ the chapter.",
+        "options": [
+            "go over",
+            "go through",
+            "go up",
+            "go by"
+        ],
+        "answer": 1,
+        "explanation": "'Go through' means to review thoroughly."
+    },
+    {
+        "question": "She _______ the invitation politely.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned on",
+            "turned off"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means refused."
+    },
+    {
+        "question": "The kids _______ happily in the playground.",
+        "options": [
+            "played around",
+            "played up",
+            "played out",
+            "played down"
+        ],
+        "answer": 0,
+        "explanation": "'Played around' means had fun."
+    },
+    {
+        "question": "Please _______ the lights before leaving.",
+        "options": [
+            "turn off",
+            "turn on",
+            "turn up",
+            "turn down"
+        ],
+        "answer": 0,
+        "explanation": "'Turn off' means switch off."
+    },
+    {
+        "question": "The manager asked the employees to _______ the report carefully.",
+        "options": [
+            "look over",
+            "look into",
+            "look after",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look over' means to examine."
+    },
+    {
+        "question": "He _______ the stolen goods to the police.",
+        "options": [
+            "gave up",
+            "gave away",
+            "gave in",
+            "gave out"
+        ],
+        "answer": 1,
+        "explanation": "'Gave away' means surrendered."
+    },
+    {
+        "question": "They _______ the new software last month.",
+        "options": [
+            "put out",
+            "put in",
+            "put up",
+            "put forward"
+        ],
+        "answer": 0,
+        "explanation": "'Put out' means launched or released."
+    },
+    {
+        "question": "He _______ the car keys on the table.",
+        "options": [
+            "put down",
+            "put off",
+            "put up",
+            "put away"
+        ],
+        "answer": 0,
+        "explanation": "'Put down' means to place."
+    },
+    {
+        "question": "The kids were asked to _______ the classroom.",
+        "options": [
+            "clean up",
+            "clean out",
+            "clean off",
+            "clean down"
+        ],
+        "answer": 0,
+        "explanation": "'Clean up' means to tidy."
+    },
+    {
+        "question": "She _______ an apology for her mistake.",
+        "options": [
+            "made up",
+            "made out",
+            "made off",
+            "made in"
+        ],
+        "answer": 0,
+        "explanation": "'Made up' means apologized."
+    },
+    {
+        "question": "He _______ the explanation during the meeting.",
+        "options": [
+            "carried on",
+            "carried out",
+            "carried through",
+            "carried over"
+        ],
+        "answer": 0,
+        "explanation": "'Carried on' means continued."
+    },
+    {
+        "question": "The festival will _______ as planned next month.",
+        "options": [
+            "take place",
+            "take up",
+            "take off",
+            "take on"
+        ],
+        "answer": 0,
+        "explanation": "'Take place' means to happen."
+    },
+    {
+        "question": "She promised to _______ her studies next year.",
+        "options": [
+            "carry on",
+            "carry out",
+            "carry through",
+            "carry over"
+        ],
+        "answer": 0,
+        "explanation": "'Carry on' means continue."
+    },
+    {
+        "question": "The plane _______ at 8 am this morning.",
+        "options": [
+            "took off",
+            "took up",
+            "took over",
+            "took in"
+        ],
+        "answer": 0,
+        "explanation": "'Took off' means left the ground."
+    },
+    {
+        "question": "He _______ the old records for research.",
+        "options": [
+            "looked through",
+            "looked over",
+            "looked into",
+            "looked up"
+        ],
+        "answer": 0,
+        "explanation": "'Looked through' means examined."
+    },
+    {
+        "question": "Please _______ the instructions carefully.",
+        "options": [
+            "go through",
+            "go over",
+            "go by",
+            "go in"
+        ],
+        "answer": 0,
+        "explanation": "'Go through' means to review carefully."
+    },
+    {
+        "question": "They decided to _______ the plan after consultation.",
+        "options": [
+            "go ahead with",
+            "go back on",
+            "go off",
+            "go out"
+        ],
+        "answer": 0,
+        "explanation": "'Go ahead with' means to proceed."
+    },
+    {
+        "question": "He _______ an excuse for being late.",
+        "options": [
+            "made up",
+            "made out",
+            "made off",
+            "made in"
+        ],
+        "answer": 0,
+        "explanation": "'Made up' means invented."
+    },
+    {
+        "question": "The company will _______ a new policy soon.",
+        "options": [
+            "put forward",
+            "put off",
+            "put up",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put forward' means propose."
+    },
+    {
+        "question": "He was asked to _______ the documents before the meeting.",
+        "options": [
+            "look over",
+            "look into",
+            "look after",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look over' means to examine."
+    },
+    {
+        "question": "The teacher asked the students to _______ their homework on time.",
+        "options": [
+            "hand in",
+            "hand out",
+            "hand over",
+            "hand back"
+        ],
+        "answer": 0,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "She _______ an apology for her mistake.",
+        "options": [
+            "made up",
+            "made out",
+            "made off",
+            "made in"
+        ],
+        "answer": 0,
+        "explanation": "'Made up' means apologized."
+    },
+    {
+        "question": "The company decided to _______ new safety protocols.",
+        "options": [
+            "put forward",
+            "put off",
+            "put away",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put forward' means proposed or suggested."
+    },
+    {
+        "question": "The police managed to _______ the stolen goods.",
+        "options": [
+            "track down",
+            "track in",
+            "track up",
+            "track out"
+        ],
+        "answer": 0,
+        "explanation": "'Track down' means to find after searching."
+    },
+    {
+        "question": "He promised to _______ the lost time.",
+        "options": [
+            "make up",
+            "make out",
+            "make in",
+            "make for"
+        ],
+        "answer": 0,
+        "explanation": "'Make up' means to compensate."
+    },
+    {
+        "question": "The meeting was _______ due to bad weather.",
+        "options": [
+            "called off",
+            "called on",
+            "called out",
+            "called up"
+        ],
+        "answer": 0,
+        "explanation": "'Called off' means canceled."
+    },
+    {
+        "question": "She _______ her duties with sincerity.",
+        "options": [
+            "carried out",
+            "carried on",
+            "carried over",
+            "carried through"
+        ],
+        "answer": 0,
+        "explanation": "'Carried out' means performed."
+    },
+    {
+        "question": "Please _______ the volume; it is too loud.",
+        "options": [
+            "turn down",
+            "turn up",
+            "turn off",
+            "turn on"
+        ],
+        "answer": 0,
+        "explanation": "'Turn down' means to reduce."
+    },
+    {
+        "question": "The company will _______ new employees next month.",
+        "options": [
+            "take on",
+            "take up",
+            "take out",
+            "take over"
+        ],
+        "answer": 0,
+        "explanation": "'Take on' means to hire."
+    },
+    {
+        "question": "They decided to _______ the project after delays.",
+        "options": [
+            "give up",
+            "give in",
+            "give out",
+            "give away"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop trying."
+    },
+    {
+        "question": "The festival will _______ as planned next week.",
+        "options": [
+            "take place",
+            "take off",
+            "take up",
+            "take on"
+        ],
+        "answer": 0,
+        "explanation": "'Take place' means to happen."
+    },
+    {
+        "question": "The train will _______ at 6 pm.",
+        "options": [
+            "set off",
+            "set up",
+            "set out",
+            "set in"
+        ],
+        "answer": 0,
+        "explanation": "'Set off' means to start a journey."
+    },
+    {
+        "question": "The manager asked everyone to _______ the new rules.",
+        "options": [
+            "stick to",
+            "stick up",
+            "stick on",
+            "stick with"
+        ],
+        "answer": 0,
+        "explanation": "'Stick to' means to adhere to."
+    },
+    {
+        "question": "He _______ old habits to improve his health.",
+        "options": [
+            "gave up",
+            "gave in",
+            "gave away",
+            "gave out"
+        ],
+        "answer": 0,
+        "explanation": "'Gave up' means stopped."
+    },
+    {
+        "question": "The children were asked to _______ the classroom after playtime.",
+        "options": [
+            "clean up",
+            "clean out",
+            "clean off",
+            "clean down"
+        ],
+        "answer": 0,
+        "explanation": "'Clean up' means to tidy."
+    },
+    {
+        "question": "He _______ the presentation during the meeting.",
+        "options": [
+            "carried on",
+            "carried out",
+            "carried through",
+            "carried over"
+        ],
+        "answer": 0,
+        "explanation": "'Carried on' means continued."
+    },
+    {
+        "question": "She promised to _______ the task by the deadline.",
+        "options": [
+            "carry out",
+            "carry on",
+            "carry through",
+            "carry over"
+        ],
+        "answer": 0,
+        "explanation": "'Carry out' means to perform."
+    },
+    {
+        "question": "The company _______ a new product recently.",
+        "options": [
+            "brought out",
+            "brought in",
+            "brought up",
+            "brought off"
+        ],
+        "answer": 0,
+        "explanation": "'Brought out' means released."
+    },
+    {
+        "question": "The police asked the witness to _______ details of the incident.",
+        "options": [
+            "point out",
+            "point up",
+            "point off",
+            "point at"
+        ],
+        "answer": 0,
+        "explanation": "'Point out' means to indicate or show."
+    },
+    {
+        "question": "The manager will _______ the team at the next meeting.",
+        "options": [
+            "call in",
+            "call on",
+            "call off",
+            "call out"
+        ],
+        "answer": 0,
+        "explanation": "'Call in' means to summon."
+    },
+    {
+        "question": "Can you please _______ the door when you leave?",
+        "options": [
+            "shut off",
+            "shut down",
+            "shut up",
+            "shut out"
+        ],
+        "answer": 0,
+        "explanation": "'Shut off' means to close."
+    },
+    {
+        "question": "He _______ the invitation politely.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned on",
+            "turned off"
+        ],
+        "answer": 0,
+        "explanation": "'Turned down' means refused."
+    },
+    {
+        "question": "She _______ quickly when the announcement was made.",
+        "options": [
+            "ran off",
+            "ran away",
+            "ran out",
+            "ran in"
+        ],
+        "answer": 0,
+        "explanation": "'Ran off' means escaped."
+    },
+    {
+        "question": "We should _______ the situation before it gets worse.",
+        "options": [
+            "look into",
+            "look over",
+            "look for",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look into' means investigate."
+    },
+    {
+        "question": "The team will _______ the plan after final approval.",
+        "options": [
+            "go ahead with",
+            "go back on",
+            "go off",
+            "go out"
+        ],
+        "answer": 0,
+        "explanation": "'Go ahead with' means to proceed."
+    },
+    {
+        "question": "He _______ his fears and started speaking.",
+        "options": [
+            "came through",
+            "came over",
+            "came up",
+            "came out"
+        ],
+        "answer": 0,
+        "explanation": "'Came through' means overcame."
+    },
+    {
+        "question": "The workers _______ the strike after talks with management.",
+        "options": [
+            "called off",
+            "called on",
+            "called up",
+            "called out"
+        ],
+        "answer": 0,
+        "explanation": "'Called off' means cancelled."
+    },
+    {
+        "question": "Please _______ the lights before leaving the room.",
+        "options": [
+            "turn off",
+            "turn on",
+            "turn up",
+            "turn down"
+        ],
+        "answer": 0,
+        "explanation": "'Turn off' means to switch off."
+    },
+    {
+        "question": "He _______ the car safely to the parking lot.",
+        "options": [
+            "drove on",
+            "drove up",
+            "drove off",
+            "drove in"
+        ],
+        "answer": 1,
+        "explanation": "'Drove up' means to drive towards."
+    },
+    {
+        "question": "She _______ the report before submission.",
+        "options": [
+            "looked over",
+            "looked into",
+            "looked after",
+            "looked up"
+        ],
+        "answer": 0,
+        "explanation": "'Looked over' means examined."
+    },
+    {
+        "question": "The teacher asked the students to _______ their assignments on time.",
+        "options": [
+            "turn in",
+            "turn out",
+            "turn on",
+            "turn off"
+        ],
+        "answer": 0,
+        "explanation": "'Turn in' means to submit."
+    },
+    {
+        "question": "He was able to _______ the difficult challenge.",
+        "options": [
+            "pull off",
+            "pull out",
+            "pull over",
+            "pull up"
+        ],
+        "answer": 0,
+        "explanation": "'Pull off' means to succeed in doing something difficult."
+    },
+    {
+        "question": "The company _______ new policies for better security.",
+        "options": [
+            "put forward",
+            "put off",
+            "put out",
+            "put away"
+        ],
+        "answer": 0,
+        "explanation": "'Put forward' means proposed."
+    },
+    {
+        "question": "The students were asked to _______ the classroom before leaving.",
+        "options": [
+            "clean up",
+            "clean out",
+            "clean off",
+            "clean down"
+        ],
+        "answer": 0,
+        "explanation": "'Clean up' means to tidy."
+    },
+    {
+        "question": "The players _______ well during the match.",
+        "options": [
+            "played up",
+            "played out",
+            "played around",
+            "played down"
+        ],
+        "answer": 2,
+        "explanation": "'Played around' means had fun."
+    },
+    {
+        "question": "She _______ an apology for the mistake.",
+        "options": [
+            "made up",
+            "made out",
+            "made off",
+            "made in"
+        ],
+        "answer": 0,
+        "explanation": "'Made up' means apologized."
+    },
+    {
+        "question": "The manager asked the team to _______ the project by Friday.",
+        "options": [
+            "carry out",
+            "carry on",
+            "carry through",
+            "carry over"
+        ],
+        "answer": 0,
+        "explanation": "'Carry out' means to perform or complete."
+    },
+    {
+        "question": "The festival will _______ as scheduled.",
+        "options": [
+            "take place",
+            "take off",
+            "take up",
+            "take on"
+        ],
+        "answer": 0,
+        "explanation": "'Take place' means to happen."
+    },
+    {
+        "question": "The plane _______ on time despite the delay.",
+        "options": [
+            "took off",
+            "took over",
+            "took up",
+            "took in"
+        ],
+        "answer": 0,
+        "explanation": "'Took off' means left the ground."
+    },
+    {
+        "question": "She _______ the old books to the library.",
+        "options": [
+            "gave away",
+            "gave up",
+            "gave out",
+            "gave in"
+        ],
+        "answer": 0,
+        "explanation": "'Gave away' means donated."
+    },
+    {
+        "question": "They _______ a new strategy to increase sales.",
+        "options": [
+            "came up with",
+            "came over with",
+            "came out with",
+            "came along with"
+        ],
+        "answer": 0,
+        "explanation": "'Came up with' means to think of or suggest."
+    },
+    {
+        "question": "We need to _______ the problem immediately.",
+        "options": [
+            "deal with",
+            "deal in",
+            "deal off",
+            "deal up"
+        ],
+        "answer": 0,
+        "explanation": "'Deal with' means to handle or solve."
+    },
+    {
+        "question": "The teacher asked the students to _______ their work.",
+        "options": [
+            "hand in",
+            "hand out",
+            "hand over",
+            "hand back"
+        ],
+        "answer": 0,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "She _______ the phone when it rang.",
+        "options": [
+            "picked up",
+            "picked out",
+            "picked off",
+            "picked in"
+        ],
+        "answer": 0,
+        "explanation": "'Picked up' means answered."
+    },
+    {
+        "question": "The company has decided to _______ operations overseas.",
+        "options": [
+            "expand into",
+            "expand on",
+            "expand over",
+            "expand in"
+        ],
+        "answer": 0,
+        "explanation": "'Expand into' means to grow or increase presence."
+    },
+    {
+        "question": "He _______ the volume of the radio.",
+        "options": [
+            "turned up",
+            "turned down",
+            "turned on",
+            "turned off"
+        ],
+        "answer": 0,
+        "explanation": "'Turned up' means increased."
+    },
+    {
+        "question": "He _______ the responsibility when no one else volunteered.",
+        "options": [
+            "took on",
+            "took up",
+            "took over",
+            "took off"
+        ],
+        "answer": 0,
+        "explanation": "'Took on' means to accept responsibility."
+    },
+    {
+        "question": "The government plans to _______ more jobs this year.",
+        "options": [
+            "create",
+            "bring up",
+            "take on",
+            "carry out"
+        ],
+        "answer": 2,
+        "explanation": "'Take on' means to hire or employ."
+    },
+    {
+        "question": "She _______ going to the gym every morning.",
+        "options": [
+            "took up",
+            "took on",
+            "took out",
+            "took in"
+        ],
+        "answer": 0,
+        "explanation": "'Took up' means to start a new activity or hobby."
+    },
+    {
+        "question": "Please _______ your shoes before entering the house.",
+        "options": [
+            "take off",
+            "take out",
+            "take up",
+            "take in"
+        ],
+        "answer": 0,
+        "explanation": "'Take off' means to remove."
+    },
+    {
+        "question": "The manager asked everyone to _______ on the project.",
+        "options": [
+            "focus on",
+            "focus in",
+            "focus up",
+            "focus at"
+        ],
+        "answer": 0,
+        "explanation": "'Focus on' means to concentrate."
+    },
+    {
+        "question": "He _______ his old books to charity.",
+        "options": [
+            "gave away",
+            "gave up",
+            "gave out",
+            "gave in"
+        ],
+        "answer": 0,
+        "explanation": "'Gave away' means to donate or distribute."
+    },
+    {
+        "question": "They decided to _______ the party due to bad weather.",
+        "options": [
+            "call off",
+            "call out",
+            "call on",
+            "call up"
+        ],
+        "answer": 0,
+        "explanation": "'Call off' means to cancel."
+    },
+    {
+        "question": "She _______ quickly when the fire alarm rang.",
+        "options": [
+            "ran out",
+            "ran off",
+            "ran away",
+            "ran in"
+        ],
+        "answer": 0,
+        "explanation": "'Ran out' means exited quickly."
+    },
+    {
+        "question": "He was asked to _______ the report before the meeting.",
+        "options": [
+            "look over",
+            "look into",
+            "look after",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look over' means to examine."
+    },
+    {
+        "question": "The company decided to _______ its operations overseas.",
+        "options": [
+            "expand into",
+            "expand over",
+            "expand on",
+            "expand in"
+        ],
+        "answer": 0,
+        "explanation": "'Expand into' means to grow or increase presence."
+    },
+    {
+        "question": "The teacher asked the students to _______ their homework on time.",
+        "options": [
+            "hand in",
+            "hand out",
+            "hand over",
+            "hand back"
+        ],
+        "answer": 0,
+        "explanation": "'Hand in' means to submit or turn in."
+    },
+    {
+        "question": "He _______ a detailed explanation for his absence.",
+        "options": [
+            "gave out",
+            "gave off",
+            "gave in",
+            "gave up"
+        ],
+        "answer": 0,
+        "explanation": "'Gave out' means provided."
+    },
+    {
+        "question": "Please _______ the lights before leaving.",
+        "options": [
+            "turn off",
+            "turn on",
+            "turn up",
+            "turn down"
+        ],
+        "answer": 0,
+        "explanation": "'Turn off' means to switch off."
+    },
+    {
+        "question": "She _______ quickly when she heard the news.",
+        "options": [
+            "calmed down",
+            "calmed up",
+            "calmed off",
+            "calmed over"
+        ],
+        "answer": 0,
+        "explanation": "'Calmed down' means to become less agitated."
+    },
+    {
+        "question": "The project was finally _______ after several delays.",
+        "options": [
+            "carried out",
+            "carried on",
+            "carried over",
+            "carried through"
+        ],
+        "answer": 0,
+        "explanation": "'Carried out' means performed or completed."
+    },
+    {
+        "question": "They agreed to _______ the contract yesterday.",
+        "options": [
+            "sign up",
+            "sign off",
+            "sign in",
+            "sign out"
+        ],
+        "answer": 1,
+        "explanation": "'Sign off' means to approve or agree."
+    },
+    {
+        "question": "He needs to _______ smoking for health reasons.",
+        "options": [
+            "give up",
+            "give in",
+            "give away",
+            "give out"
+        ],
+        "answer": 0,
+        "explanation": "'Give up' means to stop."
+    },
+    {
+        "question": "The workers decided to _______ after months of negotiations.",
+        "options": [
+            "call off",
+            "call out",
+            "call in",
+            "call on"
+        ],
+        "answer": 1,
+        "explanation": "'Call out' means to go on strike."
+    },
+    {
+        "question": "She _______ the invitation politely.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned off",
+            "turned on"
+        ],
+        "answer": 0,
+        "explanation": "'Turned down' means refused."
+    },
+    {
+        "question": "The detectives managed to _______ the mystery.",
+        "options": [
+            "figure out",
+            "figure in",
+            "figure on",
+            "figure up"
+        ],
+        "answer": 0,
+        "explanation": "'Figure out' means to solve or understand."
+    },
+    {
+        "question": "He _______ the issue during the meeting.",
+        "options": [
+            "brought up",
+            "brought in",
+            "brought out",
+            "brought over"
+        ],
+        "answer": 0,
+        "explanation": "'Brought up' means mentioned."
+    },
+    {
+        "question": "Make sure to _______ the lights after leaving.",
+        "options": [
+            "turn off",
+            "turn on",
+            "turn up",
+            "turn down"
+        ],
+        "answer": 0,
+        "explanation": "'Turn off' means switch off."
+    },
+    {
+        "question": "She _______ her old friends during the reunion.",
+        "options": [
+            "looked up",
+            "looked after",
+            "looked in",
+            "looked over"
+        ],
+        "answer": 0,
+        "explanation": "'Looked up' means met or contacted."
+    },
+    {
+        "question": "The manager asked the staff to _______ the new policy.",
+        "options": [
+            "carry out",
+            "carry on",
+            "carry through",
+            "carry over"
+        ],
+        "answer": 0,
+        "explanation": "'Carry out' means implement."
+    },
+    {
+        "question": "They plan to _______ the festival next week.",
+        "options": [
+            "take place",
+            "take off",
+            "take up",
+            "take on"
+        ],
+        "answer": 0,
+        "explanation": "'Take place' means to happen."
+    },
+    {
+        "question": "He _______ his mistakes and promised to improve.",
+        "options": [
+            "owned up to",
+            "owned in to",
+            "owned off to",
+            "owned on"
+        ],
+        "answer": 0,
+        "explanation": "'Owned up to' means admitted."
+    },
+    {
+        "question": "She asked him to _______ early for the meeting.",
+        "options": [
+            "show up",
+            "show in",
+            "show out",
+            "show over"
+        ],
+        "answer": 0,
+        "explanation": "'Show up' means to arrive."
+    },
+    {
+        "question": "He _______ quickly when the fire alarm went off.",
+        "options": [
+            "ran out",
+            "ran off",
+            "ran away",
+            "ran in"
+        ],
+        "answer": 0,
+        "explanation": "'Ran out' means exited quickly."
+    },
+    {
+        "question": "They decided to _______ the project after extensive planning.",
+        "options": [
+            "go ahead with",
+            "go back on",
+            "go off",
+            "go out"
+        ],
+        "answer": 0,
+        "explanation": "'Go ahead with' means to proceed."
+    },
+    {
+        "question": "The kids were asked to _______ their toys after playing.",
+        "options": [
+            "put away",
+            "put on",
+            "put off",
+            "put up"
+        ],
+        "answer": 0,
+        "explanation": "'Put away' means to tidy."
+    },
+    {
+        "question": "He promised to _______ for his mistake.",
+        "options": [
+            "make up",
+            "make out",
+            "make for",
+            "make in"
+        ],
+        "answer": 0,
+        "explanation": "'Make up' means to compensate."
+    },
+    {
+        "question": "The plane _______ at exactly 9 am.",
+        "options": [
+            "took off",
+            "took on",
+            "took up",
+            "took over"
+        ],
+        "answer": 0,
+        "explanation": "'Took off' means left the ground."
+    },
+    {
+        "question": "She _______ quickly when she saw the snake.",
+        "options": [
+            "backed off",
+            "backed up",
+            "backed in",
+            "backed over"
+        ],
+        "answer": 0,
+        "explanation": "'Backed off' means retreated."
+    },
+    {
+        "question": "She _______ the teacher’s instructions carefully.",
+        "options": [
+            "carried out",
+            "carried on",
+            "carried through",
+            "carried over"
+        ],
+        "answer": 0,
+        "explanation": "'Carried out' means performed or executed."
+    },
+    {
+        "question": "They _______ to the new system smoothly.",
+        "options": [
+            "adapted on",
+            "adapted to",
+            "adapted with",
+            "adapted for"
+        ],
+        "answer": 1,
+        "explanation": "'Adapted to' means adjusted to."
+    },
+    {
+        "question": "He _______ the invitation to speak at the conference.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned in",
+            "turned off"
+        ],
+        "answer": 0,
+        "explanation": "'Turned down' means declined."
+    },
+    {
+        "question": "The company is planning to _______ new technology.",
+        "options": [
+            "bring in",
+            "bring up",
+            "bring out",
+            "bring over"
+        ],
+        "answer": 0,
+        "explanation": "'Bring in' means to introduce."
+    },
+    {
+        "question": "The manager asked the staff to _______ the emails urgently.",
+        "options": [
+            "look after",
+            "look into",
+            "look over",
+            "look up"
+        ],
+        "answer": 1,
+        "explanation": "'Look into' means to investigate."
+    },
+    {
+        "question": "The students were told to _______ their notes before the exam.",
+        "options": [
+            "go over",
+            "go through",
+            "go ahead",
+            "go by"
+        ],
+        "answer": 1,
+        "explanation": "'Go through' means to review carefully."
+    },
+    {
+        "question": "He _______ the meeting due to a sudden illness.",
+        "options": [
+            "called off",
+            "called on",
+            "called out",
+            "called up"
+        ],
+        "answer": 0,
+        "explanation": "'Called off' means cancelled."
+    },
+    {
+        "question": "The team managed to _______ the project within the deadline.",
+        "options": [
+            "pull off",
+            "pull out",
+            "pull over",
+            "pull up"
+        ],
+        "answer": 0,
+        "explanation": "'Pull off' means to succeed."
+    },
+    {
+        "question": "She told him to _______ the documents carefully.",
+        "options": [
+            "look over",
+            "look into",
+            "look after",
+            "look up"
+        ],
+        "answer": 0,
+        "explanation": "'Look over' means to examine."
+    },
+    {
+        "question": "He _______ the volume when the children fell asleep.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned off",
+            "turned on"
+        ],
+        "answer": 0,
+        "explanation": "'Turned down' means reduced."
+    },
+    {
+        "question": "The students _______ their assignments on time.",
+        "options": [
+            "handed in",
+            "handed out",
+            "handed over",
+            "handed back"
+        ],
+        "answer": 0,
+        "explanation": "'Handed in' means submitted."
+    },
+    {
+        "question": "They decided to _______ the new policy after discussion.",
+        "options": [
+            "put forward",
+            "put off",
+            "put away",
+            "put out"
+        ],
+        "answer": 0,
+        "explanation": "'Put forward' means proposed."
+    },
+    {
+        "question": "He _______ the stolen goods to the police.",
+        "options": [
+            "gave away",
+            "gave up",
+            "gave in",
+            "gave out"
+        ],
+        "answer": 0,
+        "explanation": "'Gave away' means surrendered or donated."
+    },
+    {
+        "question": "She promised to _______ the lost time.",
+        "options": [
+            "make up",
+            "make out",
+            "make for",
+            "make in"
+        ],
+        "answer": 0,
+        "explanation": "'Make up' means to compensate for."
+    },
+    {
+        "question": "The plane _______ at 7 am sharp.",
+        "options": [
+            "took off",
+            "took in",
+            "took over",
+            "took up"
+        ],
+        "answer": 0,
+        "explanation": "'Took off' means left the ground."
+    },
+    {
+        "question": "He _______ quickly when the fire alarm sounded.",
+        "options": [
+            "ran out",
+            "ran off",
+            "ran away",
+            "ran in"
+        ],
+        "answer": 0,
+        "explanation": "'Ran out' means exited quickly."
+    },
+    {
+        "question": "The workers decided to _______ the strike after talks.",
+        "options": [
+            "call off",
+            "call out",
+            "call in",
+            "call on"
+        ],
+        "answer": 0,
+        "explanation": "'Call off' means cancelled."
+    },
+    {
+        "question": "She _______ the lights before leaving the room.",
+        "options": [
+            "turned off",
+            "turned on",
+            "turned up",
+            "turned down"
+        ],
+        "answer": 0,
+        "explanation": "'Turned off' means switched off."
+    },
+    {
+        "question": "He needs to _______ his skills to succeed.",
+        "options": [
+            "brush up",
+            "brush down",
+            "brush off",
+            "brush in"
+        ],
+        "answer": 0,
+        "explanation": "'Brush up' means to improve."
+    },
+    {
+        "question": "They plan to _______ the event next month.",
+        "options": [
+            "hold on",
+            "hold out",
+            "hold up",
+            "hold"
+        ],
+        "answer": 3,
+        "explanation": "'Hold' means to organize."
+    },
+    {
+        "question": "She _______ an apology for her mistake.",
+        "options": [
+            "made up",
+            "made out",
+            "made off",
+            "made in"
+        ],
+        "answer": 0,
+        "explanation": "'Made up' means apologized."
+    },
+    {
+        "question": "The manager asked the staff to _______ the new software.",
+        "options": [
+            "get on with",
+            "get by with",
+            "get up to",
+            "get along with"
+        ],
+        "answer": 0,
+        "explanation": "'Get on with' means to continue working."
+    },
+    {
+        "question": "He _______ the project despite the difficulties.",
+        "options": [
+            "carried on",
+            "carried out",
+            "carried over",
+            "carried through"
+        ],
+        "answer": 0,
+        "explanation": "'Carried on' means continued."
+    },
+    {
+        "question": "Please _______ the documents by Friday.",
+        "options": [
+            "hand in",
+            "hand out",
+            "hand over",
+            "hand back"
+        ],
+        "answer": 0,
+        "explanation": "'Hand in' means to submit."
+    },
+    {
+        "question": "They _______ the festival as planned.",
+        "options": [
+            "held up",
+            "held on",
+            "held out",
+            "held"
+        ],
+        "answer": 3,
+        "explanation": "'Held' means organized."
+    },
+    {
+        "question": "The teacher asked to _______ the assignments on time.",
+        "options": [
+            "turn in",
+            "turn out",
+            "turn off",
+            "turn on"
+        ],
+        "answer": 0,
+        "explanation": "'Turn in' means to submit."
+    },
+    {
+        "question": "He _______ quickly when he saw the snake.",
+        "options": [
+            "backed off",
+            "backed up",
+            "backed in",
+            "backed over"
+        ],
+        "answer": 0,
+        "explanation": "'Backed off' means retreated."
+    },
+    {
+        "question": "The company will _______ new branches next year.",
+        "options": [
+            "open up",
+            "open out",
+            "open across",
+            "open down"
+        ],
+        "answer": 0,
+        "explanation": "'Open up' means to establish."
+    },
+    {
+        "question": "The kids were asked to _______ their toys after playing.",
+        "options": [
+            "put away",
+            "put on",
+            "put off",
+            "put up"
+        ],
+        "answer": 0,
+        "explanation": "'Put away' means to tidy."
+    },
+    {
+        "question": "She _______ up late for the meeting.",
+        "options": [
+            "showed",
+            "turned",
+            "came",
+            "went"
+        ],
+        "answer": 0,
+        "explanation": "'Showed up' means arrived."
+    },
+    {
+        "question": "We need to _______ the problem immediately.",
+        "options": [
+            "deal with",
+            "deal at",
+            "deal up",
+            "deal over"
+        ],
+        "answer": 0,
+        "explanation": "'Deal with' means to handle or address."
+    },
+    {
+        "question": "The manager asked the employees to _______ their work.",
+        "options": [
+            "carry out",
+            "carry on",
+            "carry over",
+            "carry through"
+        ],
+        "answer": 0,
+        "explanation": "'Carry out' means to perform."
+    },
+    {
+        "question": "The company _______ a new policy yesterday.",
+        "options": [
+            "put off",
+            "put forward",
+            "put away",
+            "put out"
+        ],
+        "answer": 1,
+        "explanation": "'Put forward' means proposed."
+    },
+    {
+        "question": "He _______ the phone when it rang.",
+        "options": [
+            "picked up",
+            "picked out",
+            "picked off",
+            "picked in"
+        ],
+        "answer": 0,
+        "explanation": "'Picked up' means answered."
+    },
+    {
+        "question": "She decided to _______ smoking for health reasons.",
+        "options": [
+            "give away",
+            "give in",
+            "give up",
+            "give out"
+        ],
+        "answer": 2,
+        "explanation": "'Give up' means to stop."
+    },
+    {
+        "question": "They _______ the invitation to the event.",
+        "options": [
+            "turned down",
+            "turned up",
+            "turned on",
+            "turned off"
+        ],
+        "answer": 0,
+        "explanation": "'Turned down' means refused."
+    },
+    {
+        "question": "The plane will _______ at 10 am.",
+        "options": [
+            "take off",
+            "take out",
+            "take up",
+            "take on"
+        ],
+        "answer": 0,
+        "explanation": "'Take off' means to leave the ground."
+    },
+    {
+        "question": "The team managed to _______ the project successfully.",
+        "options": [
+            "pull off",
+            "pull out",
+            "pull over",
+            "pull up"
+        ],
+        "answer": 0,
+        "explanation": "'Pull off' means succeeded."
+    },
+    {
+        "question": "We should _______ our goals and work hard.",
+        "options": [
+            "stick to",
+            "stick up",
+            "stick on",
+            "stick with"
+        ],
+        "answer": 0,
+        "explanation": "'Stick to' means to adhere to."
+    },
+    {
+        "question": "He _______ to the company last year.",
+        "options": [
+            "joined in",
+            "joined up",
+            "joined off",
+            "joined"
+        ],
+        "answer": 3,
+        "explanation": "'Joined' means became a member."
+    },
+    {
+        "question": "The teacher asked the students to _______ quietly during the lecture.",
+        "options": [
+            "sit down",
+            "sit in",
+            "sit up",
+            "sit out"
+        ],
+        "answer": 0,
+        "explanation": "'Sit down' means to take a seat."
+    }
+
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

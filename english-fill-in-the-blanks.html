@@ -1,0 +1,3619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fill In The Blanks Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">FILL IN THE BLANKS</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "Vinod had a ________ escape in the car accident.",
+        "options": ["narrow", "wide", "comfortable", "full"],
+        "answer": 0,
+        "explanation": "A 'narrow escape' means barely avoiding danger. This is a common phrase."
+    },
+    {
+        "question": "He has the ________ to express his thoughts.",
+        "options": ["write", "ride", "rite", "right"],
+        "answer": 3,
+        "explanation": "'Right' fits as in 'the right to do something'. Others are homophones."
+    },
+    {
+        "question": "You ________ finish your work before you leave the office.",
+        "options": ["must", "should", "may", "can"],
+        "answer": 0,
+        "explanation": "'Must' shows necessity or obligation."
+    },
+    {
+        "question": "The train is ________ to arrive at 6 pm.",
+        "options": ["expected", "expecting", "expect", "expects"],
+        "answer": 0,
+        "explanation": "'Expected' is correct in passive form for an event."
+    },
+    {
+        "question": "She is fond ________ music.",
+        "options": ["for", "of", "to", "with"],
+        "answer": 1,
+        "explanation": "The phrase is 'fond of'."
+    },
+    {
+        "question": "Most of the land near the town is barren, but the efforts of the farmers have turned it ________.",
+        "options": ["sterile", "infertile", "unfruitful", "fertile"],
+        "answer": 3,
+        "explanation": "'Turned it fertile'—making the land productive."
+    },
+    {
+        "question": "Most of the flowers bloom in the spring season, but they start to ________ during summer.",
+        "options": ["flush", "wither", "blossom", "flourish"],
+        "answer": 1,
+        "explanation": "Flowers 'wither' means dry up and die."
+    },
+    {
+        "question": "He was allowed to sleep ________ he had finished his homework.",
+        "options": ["because", "when", "after", "till"],
+        "answer": 3,
+        "explanation": "'Till' indicates up to the time the homework was done."
+    },
+    {
+        "question": "________ you meet my son in the market, ask him to come home at once.",
+        "options": ["If", "Will", "Shall", "Should"],
+        "answer": 3,
+        "explanation": "Structure for 'should you meet' is formal conditional."
+    },
+    {
+        "question": "We shall fail ________ we are industrious.",
+        "options": ["if", "unless", "as", "while"],
+        "answer": 1,
+        "explanation": "'Unless' means except if; 'Unless we are industrious' = if we are not."
+    },
+    {
+        "question": "This is the boy ________ won the gold medal.",
+        "options": ["whose", "who", "whom", "that"],
+        "answer": 1,
+        "explanation": "'Who' as subject for people."
+    },
+    {
+        "question": "The elaborate syllabi had to be ________ to make a presentation in the meeting.",
+        "options": ["lengthened", "expanded", "prolonged", "recapitulated"],
+        "answer": 3,
+        "explanation": "'Recapitulated' means summarized."
+    },
+    {
+        "question": "You are ready to go, ________?",
+        "options": ["is it", "do you", "aren't you", "are you"],
+        "answer": 2,
+        "explanation": "Tag question after positive statement = negative tag: aren't you?"
+    },
+    {
+        "question": "You have played a great role, for ________ your help I would have been in trouble.",
+        "options": ["not", "without", "by", "except"],
+        "answer": 1,
+        "explanation": "Phrase—'without your help' means in the absence of help."
+    },
+    {
+        "question": "Ravi is ________ than his brother.",
+        "options": ["tall", "taller", "tallest", "more taller"],
+        "answer": 1,
+        "explanation": "Comparative degree for two: 'taller'."
+    },
+    {
+        "question": "________ honesty is the best policy.",
+        "options": ["A", "An", "The", "None of these"],
+        "answer": 2,
+        "explanation": "Abstract nouns mostly take 'the' when specific: 'the honesty'."
+    },
+    {
+        "question": "I have known him ________ five years.",
+        "options": ["since", "for", "from", "about"],
+        "answer": 1,
+        "explanation": "'For' + period of time."
+    },
+    {
+        "question": "He is not only intelligent ________ hardworking.",
+        "options": ["also", "but also", "as well", "and also"],
+        "answer": 1,
+        "explanation": "Correlative conjunctions: not only—but also."
+    },
+    {
+        "question": "We ________ the game when it began to rain.",
+        "options": ["play", "were playing", "have played", "playing"],
+        "answer": 1,
+        "explanation": "Past continuous tense as the background action."
+    },
+    {
+        "question": "She prefers coffee ________ tea.",
+        "options": ["to", "over", "than", "upon"],
+        "answer": 0,
+        "explanation": "Correct usage is 'prefers X to Y'."
+    },
+    {
+        "question": "His advice is often not taken ________ consideration.",
+        "options": ["on", "among", "to", "into"],
+        "answer": 3,
+        "explanation": "Phrase: 'taken into consideration'."
+    },
+    {
+        "question": "The wind ________ so powerfully that the door closed.",
+        "options": ["blow", "blew", "blues", "blue"],
+        "answer": 1,
+        "explanation": "Past tense of 'blow' is 'blew'."
+    },
+    {
+        "question": "Please ________ the lights before you leave.",
+        "options": ["turn on", "turn down", "turn off", "turn out"],
+        "answer": 2,
+        "explanation": "'Turn off' is standard for switching off electrical devices."
+    },
+    {
+        "question": "He lives ________ 15B, Park Street.",
+        "options": ["in", "at", "on", "by"],
+        "answer": 1,
+        "explanation": "'At' is used for a specific address."
+    },
+    {
+        "question": "She divided the cake ________ all her friends.",
+        "options": ["between", "among", "for", "from"],
+        "answer": 1,
+        "explanation": "'Among' for more than two people."
+    },
+    {
+        "question": "Can you walk as fast ________ he can?",
+        "options": ["so", "than", "as", "like"],
+        "answer": 2,
+        "explanation": "Comparison uses 'as...as' structure."
+    },
+    {
+        "question": "He is afraid ________ dogs.",
+        "options": ["for", "of", "with", "about"],
+        "answer": 1,
+        "explanation": "Phrase: 'afraid of'."
+    },
+    {
+        "question": "We arrived ________ the station on time.",
+        "options": ["of", "to", "at", "on"],
+        "answer": 2,
+        "explanation": "'Arrive at' for small places, 'in' for cities."
+    },
+    {
+        "question": "This is ________ best movie I have ever watched.",
+        "options": ["a", "an", "the", "no article needed"],
+        "answer": 2,
+        "explanation": "Superlative degree always takes 'the'."
+    },
+    {
+        "question": "If I ________ a bird, I would fly to you.",
+        "options": ["am", "were", "was", "be"],
+        "answer": 1,
+        "explanation": "Unreal conditional, use 'were' after 'if'."
+    },
+    {
+        "question": "It is raining. You ________ take an umbrella.",
+        "options": ["should", "can", "may", "must"],
+        "answer": 0,
+        "explanation": "'Should' for advisability."
+    },
+    {
+        "question": "________ he said is true.",
+        "options": ["That", "What", "Which", "Who"],
+        "answer": 1,
+        "explanation": "Noun clause 'what he said'."
+    },
+    {
+        "question": "Rahul is good ________ mathematics.",
+        "options": ["in", "with", "at", "on"],
+        "answer": 2,
+        "explanation": "'Good at' shows skill in a subject/field."
+    },
+    {
+        "question": "She has not yet recovered ________ her illness.",
+        "options": ["of", "from", "in", "to"],
+        "answer": 1,
+        "explanation": "Phrase: 'recovered from'."
+    },
+    {
+        "question": "Nobody knows what ________ to him.",
+        "options": ["happens", "happened", "is happening", "will happen"],
+        "answer": 1,
+        "explanation": "Past event, so 'happened'."
+    },
+    {
+        "question": "He is senior ________ me by two years.",
+        "options": ["to", "than", "of", "by"],
+        "answer": 0,
+        "explanation": "'Senior to' is correct English."
+    },
+    {
+        "question": "She is concentrating ________ her studies.",
+        "options": ["at", "on", "in", "by"],
+        "answer": 1,
+        "explanation": "'Concentrate on'."
+    },
+    {
+        "question": "Many a student ________ absent today.",
+        "options": ["are", "is", "were", "be"],
+        "answer": 1,
+        "explanation": "'Many a' takes singular verb: 'is'."
+    },
+    {
+        "question": "His father died ________ cancer.",
+        "options": ["from", "of", "by", "due to"],
+        "answer": 1,
+        "explanation": "Standard phrase is 'died of (a disease)'."
+    },
+    {
+        "question": "She was born ________ a noble family.",
+        "options": ["at", "by", "in", "to"],
+        "answer": 2,
+        "explanation": "'Born in' is used with places or families."
+    },
+    {
+        "question": "One must take care ________ one’s health.",
+        "options": ["for", "of", "to", "about"],
+        "answer": 1,
+        "explanation": "'Take care of'."
+    },
+    {
+        "question": "He will return ________ a week.",
+        "options": ["in", "for", "since", "within"],
+        "answer": 0,
+        "explanation": "'In a week' = after one week."
+    },
+    {
+        "question": "The result will be declared ________ Monday.",
+        "options": ["in", "at", "on", "by"],
+        "answer": 2,
+        "explanation": "'On' used with days."
+    },
+    {
+        "question": "We need ________ sugar to make tea.",
+        "options": ["some", "any", "a few", "few"],
+        "answer": 0,
+        "explanation": "'Some' for positive statements."
+    },
+    {
+        "question": "The driver was responsible ________ the accident.",
+        "options": ["for", "of", "with", "to"],
+        "answer": 0,
+        "explanation": "'Responsible for'."
+    },
+    {
+        "question": "There is not ________ water in the bottle.",
+        "options": ["much", "many", "the", "a lot"],
+        "answer": 0,
+        "explanation": "'Much' is used with uncountables like 'water'."
+    },
+    {
+        "question": "He is looking forward ________ meeting you.",
+        "options": ["in", "by", "to", "at"],
+        "answer": 2,
+        "explanation": "'Looking forward to' needs a verb in -ing form."
+    },
+    {
+        "question": "She insisted ________ going there herself.",
+        "options": ["on", "in", "for", "to"],
+        "answer": 0,
+        "explanation": "'Insisted on'."
+    },
+    {
+        "question": "The teacher gave us ________ advice.",
+        "options": ["a little", "many", "some", "little"],
+        "answer": 2,
+        "explanation": "'Some advice', uncountable noun."
+    },
+    {
+        "question": "The court acquitted him ________ all charges.",
+        "options": ["of", "from", "by", "at"],
+        "answer": 0,
+        "explanation": "'Acquitted of' is the correct phrase."
+    },
+    {
+        "question": "He is angry ________ his brother.",
+        "options": ["on", "with", "against", "for"],
+        "answer": 1,
+        "explanation": "'Angry with' indicates the person one is angry at."
+    },
+    {
+        "question": "Her handwriting is superior ________ mine.",
+        "options": ["than", "to", "over", "from"],
+        "answer": 1,
+        "explanation": "'Superior to' is correct expression."
+    },
+    {
+        "question": "I am dependent ________ my parents.",
+        "options": ["with", "of", "on", "to"],
+        "answer": 2,
+        "explanation": "'Dependent on'."
+    },
+	 {
+        "question": "He was ________ by his failure.",
+        "options": ["disappointed", "delighted", "impressed", "delayed"],
+        "answer": 0,
+        "explanation": "'Disappointed' means made unhappy by not achieving something."
+    },
+    {
+        "question": "She is ________ her father in appearance.",
+        "options": ["like", "alike", "as", "so"],
+        "answer": 0,
+        "explanation": "'Like' is used to show similarity between two people."
+    },
+    {
+        "question": "Sunita is ________ interested in sports as her brother.",
+        "options": ["so", "as", "too", "much"],
+        "answer": 1,
+        "explanation": "'As interested as' is a correct comparative phrase."
+    },
+    {
+        "question": "You will succeed ________ you work hard.",
+        "options": ["if", "that", "now", "when"],
+        "answer": 0,
+        "explanation": "'If' expresses a condition for success."
+    },
+    {
+        "question": "The house was ________ fire.",
+        "options": ["in", "by", "on", "with"],
+        "answer": 2,
+        "explanation": "'On fire' means burning."
+    },
+    {
+        "question": "He always cares ________ his friends.",
+        "options": ["to", "about", "for", "of"],
+        "answer": 2,
+        "explanation": "'Care for' means to look after."
+    },
+    {
+        "question": "He is indifferent ________ praise or blame.",
+        "options": ["of", "to", "about", "with"],
+        "answer": 1,
+        "explanation": "'Indifferent to' means not affected by."
+    },
+    {
+        "question": "He is so weak that he cannot walk ________ a stick.",
+        "options": ["by", "with", "without", "beside"],
+        "answer": 2,
+        "explanation": "'Without a stick' means not having a stick."
+    },
+    {
+        "question": "Maria plays ________ piano well.",
+        "options": ["the", "a", "an", "none of these"],
+        "answer": 0,
+        "explanation": "Musical instruments take 'the' before their names."
+    },
+    {
+        "question": "She is ________ European by birth.",
+        "options": ["a", "an", "some", "any"],
+        "answer": 0,
+        "explanation": "'European' starts with 'yu' sound, so article 'a' is used."
+    },
+    {
+        "question": "This hall can accommodate ________ 200 persons.",
+        "options": ["more", "most", "almost", "at most"],
+        "answer": 3,
+        "explanation": "'At most' means not more than."
+    },
+    {
+        "question": "He is junior ________ me.",
+        "options": ["to", "than", "from", "off"],
+        "answer": 0,
+        "explanation": "'Junior to' is a fixed prepositional phrase."
+    },
+    {
+        "question": "I am confident ________ my success.",
+        "options": ["for", "about", "of", "over"],
+        "answer": 2,
+        "explanation": "'Confident of' is correct usage."
+    },
+    {
+        "question": "He is ________ his wits' end.",
+        "options": ["in", "at", "on", "by"],
+        "answer": 1,
+        "explanation": "'At one's wits' end' means at a loss as to what to do."
+    },
+    {
+        "question": "I prefer eating mangoes ________ apples.",
+        "options": ["than", "more than", "to", "over"],
+        "answer": 2,
+        "explanation": "'Prefer X to Y' is standard usage."
+    },
+    {
+        "question": "She never spends money ________ foolish things.",
+        "options": ["at", "for", "on", "in"],
+        "answer": 2,
+        "explanation": "'Spend money on' is the correct phrase."
+    },
+    {
+        "question": "He was looking forward to ________ a job.",
+        "options": ["get", "getting", "got", "gets"],
+        "answer": 1,
+        "explanation": "'Look forward to' requires -ing form after 'to'."
+    },
+    {
+        "question": "You should be careful ________ your health.",
+        "options": ["about", "at", "of", "over"],
+        "answer": 0,
+        "explanation": "'Careful about' relates to matters needing attention or concern."
+    },
+    {
+        "question": "He has ________ friends in the city.",
+        "options": ["a little", "little", "a few", "few"],
+        "answer": 2,
+        "explanation": "'A few' suggests some but not many, countable noun."
+    },
+    {
+        "question": "The river overflowed ________ its banks.",
+        "options": ["on", "of", "from", "beyond"],
+        "answer": 3,
+        "explanation": "'Beyond its banks' means out of the banks."
+    },
+    {
+        "question": "They have been living here ________ 2001.",
+        "options": ["since", "for", "from", "at"],
+        "answer": 0,
+        "explanation": "'Since' + specific point of time."
+    },
+    {
+        "question": "I congratulated him ________ his success.",
+        "options": ["at", "for", "on", "about"],
+        "answer": 2,
+        "explanation": "'Congratulated on' is correct phrase."
+    },
+    {
+        "question": "She is not eligible ________ the post.",
+        "options": ["to", "for", "with", "from"],
+        "answer": 1,
+        "explanation": "'Eligible for' is standard English."
+    },
+    {
+        "question": "He is endowed ________ great intelligence.",
+        "options": ["by", "in", "with", "of"],
+        "answer": 2,
+        "explanation": "'Endowed with' is the correct phrase."
+    },
+    {
+        "question": "Rohit failed ________ his hard work.",
+        "options": ["despite", "although", "in spite", "though"],
+        "answer": 0,
+        "explanation": "'Despite' is correct for showing contrast."
+    },
+    {
+        "question": "She was amazed ________ her performance.",
+        "options": ["at", "to", "from", "by"],
+        "answer": 0,
+        "explanation": "'Amazed at' means surprised by something."
+    },
+    {
+        "question": "He has no interest ________ art.",
+        "options": ["for", "to", "in", "over"],
+        "answer": 2,
+        "explanation": "'Interest in' is the right usage."
+    },
+    {
+        "question": "I cannot confide ________ him.",
+        "options": ["to", "in", "by", "for"],
+        "answer": 1,
+        "explanation": "'Confide in' means to trust someone with a secret."
+    },
+    {
+        "question": "There has been a decline ________ the birth rate.",
+        "options": ["on", "in", "at", "into"],
+        "answer": 1,
+        "explanation": "'Decline in' is standard usage."
+    },
+    {
+        "question": "He is acquainted ________ the facts.",
+        "options": ["of", "to", "with", "by"],
+        "answer": 2,
+        "explanation": "'Acquainted with' is correct."
+    },
+    {
+        "question": "The meeting was postponed ________ further notice.",
+        "options": ["till", "for", "in", "on"],
+        "answer": 0,
+        "explanation": "'Till further notice' is a common phrase."
+    },
+    {
+        "question": "He was accused ________ theft.",
+        "options": ["for", "with", "of", "on"],
+        "answer": 2,
+        "explanation": "'Accused of' is correct."
+    },
+    {
+        "question": "My friend is good ________ singing.",
+        "options": ["at", "in", "on", "for"],
+        "answer": 0,
+        "explanation": "'Good at' something."
+    },
+    {
+        "question": "I am angry ________ my brother.",
+        "options": ["at", "with", "on", "about"],
+        "answer": 1,
+        "explanation": "'Angry with' a person."
+    },
+    {
+        "question": "He is ________ the habit of rising early.",
+        "options": ["in", "at", "of", "by"],
+        "answer": 2,
+        "explanation": "'In the habit' or 'of the habit' can be debated, but 'of' is standard."
+    },
+    {
+        "question": "He was leaning ________ the wall.",
+        "options": ["in", "on", "against", "beside"],
+        "answer": 2,
+        "explanation": "'Leaning against' is correct."
+    },
+    {
+        "question": "He has applied ________ the post of clerk.",
+        "options": ["at", "for", "to", "in"],
+        "answer": 1,
+        "explanation": "Standard usage is 'applied for'."
+    },
+    {
+        "question": "The car collided ________ a tree.",
+        "options": ["at", "by", "with", "to"],
+        "answer": 2,
+        "explanation": "'Collided with' is correct phrase."
+    },
+    {
+        "question": "He is capable ________ doing this.",
+        "options": ["of", "for", "with", "about"],
+        "answer": 0,
+        "explanation": "'Capable of' is the correct expression."
+    },
+    {
+        "question": "He is anxious ________ his results.",
+        "options": ["to", "over", "for", "about"],
+        "answer": 3,
+        "explanation": "'Anxious about' something."
+    },
+    {
+        "question": "He is not satisfied ________ his performance.",
+        "options": ["in", "with", "by", "of"],
+        "answer": 1,
+        "explanation": "'Satisfied with' is correct."
+    },
+    {
+        "question": "I was surprised ________ his behavior.",
+        "options": ["by", "with", "at", "to"],
+        "answer": 2,
+        "explanation": "'Surprised at' is standard phrase."
+    },
+    {
+        "question": "He cannot cope ________ the workload.",
+        "options": ["about", "on", "in", "with"],
+        "answer": 3,
+        "explanation": "'Cope with' is correct."
+    },
+    {
+        "question": "He insisted ________ his own innocence.",
+        "options": ["with", "about", "on", "of"],
+        "answer": 2,
+        "explanation": "'Insist on' means to firmly demand."
+    },
+    {
+        "question": "It took me a long time to get rid ________ the cold.",
+        "options": ["on", "of", "with", "from"],
+        "answer": 1,
+        "explanation": "'Get rid of' is the right phrase."
+    },
+    {
+        "question": "He is addicted ________ drugs.",
+        "options": ["of", "on", "to", "with"],
+        "answer": 2,
+        "explanation": "'Addicted to' is correct."
+    },
+    {
+        "question": "This problem is familiar ________ me.",
+        "options": ["to", "with", "at", "on"],
+        "answer": 0,
+        "explanation": "'Familiar to' a person, 'familiar with' a subject."
+    },
+    {
+        "question": "He was deprived ________ his property.",
+        "options": ["of", "from", "with", "at"],
+        "answer": 0,
+        "explanation": "'Deprived of' is standard."
+    },
+    {
+        "question": "He is absorbed ________ his work.",
+        "options": ["in", "by", "with", "at"],
+        "answer": 0,
+        "explanation": "'Absorbed in' means deeply occupied with."
+    },
+    {
+        "question": "The doctor was sent ________ the patient.",
+        "options": ["for", "to", "with", "at"],
+        "answer": 0,
+        "explanation": "'Sent for' is correct usage."
+    },
+    {
+        "question": "He is envious ________ my success.",
+        "options": ["from", "of", "for", "over"],
+        "answer": 1,
+        "explanation": "'Envious of' is correct prepositional phrase."
+    },
+    {
+        "question": "His work is inferior ________ mine.",
+        "options": ["for", "with", "than", "to"],
+        "answer": 3,
+        "explanation": "'Inferior to' is the standard usage."
+    },
+	 {
+        "question": "He managed to solve the problem ________ great effort.",
+        "options": ["with", "by", "on", "at"],
+        "answer": 0,
+        "explanation": "'With great effort' means using effort."
+    },
+    {
+        "question": "She left the room without ________ a word.",
+        "options": ["saying", "say", "to say", "said"],
+        "answer": 0,
+        "explanation": "'Without saying a word' is the correct phrase."
+    },
+    {
+        "question": "Everybody in the class is proud ________ their teacher.",
+        "options": ["of", "for", "to", "by"],
+        "answer": 0,
+        "explanation": "'Proud of' indicates pride related to someone or something."
+    },
+    {
+        "question": "He gave me a book ________ poetry.",
+        "options": ["about", "on", "of", "in"],
+        "answer": 2,
+        "explanation": "'A book of poetry' is the correct phrase."
+    },
+    {
+        "question": "She did her best, but she could not pass the exam ________ luck.",
+        "options": ["by", "for", "with", "in"],
+        "answer": 0,
+        "explanation": "'By luck' means due to luck."
+    },
+    {
+        "question": "He has been working here ________ ten years.",
+        "options": ["since", "for", "from", "ago"],
+        "answer": 1,
+        "explanation": "'For ten years' denotes duration."
+    },
+    {
+        "question": "The children were playing ________ the garden.",
+        "options": ["in", "on", "at", "over"],
+        "answer": 0,
+        "explanation": "'Playing in the garden' is the correct preposition."
+    },
+    {
+        "question": "She is famous ________ her singing talent.",
+        "options": ["for", "by", "with", "of"],
+        "answer": 0,
+        "explanation": "'Famous for' means known because of."
+    },
+    {
+        "question": "The manager insisted ________ an early start.",
+        "options": ["for", "on", "at", "to"],
+        "answer": 1,
+        "explanation": "'Insist on' is the proper phrase."
+    },
+    {
+        "question": "The cat jumped ________ the wall.",
+        "options": ["over", "on", "into", "at"],
+        "answer": 0,
+        "explanation": "'Jumped over' means crossed by jumping."
+    },
+    {
+        "question": "He is a man ________ great integrity.",
+        "options": ["of", "by", "with", "at"],
+        "answer": 0,
+        "explanation": "'A man of integrity' means possessing integrity."
+    },
+    {
+        "question": "The movie was so boring that I fell ________ asleep.",
+        "options": ["on", "in", "to", "at"],
+        "answer": 1,
+        "explanation": "'Fell in asleep' is the correct phrase."
+    },
+    {
+        "question": "I am not aware ________ the new policy.",
+        "options": ["of", "to", "with", "about"],
+        "answer": 0,
+        "explanation": "'Aware of' means informed about."
+    },
+    {
+        "question": "We congratulated him ________ winning the prize.",
+        "options": ["on", "for", "at", "to"],
+        "answer": 0,
+        "explanation": "'Congratulate on' is the correct form."
+    },
+    {
+        "question": "She is grounded ________ reality.",
+        "options": ["in", "on", "at", "with"],
+        "answer": 0,
+        "explanation": "'Grounded in' means based on."
+    },
+    {
+        "question": "He was accused ________ theft.",
+        "options": ["of", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Accused of' means charged with an offence."
+    },
+    {
+        "question": "The children were excited ________ the trip.",
+        "options": ["about", "at", "to", "for"],
+        "answer": 0,
+        "explanation": "'Excited about' is the correct phrase."
+    },
+    {
+        "question": "He is deeply involved ________ the project.",
+        "options": ["in", "on", "at", "with"],
+        "answer": 0,
+        "explanation": "'Involved in' means engaged with."
+    },
+    {
+        "question": "She insisted ________ paying the bill herself.",
+        "options": ["on", "at", "in", "for"],
+        "answer": 0,
+        "explanation": "'Insist on' means firmly demand."
+    },
+    {
+        "question": "The train arrived ________ time.",
+        "options": ["at", "in", "on", "by"],
+        "answer": 0,
+        "explanation": "'Arrived at time' means exact or punctual arrival."
+    },
+    {
+        "question": "Provide a detailed description ________ the accident.",
+        "options": ["of", "about", "on", "with"],
+        "answer": 0,
+        "explanation": "'Description of' means a detailed account about something."
+    },
+    {
+        "question": "He hesitated ________ answering the question.",
+        "options": ["in", "on", "at", "about"],
+        "answer": 0,
+        "explanation": "'Hesitate in' is correct when referring to delay or uncertainty."
+    },
+    {
+        "question": "She is capable ________ handling difficult situations.",
+        "options": ["of", "with", "for", "in"],
+        "answer": 0,
+        "explanation": "'Capable of' means having ability."
+    },
+    {
+        "question": "We ought ________ respect our elders.",
+        "options": ["to", "for", "with", "at"],
+        "answer": 0,
+        "explanation": "'Ought to' is a modal verb expressing duty."
+    },
+    {
+        "question": "He is responsible ________ the success of the project.",
+        "options": ["for", "of", "about", "to"],
+        "answer": 0,
+        "explanation": "'Responsible for' is the correct preposition."
+    },
+    {
+        "question": "I am sorry ________ the inconvenience caused.",
+        "options": ["for", "about", "on", "at"],
+        "answer": 0,
+        "explanation": "'Sorry for' an act or inconvenience."
+    },
+    {
+        "question": "He was born ________ a wealthy family.",
+        "options": ["into", "in", "at", "to"],
+        "answer": 0,
+        "explanation": "'Born into' is used to show family background."
+    },
+    {
+        "question": "The team is keen ________ winning the championship.",
+        "options": ["on", "for", "about", "with"],
+        "answer": 0,
+        "explanation": "'Keen on' expresses enthusiasm."
+    },
+    {
+        "question": "He is interested ________ learning new languages.",
+        "options": ["in", "on", "at", "about"],
+        "answer": 0,
+        "explanation": "'Interested in' something."
+    },
+    {
+        "question": "They are notorious ________ their dishonesty.",
+        "options": ["for", "of", "with", "about"],
+        "answer": 0,
+        "explanation": "'Notorious for' is used for negative reputation."
+    },
+    {
+        "question": "She was absent ________ the meeting.",
+        "options": ["from", "at", "on", "in"],
+        "answer": 0,
+        "explanation": "'Absent from' means not present at."
+    },
+    {
+        "question": "He succeeded ________ passing the exam.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Succeeded in' doing something."
+    },
+    {
+        "question": "The police prevented the crowd ________ entering the stadium.",
+        "options": ["from", "to", "at", "in"],
+        "answer": 0,
+        "explanation": "'Prevent from' means stop from doing something."
+    },
+    {
+        "question": "She was tired ________ working all day.",
+        "options": ["of", "by", "with", "from"],
+        "answer": 0,
+        "explanation": "'Tired of' means fed up or exhausted by something."
+    },
+    {
+        "question": "He is exempt ________ paying taxes.",
+        "options": ["from", "of", "for", "to"],
+        "answer": 0,
+        "explanation": "'Exempt from' means freed from obligation."
+    },
+    {
+        "question": "He is engaged ________ designing the new building.",
+        "options": ["in", "on", "with", "at"],
+        "answer": 0,
+        "explanation": "'Engaged in' means involved in."
+    },
+    {
+        "question": "I was impressed ________ his performance.",
+        "options": ["by", "with", "at", "on"],
+        "answer": 0,
+        "explanation": "'Impressed by' is used to show admiration."
+    },
+    {
+        "question": "This medicine is effective ________ common cold.",
+        "options": ["against", "for", "to", "with"],
+        "answer": 0,
+        "explanation": "'Effective against' a disease."
+    },
+    {
+        "question": "He attempted ________ climb the mountain.",
+        "options": ["to", "for", "in", "at"],
+        "answer": 0,
+        "explanation": "'Attempted to do something' is correct."
+    },
+    {
+        "question": "He abstained ________ alcohol.",
+        "options": ["from", "of", "with", "to"],
+        "answer": 0,
+        "explanation": "'Abstain from' means to avoid something."
+    },
+    {
+        "question": "It depends ________ the weather.",
+        "options": ["on", "at", "to", "with"],
+        "answer": 0,
+        "explanation": "'Depends on' means contingent upon."
+    },
+    {
+        "question": "She succeeded in convincing him ________ the plan.",
+        "options": ["about", "with", "on", "of"],
+        "answer": 3,
+        "explanation": "'Convince someone of something' is correct."
+    },
+    {
+        "question": "He insisted ________ paying for the meal.",
+        "options": ["on", "in", "at", "with"],
+        "answer": 0,
+        "explanation": "'Insist on' is the correct phrase."
+    },
+    {
+        "question": "The boy was brought ________ an orphanage.",
+        "options": ["up", "in", "to", "on"],
+        "answer": 0,
+        "explanation": "'Brought up' means raised."
+    },
+    {
+        "question": "He was punished ________ breaking the rules.",
+        "options": ["for", "because", "due", "of"],
+        "answer": 0,
+        "explanation": "'Punished for' is correct."
+    },
+    {
+        "question": "He was filled ________ joy.",
+        "options": ["with", "by", "of", "in"],
+        "answer": 0,
+        "explanation": "'Filled with' indicates being full of something."
+    },
+    {
+        "question": "She is suffering ________ a chronic disease.",
+        "options": ["from", "of", "with", "in"],
+        "answer": 0,
+        "explanation": "'Suffer from' means to be affected by illness."
+    },
+    {
+        "question": "He is accountable ________ his actions.",
+        "options": ["for", "to", "about", "with"],
+        "answer": 0,
+        "explanation": "'Accountable for' means responsible."
+    },
+    {
+        "question": "He was overwhelmed ________ emotions.",
+        "options": ["by", "with", "on", "at"],
+        "answer": 1,
+        "explanation": "'Overwhelmed with' is used to express being overcome."
+    },
+    {
+        "question": "He is proficient ________ several languages.",
+        "options": ["in", "on", "at", "with"],
+        "answer": 0,
+        "explanation": "'Proficient in' means skilled at."
+    },
+    {
+        "question": "He is worried ________ his exams.",
+        "options": ["about", "with", "for", "to"],
+        "answer": 0,
+        "explanation": "'Worried about' something."
+    },
+    {
+        "question": "She is dependent ________ her parents.",
+        "options": ["on", "in", "at", "for"],
+        "answer": 0,
+        "explanation": "'Dependent on' means relying on someone."
+    },
+	{
+        "question": "He is known ________ his honesty.",
+        "options": ["for", "about", "of", "with"],
+        "answer": 0,
+        "explanation": "'Known for' means famous because of."
+    },
+    {
+        "question": "The meeting has been postponed ________ further notice.",
+        "options": ["until", "since", "for", "to"],
+        "answer": 0,
+        "explanation": "'Postponed until' means delayed up to a certain time."
+    },
+    {
+        "question": "He behaves ________ if he knows everything.",
+        "options": ["as", "like", "so", "such"],
+        "answer": 1,
+        "explanation": "'Behaves like' is used to indicate resemblance."
+    },
+    {
+        "question": "This is the house ________ I was born.",
+        "options": ["where", "which", "in which", "that"],
+        "answer": 2,
+        "explanation": "'In which' correctly refers to the place of birth."
+    },
+    {
+        "question": "She is suffering ________ severe headaches.",
+        "options": ["from", "with", "at", "by"],
+        "answer": 0,
+        "explanation": "'Suffering from' is used for ailments."
+    },
+    {
+        "question": "I am eager ________ meet her.",
+        "options": ["to", "for", "about", "at"],
+        "answer": 0,
+        "explanation": "'Eager to' indicates willingness."
+    },
+    {
+        "question": "He is angry ________ his friend.",
+        "options": ["on", "with", "at", "about"],
+        "answer": 1,
+        "explanation": "'Angry with' is used for persons."
+    },
+    {
+        "question": "She insisted ________ going to the concert.",
+        "options": ["on", "in", "at", "upon"],
+        "answer": 0,
+        "explanation": "'Insist on' means firmly demand."
+    },
+    {
+        "question": "The police prevented the crowd ________ entering the stadium.",
+        "options": ["from", "to", "at", "in"],
+        "answer": 0,
+        "explanation": "'Prevent from' is used to stop someone."
+    },
+    {
+        "question": "He is proficient ________ computer programming.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Proficient in' means skilled at."
+    },
+    {
+        "question": "Many students were absent ________ the exam.",
+        "options": ["from", "at", "on", "in"],
+        "answer": 0,
+        "explanation": "'Absent from' is used for not being present."
+    },
+    {
+        "question": "She paid attention ________ the teacher.",
+        "options": ["to", "for", "at", "in"],
+        "answer": 0,
+        "explanation": "'Pay attention to' is the correct phrase."
+    },
+    {
+        "question": "He is dependent ________ his parents for financial support.",
+        "options": ["on", "upon", "in", "with"],
+        "answer": 0,
+        "explanation": "'Dependent on' indicates reliance."
+    },
+    {
+        "question": "She was delighted ________ the news.",
+        "options": ["at", "by", "with", "to"],
+        "answer": 0,
+        "explanation": "'Delighted at' means very pleased."
+    },
+    {
+        "question": "He failed ________ attend the meeting.",
+        "options": ["to", "on", "in", "for"],
+        "answer": 0,
+        "explanation": "'Fail to' + verb means not succeeding in."
+    },
+    {
+        "question": "The students were divided ________ groups.",
+        "options": ["into", "in", "to", "on"],
+        "answer": 0,
+        "explanation": "'Divided into' means separated into parts."
+    },
+    {
+        "question": "He is responsible ________ the project.",
+        "options": ["for", "of", "about", "to"],
+        "answer": 0,
+        "explanation": "'Responsible for' indicates accountability."
+    },
+    {
+        "question": "She congratulated me ________ my promotion.",
+        "options": ["on", "for", "at", "about"],
+        "answer": 0,
+        "explanation": "'Congratulate on' is the proper phrase."
+    },
+    {
+        "question": "He reacted ________ surprise to the news.",
+        "options": ["with", "to", "about", "by"],
+        "answer": 0,
+        "explanation": "'React with' indicates response."
+    },
+    {
+        "question": "The book consists ________ ten chapters.",
+        "options": ["of", "from", "in", "with"],
+        "answer": 0,
+        "explanation": "'Consist of' means to be made up of."
+    },
+    {
+        "question": "He was accused ________ theft.",
+        "options": ["of", "for", "with", "in"],
+        "answer": 0,
+        "explanation": "'Accused of' means charged with a crime."
+    },
+    {
+        "question": "She was absent ________ school yesterday.",
+        "options": ["from", "at", "in", "on"],
+        "answer": 0,
+        "explanation": "'Absent from' means not present."
+    },
+    {
+        "question": "He is capable ________ doing this work.",
+        "options": ["of", "for", "with", "about"],
+        "answer": 0,
+        "explanation": "'Capable of' indicates ability."
+    },
+    {
+        "question": "Please refrain ________ smoking here.",
+        "options": ["from", "of", "in", "about"],
+        "answer": 0,
+        "explanation": "'Refrain from' means to stop oneself from."
+    },
+    {
+        "question": "She is addicted ________ playing video games.",
+        "options": ["to", "in", "of", "with"],
+        "answer": 0,
+        "explanation": "'Addicted to' means dependent on."
+    },
+    {
+        "question": "They succeeded ________ winning the contract.",
+        "options": ["in", "on", "at", "with"],
+        "answer": 0,
+        "explanation": "'Succeed in' means achieving success."
+    },
+    {
+        "question": "He agreed ________ my proposal.",
+        "options": ["to", "with", "on", "at"],
+        "answer": 1,
+        "explanation": "'Agree with' means to concur."
+    },
+    {
+        "question": "She insisted ________ paying the bill herself.",
+        "options": ["on", "in", "at", "upon"],
+        "answer": 0,
+        "explanation": "'Insist on' means demand."
+    },
+    {
+        "question": "He is fond ________ classical music.",
+        "options": ["of", "about", "in", "with"],
+        "answer": 0,
+        "explanation": "'Fond of' indicates liking."
+    },
+    {
+        "question": "He was born ________ India.",
+        "options": ["in", "on", "at", "to"],
+        "answer": 0,
+        "explanation": "'Born in' is correct for countries."
+    },
+    {
+        "question": "He is married ________ a famous singer.",
+        "options": ["with", "to", "at", "of"],
+        "answer": 1,
+        "explanation": "'Married to' refers to spouse."
+    },
+    {
+        "question": "The teacher praised her ________ good work.",
+        "options": ["for", "to", "about", "on"],
+        "answer": 0,
+        "explanation": "'Praise for' indicates the reason."
+    },
+    {
+        "question": "He is worried ________ his exams.",
+        "options": ["about", "of", "for", "to"],
+        "answer": 0,
+        "explanation": "'Worried about' something."
+    },
+    {
+        "question": "He succeeded ________ completing the task.",
+        "options": ["in", "on", "at", "with"],
+        "answer": 0,
+        "explanation": "'Succeeded in' means achieved."
+    },
+    {
+        "question": "This medicine is effective ________ headaches.",
+        "options": ["against", "for", "to", "with"],
+        "answer": 0,
+        "explanation": "'Effective against' means works to prevent or cure."
+    },
+    {
+        "question": "He is capable ________ doing great things.",
+        "options": ["of", "for", "with", "to"],
+        "answer": 0,
+        "explanation": "'Capable of' means able to do."
+    },
+    {
+        "question": "He was late ________ the meeting.",
+        "options": ["for", "to", "at", "on"],
+        "answer": 0,
+        "explanation": "'Late for' indicates being behind schedule."
+    },
+    {
+        "question": "She is engaged ________ a new project.",
+        "options": ["in", "with", "on", "at"],
+        "answer": 0,
+        "explanation": "'Engaged in' means involved in."
+    },
+    {
+        "question": "He was accused ________ corruption.",
+        "options": ["of", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Accused of' is correct."
+    },
+    {
+        "question": "I apologize ________ my mistake.",
+        "options": ["for", "about", "at", "to"],
+        "answer": 0,
+        "explanation": "'Apologize for' something."
+    },
+    {
+        "question": "She complained ________ the noise.",
+        "options": ["about", "of", "at", "to"],
+        "answer": 0,
+        "explanation": "'Complain about' something."
+    },
+    {
+        "question": "He is jealous ________ his brother's success.",
+        "options": ["of", "about", "with", "to"],
+        "answer": 0,
+        "explanation": "'Jealous of' something."
+    },
+    {
+        "question": "He abstained ________ alcohol.",
+        "options": ["from", "of", "with", "to"],
+        "answer": 0,
+        "explanation": "'Abstain from' means avoid."
+    },
+    {
+        "question": "The child is afraid ________ dogs.",
+        "options": ["of", "about", "with", "to"],
+        "answer": 0,
+        "explanation": "'Afraid of' means fearful."
+    },
+    {
+        "question": "He concentrated ________ his studies.",
+        "options": ["on", "in", "at", "for"],
+        "answer": 0,
+        "explanation": "'Concentrate on' something."
+    },
+    {
+        "question": "He was tired ________ working all day.",
+        "options": ["of", "from", "with", "by"],
+        "answer": 0,
+        "explanation": "'Tired of' means bored or exhausted by."
+    },
+    {
+        "question": "He is capable ________ multitasking.",
+        "options": ["of", "for", "with", "in"],
+        "answer": 0,
+        "explanation": "'Capable of' means able to."
+    },
+    {
+        "question": "He was promoted ________ his hard work and skill.",
+        "options": ["because of", "due to", "on account of", "all of these"],
+        "answer": 3,
+        "explanation": "All options are correct to indicate cause."
+    },
+	 {
+        "question": "Hardly ________ the meeting started when the fire alarm went off.",
+        "options": ["had", "has", "was", "did"],
+        "answer": 0,
+        "explanation": "'Hardly had the meeting started' is the correct inversion after 'hardly'."
+    },
+    {
+        "question": "No sooner ________ the lecture than the students started leaving the hall.",
+        "options": ["did", "had", "was", "has"],
+        "answer": 1,
+        "explanation": "Correct inversion: 'No sooner had the lecture ended'."
+    },
+    {
+        "question": "________ he be informed immediately, the problem will escalate.",
+        "options": ["Should", "If", "When", "Whether"],
+        "answer": 0,
+        "explanation": "Formal conditional structure uses 'Should he be'."
+    },
+    {
+        "question": "Scarcely ________ I reached the station when the train left.",
+        "options": ["did", "had", "was", "has"],
+        "answer": 1,
+        "explanation": "Inversion with 'scarcely' requires past perfect: 'had I reached'."
+    },
+    {
+        "question": "The plan was well prepared, ________ there was some flaw in implementation.",
+        "options": ["yet", "but", "although", "however"],
+        "answer": 3,
+        "explanation": "'However' is suitable for contrasting statements."
+    },
+    {
+        "question": "He behaves as if he ________ the owner of the company.",
+        "options": ["is", "was", "were", "be"],
+        "answer": 2,
+        "explanation": "Use subjunctive 'were' for unreal situations."
+    },
+    {
+        "question": "He demanded that the work ________ immediately.",
+        "options": ["is done", "was done", "be done", "has been done"],
+        "answer": 2,
+        "explanation": "Subjunctive mood requires base form: 'be done'."
+    },
+    {
+        "question": "She wishes she ________ the truth earlier.",
+        "options": ["had known", "knew", "has known", "would know"],
+        "answer": 0,
+        "explanation": "Expresses regret about past event: past perfect tense needed."
+    },
+    {
+        "question": "Neither of the two boys ________ willing to accept the blame.",
+        "options": ["are", "is", "were", "has"],
+        "answer": 1,
+        "explanation": "'Neither' is singular and takes singular verb."
+    },
+    {
+        "question": "The more you study, ________ you will succeed.",
+        "options": ["the more", "so much", "the better", "so better"],
+        "answer": 0,
+        "explanation": "Correct correlative comparative: 'The more... the more...'."
+    },
+    {
+        "question": "It is high time we ________ action.",
+        "options": ["take", "took", "taken", "have taken"],
+        "answer": 1,
+        "explanation": "'It is high time' is followed by simple past for present/future."
+    },
+    {
+        "question": "Not only ________ a good leader, but he is also a great thinker.",
+        "options": ["he is", "is he", "was he", "has he"],
+        "answer": 1,
+        "explanation": "Inversion required after 'not only'."
+    },
+    {
+        "question": "By no means ________ the result guaranteed.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 0,
+        "explanation": "Inversion with 'by no means' takes singular verb."
+    },
+    {
+        "question": "If she ________ harder, she would have passed.",
+        "options": ["studies", "had studied", "studied", "would study"],
+        "answer": 1,
+        "explanation": "Third conditional for past hypothetical situations."
+    },
+    {
+        "question": "Had I known about the meeting, I ________ attended.",
+        "options": ["will have", "would have", "would", "will"],
+        "answer": 1,
+        "explanation": "Third conditional inversion requires 'would have'."
+    },
+    {
+        "question": "Each of the players ________ given a medal.",
+        "options": ["have", "has", "were", "are"],
+        "answer": 1,
+        "explanation": "'Each' is singular and takes singular verb."
+    },
+    {
+        "question": "He behaves as though he ________ nothing wrong.",
+        "options": ["does", "did", "has done", "had done"],
+        "answer": 1,
+        "explanation": "Use past tense 'did' after 'as though' for unreal present."
+    },
+    {
+        "question": "The manager requested that the document ________ delivered immediately.",
+        "options": ["is", "was", "be", "has been"],
+        "answer": 2,
+        "explanation": "Subjunctive mood requires base form: 'be delivered'."
+    },
+    {
+        "question": "In no way ________ he be a criminal.",
+        "options": ["can", "could", "may", "might"],
+        "answer": 0,
+        "explanation": "Strong negation requires modal inversion: 'can he'."
+    },
+    {
+        "question": "She acted as though she ________ the boss.",
+        "options": ["is", "were", "was", "has been"],
+        "answer": 1,
+        "explanation": "Subjunctive mood for unreal or hypothetical state."
+    },
+    {
+        "question": "Little ________ he know about the danger lurking ahead.",
+        "options": ["did", "does", "had", "was"],
+        "answer": 0,
+        "explanation": "'Little did he know' is the correct inversion."
+    },
+    {
+        "question": "It's time you ________ to bed.",
+        "options": ["go", "went", "gone", "are going"],
+        "answer": 1,
+        "explanation": "'It's time' is followed by past tense verb form."
+    },
+    {
+        "question": "He speaks English as well as ________.",
+        "options": ["me", "I", "mine", "myself"],
+        "answer": 1,
+        "explanation": "Use subject pronoun after 'as well as'."
+    },
+    {
+        "question": "She ran so fast that nobody ________ catch her.",
+        "options": ["was able to", "could", "can", "could able to"],
+        "answer": 1,
+        "explanation": "'Could' is correct past ability for catching."
+    },
+    {
+        "question": "It is the best decision ________ could have been made.",
+        "options": ["that", "which", "who", "whom"],
+        "answer": 0,
+        "explanation": "'That' is used for defining relative clause."
+    },
+    {
+        "question": "Neither the manager nor the assistants ________ present.",
+        "options": ["was", "were", "is", "are"],
+        "answer": 1,
+        "explanation": "When subjects connected by nor, verb agrees with nearer subject (plural)."
+    },
+    {
+        "question": "The police have warned the public to be cautious ________ pickpockets.",
+        "options": ["against", "about", "from", "of"],
+        "answer": 0,
+        "explanation": "'Warn against' means to advise caution."
+    },
+    {
+        "question": "He is accustomed ________ working late at night.",
+        "options": ["to", "with", "of", "by"],
+        "answer": 0,
+        "explanation": "'Accustomed to' is used with verb-ing."
+    },
+    {
+        "question": "She is proficient ________ three languages.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Proficient in' indicates skill."
+    },
+    {
+        "question": "Despite ________ all efforts, the plan failed.",
+        "options": ["making", "to make", "made", "make"],
+        "answer": 0,
+        "explanation": "'Despite making' uses gerund after despite."
+    },
+    {
+        "question": "He was deprived ________ his inheritance by his relatives.",
+        "options": ["off", "of", "from", "for"],
+        "answer": 1,
+        "explanation": "'Deprived of' means denied something."
+    },
+    {
+        "question": "The success of the plan depends ________ the cooperation of everyone.",
+        "options": ["on", "upon", "to", "by"],
+        "answer": 0,
+        "explanation": "'Depends on' means contingent upon."
+    },
+    {
+        "question": "She succeeded in persuading him ________ invest.",
+        "options": ["to", "for", "about", "with"],
+        "answer": 0,
+        "explanation": "'Persuade someone to do something' is correct."
+    },
+    {
+        "question": "They were suspected ________ stealing the valuable painting.",
+        "options": ["of", "for", "in", "with"],
+        "answer": 0,
+        "explanation": "'Suspected of' means believed to be guilty of."
+    },
+    {
+        "question": "He was fascinated ________ the magician's tricks.",
+        "options": ["by", "with", "at", "on"],
+        "answer": 0,
+        "explanation": "'Fascinated by' something."
+    },
+    {
+        "question": "The teacher insisted that the homework ________ done by Friday.",
+        "options": ["is", "was", "be", "has been"],
+        "answer": 2,
+        "explanation": "Subjunctive mood requires base verb: 'be done'."
+    },
+    {
+        "question": "The children were cautioned ________ running near the pool.",
+        "options": ["against", "about", "from", "of"],
+        "answer": 0,
+        "explanation": "'Cautioned against' means warned not to."
+    },
+    {
+        "question": "She blamed him ________ the failure.",
+        "options": ["for", "of", "about", "on"],
+        "answer": 0,
+        "explanation": "'Blame for' means to hold responsible."
+    },
+    {
+        "question": "He refrained ________ commenting on the matter.",
+        "options": ["from", "of", "to", "about"],
+        "answer": 0,
+        "explanation": "'Refrain from' means to avoid."
+    },
+    {
+        "question": "He was reluctant ________ accept the offer.",
+        "options": ["to", "for", "in", "at"],
+        "answer": 0,
+        "explanation": "'Reluctant to' means unwilling."
+    },
+    {
+        "question": "The company is committed ________ providing quality service.",
+        "options": ["to", "with", "for", "at"],
+        "answer": 0,
+        "explanation": "'Committed to' indicates dedication."
+    },
+    {
+        "question": "She excelled ________ her studies and sports.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Excel in' means to do very well."
+    },
+    {
+        "question": "He confessed ________ his mistake.",
+        "options": ["to", "of", "for", "about"],
+        "answer": 0,
+        "explanation": "'Confess to' means admit."
+    },
+    {
+        "question": "They were accused ________ providing false information.",
+        "options": ["of", "for", "with", "at"],
+        "answer": 0,
+        "explanation": "'Accused of' is the correct form."
+    },
+    {
+        "question": "He was notorious ________ his corruption.",
+        "options": ["for", "of", "with", "about"],
+        "answer": 0,
+        "explanation": "'Notorious for' something bad."
+    },
+    {
+        "question": "I am looking forward ________ meeting you.",
+        "options": ["to", "for", "at", "on"],
+        "answer": 0,
+        "explanation": "'Look forward to' requires noun or -ing form."
+    },
+	{
+        "question": "Had it not ________ for his timely help, we would have failed.",
+        "options": ["been", "was", "be", "being"],
+        "answer": 0,
+        "explanation": "Third conditional inversion requires past participle 'been'."
+    },
+    {
+        "question": "The more we learn, ________ we realize how little we know.",
+        "options": ["the more", "so much", "the less", "so less"],
+        "answer": 2,
+        "explanation": "Correlative comparative pair: 'the more... the less...'."
+    },
+    {
+        "question": "He might have gone to the party if he ________ the invitation.",
+        "options": ["received", "had received", "would receive", "receives"],
+        "answer": 1,
+        "explanation": "Third conditional expresses unreal past condition."
+    },
+    {
+        "question": "She would have passed the exam if she ________ harder.",
+        "options": ["studies", "had studied", "studied", "would study"],
+        "answer": 1,
+        "explanation": "Third conditional for a past unreal situation."
+    },
+    {
+        "question": "No sooner ________ the rain started than the match was postponed.",
+        "options": ["had", "did", "was", "has"],
+        "answer": 0,
+        "explanation": "Inversion after 'no sooner' requires past perfect."
+    },
+    {
+        "question": "If I were you, I ________ accept the offer without delay.",
+        "options": ["will", "would", "shall", "should"],
+        "answer": 1,
+        "explanation": "Second conditional expresses hypothetical present."
+    },
+    {
+        "question": "He speaks Spanish fluently, ________?",
+        "options": ["does he", "doesn't he", "isn't he", "is he"],
+        "answer": 1,
+        "explanation": "Tag question after affirmative statement is negative."
+    },
+    {
+        "question": "I am used to ________ early in the morning.",
+        "options": ["getting up", "get up", "got up", "to get up"],
+        "answer": 0,
+        "explanation": "'Used to' is followed by gerund when meaning accustomed."
+    },
+    {
+        "question": "It is essential that every applicant ________ a written test.",
+        "options": ["should pass", "pass", "passes", "passed"],
+        "answer": 1,
+        "explanation": "Subjunctive mood requires base form without 'should'."
+    },
+    {
+        "question": "The teacher asked the students ________ their homework.",
+        "options": ["to submit", "submit", "submitting", "submitted"],
+        "answer": 0,
+        "explanation": "'Asked someone to do something' is correct."
+    },
+    {
+        "question": "They were warned ________ entering the restricted area.",
+        "options": ["from", "against", "not to", "to not"],
+        "answer": 2,
+        "explanation": "'Warned not to' indicates prohibition."
+    },
+    {
+        "question": "The suspect confessed ________ the crime.",
+        "options": ["to", "of", "about", "in"],
+        "answer": 0,
+        "explanation": "'Confessed to' is correct."
+    },
+    {
+        "question": "Neither the chairman nor the members ________ satisfied with the proposal.",
+        "options": ["was", "were", "is", "are"],
+        "answer": 1,
+        "explanation": "Verb agrees with nearest subject; members is plural."
+    },
+    {
+        "question": "You behave as if you ________ the boss.",
+        "options": ["are", "were", "was", "have been"],
+        "answer": 1,
+        "explanation": "Use subjunctive 'were' for unreal present."
+    },
+    {
+        "question": "She looks as though she ________ the work done.",
+        "options": ["has", "had", "have", "was"],
+        "answer": 1,
+        "explanation": "'As though' with past tense for unreal present."
+    },
+    {
+        "question": "We would have been late but for the traffic jam, ________?",
+        "options": ["wouldn't we", "would we", "won't we", "will we"],
+        "answer": 1,
+        "explanation": "Tag question for negative statement is positive."
+    },
+    {
+        "question": "The work demands that she ________ in the office until late.",
+        "options": ["stay", "stays", "staying", "stayed"],
+        "answer": 0,
+        "explanation": "Subjunctive mood uses base form of verb."
+    },
+    {
+        "question": "Few students ________ interested in joining the club.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 1,
+        "explanation": "'Few' implies plural subject."
+    },
+    {
+        "question": "He wishes he ________ more careful while driving.",
+        "options": ["is", "was", "were", "had been"],
+        "answer": 3,
+        "explanation": "Expressing regret in past needs past perfect."
+    },
+    {
+        "question": "It is imperative that he ________ the report by tomorrow.",
+        "options": ["submit", "submits", "submitted", "has submitted"],
+        "answer": 0,
+        "explanation": "Subjunctive mood base form after 'it is imperative'."
+    },
+    {
+        "question": "She denied ________ involved in the scandal.",
+        "options": ["to be", "being", "to have been", "having been"],
+        "answer": 3,
+        "explanation": "'Denied having been' indicates past involvement."
+    },
+    {
+        "question": "Had we left earlier, we ________ caught the train.",
+        "options": ["would", "will", "would have", "would be"],
+        "answer": 2,
+        "explanation": "Third conditional: unreal past result."
+    },
+    {
+        "question": "He is one of those people who ________ always complaining.",
+        "options": ["is", "are", "were", "be"],
+        "answer": 1,
+        "explanation": "'Who' refers to plural antecedent 'people'."
+    },
+    {
+        "question": "Do you mind ________ the window?",
+        "options": ["closing", "to close", "close", "closed"],
+        "answer": 0,
+        "explanation": "'Do you mind' is followed by gerund."
+    },
+    {
+        "question": "If he ________ earlier, he would have caught the bus.",
+        "options": ["had left", "left", "would have left", "leaves"],
+        "answer": 0,
+        "explanation": "Third conditional past perfect form."
+    },
+    {
+        "question": "Only after the meeting ________ the proposal was approved.",
+        "options": ["did", "had", "was", "has"],
+        "answer": 1,
+        "explanation": "Inversion following time expressions requires past perfect."
+    },
+    {
+        "question": "I would rather you ________ the documents now.",
+        "options": ["sign", "signed", "have signed", "will sign"],
+        "answer": 1,
+        "explanation": "'Would rather' + past tense expresses preference."
+    },
+    {
+        "question": "You must complete the report by Friday, ________?",
+        "options": ["mustn't you", "must you", "don't you", "will you"],
+        "answer": 2,
+        "explanation": "Tag question for positive command is negative with 'do'."
+    },
+    {
+        "question": "I came across a novel ________ was very interesting.",
+        "options": ["who", "whom", "that", "which"],
+        "answer": 3,
+        "explanation": "'Which' is used for things."
+    },
+    {
+        "question": "This is the only book ________ you will need.",
+        "options": ["who", "that", "which", "whose"],
+        "answer": 1,
+        "explanation": "'That' is used for defining relative clause."
+    },
+    {
+        "question": "The manager demanded that the employees ________ the project immediately.",
+        "options": ["complete", "completes", "completed", "have completed"],
+        "answer": 0,
+        "explanation": "Subjunctive mood requires base form."
+    },
+    {
+        "question": "He would rather go to bed early ________ stay up late.",
+        "options": ["than", "then", "that", "as"],
+        "answer": 0,
+        "explanation": "'Rather... than' is the correct comparison."
+    },
+    {
+        "question": "If only I ________ the answer to that question.",
+        "options": ["know", "knew", "had known", "would know"],
+        "answer": 1,
+        "explanation": "'If only' + past tense expresses wish."
+    },
+    {
+        "question": "Each of these books ________ missing a chapter.",
+        "options": ["are", "is", "have", "were"],
+        "answer": 1,
+        "explanation": "'Each' is singular and takes singular verb."
+    },
+    {
+        "question": "Neither the manager nor the employees ________ aware of the policy change.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 1,
+        "explanation": "Verb agrees with nearer subject, employees (plural)."
+    },
+    {
+        "question": "The new policy came into effect ________ January 1.",
+        "options": ["at", "on", "in", "from"],
+        "answer": 1,
+        "explanation": "'On' is used with a specific date."
+    },
+    {
+        "question": "________ he be guilty or innocent, the court will decide.",
+        "options": ["Whether", "If", "Though", "Unless"],
+        "answer": 0,
+        "explanation": "'Whether' introduces alternatives."
+    },
+    {
+        "question": "The hospital provides care ________ patients with severe injuries.",
+        "options": ["to", "for", "with", "about"],
+        "answer": 1,
+        "explanation": "'Care for' means provision of assistance."
+    },
+    {
+        "question": "She is unlikely ________ attend the function.",
+        "options": ["to", "for", "about", "on"],
+        "answer": 0,
+        "explanation": "'Unlikely to' is the correct phrase."
+    },
+    {
+        "question": "He was reprimanded ________ his behavior.",
+        "options": ["for", "of", "about", "against"],
+        "answer": 0,
+        "explanation": "'Reprimanded for' means formally scolded."
+    },
+    {
+        "question": "The committee is responsible ________ drafting the new regulations.",
+        "options": ["for", "to", "of", "about"],
+        "answer": 0,
+        "explanation": "'Responsible for' indicates accountability."
+    },
+    {
+        "question": "The new employee is skilled ________ programming languages.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Skilled in' means proficient."
+    },
+    {
+        "question": "The government is committed ________ improving public health.",
+        "options": ["to", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Committed to' shows dedication."
+    },
+    {
+        "question": "We look forward ________ hearing from you.",
+        "options": ["to", "for", "at", "on"],
+        "answer": 0,
+        "explanation": "'Look forward to' requires noun or -ing form."
+    },
+    {
+        "question": "They insist ________ paying for the damages.",
+        "options": ["on", "in", "at", "for"],
+        "answer": 0,
+        "explanation": "'Insist on' indicates firm demand."
+    },
+    {
+        "question": "He was convicted ________ fraud.",
+        "options": ["of", "for", "with", "in"],
+        "answer": 0,
+        "explanation": "'Convicted of' is the correct phrase."
+    },
+    {
+        "question": "She is capable ________ handling complex situations effectively.",
+        "options": ["of", "for", "in", "with"],
+        "answer": 0,
+        "explanation": "'Capable of' indicates ability."
+    },
+    {
+        "question": "He was promoted ________ his hard work and dedication.",
+        "options": ["because of", "due to", "on account of", "all of these"],
+        "answer": 3,
+        "explanation": "All phrases can be used to express cause."
+    },
+    {
+        "question": "He was reluctant ________ accept the offer.",
+        "options": ["to", "in", "for", "at"],
+        "answer": 0,
+        "explanation": "'Reluctant to' means unwilling."
+    },
+    {
+        "question": "The children are keen ________ participating in the competition.",
+        "options": ["on", "for", "about", "with"],
+        "answer": 0,
+        "explanation": "'Keen on' means enthusiastic about."
+    },
+	 {
+        "question": "He would have succeeded if he ________ more effort.",
+        "options": ["had put", "put", "would put", "has put"],
+        "answer": 0,
+        "explanation": "Third conditional requires past perfect in condition clause."
+    },
+    {
+        "question": "So ________ was the thunder that the windows shook.",
+        "options": ["loud", "loudly", "louder", "loudest"],
+        "answer": 0,
+        "explanation": "After 'so' adjective is used, not adverb."
+    },
+    {
+        "question": "Try ________ a little harder if you want to pass.",
+        "options": ["works", "working", "to work", "worked"],
+        "answer": 2,
+        "explanation": "'Try' followed by infinitive to indicate effort."
+    },
+    {
+        "question": "I can’t stand ________ in this heat any longer.",
+        "options": ["to wait", "waiting", "waited", "wait"],
+        "answer": 1,
+        "explanation": "'Can’t stand' is followed by gerund."
+    },
+    {
+        "question": "She advised him ________ the investment carefully.",
+        "options": ["consider", "considering", "to consider", "considered"],
+        "answer": 2,
+        "explanation": "'Advise' is followed by object + infinitive."
+    },
+    {
+        "question": "He took the blame upon himself ________ it was not his fault.",
+        "options": ["although", "but", "because", "despite"],
+        "answer": 0,
+        "explanation": "'Although' introduces contrast."
+    },
+    {
+        "question": "Had they informed us earlier, we ________ the problem.",
+        "options": ["could avoid", "could have avoided", "can avoid", "would avoid"],
+        "answer": 1,
+        "explanation": "Third conditional for unreal past."
+    },
+    {
+        "question": "The employee was terminated due to ________ misconduct.",
+        "options": ["his", "their", "her", "its"],
+        "answer": 0,
+        "explanation": "Singular subject requires singular possessive pronoun."
+    },
+    {
+        "question": "In spite of ________ all precautions, the incident occurred.",
+        "options": ["taking", "to take", "taken", "take"],
+        "answer": 0,
+        "explanation": "'In spite of' is followed by gerund."
+    },
+    {
+        "question": "If you ________ earlier, you could have avoided the delay.",
+        "options": ["had started", "started", "would start", "would have started"],
+        "answer": 0,
+        "explanation": "Third conditional for past unreal condition."
+    },
+    {
+        "question": "There is no need for you ________ worried about the issue.",
+        "options": ["being", "to be", "was", "be"],
+        "answer": 1,
+        "explanation": "'Need' is followed by infinitive in this structure."
+    },
+    {
+        "question": "Neither the manager nor the employees ________ willing to compromise.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 1,
+        "explanation": "Verb agrees with nearer subject (plural employees)."
+    },
+    {
+        "question": "He is not only a good speaker ________ an excellent writer.",
+        "options": ["but also", "and also", "but", "as well as"],
+        "answer": 0,
+        "explanation": "'Not only... but also' is correct correlative conjunction."
+    },
+    {
+        "question": "It was she ________ baked the delicious cake.",
+        "options": ["which", "who", "whom", "whose"],
+        "answer": 1,
+        "explanation": "'Who' is used as subject for people."
+    },
+    {
+        "question": "To avoid confusion, the files were arranged in ________ order.",
+        "options": ["alphabetical", "alphabeting", "alphabetingly", "alphabetically"],
+        "answer": 3,
+        "explanation": "Adverb 'alphabetically' modifies 'arranged'."
+    },
+    {
+        "question": "The project manager has finally ________ the new policies.",
+        "options": ["implemented", "implement", "implementation", "implements"],
+        "answer": 0,
+        "explanation": "Past tense verb 'implemented' fits."
+    },
+    {
+        "question": "She promised to finish the report ________ the deadline.",
+        "options": ["within", "beyond", "beside", "below"],
+        "answer": 0,
+        "explanation": "'Within the deadline' means before deadline."
+    },
+    {
+        "question": "The company’s profits have increased significantly ________ the last quarter.",
+        "options": ["since", "for", "from", "during"],
+        "answer": 0,
+        "explanation": "'Since' refers to starting point in time."
+    },
+    {
+        "question": "He failed to attend the meeting ________ a prior engagement.",
+        "options": ["because", "due to", "although", "despite"],
+        "answer": 1,
+        "explanation": "'Due to' expresses cause or reason."
+    },
+    {
+        "question": "The team worked hard, ________ they faced some unexpected challenges.",
+        "options": ["yet", "so", "because", "but"],
+        "answer": 0,
+        "explanation": "'Yet' introduces contrast."
+    },
+    {
+        "question": "If you had followed the instructions carefully, you ________ that mistake.",
+        "options": ["will not make", "would not make", "would not have made", "did not make"],
+        "answer": 2,
+        "explanation": "Third conditional: unreal past situation."
+    },
+    {
+        "question": "The manager was praised for his ________ handling of the crisis.",
+        "options": ["efficient", "efficiency", "efficiently", "efficiencies"],
+        "answer": 0,
+        "explanation": "'Efficient handling' uses adjective."
+    },
+    {
+        "question": "The CEO requested that the reports ________ submitted on time.",
+        "options": ["is", "be", "are", "was"],
+        "answer": 1,
+        "explanation": "Subjunctive mood uses base verb 'be'."
+    },
+    {
+        "question": "The new technology is expected to enhance productivity ________ the coming year.",
+        "options": ["during", "in", "at", "on"],
+        "answer": 1,
+        "explanation": "'In the coming year' is correct time expression."
+    },
+    {
+        "question": "She is looking forward to ________ her new assignments.",
+        "options": ["start", "to start", "starting", "started"],
+        "answer": 2,
+        "explanation": "'Look forward to' is followed by gerund."
+    },
+    {
+        "question": "The office hours have been extended ________ popular demand.",
+        "options": ["due to", "because", "on", "for"],
+        "answer": 2,
+        "explanation": "'On popular demand' is the standard phrase."
+    },
+    {
+        "question": "He acted as if he ________ the owner of the company.",
+        "options": ["were", "was", "is", "had been"],
+        "answer": 0,
+        "explanation": "Subjunctive mood requires 'were'."
+    },
+    {
+        "question": "She suggested that the meeting ________ postponed to next week.",
+        "options": ["is", "was", "be", "has been"],
+        "answer": 2,
+        "explanation": "Subjunctive mood base verb 'be' after suggestion."
+    },
+    {
+        "question": "________ we had a little more time, we could have reviewed the documents.",
+        "options": ["If", "Had", "Should", "Were"],
+        "answer": 1,
+        "explanation": "Inversion in third conditional: 'Had we...'."
+    },
+    {
+        "question": "He promised not to disclose the information to ________ else.",
+        "options": ["anyone", "someone", "everyone", "no one"],
+        "answer": 0,
+        "explanation": "'Anyone else' fits with non-disclosure."
+    },
+    {
+        "question": "The discussion lasted for hours, ________ no conclusion was reached.",
+        "options": ["yet", "but", "so", "for"],
+        "answer": 0,
+        "explanation": "'Yet' introduces contrast."
+    },
+    {
+        "question": "She has been with the company ________ nearly a decade.",
+        "options": ["for", "since", "from", "during"],
+        "answer": 0,
+        "explanation": "'For' indicates a period of time."
+    },
+    {
+        "question": "I would rather you ________ the truth now.",
+        "options": ["tell", "told", "have told", "will tell"],
+        "answer": 1,
+        "explanation": "'Would rather' + past tense verb expresses preference."
+    },
+    {
+        "question": "The meeting was canceled ________ unforeseen circumstances.",
+        "options": ["owing to", "because", "due to", "for"],
+        "answer": 0,
+        "explanation": "'Owing to' is a formal preposition meaning due to."
+    },
+    {
+        "question": "He is as diligent ________ his brother.",
+        "options": ["as", "like", "to", "with"],
+        "answer": 0,
+        "explanation": "'As...as' is the correct comparative structure."
+    },
+    {
+        "question": "I regret ________ to your party last night.",
+        "options": ["not to come", "not coming", "not having come", "not come"],
+        "answer": 2,
+        "explanation": "'Regret' about past action uses perfect gerund."
+    },
+    {
+        "question": "There is no doubt ________ their success.",
+        "options": ["about", "over", "about of", "on"],
+        "answer": 0,
+        "explanation": "'No doubt about' is correct phrase."
+    },
+    {
+        "question": "She seldom ________ unprepared for her presentations.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 0,
+        "explanation": "'Seldom' is singular adverb; verb agrees singular."
+    },
+    {
+        "question": "If only I ________ more time, I would finish the project.",
+        "options": ["have", "had", "will have", "would have"],
+        "answer": 1,
+        "explanation": "'If only' with past tense expresses wish."
+    },
+    {
+        "question": "The new employee is very knowledgeable ________ the software.",
+        "options": ["in", "with", "about", "on"],
+        "answer": 2,
+        "explanation": "'Knowledgeable about' indicates expertise."
+    },
+    {
+        "question": "Such an idea ________ never occurred to me before.",
+        "options": ["has", "had", "have", "having"],
+        "answer": 0,
+        "explanation": "'Such' with singular verb form."
+    },
+    {
+        "question": "Despite the difficulties, she managed to complete the task ________ time.",
+        "options": ["in", "on", "at", "within"],
+        "answer": 3,
+        "explanation": "'Within time' means before deadline."
+    },
+    {
+        "question": "He succeeded ________ convincing the manager of his loyalty.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Succeed in' doing something."
+    },
+    {
+        "question": "The CEO is credited ________ turning the company around.",
+        "options": ["with", "to", "for", "of"],
+        "answer": 0,
+        "explanation": "'Credited with' means attributed with."
+    },
+    {
+        "question": "The employees are eligible ________ the bonus this year.",
+        "options": ["for", "to", "of", "at"],
+        "answer": 0,
+        "explanation": "'Eligible for' something."
+    },
+    {
+        "question": "He was reprimanded ________ his careless mistake.",
+        "options": ["for", "of", "about", "by"],
+        "answer": 0,
+        "explanation": "'Reprimanded for' means formally criticized."
+    },
+    {
+        "question": "I failed to complete the task ________ the lack of resources.",
+        "options": ["because", "due to", "since", "although"],
+        "answer": 1,
+        "explanation": "'Due to' is used for reason."
+    },
+	{
+        "question": "The manager's decision was final, and no objections ________ entertained.",
+        "options": ["will be", "were", "was", "are"],
+        "answer": 1,
+        "explanation": "'No objections were entertained' is correct passive form."
+    },
+    {
+        "question": "Had I been informed earlier, I ________ the arrangements.",
+        "options": ["would make", "would have made", "will make", "made"],
+        "answer": 1,
+        "explanation": "Third conditional past perfect structure."
+    },
+    {
+        "question": "He acts as though he ________ the whole truth.",
+        "options": ["knows", "knew", "has known", "had known"],
+        "answer": 1,
+        "explanation": "'As though' with past tense indicates unreal present."
+    },
+    {
+        "question": "You would have finished the work if you ________ more time.",
+        "options": ["have", "had", "would have", "will have"],
+        "answer": 1,
+        "explanation": "Third conditional with past perfect in condition."
+    },
+    {
+        "question": "No sooner ________ the examination results announced than the students started celebrating.",
+        "options": ["were", "had", "did", "was"],
+        "answer": 1,
+        "explanation": "Inversion with 'no sooner' requires past perfect."
+    },
+    {
+        "question": "I suggest that he ________ an apology to the client.",
+        "options": ["offers", "offer", "offered", "offering"],
+        "answer": 1,
+        "explanation": "Subjunctive mood uses base form after suggestion."
+    },
+    {
+        "question": "The employees, as well as the manager, ________ present at the meeting.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 0,
+        "explanation": "'As well as' does not make the subject plural."
+    },
+    {
+        "question": "She is much better at time management than ________.",
+        "options": ["I", "me", "myself", "mine"],
+        "answer": 0,
+        "explanation": "Subject pronoun correct after comparative."
+    },
+    {
+        "question": "It is imperative that the report ________ submitted before the deadline.",
+        "options": ["is", "be", "was", "has been"],
+        "answer": 1,
+        "explanation": "Subjunctive requires base verb form 'be'."
+    },
+    {
+        "question": "All the documents were verified before the project went ________.",
+        "options": ["live", "alive", "living", "life"],
+        "answer": 0,
+        "explanation": "'Went live' means started operating."
+    },
+    {
+        "question": "She was accused ________ leaking confidential information.",
+        "options": ["of", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Accused of' is the correct preposition."
+    },
+    {
+        "question": "Neither the proposal nor the amendments ________ accepted by the committee.",
+        "options": ["was", "were", "is", "are"],
+        "answer": 0,
+        "explanation": "Verb agrees with nearer subject: amendments (plural)."
+    },
+    {
+        "question": "Had I known the meeting was canceled, I ________ there.",
+        "options": ["would not go", "would not have gone", "would not go", "will not go"],
+        "answer": 1,
+        "explanation": "Third conditional with past perfect."
+    },
+    {
+        "question": "She wishes she ________ the opportunity to travel abroad.",
+        "options": ["has", "had", "would have", "having"],
+        "answer": 1,
+        "explanation": "Past tense expresses present unreal wish."
+    },
+    {
+        "question": "Let him ________ the report before the deadline.",
+        "options": ["submit", "submits", "submitted", "submitting"],
+        "answer": 0,
+        "explanation": "Imperative mood uses base verb."
+    },
+    {
+        "question": "Both the director and the producers ________ satisfied with the final cut.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 1,
+        "explanation": "Compound subject joined by 'and' takes plural verb."
+    },
+    {
+        "question": "They have been working here ________ 2019.",
+        "options": ["since", "for", "from", "ago"],
+        "answer": 0,
+        "explanation": "'Since' specifies a point in time."
+    },
+    {
+        "question": "She must learn to rely ________ herself.",
+        "options": ["on", "upon", "to", "in"],
+        "answer": 0,
+        "explanation": "'Rely on' is the correct collocation."
+    },
+    {
+        "question": "The company is committed ________ reducing its carbon footprint.",
+        "options": ["to", "for", "with", "in"],
+        "answer": 0,
+        "explanation": "'Committed to' implies dedication."
+    },
+    {
+        "question": "The results have improved considerably ________ the new strategy.",
+        "options": ["due to", "because", "owing to", "on account of"],
+        "answer": 2,
+        "explanation": "'Owing to' is a formal expression for reasons."
+    },
+    {
+        "question": "I will meet you at the cafe, ________ I finish the meeting.",
+        "options": ["when", "while", "as soon as", "until"],
+        "answer": 2,
+        "explanation": "'As soon as' shows immediate action."
+    },
+    {
+        "question": "No sooner ________ the whistle blown than the race began.",
+        "options": ["was", "had", "did", "has"],
+        "answer": 1,
+        "explanation": "Correct inversion after 'no sooner' with past perfect."
+    },
+    {
+        "question": "The CEO emphasized the importance of ________ customer satisfaction.",
+        "options": ["maintain", "maintaining", "to maintain", "maintained"],
+        "answer": 1,
+        "explanation": "Importance of + gerund form."
+    },
+    {
+        "question": "I regret ________ that I cannot attend the conference.",
+        "options": ["to inform", "informing", "having informed", "to have informed"],
+        "answer": 0,
+        "explanation": "'Regret to inform' is used for present or future."
+    },
+    {
+        "question": "She ran faster than anyone else in the team, ________?",
+        "options": ["did she", "does she", "didn't she", "doesn't she"],
+        "answer": 2,
+        "explanation": "Positive statement takes negative tag. Past tense verb matches sentence."
+    },
+    {
+        "question": "Such was the intensity of the storm that it ________ caused widespread damage.",
+        "options": ["has", "have", "had", "was"],
+        "answer": 2,
+        "explanation": "Past tense fits with 'was the intensity'."
+    },
+    {
+        "question": "In case of emergency, ring this number ________ prompt assistance.",
+        "options": ["for", "to", "of", "at"],
+        "answer": 0,
+        "explanation": "'For prompt assistance' is correct phrasing."
+    },
+    {
+        "question": "She insisted that he ________ the documents immediately.",
+        "options": ["sign", "signed", "signs", "to sign"],
+        "answer": 0,
+        "explanation": "Subjunctive mood requires base verb 'sign'."
+    },
+    {
+        "question": "They avoided ________ the issue during the meeting.",
+        "options": ["discuss", "discussing", "to discuss", "discussed"],
+        "answer": 1,
+        "explanation": "'Avoid' is followed by gerund."
+    },
+    {
+        "question": "________ I had studied harder, I would have passed the exam.",
+        "options": ["Had", "If", "Were", "Would"],
+        "answer": 0,
+        "explanation": "Inversion with 'Had' emphasizes conditional."
+    },
+    {
+        "question": "Neither the manager nor his assistants ________ available for comment.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 1,
+        "explanation": "Verb agrees with nearer plural subject."
+    },
+    {
+        "question": "I would rather you ________ the report before tomorrow.",
+        "options": ["finish", "finished", "have finished", "will finish"],
+        "answer": 1,
+        "explanation": "'Would rather' + past tense expresses preference."
+    },
+    {
+        "question": "He explained the process in detail, ________ did she understand it clearly.",
+        "options": ["neither", "nor", "either", "also"],
+        "answer": 0,
+        "explanation": "'Neither did she' continues negative statements."
+    },
+    {
+        "question": "Such was the popularity of the product that it sold out ________ hours.",
+        "options": ["in a few", "within a few", "at a few", "by a few"],
+        "answer": 1,
+        "explanation": "'Within a few hours' means before that time."
+    },
+    {
+        "question": "No matter how hard he tries, he cannot succeed ________ his laziness.",
+        "options": ["despite", "because of", "due to", "in spite of"],
+        "answer": 1,
+        "explanation": "'Because of' indicates cause."
+    },
+    {
+        "question": "The report was completed ________ great difficulty and delay.",
+        "options": ["against", "in", "with", "by"],
+        "answer": 2,
+        "explanation": "'With great difficulty' is a standard phrase."
+    },
+    {
+        "question": "He was furious ________ the unjust decision.",
+        "options": ["about", "at", "by", "to"],
+        "answer": 1,
+        "explanation": "'Furious at' is correct."
+    },
+    {
+        "question": "It is necessary that every candidate ________ the examination without fail.",
+        "options": ["passes", "pass", "passed", "has passed"],
+        "answer": 1,
+        "explanation": "Subjunctive mood requires base verb."
+    },
+    {
+        "question": "________ we were on a tight budget, we managed to organize the event successfully.",
+        "options": ["Although", "Despite", "Even though", "Though"],
+        "answer": 0,
+        "explanation": "'Although' introduces a concessive clause."
+    },
+    {
+        "question": "Neither of the options ________ completely satisfactory.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 0,
+        "explanation": "'Neither' is singular."
+    },
+    {
+        "question": "She acted as if she ________ in charge of the entire department.",
+        "options": ["is", "was", "were", "has been"],
+        "answer": 2,
+        "explanation": "Subjunctive mood with 'as if' indicates unreality."
+    },
+    {
+        "question": "He was the last person ________ the truth.",
+        "options": ["knowing", "know", "to know", "who knows"],
+        "answer": 2,
+        "explanation": "Infinitive used for purpose or extent."
+    },
+    {
+        "question": "The chairman, along with the board members, ________ arriving soon.",
+        "options": ["is", "are", "were", "was"],
+        "answer": 0,
+        "explanation": "'Along with' does not make subject plural."
+    },
+    {
+        "question": "The judges deliberated carefully before ________ their verdict.",
+        "options": ["reaching", "to reach", "reach", "reached"],
+        "answer": 0,
+        "explanation": "Gerund follows preposition."
+    },
+    {
+        "question": "She found it difficult ________ the complex instructions.",
+        "options": ["understand", "to understand", "understanding", "understood"],
+        "answer": 1,
+        "explanation": "'Difficult to do something' is standard."
+    },
+	{
+        "question": "The lecturer explained the topic ________ great clarity.",
+        "options": ["with", "in", "by", "at"],
+        "answer": 0,
+        "explanation": "'Explain with clarity' is the correct phrase."
+    },
+    {
+        "question": "She didn’t come ________ spite of the invitation.",
+        "options": ["in", "at", "on", "for"],
+        "answer": 0,
+        "explanation": "'In spite of' means despite."
+    },
+    {
+        "question": "Had he worked harder, he ________ have succeeded.",
+        "options": ["would", "would not", "could", "could have"],
+        "answer": 0,
+        "explanation": "Third conditional: unreal past."
+    },
+    {
+        "question": "The manager insisted that the report ________ done by Friday.",
+        "options": ["be", "was", "is", "has been"],
+        "answer": 0,
+        "explanation": "Subjunctive mood requires base form verb."
+    },
+    {
+        "question": "Neither of the proposals ________ acceptable.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 0,
+        "explanation": "'Neither' is singular."
+    },
+    {
+        "question": "He would rather you ________ now than later.",
+        "options": ["come", "came", "will come", "have come"],
+        "answer": 1,
+        "explanation": "'Would rather' is followed by past tense verb for present/future."
+    },
+    {
+        "question": "She is highly proficient ________ several languages.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Proficient in' is standard usage."
+    },
+    {
+        "question": "No sooner ________ the meeting started than the power went off.",
+        "options": ["did", "had", "was", "has"],
+        "answer": 1,
+        "explanation": "Inversion after 'no sooner' with past perfect."
+    },
+    {
+        "question": "The company is committed ________ reducing carbon emissions.",
+        "options": ["to", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Committed to' shows dedication."
+    },
+    {
+        "question": "He will succeed ________ he perseveres.",
+        "options": ["if", "unless", "whether", "as"],
+        "answer": 0,
+        "explanation": "'If' introduces a condition."
+    },
+    {
+        "question": "She is not only hardworking ________ intelligent.",
+        "options": ["but also", "and", "as well as", "also"],
+        "answer": 0,
+        "explanation": "'Not only... but also' correlative conjunction."
+    },
+    {
+        "question": "The workers refused ________ the new terms of employment.",
+        "options": ["accept", "to accept", "accepting", "accepted"],
+        "answer": 1,
+        "explanation": "'Refused to' + verb."
+    },
+    {
+        "question": "He is said ________ the city next week.",
+        "options": ["to visit", "visit", "visiting", "to be visiting"],
+        "answer": 0,
+        "explanation": "'Be said to' + infinitive."
+    },
+    {
+        "question": "The results will be announced ________ the end of the month.",
+        "options": ["at", "on", "in", "by"],
+        "answer": 3,
+        "explanation": "'By' indicates deadline."
+    },
+    {
+        "question": "She was charged ________ theft.",
+        "options": ["of", "for", "with", "by"],
+        "answer": 2,
+        "explanation": "'Charged with' is correct."
+    },
+    {
+        "question": "The assistant, along with the manager, ________ attending the conference.",
+        "options": ["is", "are", "were", "was"],
+        "answer": 0,
+        "explanation": "'Along with' does not change verb number."
+    },
+    {
+        "question": "He apologized ________ the mistake.",
+        "options": ["for", "about", "to", "with"],
+        "answer": 0,
+        "explanation": "'Apologize for' is correct phrase."
+    },
+    {
+        "question": "Few employees ________ willing to work overtime.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 1,
+        "explanation": "'Few' takes plural verb."
+    },
+    {
+        "question": "She is anxious ________ her exam results.",
+        "options": ["about", "for", "to", "at"],
+        "answer": 0,
+        "explanation": "'Anxious about' is correct."
+    },
+    {
+        "question": "The policy will take effect ________ January 1.",
+        "options": ["at", "on", "in", "from"],
+        "answer": 1,
+        "explanation": "'On' is used with dates."
+    },
+    {
+        "question": "It is essential ________ safety regulations are followed.",
+        "options": ["that", "for", "to", "of"],
+        "answer": 0,
+        "explanation": "'It is essential that' introduces a clause."
+    },
+    {
+        "question": "They look forward to ________ the new system.",
+        "options": ["implement", "implementing", "to implement", "implemented"],
+        "answer": 1,
+        "explanation": "'Look forward to' is followed by gerund."
+    },
+    {
+        "question": "He is known ________ his punctuality.",
+        "options": ["for", "of", "about", "with"],
+        "answer": 0,
+        "explanation": "'Known for' is correct phrase."
+    },
+    {
+        "question": "She is devoted ________ her family.",
+        "options": ["to", "for", "with", "at"],
+        "answer": 0,
+        "explanation": "'Devoted to' indicates dedication."
+    },
+    {
+        "question": "The workers are protesting ________ poor working conditions.",
+        "options": ["about", "against", "for", "to"],
+        "answer": 1,
+        "explanation": "'Protesting against' something."
+    },
+    {
+        "question": "The CEO insisted that the budget ________ revised.",
+        "options": ["is", "was", "be", "has been"],
+        "answer": 2,
+        "explanation": "Subjunctive mood requires base verb."
+    },
+    {
+        "question": "He can’t help ________ when he hears that joke.",
+        "options": ["to laugh", "laugh", "laughing", "laughed"],
+        "answer": 2,
+        "explanation": "'Can't help' is followed by gerund."
+    },
+    {
+        "question": "She proposed ________ the meeting to next week.",
+        "options": ["postponing", "postpone", "to postpone", "postponed"],
+        "answer": 0,
+        "explanation": "'Propose' is followed by gerund."
+    },
+    {
+        "question": "When ________ by the news, he fainted.",
+        "options": ["shock", "shocked", "shocking", "has shocked"],
+        "answer": 1,
+        "explanation": "Past participle used after 'when'."
+    },
+    {
+        "question": "I have never seen ________ a beautiful sight.",
+        "options": ["such", "so", "too", "as"],
+        "answer": 0,
+        "explanation": "'Such a' used with noun phrase."
+    },
+    {
+        "question": "The project was completed ahead ________ schedule.",
+        "options": ["of", "on", "in", "at"],
+        "answer": 0,
+        "explanation": "'Ahead of schedule' is standard phrase."
+    },
+    {
+        "question": "Her suggestions were taken into consideration ________ the board.",
+        "options": ["by", "from", "with", "of"],
+        "answer": 0,
+        "explanation": "'By the board' for agent in passive voice."
+    },
+    {
+        "question": "The manager was held responsible ________ the failure.",
+        "options": ["for", "about", "to", "of"],
+        "answer": 0,
+        "explanation": "'Responsible for' indicates accountability."
+    },
+    {
+        "question": "She avoided ________ the question directly.",
+        "options": ["answer", "to answer", "answering", "answered"],
+        "answer": 2,
+        "explanation": "'Avoid' is followed by gerund."
+    },
+    {
+        "question": "It’s high time they ________ the regulations seriously.",
+        "options": ["took", "take", "taken", "are taking"],
+        "answer": 0,
+        "explanation": "'It’s high time' followed by past tense verb."
+    },
+    {
+        "question": "The product launch was delayed due to unforeseen ________.",
+        "options": ["circumstance", "circumstances", "circumstanced", "circumstancing"],
+        "answer": 1,
+        "explanation": "Plural noun refers to unexpected events."
+    },
+    {
+        "question": "________ he be guilty or innocent, the court’s verdict will stand.",
+        "options": ["Whether", "If", "Though", "Unless"],
+        "answer": 0,
+        "explanation": "'Whether' introduces alternatives."
+    },
+    {
+        "question": "The company has been investing heavily ________ research and development.",
+        "options": ["in", "on", "for", "at"],
+        "answer": 0,
+        "explanation": "'Invest in' shows direction of investment."
+    },
+    {
+        "question": "She couldn’t help ________ when she heard the news.",
+        "options": ["to laugh", "laugh", "laughing", "laughed"],
+        "answer": 2,
+        "explanation": "'Couldn't help' followed by gerund."
+    },
+    {
+        "question": "He was promoted ________ his exemplary performance.",
+        "options": ["because", "due to", "on account of", "all of these"],
+        "answer": 3,
+        "explanation": "All phrases indicate cause."
+    },
+    {
+        "question": "She excels ________ mathematics.","options":["in","on","at","with"],"answer":0,"explanation":"'Excel in' means to be very good at something."
+    },
+    {
+        "question": "The board approved the budget, ________ the proposal was revised twice.",
+        "options": ["although", "because", "despite", "yet"],
+        "answer": 3,
+        "explanation": "'Yet' shows contrast with previous clause."
+    },
+    {
+        "question": "The company is known ________ its innovative products.",
+        "options": ["for", "to", "of", "by"],
+        "answer": 0,
+        "explanation": "'Known for' means famous because of."
+    },
+    {
+        "question": "She is planning to attend the conference, ________ she has finalized the agenda.",
+        "options": ["because", "although", "once", "unless"],
+        "answer": 2,
+        "explanation": "'Once' indicates after a certain event."
+    },
+    {
+        "question": "Had the manager not intervened, the problem ________ escalated.",
+        "options": ["would", "will", "would have", "had"],
+        "answer": 2,
+        "explanation": "Third conditional past perfect structure."
+    },
+    {
+        "question": "The company expects all employees ________ the code of conduct.",
+        "options": ["to follow", "following", "followed", "to be following"],
+        "answer": 0,
+        "explanation": "'Expect' followed by infinitive."
+    },
+    {
+        "question": "She refused ________ the offer due to personal reasons.",
+        "options": ["to accept", "accepting", "accept", "accepted"],
+        "answer": 0,
+        "explanation": "'Refuse' followed by infinitive."
+    },
+    {
+        "question": "He is not only talented ________ hardworking.",
+        "options": ["but also", "and", "as well as", "also"],
+        "answer": 0,
+        "explanation": "'Not only... but also' is correct correlative conjunction."
+    },
+	{
+        "question": "Hardly ________ the meeting begun when the power went out.",
+        "options": ["had", "has", "was", "did"],
+        "answer": 0,
+        "explanation": "Inversion after 'hardly' requires past perfect 'had'."
+    },
+    {
+        "question": "No sooner ________ the president arrived than the crowd cheered.",
+        "options": ["did", "had", "was", "has"],
+        "answer": 1,
+        "explanation": "Inversion with 'no sooner' uses past perfect."
+    },
+    {
+        "question": "________ she be informed, she will take necessary action.",
+        "options": ["Should", "If", "When", "Unless"],
+        "answer": 0,
+        "explanation": "Formal conditional uses 'Should she be' for 'If she is'."
+    },
+    {
+        "question": "Scarcely ________ I entered the room when the phone rang.",
+        "options": ["had", "did", "was", "has"],
+        "answer": 0,
+        "explanation": "Inversion after 'scarcely' requires past perfect."
+    },
+    {
+        "question": "He talks as if he ________ all the answers.",
+        "options": ["knows", "knew", "has known", "had known"],
+        "answer": 1,
+        "explanation": "'As if' with past tense expresses unreal condition."
+    },
+    {
+        "question": "I wish I ________ met her before the conference.",
+        "options": ["has", "had", "have", "had had"],
+        "answer": 3,
+        "explanation": "Past perfect 'had had' used for past regrets."
+    },
+    {
+        "question": "It is high time you ________ to the manager about your concerns.",
+        "options": ["talk", "talked", "have talked", "will talk"],
+        "answer": 1,
+        "explanation": "'High time' followed by past tense."
+    },
+    {
+        "question": "Had she listened carefully, she ________ the mistake.",
+        "options": ["would avoid", "would have avoided", "could avoid", "could have avoided"],
+        "answer": 1,
+        "explanation": "Third conditional structure."
+    },
+    {
+        "question": "Not only ________ the CEO resign, but the entire board stepped down.",
+        "options": ["did", "had", "was", "has"],
+        "answer": 0,
+        "explanation": "Inversion after 'not only'."
+    },
+    {
+        "question": "In no way ________ he responsible for the incident.",
+        "options": ["is", "was", "does", "did"],
+        "answer": 0,
+        "explanation": "Inversion after negative adverbial phrase."
+    },
+    {
+        "question": "Had it not ________ for the traffic, we would have reached on time.",
+        "options": ["been", "was", "be", "being"],
+        "answer": 0,
+        "explanation": "Correct form for past perfect subjunctive."
+    },
+    {
+        "question": "Few students ________ aware of the new guidelines.",
+        "options": ["are", "is", "were", "was"],
+        "answer": 0,
+        "explanation": "'Few' is plural and takes plural verb."
+    },
+    {
+        "question": "Neither the manager nor the employees ________ willing to compromise.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 1,
+        "explanation": "Verb agrees with nearest subject (plural)."
+    },
+    {
+        "question": "She prefers tea ________ coffee, especially in winter.",
+        "options": ["than", "to", "over", "rather"],
+        "answer": 1,
+        "explanation": "'Prefer X to Y' is correct."
+    },
+    {
+        "question": "The teacher suggested ________ the test next week.",
+        "options": ["postpone", "postponing", "to postpone", "postponed"],
+        "answer": 1,
+        "explanation": "'Suggest' is followed by gerund."
+    },
+    {
+        "question": "Despite the challenges, the team was able to complete the project ________ schedule.",
+        "options": ["in", "on", "at", "within"],
+        "answer": 3,
+        "explanation": "'Within schedule' means before or by deadline."
+    },
+    {
+        "question": "They insisted ________ the meeting be postponed.",
+        "options": ["that", "on", "in", "upon"],
+        "answer": 0,
+        "explanation": "Subjunctive mood with 'that'."
+    },
+    {
+        "question": "The conference was attended by a large number of delegates, ________ several from overseas.",
+        "options": ["including", "included", "include", "includes"],
+        "answer": 0,
+        "explanation": "'Including' is the right participle here."
+    },
+    {
+        "question": "No sooner ________ he left than the problem arose again.",
+        "options": ["did", "had", "was", "has"],
+        "answer": 1,
+        "explanation": "Inversion after 'no sooner' with past perfect."
+    },
+    {
+        "question": "He acts as though he ________ the entire truth.",
+        "options": ["knows", "knew", "has known", "had known"],
+        "answer": 1,
+        "explanation": "Unreal present uses past tense after 'as though'."
+    },
+    {
+        "question": "I would rather you ________ the task immediately.",
+        "options": ["finish", "finished", "have finished", "will finish"],
+        "answer": 1,
+        "explanation": "'Would rather' + past tense verb for preference."
+    },
+    {
+        "question": "It is essential that each employee ________ safety protocols.",
+        "options": ["follow", "follows", "followed", "is following"],
+        "answer": 0,
+        "explanation": "Subjunctive mood requires base verb."
+    },
+    {
+        "question": "They managed to complete the work on time, ________ the unforeseen difficulties.",
+        "options": ["despite", "although", "because", "due to"],
+        "answer": 0,
+        "explanation": "'Despite' expresses contrast."
+    },
+    {
+        "question": "She is accustomed ________ working under pressure.",
+        "options": ["to", "with", "for", "by"],
+        "answer": 0,
+        "explanation": "'Accustomed to' followed by gerund."
+    },
+    {
+        "question": "He has been promoted ________ his exceptional performance.",
+        "options": ["because", "for", "due to", "owing to"],
+        "answer": 1,
+        "explanation": "'For' indicates reason."
+    },
+    {
+        "question": "The new protocol came into effect ________ April 1.",
+        "options": ["at", "on", "from", "in"],
+        "answer": 1,
+        "explanation": "'On' is used with specific dates."
+    },
+    {
+        "question": "Had I been informed earlier, I ________ the necessary arrangements.",
+        "options": ["would make", "would have made", "will make", "made"],
+        "answer": 1,
+        "explanation": "Third conditional past perfect."
+    },
+    {
+        "question": "She wishes she ________ the opportunity to speak at the conference.",
+        "options": ["has", "had", "would have", "having"],
+        "answer": 1,
+        "explanation": "'Wish' with past tense to express present regret."
+    },
+    {
+        "question": "The CEO demanded that all reports ________ submitted by Friday.",
+        "options": ["is", "be", "are", "was"],
+        "answer": 1,
+        "explanation": "Subjunctive mood requires base verb."
+    },
+    {
+        "question": "Neither the board members nor the chairman ________ present at the meeting.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 0,
+        "explanation": "Verb agrees with nearer subject (chairman, singular)."
+    },
+    {
+        "question": "The students were warned ________ cheating during the exam.",
+        "options": ["against", "of", "about", "for"],
+        "answer": 0,
+        "explanation": "'Warned against' is correct."
+    },
+    {
+        "question": "He is proficient ________ multiple programming languages.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Proficient in' is standard."
+    },
+    {
+        "question": "She declined ________ the invitation due to prior commitments.",
+        "options": ["accept", "to accept", "accepting", "accepted"],
+        "answer": 1,
+        "explanation": "'Decline' is followed by infinitive."
+    },
+    {
+        "question": "The company is committed ________ reducing its environmental impact.",
+        "options": ["to", "for", "with", "in"],
+        "answer": 0,
+        "explanation": "'Committed to' indicates dedication."
+    },
+    {
+        "question": "The project was completed ahead ________ schedule despite the challenges.",
+        "options": ["of", "on", "in", "at"],
+        "answer": 0,
+        "explanation": "'Ahead of schedule' is correct."
+    },
+    {
+        "question": "They succeeded ________ convincing the client to invest.",
+        "options": ["in", "at", "on", "with"],
+        "answer": 0,
+        "explanation": "'Succeed in' doing something."
+    },
+    {
+        "question": "Had the manager not stepped in, the situation ________ spiraled out of control.",
+        "options": ["would", "will", "would have", "was"],
+        "answer": 2,
+        "explanation": "Third conditional past perfect form."
+    },
+    {
+        "question": "She encountered difficulties ________ obtaining the necessary approvals.",
+        "options": ["in", "with", "at", "for"],
+        "answer": 0,
+        "explanation": "'Encounter difficulties in' doing something."
+    },
+    {
+        "question": "They insisted ________ their innocence despite the evidence.",
+        "options": ["on", "in", "at", "with"],
+        "answer": 0,
+        "explanation": "'Insist on' doing something."
+    },
+    {
+        "question": "He was sentenced ________ five years imprisonment.",
+        "options": ["to", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Sentenced to' punishment."
+    },
+    {
+        "question": "She is adept ________ handling difficult clients.",
+        "options": ["in", "at", "with", "on"],
+        "answer": 1,
+        "explanation": "'Adept at' means skilled."
+    },
+    {
+        "question": "Had I been you, I ________ accept the offer immediately.",
+        "options": ["will", "would", "shall", "should"],
+        "answer": 1,
+        "explanation": "Second conditional hypothetical phrase."
+    },
+    {
+        "question": "Hardly ________ the meeting started when the fire alarm rang.",
+        "options": ["had", "has", "was", "did"],
+        "answer": 0,
+        "explanation": "Inversion after 'hardly' takes past perfect."
+    },
+    {
+        "question": "She would rather you ________ the results before making a decision.",
+        "options": ["know", "knew", "have known", "will know"],
+        "answer": 1,
+        "explanation": "'Would rather' + past tense verb."
+    },
+    {
+        "question": "The committee recommended that the proposal ________ approved.",
+        "options": ["is", "be", "was", "has been"],
+        "answer": 1,
+        "explanation": "Subjunctive mood base verb."
+    },
+    {
+        "question": "It was not until the CEO arrived that the meeting ________ started.",
+        "options": ["had", "was", "did", "has"],
+        "answer": 2,
+        "explanation": "Past tense for action completed after condition."
+    },
+	{
+        "question": "She avoided ________ to the controversial point in the discussion.",
+        "options": ["refer", "to refer", "referring", "referred"],
+        "answer": 2,
+        "explanation": "'Avoid' is followed by gerund."
+    },
+    {
+        "question": "No sooner ________ the CEO entered the room than the discussion became serious.",
+        "options": ["had", "did", "was", "has"],
+        "answer": 0,
+        "explanation": "Inversion with 'no sooner' requires past perfect."
+    },
+    {
+        "question": "I wish I ________ told about the meeting beforehand.",
+        "options": ["was", "were", "had been", "have been"],
+        "answer": 2,
+        "explanation": "Past perfect used to express regret about past."
+    },
+    {
+        "question": "________ you need any assistance, please do not hesitate to ask.",
+        "options": ["If", "Should", "When", "Unless"],
+        "answer": 1,
+        "explanation": "Formal conditional with 'Should you...'."
+    },
+    {
+        "question": "He talks as though he ________ more experience than the others.",
+        "options": ["has", "had", "have", "having"],
+        "answer": 1,
+        "explanation": "'As though' with past tense expresses unreal situation."
+    },
+    {
+        "question": "The manager demanded that the report ________ submitted on time.",
+        "options": ["is", "was", "be", "has been"],
+        "answer": 2,
+        "explanation": "Subjunctive mood uses base verb form."
+    },
+    {
+        "question": "The employees, as well as the director, ________ ready for the presentation.",
+        "options": ["is", "are", "were", "was"],
+        "answer": 0,
+        "explanation": "'As well as' does not change singular subject."
+    },
+    {
+        "question": "She is better at negotiating deals ________ her predecessor.",
+        "options": ["than", "then", "to", "from"],
+        "answer": 0,
+        "explanation": "'Better... than' is correct comparison."
+    },
+    {
+        "question": "I suggest ________ the meeting to next week.",
+        "options": ["postponing", "postpone", "to postpone", "postponed"],
+        "answer": 0,
+        "explanation": "'Suggest' is followed by gerund."
+    },
+    {
+        "question": "The project was completed ________ schedule despite budget constraints.",
+        "options": ["in", "on", "at", "within"],
+        "answer": 3,
+        "explanation": "'Within schedule' means before deadline."
+    },
+    {
+        "question": "They insisted ________ the documentation be verified.",
+        "options": ["that", "on", "upon", "in"],
+        "answer": 0,
+        "explanation": "Subjunctive mood requires 'that' clause."
+    },
+    {
+        "question": "The seminar was attended by experts, ________ several from abroad.",
+        "options": ["including", "included", "include", "includes"],
+        "answer": 0,
+        "explanation": "'Including' is the correct present participle."
+    },
+    {
+        "question": "She failed to submit the report ________ the deadline.",
+        "options": ["before", "by", "within", "on"],
+        "answer": 1,
+        "explanation": "'By the deadline' means not later than."
+    },
+    {
+        "question": "He was promoted ________ his consistent performance.",
+        "options": ["because of", "due to", "on account of", "all of these"],
+        "answer": 3,
+        "explanation": "All options indicate cause."
+    },
+    {
+        "question": "Had they informed me earlier, I ________ the preparations.",
+        "options": ["would have made", "would make", "would have been made", "made"],
+        "answer": 0,
+        "explanation": "Third conditional past perfect."
+    },
+    {
+        "question": "We expect the training sessions ________ the end of this month.",
+        "options": ["to begin", "beginning", "begins", "began"],
+        "answer": 0,
+        "explanation": "'Expect' is followed by infinitive."
+    },
+    {
+        "question": "Neither the manager nor his assistants ________ responsible for the error.",
+        "options": ["is", "are", "was", "were"],
+        "answer": 1,
+        "explanation": "Verb agrees with nearer plural subject."
+    },
+    {
+        "question": "She was accused ________ violating company policy.",
+        "options": ["of", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Accused of' is the correct phrase."
+    },
+    {
+        "question": "The CEO is known ________ his innovative ideas.",
+        "options": ["for", "about", "of", "by"],
+        "answer": 0,
+        "explanation": "'Known for' indicates reason for popularity."
+    },
+    {
+        "question": "He suggested that the budget ________ increased to cover new expenses.",
+        "options": ["is", "be", "was", "has been"],
+        "answer": 1,
+        "explanation": "Subjunctive mood requires base verb."
+    },
+    {
+        "question": "Had I not met her, I ________ the opportunity.",
+        "options": ["would have missed", "would miss", "will miss", "missed"],
+        "answer": 0,
+        "explanation": "Third conditional for unreal past."
+    },
+    {
+        "question": "She insists on ________ the correct procedures.",
+        "options": ["following", "follow", "to follow", "followed"],
+        "answer": 0,
+        "explanation": "'Insist on' is followed by gerund."
+    },
+    {
+        "question": "It is important ________ all safety protocols are followed.",
+        "options": ["that", "for", "to", "of"],
+        "answer": 0,
+        "explanation": "'It is important that' introduces a clause."
+    },
+    {
+        "question": "He is adept ________ resolving conflicts swiftly and fairly.",
+        "options": ["at", "in", "on", "with"],
+        "answer": 0,
+        "explanation": "'Adept at' + gerund."
+    },
+    {
+        "question": "The contract was signed ________ both parties present.",
+        "options": ["with", "by", "between", "among"],
+        "answer": 2,
+        "explanation": "'Between' refers to two parties."
+    },
+    {
+        "question": "She failed to attend the meeting ________ a prior engagement.",
+        "options": ["because of", "due to", "despite", "although"],
+        "answer": 1,
+        "explanation": "'Due to' indicates reason."
+    },
+    {
+        "question": "Had they arrived earlier, they ________ the presentation.",
+        "options": ["would catch", "will catch", "would have caught", "caught"],
+        "answer": 2,
+        "explanation": "Third conditional with past perfect."
+    },
+    {
+        "question": "The new regulations came into effect ________ January 1.",
+        "options": ["at", "on", "in", "from"],
+        "answer": 1,
+        "explanation": "'On a specific date' is correct."
+    },
+    {
+        "question": "She apologized ________ the inconvenience caused.",
+        "options": ["for", "about", "to", "with"],
+        "answer": 0,
+        "explanation": "'Apologize for' a thing or action."
+    },
+    {
+        "question": "The company has been investing heavily ________ renewable energy.",
+        "options": ["in", "on", "for", "at"],
+        "answer": 0,
+        "explanation": "'Invest in' something."
+    },
+    {
+        "question": "Despite ________ all efforts, the deadline was missed.",
+        "options": ["making", "to make", "made", "make"],
+        "answer": 0,
+        "explanation": "'Despite' is followed by gerund."
+    },
+    {
+        "question": "She was charged ________ fraud and embezzlement.",
+        "options": ["with", "of", "for", "by"],
+        "answer": 0,
+        "explanation": "'Charged with' criminal acts."
+    },
+    {
+        "question": "The report emphasizes the need ________ improved communication.",
+        "options": ["of", "for", "to", "about"],
+        "answer": 1,
+        "explanation": "'Need for' something."
+    },
+    {
+        "question": "He is inspired ________ by his mentor’s guidance.",
+        "options": ["of", "to", "by", "with"],
+        "answer": 2,
+        "explanation": "'Inspired by' someone."
+    },
+    {
+        "question": "She avoided ________ a direct answer.",
+        "options": ["giving", "give", "to give", "gave"],
+        "answer": 0,
+        "explanation": "'Avoid' is followed by gerund."
+    },
+    {
+        "question": "They were accused ________ neglecting their responsibilities.",
+        "options": ["of", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Accused of' followed by gerund or noun."
+    },
+    {
+        "question": "Hardly ________ he finished the report when the computer crashed.",
+        "options": ["had", "did", "was", "has"],
+        "answer": 0,
+        "explanation": "Inversion after 'hardly' requires past perfect."
+    },
+    {
+        "question": "We were advised ________ strictly follow the safety guidelines.",
+        "options": ["to", "for", "about", "on"],
+        "answer": 0,
+        "explanation": "'Advised to' perform an action."
+    },
+    {
+        "question": "He will not succeed unless he puts in enough effort, ________?",
+        "options": ["will he", "won't he", "does he", "doesn't he"],
+        "answer": 2,
+        "explanation": "Negative clause tag for conditionals."
+    },
+	{
+        "question": "If I ________ you, I would reconsider the offer.",
+        "options": ["am", "was", "were", "be"],
+        "answer": 2,
+        "explanation": "'If I were you' is the correct subjunctive form for hypothetical situations."
+    },
+    {
+        "question": "Rarely ________ the employees so motivated as in this project.",
+        "options": ["have", "has", "had", "were"],
+        "answer": 0,
+        "explanation": "Inversion after 'rarely' requires auxiliary verb and past participle."
+    },
+    {
+        "question": "She would have arrived on time if she ________ left earlier.",
+        "options": ["had", "has", "would have", "was"],
+        "answer": 0,
+        "explanation": "Third conditional uses past perfect in the if-clause."
+    },
+    {
+        "question": "It is necessary that the proposal ________ reviewed by the committee.",
+        "options": ["is", "be", "was", "has been"],
+        "answer": 1,
+        "explanation": "Subjunctive mood requires base form 'be'."
+    },
+    {
+        "question": "Not only ________ the report delayed, but the presentation was also canceled.",
+        "options": ["was", "were", "is", "are"],
+        "answer": 0,
+        "explanation": "Inversion after 'not only'."
+    },
+    {
+        "question": "They succeeded in persuading the client ________ increase the order.",
+        "options": ["to", "for", "about", "of"],
+        "answer": 0,
+        "explanation": "'Persuade someone to do something' is correct."
+    },
+    {
+        "question": "She admitted ________ the mistake and promised to rectify it.",
+        "options": ["making", "to make", "make", "made"],
+        "answer": 0,
+        "explanation": "'Admit' is followed by gerund."
+    },
+    {
+        "question": "The committee was divided ________ the issue of budget allocation.",
+        "options": ["on", "about", "over", "into"],
+        "answer": 2,
+        "explanation": "'Divided over' means disagreement about an issue."
+    },
+    {
+        "question": "The deadline was extended ________ technical difficulties.",
+        "options": ["due to", "because of", "on account of", "all of these"],
+        "answer": 3,
+        "explanation": "All phrases are correct to indicate reason."
+    },
+    {
+        "question": "He was reprimanded ________ failing to meet the targets.",
+        "options": ["for", "of", "about", "on"],
+        "answer": 0,
+        "explanation": "'Reprimand for' reason of reprimand."
+    },
+    {
+        "question": "The new policy aims to improve performance ________ all levels.",
+        "options": ["at", "in", "on", "for"],
+        "answer": 0,
+        "explanation": "'At all levels' indicates scope."
+    },
+    {
+        "question": "The manager reminded the employees ________ the safety regulations.",
+        "options": ["about", "on", "of", "to"],
+        "answer": 2,
+        "explanation": "'Remind someone of something.'"
+    },
+    {
+        "question": "The investors are concerned ________ the market volatility.",
+        "options": ["about", "for", "with", "at"],
+        "answer": 0,
+        "explanation": "'Concerned about' something."
+    },
+    {
+        "question": "She is hesitant ________ make a decision without proper consultation.",
+        "options": ["to", "about", "in", "at"],
+        "answer": 0,
+        "explanation": "'Hesitant to' plus infinitive verb."
+    },
+    {
+        "question": "Had I not delayed, I ________ caught the train.",
+        "options": ["would have", "would", "will", "had"],
+        "answer": 0,
+        "explanation": "Third conditional past perfect."
+    },
+    {
+        "question": "The company is responsible ________ any damages caused during transportation.",
+        "options": ["for", "of", "to", "with"],
+        "answer": 0,
+        "explanation": "'Responsible for' indicating accountability."
+    },
+    {
+        "question": "She criticized the report for being ________ detailed and lengthy.",
+        "options": ["too", "very", "so", "too much"],
+        "answer": 0,
+        "explanation": "'Too detailed' indicates excessive degree."
+    },
+    {
+        "question": "It took much longer than expected owing ________ unforeseen circumstances.",
+        "options": ["to", "for", "with", "from"],
+        "answer": 0,
+        "explanation": "'Owing to' is formal for 'because of'."
+    },
+    {
+        "question": "The seminar was attended by academics, ________ some renowned authors.",
+        "options": ["including", "included", "include", "includes"],
+        "answer": 0,
+        "explanation": "'Including' is correct participle."
+    },
+    {
+        "question": "She is adept ________ handling complex negotiations.",
+        "options": ["at", "on", "in", "with"],
+        "answer": 0,
+        "explanation": "'Adept at' indicates skill."
+    },
+    {
+        "question": "You must comply ________ the company's code of conduct.",
+        "options": ["with", "to", "at", "for"],
+        "answer": 0,
+        "explanation": "'Comply with' is correct collocation."
+    },
+    {
+        "question": "Despite ________ numerous warnings, the rules were violated.",
+        "options": ["receiving", "to receive", "received", "to have received"],
+        "answer": 0,
+        "explanation": "'Despite' takes gerund."
+    },
+    {
+        "question": "The CEO emphasized the need ________ consistent innovation.",
+        "options": ["for", "to", "of", "on"],
+        "answer": 0,
+        "explanation": "'Need for' something."
+    },
+    {
+        "question": "He refrained ________ making any comments during the meeting.",
+        "options": ["from", "in", "on", "at"],
+        "answer": 0,
+        "explanation": "'Refrain from' doing something."
+    },
+    {
+        "question": "Had the employees been informed, they ________ avoided the error.",
+        "options": ["would", "would have", "will", "would be"],
+        "answer": 1,
+        "explanation": "Third conditional."
+    },
+    {
+        "question": "Nothing could be done unless the management ________ involved.",
+        "options": ["was", "were", "is", "are"],
+        "answer": 1,
+        "explanation": "Subjunctive mood uses plural verb with 'management' as collective noun."
+    },
+    {
+        "question": "The results will be declared ________ the end of the week.",
+        "options": ["by", "at", "on", "before"],
+        "answer": 0,
+        "explanation": "'By the end' refers to deadline."
+    },
+    {
+        "question": "The manager was praised for ________ handling the crisis effectively.",
+        "options": ["his", "him", "he", "himself"],
+        "answer": 0,
+        "explanation": "Possessive pronoun before gerund."
+    },
+    {
+        "question": "She was late ________ the heavy traffic.",
+        "options": ["because of", "due to", "in spite of", "although"],
+        "answer": 1,
+        "explanation": "'Due to' denotes cause."
+    },
+    {
+        "question": "Had he accepted the offer, he ________ a better position now.",
+        "options": ["would have", "would", "will have", "will"],
+        "answer": 1,
+        "explanation": "Second conditional present unreal."
+    },
+    {
+        "question": "They were warned against ________ confidential data to outsiders.",
+        "options": ["disclosing", "disclose", "to disclose", "disclosed"],
+        "answer": 0,
+        "explanation": "'Warn against' is followed by gerund."
+    },
+    {
+        "question": "She refused ________ any further comments on the issue.",
+        "options": ["to make", "make", "making", "made"],
+        "answer": 0,
+        "explanation": "'Refuse' is followed by infinitive."
+    },
+    {
+        "question": "The new policy came into effect ________ April.",
+        "options": ["in", "on", "at", "from"],
+        "answer": 0,
+        "explanation": "'In' used for month."
+    },
+    {
+        "question": "Had they been prepared, they ________ dealt with the situation better.",
+        "options": ["would", "would have", "will", "might"],
+        "answer": 1,
+        "explanation": "Third conditional structure."
+    },
+    {
+        "question": "She asked him ________ the documents before signing.",
+        "options": ["to review", "review", "reviewing", "reviewed"],
+        "answer": 0,
+        "explanation": "'Ask someone to do something' structure."
+    },
+    {
+        "question": "The report was criticized for ________ inaccurate data.",
+        "options": ["containing", "contain", "to contain", "contained"],
+        "answer": 0,
+        "explanation": "Gerund follows 'criticized for'."
+    },
+    {
+        "question": "Had the client approved, the project ________ started last month.",
+        "options": ["would have", "would", "will", "has"],
+        "answer": 0,
+        "explanation": "Third conditional."
+    },
+    {
+        "question": "Neither the director nor the assistant ________ aware of the changes.",
+        "options": ["was", "were", "is", "are"],
+        "answer": 0,
+        "explanation": "Verb agrees with nearer singular subject."
+    },
+    {
+        "question": "You should avoid ________ late for meetings.",
+        "options": ["being", "to be", "be", "been"],
+        "answer": 0,
+        "explanation": "'Avoid' followed by gerund."
+    },
+    {
+        "question": "They were accused ________ breaching the contract terms.",
+        "options": ["of", "for", "with", "by"],
+        "answer": 0,
+        "explanation": "'Accused of' followed by gerund."
+    },
+    {
+        "question": "The negotiations ended ________ an agreement.",
+        "options": ["with", "in", "at", "on"],
+        "answer": 1,
+        "explanation": "'End in' means result in."
+    },
+    {
+        "question": "She succeeded in ________ the project before the deadline.",
+        "options": ["completing", "to complete", "complete", "completed"],
+        "answer": 0,
+        "explanation": "'Succeed in' followed by gerund."
+    },
+    {
+        "question": "Had I taken your advice, I ________ in this problem.",
+        "options": ["would not be", "would not have been", "will not be", "was not"],
+        "answer": 1,
+        "explanation": "Third conditional expressing past unreal."
+    },
+    {
+        "question": "It is imperative that the documents ________ submitted immediately.",
+        "options": ["are", "be", "is", "was"],
+        "answer": 1,
+        "explanation": "Subjunctive mood requires base verb 'be'."
+    },
+    {
+        "question": "He has no intention ________ the project before its completion.",
+        "options": ["to abandon", "abandoning", "abandons", "abandoned"],
+        "answer": 0,
+        "explanation": "'No intention to' is followed by infinitive."
+    },
+    {
+        "question": "They congratulated her ________ the successful completion of the project.",
+        "options": ["for", "on", "at", "about"],
+        "answer": 1,
+        "explanation": "'Congratulate on' phrase."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

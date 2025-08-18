@@ -1,0 +1,2393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odisha Polity Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Odisha Polity</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "Who is the constitutional head of the state of Odisha?",
+        "options": ["Governor", "Chief Minister", "Chief Justice", "Speaker of the Assembly"],
+        "answer": 0,
+        "explanation": "The Governor is the constitutional head of the state as per the Indian Constitution."
+    },
+    {
+        "question": "Which article of the Constitution empowers the Governor of Odisha to promulgate ordinances?",
+        "options": ["Article 213", "Article 200", "Article 155", "Article 324"],
+        "answer": 0,
+        "explanation": "Article 213 allows the Governor to promulgate ordinances when the legislative assembly is not in session."
+    },
+    {
+        "question": "The Odisha Legislative Assembly is a:",
+        "options": ["Unicameral legislature", "Bicameral legislature", "Tricameral legislature", "Federal assembly"],
+        "answer": 0,
+        "explanation": "Odisha Legislative Assembly is unicameral, meaning it has only one house."
+    },
+    {
+        "question": "The speaker of the Odisha Legislative Assembly is elected by:",
+        "options": ["Members of the Legislative Assembly", "Governor", "Chief Minister", "Council of Ministers"],
+        "answer": 0,
+        "explanation": "The Speaker is elected by the members of the Legislative Assembly."
+    },
+    {
+        "question": "Which department is primarily responsible for land revenue administration in Odisha?",
+        "options": ["Revenue and Disaster Management", "Finance", "Home", "Rural Development"],
+        "answer": 0,
+        "explanation": "Land revenue affairs are managed by the Revenue and Disaster Management Department."
+    },
+    {
+        "question": "Who presents the annual state budget in the Odisha Legislative Assembly?",
+        "options": ["Finance Minister", "Chief Minister", "Governor", "Speaker of Assembly"],
+        "answer": 0,
+        "explanation": "The Finance Minister tables the budget for the state assembly's consideration."
+    },
+    {
+        "question": "Which Panchayat level is immediately above the Gram Panchayat in Odisha?",
+        "options": ["Panchayat Samiti", "Zilla Parishad", "Block Development Office", "Municipality"],
+        "answer": 0,
+        "explanation": "Panchayat Samiti is the intermediate tier between Gram Panchayat and Zilla Parishad."
+    },
+    {
+        "question": "The Odisha Lokayukta Act was enacted to address:",
+        "options": ["Corruption and maladministration", "Education policy", "Land disputes", "Scheduling of exams"],
+        "answer": 0,
+        "explanation": "The Lokayukta Act is designed to tackle corruption and promote good governance."
+    },
+    {
+        "question": "Odisha Legislative Assembly members are elected for a term of:",
+        "options": ["5 years", "4 years", "6 years", "7 years"],
+        "answer": 0,
+        "explanation": "The standard term of the Odisha Legislative Assembly is five years unless dissolved earlier."
+    },
+    {
+        "question": "Who appoints the Chief Minister of Odisha?",
+        "options": ["Governor", "President of India", "Speaker", "Judge of High Court"],
+        "answer": 0,
+        "explanation": "The Governor appoints the Chief Minister of the state."
+    },
+    {
+        "question": "Which is the highest court of appeal in Odisha?",
+        "options": ["Odisha High Court", "Supreme Court of India", "District Court", "Lok Adalat"],
+        "answer": 0,
+        "explanation": "Odisha High Court is the highest court at the state level."
+    },
+    {
+        "question": "The power to dissolve the Odisha Legislative Assembly rests with:",
+        "options": ["Governor", "Chief Minister", "Speaker", "Parliament"],
+        "answer": 0,
+        "explanation": "The Governor can dissolve the Assembly on advice of the Chief Minister, generally during a constitutional crisis."
+    },
+    {
+        "question": "The leader of opposition in the Odisha Legislative Assembly is:",
+        "options": ["Head of the largest party not in government", "Governor", "Chief Secretary", "Speaker"],
+        "answer": 0,
+        "explanation": "The leader of the largest opposition party becomes the Leader of Opposition."
+    },
+    {
+        "question": "Which authority prepares the electoral roll for Odisha Assembly elections?",
+        "options": ["Election Commission of India", "Odisha Revenue Department", "Governor", "Chief Minister"],
+        "answer": 0,
+        "explanation": "Election Commission of India is responsible for preparing electoral rolls."
+    },
+    {
+        "question": "What is the minimum age to contest elections to the Odisha Legislative Assembly?",
+        "options": ["25 years", "30 years", "21 years", "18 years"],
+        "answer": 0,
+        "explanation": "The Indian Constitution prescribes 25 years as the minimum age for Assembly elections."
+    },
+    {
+        "question": "Who is the head of the Council of Ministers in Odisha?",
+        "options": ["Chief Minister", "Governor", "Finance Minister", "Chief Secretary"],
+        "answer": 0,
+        "explanation": "Chief Minister leads the Council of Ministers."
+    },
+    {
+        "question": "What is the function of the State Election Commission in Odisha?",
+        "options": ["Conducts local body elections", "Manages state finances", "Oversees education", "Implements central laws"],
+        "answer": 0,
+        "explanation": "State Election Commission conducts elections to Panchayats and Municipalities."
+    },
+    {
+        "question": "The Odisha Public Service Commission (OPSC) is constituted under which article?",
+        "options": ["Article 315", "Article 161", "Article 320", "Article 123"],
+        "answer": 0,
+        "explanation": "Article 315 deals with the appointment of State Public Service Commissions."
+    },
+    {
+        "question": "Land reforms in Odisha aim to:",
+        "options": ["Distribute land more equitably", "Increase forest cover", "Improve literacy", "Enhance mining"],
+        "answer": 0,
+        "explanation": "Land reforms target equitable distribution of land, especially to marginalized groups."
+    },
+    {
+        "question": "The Odisha High Court is headquartered at:",
+        "options": ["Cuttack", "Bhubaneswar", "Puri", "Rourkela"],
+        "answer": 0,
+        "explanation": "Odisha High Court is based in Cuttack."
+    },
+    {
+        "question": "Which is NOT a tier of Panchayati Raj system in Odisha?",
+        "options": ["Municipal Corporation", "Zilla Parishad", "Panchayat Samiti", "Gram Panchayat"],
+        "answer": 0,
+        "explanation": "Municipal Corporation is not part of rural Panchayat system; it's an urban body."
+    },
+    {
+        "question": "The Odisha State Finance Commission reviews:",
+        "options": ["Distribution of financial resources between state and local governments", "Education reforms", "Judiciary integrity", "Industrial growth"],
+        "answer": 0,
+        "explanation": "The Finance Commission reviews allocation of state resources to local bodies."
+    },
+    {
+        "question": "‘KALIA’ is a flagship scheme of the Odisha Government related to:",
+        "options": ["Agriculture", "Mining", "Education", "Urban Development"],
+        "answer": 0,
+        "explanation": "KALIA (Krushak Assistance for Livelihood and Income Augmentation) focuses on farmer welfare."
+    },
+    {
+        "question": "The Mayor in an Odisha Municipal Corporation is elected by:",
+        "options": ["Direct election by citizens", "Councillors", "Governor", "State Assembly"],
+        "answer": 0,
+        "explanation": "Odisha follows direct election for Mayors in Municipal Corporations."
+    },
+    {
+        "question": "Which agency audits the accounts of the Odisha state government?",
+        "options": ["Comptroller and Auditor General of India", "Finance Department", "Reserve Bank of India", "Public Accounts Committee"],
+        "answer": 0,
+        "explanation": "The CAG audits state as well as central government accounts."
+    },
+    {
+        "question": "SEBC reservation in Odisha refers to:",
+        "options": ["Socially and Educationally Backward Classes", "Scheduled Economic Backward Communities", "Scheduled Employment Board Committee", "Special Economic Backward Castes"],
+        "answer": 0,
+        "explanation": "SEBC stands for Socially and Educationally Backward Classes."
+    },
+    {
+        "question": "The Odisha State Administrative Tribunal (SAT) deals with:",
+        "options": ["Service matters of state government employees", "Criminal cases", "Land disputes", "Industrial relations"],
+        "answer": 0,
+        "explanation": "SAT handles disputes relating to service matters of employees under the Government of Odisha."
+    },
+    {
+        "question": "Who is responsible for the conduct of panchayat elections in Odisha?",
+        "options": ["State Election Commission", "District Collector", "Chief Secretary", "Governor"],
+        "answer": 0,
+        "explanation": "State Election Commission oversees the conduct of all rural local body elections."
+    },
+    {
+        "question": "The official language of administration in Odisha is:",
+        "options": ["Odia", "Hindi", "English", "Bengali"],
+        "answer": 0,
+        "explanation": "Odia is the official language for all state administrative functions."
+    },
+    {
+        "question": "Which is the highest decision-making body in a Gram Panchayat of Odisha?",
+        "options": ["Gram Sabha", "Panchayat President", "Block Officer", "Village Accountant"],
+        "answer": 0,
+        "explanation": "Gram Sabha comprises all voters of the panchayat area and is the supreme decision-making body."
+    },
+    {
+        "question": "Welfare of Scheduled Tribes in Odisha is primarily looked after by which department?",
+        "options": ["ST & SC Development Department", "Home Department", "Finance Department", "Labour Department"],
+        "answer": 0,
+        "explanation": "ST & SC Development Department implements welfare schemes for Scheduled Tribes."
+    },
+    {
+        "question": "Which officer manages land records and collects land revenue at the Tehsil level in Odisha?",
+        "options": ["Tehsildar", "Collector", "SDO", "BDO"],
+        "answer": 0,
+        "explanation": "Tehsildar manages land revenue and administrative work at the Tehsil level."
+    },
+    {
+        "question": "Odisha Right to Public Services Act guarantees:",
+        "options": ["Timely delivery of government services", "Right to education", "Reservation in jobs", "Women’s safety"],
+        "answer": 0,
+        "explanation": "RTPS Act ensures timely delivery of listed public services to citizens."
+    },
+    {
+        "question": "Which of the following is not an urban local body in Odisha?",
+        "options": ["Gram Panchayat", "Municipal Corporation", "Notified Area Council", "Municipality"],
+        "answer": 0,
+        "explanation": "Gram Panchayat administers rural, not urban, areas."
+    },
+    {
+        "question": "The jurisdiction of Odisha High Court does not extend over:",
+        "options": ["West Bengal", "Odisha", "All districts of Odisha", "Cases from state government departments"],
+        "answer": 0,
+        "explanation": "The Odisha High Court covers only the state of Odisha."
+    },
+    {
+        "question": "The term Zilla Parishad refers to:",
+        "options": ["District-level rural local government", "Urban ward", "Police district", "Revenue circle"],
+        "answer": 0,
+        "explanation": "Zilla Parishad is the highest tier of rural local government at the district level."
+    },
+    {
+        "question": "The District Collector in Odisha is responsible for:",
+        "options": ["General administration, law and order, revenue collection", "Only law and order", "Only judicial work", "Only financial audit"],
+        "answer": 0,
+        "explanation": "The District Collector is in charge of administration, revenue collection, and law and order."
+    },
+    {
+        "question": "The maximum strength of the Odisha Legislative Assembly as prescribed by the Constitution is:",
+        "options": ["147", "150", "172", "90"],
+        "answer": 0,
+        "explanation": "The Odisha Legislative Assembly can have up to 147 members."
+    },
+    {
+        "question": "Which institution conducts the Odisha Civil Services Examinations?",
+        "options": ["OPSC", "UPSC", "SSC", "OSSC"],
+        "answer": 0,
+        "explanation": "OPSC stands for Odisha Public Service Commission, which conducts the civil services examination."
+    },
+    {
+        "question": "Who is the executive head of an urban local body in Odisha?",
+        "options": ["Municipal Commissioner", "Mayor", "Governor", "Speaker"],
+        "answer": 0,
+        "explanation": "Municipal Commissioner is the chief executive officer of an urban local body."
+    },
+    {
+        "question": "Which committee examines the accounts showing the appropriation of funds granted by the Odisha Assembly?",
+        "options": ["Public Accounts Committee", "Estimates Committee", "Privileges Committee", "Question Committee"],
+        "answer": 0,
+        "explanation": "Public Accounts Committee scrutinizes the appropriation of funds."
+    },
+    {
+        "question": "The primary responsibility for conducting elections to the state legislature of Odisha lies with:",
+        "options": ["Election Commission of India", "State Election Commission", "Governor", "Legislative Secretariat"],
+        "answer": 0,
+        "explanation": "ECI is responsible for state legislature elections, while SEC looks after local body polls."
+    },
+    {
+        "question": "‘Mission Shakti’ in Odisha is a programme focused on:",
+        "options": ["Women's empowerment", "Literacy", "Youth skill development", "Cleanliness drive"],
+        "answer": 0,
+        "explanation": "‘Mission Shakti’ aims to empower women via self-help groups and financial inclusion."
+    },
+    {
+        "question": "Which of the following is responsible for maintaining law and order in a district of Odisha?",
+        "options": ["Superintendent of Police", "Mayor", "Municipal Commissioner", "Village Sarapanch"],
+        "answer": 0,
+        "explanation": "The SP is the district head for police and law and order."
+    },
+    {
+        "question": "Which court in Odisha tries cases related to violation of local municipal laws?",
+        "options": ["Municipal Court", "High Court", "Lok Adalat", "Family Court"],
+        "answer": 0,
+        "explanation": "Municipal Courts try violations of local laws relating to urban areas."
+    },
+    {
+        "question": "Who among the following can take part in the proceedings of the Odisha Legislative Assembly but has no right to vote?",
+        "options": ["Governor", "Chief Secretary", "Chief Minister", "All members"],
+        "answer": 0,
+        "explanation": "Governor can address and take part in proceedings, but can't vote."
+    },
+    {
+        "question": "Which policy initiative by Odisha government aims especially at nutrition of pregnant women and children?",
+        "options": ["Mamata Scheme", "Biju Swasthya Kalyan Yojana", "KALIA", "Distribution of Mid-Day Meals"],
+        "answer": 0,
+        "explanation": "Mamata Scheme directly transfers cash to support pregnant women and lactating mothers."
+    },
+    {
+        "question": "A Money Bill in Odisha Legislative Assembly can be introduced only with the recommendation of:",
+        "options": ["Governor", "Chief Minister", "Speaker", "Finance Minister"],
+        "answer": 0,
+        "explanation": "Money Bills require prior recommendation of the Governor."
+    },
+    {
+        "question": "Which officer assists the Collector in the division of revenue and civil law in Odisha?",
+        "options": ["Sub-Divisional Officer (SDO)", "Tehsildar", "Revenue Inspector", "Block Development Officer"],
+        "answer": 0,
+        "explanation": "The SDO assists the Collector in revenue and civil matters at the sub-division level."
+    },
+    {
+        "question": "Which department is responsible for the welfare of children in Odisha?",
+        "options": ["Women and Child Development Department", "Home Department", "Education Department", "Agriculture Department"],
+        "answer": 0,
+        "explanation": "Women and Child Development Department handles all child welfare schemes."
+    },
+    {
+        "question": "Who can remove the Council of Ministers in Odisha?",
+        "options": ["Governor (on advice of Chief Minister)", "Speaker", "President", "Chief Secretary"],
+        "answer": 0,
+        "explanation": "Council of Ministers can be dissolved by the Governor, usually when they lose majority."
+    },
+    {
+        "question": "After passing in the Odisha Legislative Assembly, a Bill becomes an Act after getting assent from:",
+        "options": ["Governor", "Chief Minister", "Speaker", "President"],
+        "answer": 0,
+        "explanation": "A Bill requires the formal assent of the Governor to become an Act."
+    },
+    {
+        "question": "Which is the official symbol of the Government of Odisha?",
+        "options": ["State Emblem with Konark Wheel", "Lion Capital", "Lotus", "Rice Plant"],
+        "answer": 0,
+        "explanation": "Odisha's official emblem features the Konark Wheel and State Seal."
+    },
+	
+    {
+        "question": "Who is the constitutional head of the state of Odisha?",
+        "options": ["Governor", "Chief Minister", "Chief Justice", "Speaker of the Assembly"],
+        "answer": 0,
+        "explanation": "The Governor is the constitutional head of the state as per the Indian Constitution."
+    },
+    {
+        "question": "Which article of the Constitution empowers the Governor of Odisha to promulgate ordinances?",
+        "options": ["Article 155", "Article 324", "Article 200", "Article 213"],
+        "answer": 3,
+        "explanation": "Article 213 allows the Governor to promulgate ordinances when the legislative assembly is not in session."
+    },
+    {
+        "question": "The Odisha Legislative Assembly is a:",
+        "options": ["Bicameral legislature", "Unicameral legislature", "Tricameral legislature", "Federal assembly"],
+        "answer": 1,
+        "explanation": "Odisha Legislative Assembly is unicameral, meaning it has only one house."
+    },
+    {
+        "question": "The speaker of the Odisha Legislative Assembly is elected by:",
+        "options": ["Governor", "Chief Minister", "Council of Ministers", "Members of the Legislative Assembly"],
+        "answer": 3,
+        "explanation": "The Speaker is elected by the members of the Legislative Assembly."
+    },
+    {
+        "question": "Which department is primarily responsible for land revenue administration in Odisha?",
+        "options": ["Finance", "Home", "Rural Development", "Revenue and Disaster Management"],
+        "answer": 3,
+        "explanation": "Land revenue affairs are managed by the Revenue and Disaster Management Department."
+    },
+    {
+        "question": "Who presents the annual state budget in the Odisha Legislative Assembly?",
+        "options": ["Governor", "Finance Minister", "Chief Minister", "Speaker of Assembly"],
+        "answer": 1,
+        "explanation": "The Finance Minister tables the budget for the state assembly's consideration."
+    },
+    {
+        "question": "Which Panchayat level is immediately above the Gram Panchayat in Odisha?",
+        "options": ["Panchayat Samiti", "Zilla Parishad", "Block Development Office", "Municipality"],
+        "answer": 0,
+        "explanation": "Panchayat Samiti is the intermediate tier between Gram Panchayat and Zilla Parishad."
+    },
+    {
+        "question": "The Odisha Lokayukta Act was enacted to address:",
+        "options": ["Education policy", "Land disputes", "Scheduling of exams", "Corruption and maladministration"],
+        "answer": 3,
+        "explanation": "The Lokayukta Act is designed to tackle corruption and promote good governance."
+    },
+    {
+        "question": "Odisha Legislative Assembly members are elected for a term of:",
+        "options": ["5 years", "4 years", "6 years", "7 years"],
+        "answer": 0,
+        "explanation": "The standard term of the Odisha Legislative Assembly is five years unless dissolved earlier."
+    },
+    {
+        "question": "Who appoints the Chief Minister of Odisha?",
+        "options": ["Governor", "President of India", "Speaker", "Judge of High Court"],
+        "answer": 0,
+        "explanation": "The Governor appoints the Chief Minister of the state."
+    },
+    {
+        "question": "Which is the highest court of appeal in Odisha?",
+        "options": ["District Court", "Odisha High Court", "Supreme Court of India", "Lok Adalat"],
+        "answer": 1,
+        "explanation": "Odisha High Court is the highest court at the state level."
+    },
+    {
+        "question": "The power to dissolve the Odisha Legislative Assembly rests with:",
+        "options": ["Chief Minister", "Speaker", "Primarily Governor", "Parliament"],
+        "answer": 2,
+        "explanation": "The Governor can dissolve the Assembly on advice of the Chief Minister, generally during a constitutional crisis."
+    },
+    {
+        "question": "The leader of opposition in the Odisha Legislative Assembly is:",
+        "options": ["Governor", "Chief Secretary", "Speaker", "Head of the largest party not in government"],
+        "answer": 3,
+        "explanation": "The leader of the largest opposition party becomes the Leader of Opposition."
+    },
+    {
+        "question": "Which authority prepares the electoral roll for Odisha Assembly elections?",
+        "options": ["Governor", "Chief Minister", "Election Commission of India", "Odisha Revenue Department"],
+        "answer": 2,
+        "explanation": "Election Commission of India is responsible for preparing electoral rolls."
+    },
+    {
+        "question": "What is the minimum age to contest elections to the Odisha Legislative Assembly?",
+        "options": ["21 years", "25 years", "30 years", "18 years"],
+        "answer": 1,
+        "explanation": "The Indian Constitution prescribes 25 years as the minimum age for Assembly elections."
+    },
+    {
+        "question": "Who is the head of the Council of Ministers in Odisha?",
+        "options": ["Governor", "Chief Minister", "Finance Minister", "Chief Secretary"],
+        "answer": 1,
+        "explanation": "Chief Minister leads the Council of Ministers."
+    },
+    {
+        "question": "What is the function of the State Election Commission in Odisha?",
+        "options": ["Conducts local body elections", "Manages state finances", "Oversees education", "Implements central laws"],
+        "answer": 0,
+        "explanation": "State Election Commission conducts elections to Panchayats and Municipalities."
+    },
+    {
+        "question": "The Odisha Public Service Commission (OPSC) is constituted under which article?",
+        "options": ["Article 123", "Article 315", "Article 161", "Article 320"],
+        "answer": 1,
+        "explanation": "Article 315 deals with the appointment of State Public Service Commissions."
+    },
+    {
+        "question": "Land reforms in Odisha aim to:",
+        "options": ["Improve literacy", "Increase forest cover", "Enhance mining", "Distribute land more equitably"],
+        "answer": 3,
+        "explanation": "Land reforms target equitable distribution of land, especially to marginalized groups."
+    },
+    {
+        "question": "The Odisha High Court is headquartered at:",
+        "options": ["Cuttack", "Puri", "Bhubaneswar", "Rourkela"],
+        "answer": 0,
+        "explanation": "Odisha High Court is based in Cuttack."
+    },
+    {
+        "question": "Which is NOT a tier of Panchayati Raj system in Odisha?",
+        "options": ["Municipal Corporation", "Panchayat Samiti", "Gram Panchayat", "Zilla Parishad"],
+        "answer": 0,
+        "explanation": "Municipal Corporation is not part of rural Panchayat system; it's an urban body."
+    },
+    {
+        "question": "The Odisha State Finance Commission reviews:",
+        "options": ["Education reforms", "Distribution of financial resources between state and local governments", "Judiciary integrity", "Industrial growth"],
+        "answer": 1,
+        "explanation": "The Finance Commission reviews allocation of state resources to local bodies."
+    },
+    {
+        "question": "‘KALIA’ is a flagship scheme of the Odisha Government related to:",
+        "options": ["Urban Development", "Mining", "Education", "Agriculture"],
+        "answer": 3,
+        "explanation": "KALIA (Krushak Assistance for Livelihood and Income Augmentation) focuses on farmer welfare."
+    },
+    {
+        "question": "The Mayor in an Odisha Municipal Corporation is elected by:",
+        "options": ["Governor", "Direct election by citizens", "State Assembly", "Councillors"],
+        "answer": 1,
+        "explanation": "Odisha follows direct election for Mayors in Municipal Corporations."
+    },
+    {
+        "question": "Which agency audits the accounts of the Odisha state government?",
+        "options": ["Reserve Bank of India", "Comptroller and Auditor General of India", "Finance Department", "Public Accounts Committee"],
+        "answer": 1,
+        "explanation": "The CAG audits state as well as central government accounts."
+    },
+    {
+        "question": "SEBC reservation in Odisha refers to:",
+        "options": ["Special Economic Backward Castes", "Scheduled Economic Backward Communities", "Scheduled Employment Board Committee", "Socially and Educationally Backward Classes"],
+        "answer": 3,
+        "explanation": "SEBC stands for Socially and Educationally Backward Classes."
+    },
+    {
+        "question": "The Odisha State Administrative Tribunal (SAT) deals with:",
+        "options": ["Service matters of state government employees", "Industrial relations", "Land disputes", "Criminal cases"],
+        "answer": 0,
+        "explanation": "SAT handles disputes relating to service matters of employees under the Government of Odisha."
+    },
+    {
+        "question": "Who is responsible for the conduct of panchayat elections in Odisha?",
+        "options": ["Chief Secretary", "Governor", "State Election Commission", "District Collector"],
+        "answer": 2,
+        "explanation": "State Election Commission oversees the conduct of all rural local body elections."
+    },
+    {
+        "question": "The official language of administration in Odisha is:",
+        "options": ["Bengali", "Odia", "Hindi", "English"],
+        "answer": 1,
+        "explanation": "Odia is the official language for all state administrative functions."
+    },
+    {
+        "question": "Which is the highest decision-making body in a Gram Panchayat of Odisha?",
+        "options": ["Village Accountant", "Gram Sabha", "Block Officer", "Panchayat President"],
+        "answer": 1,
+        "explanation": "Gram Sabha comprises all voters of the panchayat area and is the supreme decision-making body."
+    },
+    {
+        "question": "Welfare of Scheduled Tribes in Odisha is primarily looked after by which department?",
+        "options": ["Finance Department", "Home Department", "Labour Department", "ST & SC Development Department"],
+        "answer": 3,
+        "explanation": "ST & SC Development Department implements welfare schemes for Scheduled Tribes."
+    },
+    {
+        "question": "Which officer manages land records and collects land revenue at the Tehsil level in Odisha?",
+        "options": ["Collector", "SDO", "Block Development Officer", "Tehsildar"],
+        "answer": 3,
+        "explanation": "Tehsildar manages land revenue and administrative work at the Tehsil level."
+    },
+    {
+        "question": "Odisha Right to Public Services Act guarantees:",
+        "options": ["Right to education", "Timely delivery of government services", "Reservation in jobs", "Women’s safety"],
+        "answer": 1,
+        "explanation": "RTPS Act ensures timely delivery of listed public services to citizens."
+    },
+    {
+        "question": "Which of the following is not an urban local body in Odisha?",
+        "options": ["Notified Area Council", "Municipality", "Municipal Corporation", "Gram Panchayat"],
+        "answer": 3,
+        "explanation": "Gram Panchayat administers rural, not urban, areas."
+    },
+    {
+        "question": "The jurisdiction of Odisha High Court does not extend over:",
+        "options": ["All districts of Odisha", "West Bengal", "Cases from state government departments", "Odisha"],
+        "answer": 1,
+        "explanation": "The Odisha High Court covers only the state of Odisha."
+    },
+    {
+        "question": "The term Zilla Parishad refers to:",
+        "options": ["District-level rural local government", "Police district", "Revenue circle", "Urban ward"],
+        "answer": 0,
+        "explanation": "Zilla Parishad is the highest tier of rural local government at the district level."
+    },
+    {
+        "question": "The District Collector in Odisha is responsible for:",
+        "options": ["Only judicial work", "Only financial audit", "General administration, law and order, revenue collection", "Only law and order"],
+        "answer": 2,
+        "explanation": "The District Collector is in charge of administration, revenue collection, and law and order."
+    },
+    {
+        "question": "The maximum strength of the Odisha Legislative Assembly as prescribed by the Constitution is:",
+        "options": ["150", "147", "172", "90"],
+        "answer": 1,
+        "explanation": "The Odisha Legislative Assembly can have up to 147 members."
+    },
+    {
+        "question": "Which institution conducts the Odisha Civil Services Examinations?",
+        "options": ["OSSC", "SSC", "UPSC", "OPSC"],
+        "answer": 3,
+        "explanation": "OPSC stands for Odisha Public Service Commission, which conducts the civil services examination."
+    },
+    {
+        "question": "Who is the executive head of an urban local body in Odisha?",
+        "options": ["Governor", "Municipal Commissioner", "Mayor", "Speaker"],
+        "answer": 1,
+        "explanation": "Municipal Commissioner is the chief executive officer of an urban local body."
+    },
+    {
+        "question": "Which committee examines the accounts showing the appropriation of funds granted by the Odisha Assembly?",
+        "options": ["Privileges Committee", "Estimates Committee", "Public Accounts Committee", "Question Committee"],
+        "answer": 2,
+        "explanation": "Public Accounts Committee scrutinizes the appropriation of funds."
+    },
+    {
+        "question": "The primary responsibility for conducting elections to the state legislature of Odisha lies with:",
+        "options": ["Governor", "Election Commission of India", "State Election Commission", "Legislative Secretariat"],
+        "answer": 1,
+        "explanation": "ECI is responsible for state legislature elections, while SEC looks after local body polls."
+    },
+    {
+        "question": "‘Mission Shakti’ in Odisha is a programme focused on:",
+        "options": ["Cleanliness drive", "Women's empowerment", "Literacy", "Youth skill development"],
+        "answer": 1,
+        "explanation": "‘Mission Shakti’ aims to empower women via self-help groups and financial inclusion."
+    },
+    {
+        "question": "Which of the following is responsible for maintaining law and order in a district of Odisha?",
+        "options": ["Mayor", "Superintendent of Police", "Municipal Commissioner", "Village Sarapanch"],
+        "answer": 1,
+        "explanation": "The SP is the district head for police and law and order."
+    },
+    {
+        "question": "Which court in Odisha tries cases related to violation of local municipal laws?",
+        "options": ["Municipal Court", "High Court", "Lok Adalat", "Family Court"],
+        "answer": 0,
+        "explanation": "Municipal Courts try violations of local laws relating to urban areas."
+    },
+    {
+        "question": "Who among the following can take part in the proceedings of the Odisha Legislative Assembly but has no right to vote?",
+        "options": ["Governor", "Chief Secretary", "Chief Minister", "All members"],
+        "answer": 0,
+        "explanation": "Governor can address and take part in proceedings, but can't vote."
+    },
+    {
+        "question": "Which policy initiative by Odisha government aims especially at nutrition of pregnant women and children?",
+        "options": ["Distribution of Mid-Day Meals", "Mamata Scheme", "Biju Swasthya Kalyan Yojana", "KALIA"],
+        "answer": 1,
+        "explanation": "Mamata Scheme directly transfers cash to support pregnant women and lactating mothers."
+    },
+    {
+        "question": "A Money Bill in Odisha Legislative Assembly can be introduced only with the recommendation of:",
+        "options": ["Finance Minister", "Governor", "Chief Minister", "Speaker"],
+        "answer": 1,
+        "explanation": "Money Bills require prior recommendation of the Governor."
+    },
+    {
+        "question": "Which officer assists the Collector in the division of revenue and civil law in Odisha?",
+        "options": ["Revenue Inspector", "Sub-Divisional Officer (SDO)", "Tehsildar", "Block Development Officer"],
+        "answer": 1,
+        "explanation": "The SDO assists the Collector in revenue and civil matters at the sub-division level."
+    },
+    {
+        "question": "Which department is responsible for the welfare of children in Odisha?",
+        "options": ["Education Department", "Women and Child Development Department", "Home Department", "Agriculture Department"],
+        "answer": 1,
+        "explanation": "Women and Child Development Department handles all child welfare schemes."
+    },
+    {
+        "question": "Who can remove the Council of Ministers in Odisha?",
+        "options": ["Governor (on advice of Chief Minister)", "Speaker", "President", "Chief Secretary"],
+        "answer": 0,
+        "explanation": "Council of Ministers can be dissolved by the Governor, usually when they lose majority."
+    },
+    {
+        "question": "After passing in the Odisha Legislative Assembly, a Bill becomes an Act after getting assent from:",
+        "options": ["Governor", "President", "Chief Minister", "Speaker"],
+        "answer": 0,
+        "explanation": "A Bill requires the formal assent of the Governor to become an Act."
+    },
+    {
+        "question": "Which is the official symbol of the Government of Odisha?",
+        "options": ["State Emblem with Konark Wheel", "Lion Capital", "Lotus", "Rice Plant"],
+        "answer": 0,
+        "explanation": "Odisha's official emblem features the Konark Wheel and State Seal."
+    },
+	 {
+        "question": "What is the main role of the Chief Secretary in the Odisha state administration?",
+        "options": ["Head of the state's civil services", "Leader of the opposition in the Assembly", "Judicial head of the state", "Chairman of the Finance Commission"],
+        "answer": 0,
+        "explanation": "The Chief Secretary is the senior-most civil servant and administrative head of the state government."
+    },
+    {
+        "question": "Which Odisha state document defines the powers of the Governor and Chief Minister?",
+        "options": ["The Constitution of India", "The Odisha State Government Act", "The State Finance Manual", "The Panchayati Raj Act"],
+        "answer": 0,
+        "explanation": "The Indian Constitution clearly defines the powers and roles of the Governor and Chief Minister."
+    },
+    {
+        "question": "The Odisha State Election Commission is responsible for the elections of:",
+        "options": ["Municipalities and Panchayats", "Lok Sabha", "Rajya Sabha", "State Legislative Assembly"],
+        "answer": 0,
+        "explanation": "State Election Commissions conduct elections for local urban and rural bodies."
+    },
+    {
+        "question": "The Odisha Land Reforms Act primarily aims at:",
+        "options": ["Preventing land alienation and distributing surplus land", "Establishing urban land banks", "Regulating mining leases", "Protecting forest land"],
+        "answer": 0,
+        "explanation": "The Land Reforms Act was introduced to abolish absentee landlordism and distribute land to the tillers."
+    },
+    {
+        "question": "The Odisha State Finance Commission submits recommendations about:",
+        "options": ["Tax devolution to local bodies", "Judicial appointments", "Police administration", "Education funding"],
+        "answer": 0,
+        "explanation": "It assesses the finances of local bodies and recommends resource distribution."
+    },
+    {
+        "question": "Which of the following is NOT a function of the Odisha Legislative Assembly?",
+        "options": ["Passing state budget", "Electing the President of India", "Legislating on state subjects", "Approving loans raised by the state"],
+        "answer": 1,
+        "explanation": "The President of India is elected by an electoral college; state assemblies do not elect the President."
+    },
+    {
+        "question": "In Odisha, who administers the oath of office to the Chief Minister?",
+        "options": ["Governor", "Speaker of the Assembly", "Chief Justice of High Court", "President of India"],
+        "answer": 0,
+        "explanation": "The Governor administers the oath to the Chief Minister."
+    },
+    {
+        "question": "The Odisha Right to Information Act provides citizens the right to:",
+        "options": ["Access state government information", "Vote in elections", "Right to education", "File land disputes"],
+        "answer": 0,
+        "explanation": "This act ensures transparency by allowing citizens to access government information."
+    },
+    {
+        "question": "The Governor of Odisha can reserve a Bill passed by the state legislature for:",
+        "options": ["President's assent", "Chief Minister's approval", "High Court's review", "Speaker's consent"],
+        "answer": 0,
+        "explanation": "The Governor may reserve certain Bills for the consideration of the President."
+    },
+    {
+        "question": "Which ministry is responsible for implementing social welfare schemes in Odisha?",
+        "options": ["Department of Social Security and Empowerment of Persons with Disabilities", "Finance Department", "Home Department", "Agriculture Department"],
+        "answer": 0,
+        "explanation": "This department manages social welfare policies and schemes."
+    },
+    {
+        "question": "Odisha's Lokayukta institution deals primarily with:",
+        "options": ["Complaints against government corruption", "Education reforms", "Police administration", "Land acquisition"],
+        "answer": 0,
+        "explanation": "Lokayukta investigates complaints of corruption and misconduct of public officials."
+    },
+    {
+        "question": "The term length for the Odisha Legislative Assembly Speaker is:",
+        "options": ["For the life of the Assembly", "2 years", "6 years", "5 years"],
+        "answer": 0,
+        "explanation": "The Speaker holds office for the entire term of the Assembly unless removed earlier."
+    },
+    {
+        "question": "Who acts as the guardian of the Constitution in the state of Odisha?",
+        "options": ["Odisha High Court", "Governor", "Chief Minister", "Legislative Assembly"],
+        "answer": 0,
+        "explanation": "The High Court protects the state’s constitutional rights and interprets the law."
+    },
+    {
+        "question": "The budget prepared for the state of Odisha is called the:",
+        "options": ["Annual Financial Statement", "State Income Report", "Fiscal Policy Document", "Zero-Based Budget"],
+        "answer": 0,
+        "explanation": "The Annual Financial Statement is the official budget document presented for the state."
+    },
+    {
+        "question": "In Odisha, who exercises control over the local government institutions through administrative supervision?",
+        "options": ["State Government", "Central Government", "District Collector", "President"],
+        "answer": 0,
+        "explanation": "The state government supervises and controls local governance through appointed officials."
+    },
+    {
+        "question": "Which of the following is an attribute of the Odisha State Public Service Commission?",
+        "options": ["Conducts competitive exams for state services", "Appoints judges", "Manages revenue collection", "Controls municipal elections"],
+        "answer": 0,
+        "explanation": "OPSC conducts exams and recommends appointments for various state civil posts."
+    },
+    {
+        "question": "The Odisha Gram Panchayat is:",
+        "options": ["The village level local self-government", "The district administration", "A rural cooperative society", "An urban local body"],
+        "answer": 0,
+        "explanation": "Gram Panchayat operates at the village level for rural governance."
+    },
+    {
+        "question": "Which document contains the detailed code of conduct for Odisha civil servants?",
+        "options": ["All India Services (Conduct) Rules", "Indian Penal Code", "Right to Information Act", "Odisha Land Revenue Code"],
+        "answer": 0,
+        "explanation": "The All India Services (Conduct) Rules guide bureaucratic behavior and ethics."
+    },
+    {
+        "question": "Who appoints the State Finance Commission in Odisha?",
+        "options": ["Governor", "Chief Minister", "State Legislative Assembly", "Election Commission of India"],
+        "answer": 0,
+        "explanation": "The Governor appoints the State Finance Commission on the recommendation of the state government."
+    },
+    {
+        "question": "The Odisha Budget speech is delivered by the:",
+        "options": ["Finance Minister", "Chief Minister", "Speaker of the Assembly", "Governor"],
+        "answer": 0,
+        "explanation": "The Finance Minister presents the budget speech in the Assembly."
+    },
+    {
+        "question": "In Odisha, what is the role of the Block Development Officer (BDO)?",
+        "options": ["Implementation of development programs at the block level", "Maintaining law and order", "Budget approval for districts", "Heading the Legislative Assembly"],
+        "answer": 0,
+        "explanation": "BDO oversees rural development and Panchayati Raj programs."
+    },
+    {
+        "question": "The executive power of the state of Odisha is vested in the:",
+        "options": ["Governor", "Chief Minister", "Council of Ministers", "Legislative Assembly"],
+        "answer": 0,
+        "explanation": "All executive power is vested formally in the Governor but exercised on the advice of the Council of Ministers."
+    },
+    {
+        "question": "Which department handles disaster management in Odisha?",
+        "options": ["Revenue and Disaster Management Department", "Home Department", "Finance Department", "Agriculture Department"],
+        "answer": 0,
+        "explanation": "Disaster management and relief are functions of the Revenue and Disaster Management Department."
+    },
+    {
+        "question": "Who is the public prosecutor at the district level in Odisha?",
+        "options": ["District Public Prosecutor", "District Collector", "District Magistrate", "Superintendent of Police"],
+        "answer": 0,
+        "explanation": "District Public Prosecutor represents the state in criminal cases."
+    },
+    {
+        "question": "What is the tenure of members of the Odisha Legislative Council?",
+        "options": ["The Odisha Legislative Assembly does not have a Legislative Council", "6 years", "4 years", "5 years"],
+        "answer": 0,
+        "explanation": "Odisha has a unicameral legislature; thus, it does not have a Legislative Council."
+    },
+    {
+        "question": "Which of the following is a social welfare scheme targeted at girl children in Odisha?",
+        "options": ["Biju Lakshmi Ammal Scheme", "KALIA", "Mission Shakti", "Mamata Scheme"],
+        "answer": 0,
+        "explanation": "Biju Lakshmi Ammal Scheme offers financial incentives for the welfare of girl children."
+    },
+    {
+        "question": "The Odisha Land Revenue Code governs:",
+        "options": ["Assessment and collection of land revenue", "Forest conservation", "Urban planning", "Industrial licensing"],
+        "answer": 0,
+        "explanation": "The code regulates land revenue-related activities and administration."
+    },
+    {
+        "question": "Which Odisha department is responsible for implementing the Public Distribution System (PDS)?",
+        "options": ["Food Supplies and Consumer Welfare Department", "Finance Department", "Labour Department", "Revenue Department"],
+        "answer": 0,
+        "explanation": "PDS is administered by the Food Supplies and Consumer Welfare Department."
+    },
+    {
+        "question": "The case jurisdiction of Odisha High Court includes:",
+        "options": ["Original and appellate jurisdiction over civil and criminal cases", "Only civil cases", "Only appellate criminal cases", "Only administrative cases"],
+        "answer": 0,
+        "explanation": "The High Court handles both original and appellate cases in civil and criminal matters."
+    },
+    {
+        "question": "Which position coordinates between the state government and local self-government institutions in Odisha?",
+        "options": ["District Collector", "Chief Minister", "Chief Secretary", "Governor"],
+        "answer": 0,
+        "explanation": "The District Collector acts as a key link between state and local governance."
+    },
+    {
+        "question": "The Odisha Gram Panchayat election process is governed by which entity?",
+        "options": ["State Election Commission", "Election Commission of India", "Panchayat Raj Ministry", "District Collector"],
+        "answer": 0,
+        "explanation": "State Election Commission conducts and regulates Gram Panchayat elections."
+    },
+    {
+        "question": "Who is responsible for maintaining public order in an Odisha district?",
+        "options": ["Superintendent of Police", "District Collector", "Governor", "Block Development Officer"],
+        "answer": 0,
+        "explanation": "SP heads the police force and maintains law and order."
+    },
+    {
+        "question": "The Odisha Public Service Commission advises the government on:",
+        "options": ["Recruitment rules and promotions", "State Finance Commission reports", "Municipal elections", "Police appointments"],
+        "answer": 0,
+        "explanation": "OPSC advises on service matters including recruitment and promotion rules."
+    },
+    {
+        "question": "Which act governs the establishment and functioning of Odisha's municipalities?",
+        "options": ["Odisha Municipality Act", "Odisha Panchayati Raj Act", "Odisha Urban Development Act", "Odisha Municipal Corporation Act"],
+        "answer": 0,
+        "explanation": "The Odisha Municipality Act regulates urban local bodies."
+    },
+    {
+        "question": "What is the role of the Odisha Lokayukta?",
+        "options": ["Investigates corruption cases involving public servants", "Conducts state elections", "Manages land records", "Oversees education policy"],
+        "answer": 0,
+        "explanation": "Lokayukta is an anti-corruption ombudsman for government employees and officials."
+    },
+    {
+        "question": "Who appoints judges of the Odisha High Court?",
+        "options": ["President of India", "Governor of Odisha", "Chief Minister", "Attorney General"],
+        "answer": 0,
+        "explanation": "High Court judges are appointed by the President of India, in consultation with the Chief Justice of India and the state's Governor."
+    },
+    {
+        "question": "The Odisha Right to Public Services Act aims to ensure:",
+        "options": ["Timely delivery of government services to citizens", "Universal education", "Local self-governance", "Anti-corruption measures"],
+        "answer": 0,
+        "explanation": "The Act guarantees that services are provided within a specified time."
+    },
+    {
+        "question": "Which official in Odisha is charged with revenue collection and maintaining land records at the tehsil level?",
+        "options": ["Tehsildar", "District Magistrate", "Block Development Officer", "Revenue Inspector"],
+        "answer": 0,
+        "explanation": "The Tehsildar collects land revenue and maintains land records."
+    },
+    {
+        "question": "Which is the apex decision-making body in Odisha's Panchayati Raj system?",
+        "options": ["Zilla Parishad", "Panchayat Samiti", "Gram Panchayat", "State Election Commission"],
+        "answer": 0,
+        "explanation": "Zilla Parishad operates at the district level and is the apex body in rural governance."
+    },
+    {
+        "question": "The Odisha government funds for urban development primarily come from:",
+        "options": ["State Finance Commission recommendations", "Central Government only", "Local taxes alone", "Private donors"],
+        "answer": 0,
+        "explanation": "State Finance Commission recommends funds allocation to urban local bodies."
+    },
+	{
+        "question": "Who is the constitutional head of the state of Odisha?",
+        "options": ["Chief Minister", "Governor", "Chief Justice", "Speaker of the Assembly"],
+        "answer": 1,
+        "explanation": "The Governor is the constitutional head of the state as per the Indian Constitution."
+    },
+    {
+        "question": "Which article of the Constitution empowers the Governor of Odisha to promulgate ordinances?",
+        "options": ["Article 200", "Article 324", "Article 213", "Article 155"],
+        "answer": 2,
+        "explanation": "Article 213 allows the Governor to promulgate ordinances when the legislative assembly is not in session."
+    },
+    {
+        "question": "The Odisha Legislative Assembly is a:",
+        "options": ["Unicameral legislature", "Bicameral legislature", "Tricameral legislature", "Federal assembly"],
+        "answer": 0,
+        "explanation": "Odisha Legislative Assembly is unicameral, meaning it has only one house."
+    },
+    {
+        "question": "The speaker of the Odisha Legislative Assembly is elected by:",
+        "options": ["Members of the Legislative Assembly", "Governor", "Chief Minister", "Council of Ministers"],
+        "answer": 0,
+        "explanation": "The Speaker is elected by the members of the Legislative Assembly."
+    },
+    {
+        "question": "Which department is primarily responsible for land revenue administration in Odisha?",
+        "options": ["Revenue and Disaster Management", "Finance", "Home", "Rural Development"],
+        "answer": 0,
+        "explanation": "Land revenue affairs are managed by the Revenue and Disaster Management Department."
+    },
+    {
+        "question": "Who presents the annual state budget in the Odisha Legislative Assembly?",
+        "options": ["Finance Minister", "Chief Minister", "Governor", "Speaker of Assembly"],
+        "answer": 0,
+        "explanation": "The Finance Minister tables the budget for the state assembly's consideration."
+    },
+    {
+        "question": "Which Panchayat level is immediately above the Gram Panchayat in Odisha?",
+        "options": ["Panchayat Samiti", "Zilla Parishad", "Block Development Office", "Municipality"],
+        "answer": 0,
+        "explanation": "Panchayat Samiti is the intermediate tier between Gram Panchayat and Zilla Parishad."
+    },
+    {
+        "question": "The Odisha Lokayukta Act was enacted to address:",
+        "options": ["Education policy", "Land disputes", "Corruption and maladministration", "Scheduling of exams"],
+        "answer": 2,
+        "explanation": "The Lokayukta Act is designed to tackle corruption and promote good governance."
+    },
+    {
+        "question": "Odisha Legislative Assembly members are elected for a term of:",
+        "options": ["5 years", "4 years", "6 years", "7 years"],
+        "answer": 0,
+        "explanation": "The standard term of the Odisha Legislative Assembly is five years unless dissolved earlier."
+    },
+    {
+        "question": "Who appoints the Chief Minister of Odisha?",
+        "options": ["Governor", "President of India", "Speaker", "Judge of High Court"],
+        "answer": 0,
+        "explanation": "The Governor appoints the Chief Minister of the state."
+    },
+    {
+        "question": "Which is the highest court of appeal in Odisha?",
+        "options": ["Odisha High Court", "Supreme Court of India", "District Court", "Lok Adalat"],
+        "answer": 0,
+        "explanation": "Odisha High Court is the highest court at the state level."
+    },
+    {
+        "question": "The power to dissolve the Odisha Legislative Assembly rests with:",
+        "options": ["Governor", "Chief Minister", "Speaker", "Parliament"],
+        "answer": 0,
+        "explanation": "The Governor can dissolve the Assembly on advice of the Chief Minister, generally during a constitutional crisis."
+    },
+    {
+        "question": "The leader of opposition in the Odisha Legislative Assembly is:",
+        "options": ["Head of the largest party not in government", "Governor", "Chief Secretary", "Speaker"],
+        "answer": 0,
+        "explanation": "The leader of the largest opposition party becomes the Leader of Opposition."
+    },
+    {
+        "question": "Which authority prepares the electoral roll for Odisha Assembly elections?",
+        "options": ["Election Commission of India", "Odisha Revenue Department", "Governor", "Chief Minister"],
+        "answer": 0,
+        "explanation": "Election Commission of India is responsible for preparing electoral rolls."
+    },
+    {
+        "question": "What is the minimum age to contest elections to the Odisha Legislative Assembly?",
+        "options": ["25 years", "30 years", "21 years", "18 years"],
+        "answer": 0,
+        "explanation": "The Indian Constitution prescribes 25 years as the minimum age for Assembly elections."
+    },
+    {
+        "question": "Who is the head of the Council of Ministers in Odisha?",
+        "options": ["Chief Minister", "Governor", "Finance Minister", "Chief Secretary"],
+        "answer": 0,
+        "explanation": "Chief Minister leads the Council of Ministers."
+    },
+    {
+        "question": "What is the function of the State Election Commission in Odisha?",
+        "options": ["Conducts local body elections", "Manages state finances", "Oversees education", "Implements central laws"],
+        "answer": 0,
+        "explanation": "State Election Commission conducts elections to Panchayats and Municipalities."
+    },
+    {
+        "question": "The Odisha Public Service Commission (OPSC) is constituted under which article?",
+        "options": ["Article 315", "Article 161", "Article 320", "Article 123"],
+        "answer": 0,
+        "explanation": "Article 315 deals with the appointment of State Public Service Commissions."
+    },
+    {
+        "question": "Land reforms in Odisha aim to:",
+        "options": ["Distribute land more equitably", "Increase forest cover", "Improve literacy", "Enhance mining"],
+        "answer": 0,
+        "explanation": "Land reforms target equitable distribution of land, especially to marginalized groups."
+    },
+    {
+        "question": "The Odisha High Court is headquartered at:",
+        "options": ["Cuttack", "Bhubaneswar", "Puri", "Rourkela"],
+        "answer": 0,
+        "explanation": "Odisha High Court is based in Cuttack."
+    },
+    {
+        "question": "Which is NOT a tier of Panchayati Raj system in Odisha?",
+        "options": ["Municipal Corporation", "Zilla Parishad", "Panchayat Samiti", "Gram Panchayat"],
+        "answer": 0,
+        "explanation": "Municipal Corporation is not part of rural Panchayat system; it's an urban body."
+    },
+    {
+        "question": "The Odisha State Finance Commission reviews:",
+        "options": ["Distribution of financial resources between state and local governments", "Education reforms", "Judiciary integrity", "Industrial growth"],
+        "answer": 0,
+        "explanation": "The Finance Commission reviews allocation of state resources to local bodies."
+    },
+    {
+        "question": "‘KALIA’ is a flagship scheme of the Odisha Government related to:",
+        "options": ["Agriculture", "Mining", "Education", "Urban Development"],
+        "answer": 0,
+        "explanation": "KALIA (Krushak Assistance for Livelihood and Income Augmentation) focuses on farmer welfare."
+    },
+    {
+        "question": "The Mayor in an Odisha Municipal Corporation is elected by:",
+        "options": ["Direct election by citizens", "Councillors", "Governor", "State Assembly"],
+        "answer": 0,
+        "explanation": "Odisha follows direct election for Mayors in Municipal Corporations."
+    },
+    {
+        "question": "Which agency audits the accounts of the Odisha state government?",
+        "options": ["Comptroller and Auditor General of India", "Finance Department", "Reserve Bank of India", "Public Accounts Committee"],
+        "answer": 0,
+        "explanation": "The CAG audits state as well as central government accounts."
+    },
+    {
+        "question": "SEBC reservation in Odisha refers to:",
+        "options": ["Socially and Educationally Backward Classes", "Scheduled Economic Backward Communities", "Scheduled Employment Board Committee", "Special Economic Backward Castes"],
+        "answer": 0,
+        "explanation": "SEBC stands for Socially and Educationally Backward Classes."
+    },
+    {
+        "question": "The Odisha State Administrative Tribunal (SAT) deals with:",
+        "options": ["Service matters of state government employees", "Criminal cases", "Land disputes", "Industrial relations"],
+        "answer": 0,
+        "explanation": "SAT handles disputes relating to service matters of employees under the Government of Odisha."
+    },
+    {
+        "question": "Who is responsible for the conduct of panchayat elections in Odisha?",
+        "options": ["State Election Commission", "District Collector", "Chief Secretary", "Governor"],
+        "answer": 0,
+        "explanation": "State Election Commission oversees the conduct of all rural local body elections."
+    },
+    {
+        "question": "The official language of administration in Odisha is:",
+        "options": ["Odia", "Hindi", "English", "Bengali"],
+        "answer": 0,
+        "explanation": "Odia is the official language for all state administrative functions."
+    },
+    {
+        "question": "Which is the highest decision-making body in a Gram Panchayat of Odisha?",
+        "options": ["Gram Sabha", "Panchayat President", "Block Officer", "Village Accountant"],
+        "answer": 0,
+        "explanation": "Gram Sabha comprises all voters of the panchayat area and is the supreme decision-making body."
+    },
+    {
+        "question": "Welfare of Scheduled Tribes in Odisha is primarily looked after by which department?",
+        "options": ["ST & SC Development Department", "Home Department", "Finance Department", "Labour Department"],
+        "answer": 0,
+        "explanation": "ST & SC Development Department implements welfare schemes for Scheduled Tribes."
+    },
+    {
+        "question": "Which officer manages land records and collects land revenue at the Tehsil level in Odisha?",
+        "options": ["Tehsildar", "Collector", "SDO", "BDO"],
+        "answer": 0,
+        "explanation": "Tehsildar manages land revenue and administrative work at the Tehsil level."
+    },
+    {
+        "question": "Odisha Right to Public Services Act guarantees:",
+        "options": ["Timely delivery of government services", "Right to education", "Reservation in jobs", "Women’s safety"],
+        "answer": 0,
+        "explanation": "RTPS Act ensures timely delivery of listed public services to citizens."
+    },
+    {
+        "question": "Which of the following is not an urban local body in Odisha?",
+        "options": ["Gram Panchayat", "Municipal Corporation", "Notified Area Council", "Municipality"],
+        "answer": 0,
+        "explanation": "Gram Panchayat administers rural, not urban, areas."
+    },
+    {
+        "question": "The jurisdiction of Odisha High Court does not extend over:",
+        "options": ["West Bengal", "Odisha", "All districts of Odisha", "Cases from state government departments"],
+        "answer": 0,
+        "explanation": "The Odisha High Court covers only the state of Odisha."
+    },
+    {
+        "question": "The term Zilla Parishad refers to:",
+        "options": ["District-level rural local government", "Urban ward", "Police district", "Revenue circle"],
+        "answer": 0,
+        "explanation": "Zilla Parishad is the highest tier of rural local government at the district level."
+    },
+    {
+        "question": "The District Collector in Odisha is responsible for:",
+        "options": ["General administration, law and order, revenue collection", "Only law and order", "Only judicial work", "Only financial audit"],
+        "answer": 0,
+        "explanation": "The District Collector is in charge of administration, revenue collection, and law and order."
+    },
+    {
+        "question": "The maximum strength of the Odisha Legislative Assembly as prescribed by the Constitution is:",
+        "options": ["147", "150", "172", "90"],
+        "answer": 0,
+        "explanation": "The Odisha Legislative Assembly can have up to 147 members."
+    },
+    {
+        "question": "Which institution conducts the Odisha Civil Services Examinations?",
+        "options": ["OPSC", "UPSC", "SSC", "OSSC"],
+        "answer": 0,
+        "explanation": "OPSC stands for Odisha Public Service Commission, which conducts the civil services examination."
+    },
+    {
+        "question": "Who is the executive head of an urban local body in Odisha?",
+        "options": ["Municipal Commissioner", "Mayor", "Governor", "Speaker"],
+        "answer": 0,
+        "explanation": "Municipal Commissioner is the chief executive officer of an urban local body."
+    },
+    {
+        "question": "Which committee examines the accounts showing the appropriation of funds granted by the Odisha Assembly?",
+        "options": ["Public Accounts Committee", "Estimates Committee", "Privileges Committee", "Question Committee"],
+        "answer": 0,
+        "explanation": "Public Accounts Committee scrutinizes the appropriation of funds."
+    },
+    {
+        "question": "The primary responsibility for conducting elections to the state legislature of Odisha lies with:",
+        "options": ["Election Commission of India", "State Election Commission", "Governor", "Legislative Secretariat"],
+        "answer": 0,
+        "explanation": "ECI is responsible for state legislature elections, while SEC looks after local body polls."
+    },
+    {
+        "question": "‘Mission Shakti’ in Odisha is a programme focused on:",
+        "options": ["Women's empowerment", "Literacy", "Youth skill development", "Cleanliness drive"],
+        "answer": 0,
+        "explanation": "‘Mission Shakti’ aims to empower women via self-help groups and financial inclusion."
+    },
+    {
+        "question": "Which of the following is responsible for maintaining law and order in a district of Odisha?",
+        "options": ["Superintendent of Police", "Mayor", "Municipal Commissioner", "Village Sarapanch"],
+        "answer": 0,
+        "explanation": "The SP is the district head for police and law and order."
+    },
+    {
+        "question": "Which court in Odisha tries cases related to violation of local municipal laws?",
+        "options": ["Municipal Court", "High Court", "Lok Adalat", "Family Court"],
+        "answer": 0,
+        "explanation": "Municipal Courts try violations of local laws relating to urban areas."
+    },
+    {
+        "question": "Who among the following can take part in the proceedings of the Odisha Legislative Assembly but has no right to vote?",
+        "options": ["Governor", "Chief Secretary", "Chief Minister", "All members"],
+        "answer": 0,
+        "explanation": "Governor can address and take part in proceedings, but can't vote."
+    },
+    {
+        "question": "Which policy initiative by Odisha government aims especially at nutrition of pregnant women and children?",
+        "options": ["Mamata Scheme", "Biju Swasthya Kalyan Yojana", "KALIA", "Distribution of Mid-Day Meals"],
+        "answer": 0,
+        "explanation": "Mamata Scheme directly transfers cash to support pregnant women and lactating mothers."
+    },
+    {
+        "question": "A Money Bill in Odisha Legislative Assembly can be introduced only with the recommendation of:",
+        "options": ["Governor", "Chief Minister", "Speaker", "Finance Minister"],
+        "answer": 0,
+        "explanation": "Money Bills require prior recommendation of the Governor."
+    },
+    {
+        "question": "Which officer assists the Collector in the division of revenue and civil law in Odisha?",
+        "options": ["Sub-Divisional Officer (SDO)", "Tehsildar", "Revenue Inspector", "Block Development Officer"],
+        "answer": 0,
+        "explanation": "The SDO assists the Collector in revenue and civil matters at the sub-division level."
+    },
+    {
+        "question": "Which department is responsible for the welfare of children in Odisha?",
+        "options": ["Women and Child Development Department", "Home Department", "Education Department", "Agriculture Department"],
+        "answer": 0,
+        "explanation": "Women and Child Development Department handles all child welfare schemes."
+    },
+    {
+        "question": "Who can remove the Council of Ministers in Odisha?",
+        "options": ["Governor (on advice of Chief Minister)", "Speaker", "President", "Chief Secretary"],
+        "answer": 0,
+        "explanation": "Council of Ministers can be dissolved by the Governor, usually when they lose majority."
+    },
+    {
+        "question": "After passing in the Odisha Legislative Assembly, a Bill becomes an Act after getting assent from:",
+        "options": ["Governor", "Chief Minister", "Speaker", "President"],
+        "answer": 0,
+        "explanation": "A Bill requires the formal assent of the Governor to become an Act."
+    },
+    {
+        "question": "Which is the official symbol of the Government of Odisha?",
+        "options": ["State Emblem with Konark Wheel", "Lion Capital", "Lotus", "Rice Plant"],
+        "answer": 0,
+        "explanation": "Odisha's official emblem features the Konark Wheel and State Seal."
+    },
+	{
+        "question": "What is the main role of the Chief Secretary in the Odisha state administration?",
+        "options": ["Leader of the opposition in the Assembly", "Judicial head of the state", "Head of the state's civil services", "Chairman of the Finance Commission"],
+        "answer": 2,
+        "explanation": "The Chief Secretary is the senior-most civil servant and administrative head of the state government."
+    },
+    {
+        "question": "Which Odisha state document defines the powers of the Governor and Chief Minister?",
+        "options": ["The Odisha State Government Act", "The Constitution of India", "The State Finance Manual", "The Panchayati Raj Act"],
+        "answer": 1,
+        "explanation": "The Indian Constitution clearly defines the powers and roles of the Governor and Chief Minister."
+    },
+    {
+        "question": "The Odisha State Election Commission is responsible for the elections of:",
+        "options": ["Lok Sabha", "State Legislative Assembly", "Municipalities and Panchayats", "Rajya Sabha"],
+        "answer": 2,
+        "explanation": "State Election Commissions conduct elections for local urban and rural bodies."
+    },
+    {
+        "question": "The Odisha Land Reforms Act primarily aims at:",
+        "options": ["Regulating mining leases", "Preventing land alienation and distributing surplus land", "Establishing urban land banks", "Protecting forest land"],
+        "answer": 1,
+        "explanation": "The Land Reforms Act was introduced to abolish absentee landlordism and distribute land to the tillers."
+    },
+    {
+        "question": "The Odisha State Finance Commission submits recommendations about:",
+        "options": ["Judicial appointments", "Tax devolution to local bodies", "Police administration", "Education funding"],
+        "answer": 1,
+        "explanation": "It assesses the finances of local bodies and recommends resource distribution."
+    },
+    {
+        "question": "Which of the following is NOT a function of the Odisha Legislative Assembly?",
+        "options": ["Passing state budget", "Legislating on state subjects", "Approving loans raised by the state", "Electing the President of India"],
+        "answer": 3,
+        "explanation": "The President of India is elected by an electoral college; state assemblies do not elect the President."
+    },
+    {
+        "question": "In Odisha, who administers the oath of office to the Chief Minister?",
+        "options": ["Governor", "Chief Justice of High Court", "Speaker of the Assembly", "President of India"],
+        "answer": 0,
+        "explanation": "The Governor administers the oath to the Chief Minister."
+    },
+    {
+        "question": "The Odisha Right to Information Act provides citizens the right to:",
+        "options": ["File land disputes", "Right to education", "Access state government information", "Vote in elections"],
+        "answer": 2,
+        "explanation": "This act ensures transparency by allowing citizens to access government information."
+    },
+    {
+        "question": "The Governor of Odisha can reserve a Bill passed by the state legislature for:",
+        "options": ["President's assent", "Speaker's consent", "Chief Minister's approval", "High Court's review"],
+        "answer": 0,
+        "explanation": "The Governor may reserve certain Bills for the consideration of the President."
+    },
+    {
+        "question": "Which ministry is responsible for implementing social welfare schemes in Odisha?",
+        "options": ["Finance Department", "Department of Social Security and Empowerment of Persons with Disabilities", "Home Department", "Agriculture Department"],
+        "answer": 1,
+        "explanation": "This department manages social welfare policies and schemes."
+    },
+    {
+        "question": "Odisha's Lokayukta institution deals primarily with:",
+        "options": ["Education reforms", "Complaints against government corruption", "Police administration", "Land acquisition"],
+        "answer": 1,
+        "explanation": "Lokayukta investigates complaints of corruption and misconduct of public officials."
+    },
+    {
+        "question": "The term length for the Odisha Legislative Assembly Speaker is:",
+        "options": ["6 years", "For the life of the Assembly", "2 years", "5 years"],
+        "answer": 1,
+        "explanation": "The Speaker holds office for the entire term of the Assembly unless removed earlier."
+    },
+    {
+        "question": "Who acts as the guardian of the Constitution in the state of Odisha?",
+        "options": ["Chief Minister", "Governor", "Odisha High Court", "Legislative Assembly"],
+        "answer": 2,
+        "explanation": "The High Court protects the state’s constitutional rights and interprets the law."
+    },
+    {
+        "question": "The budget prepared for the state of Odisha is called the:",
+        "options": ["Annual Financial Statement", "Zero-Based Budget", "State Income Report", "Fiscal Policy Document"],
+        "answer": 0,
+        "explanation": "The Annual Financial Statement is the official budget document presented for the state."
+    },
+    {
+        "question": "In Odisha, who exercises control over the local government institutions through administrative supervision?",
+        "options": ["President", "District Collector", "Central Government", "State Government"],
+        "answer": 3,
+        "explanation": "The state government supervises and controls local governance through appointed officials."
+    },
+    {
+        "question": "Which of the following is an attribute of the Odisha State Public Service Commission?",
+        "options": ["Conducts competitive exams for state services", "Appoints judges", "Manages revenue collection", "Controls municipal elections"],
+        "answer": 0,
+        "explanation": "OPSC conducts exams and recommends appointments for various state civil posts."
+    },
+    {
+        "question": "The Odisha Gram Panchayat is:",
+        "options": ["A rural cooperative society", "The district administration", "An urban local body", "The village level local self-government"],
+        "answer": 3,
+        "explanation": "Gram Panchayat operates at the village level for rural governance."
+    },
+    {
+        "question": "Which document contains the detailed code of conduct for Odisha civil servants?",
+        "options": ["Indian Penal Code", "Right to Information Act", "All India Services (Conduct) Rules", "Odisha Land Revenue Code"],
+        "answer": 2,
+        "explanation": "The All India Services (Conduct) Rules guide bureaucratic behavior and ethics."
+    },
+    {
+        "question": "Who appoints the State Finance Commission in Odisha?",
+        "options": ["Governor", "Chief Minister", "State Legislative Assembly", "Election Commission of India"],
+        "answer": 0,
+        "explanation": "The Governor appoints the State Finance Commission on the recommendation of the state government."
+    },
+    {
+        "question": "The Odisha Budget speech is delivered by the:",
+        "options": ["Governor", "Chief Minister", "Finance Minister", "Speaker of the Assembly"],
+        "answer": 2,
+        "explanation": "The Finance Minister presents the budget speech in the Assembly."
+    },
+    {
+        "question": "In Odisha, what is the role of the Block Development Officer (BDO)?",
+        "options": ["Implementation of development programs at the block level", "Maintaining law and order", "Budget approval for districts", "Heading the Legislative Assembly"],
+        "answer": 0,
+        "explanation": "BDO oversees rural development and Panchayati Raj programs."
+    },
+    {
+        "question": "The executive power of the state of Odisha is vested in the:",
+        "options": ["Governor", "Chief Minister", "Council of Ministers", "Legislative Assembly"],
+        "answer": 0,
+        "explanation": "All executive power is vested formally in the Governor but exercised on the advice of the Council of Ministers."
+    },
+    {
+        "question": "Which department handles disaster management in Odisha?",
+        "options": ["Revenue and Disaster Management Department", "Home Department", "Finance Department", "Agriculture Department"],
+        "answer": 0,
+        "explanation": "Disaster management and relief are functions of the Revenue and Disaster Management Department."
+    },
+    {
+        "question": "Who is the public prosecutor at the district level in Odisha?",
+        "options": ["District Public Prosecutor", "District Collector", "District Magistrate", "Superintendent of Police"],
+        "answer": 0,
+        "explanation": "District Public Prosecutor represents the state in criminal cases."
+    },
+    {
+        "question": "What is the tenure of members of the Odisha Legislative Council?",
+        "options": ["4 years", "6 years", "5 years", "The Odisha Legislative Assembly does not have a Legislative Council"],
+        "answer": 3,
+        "explanation": "Odisha has a unicameral legislature; thus, it does not have a Legislative Council."
+    },
+    {
+        "question": "Which of the following is a social welfare scheme targeted at girl children in Odisha?",
+        "options": ["Biju Lakshmi Ammal Scheme", "KALIA", "Mission Shakti", "Mamata Scheme"],
+        "answer": 0,
+        "explanation": "Biju Lakshmi Ammal Scheme offers financial incentives for the welfare of girl children."
+    },
+    {
+        "question": "The Odisha Land Revenue Code governs:",
+        "options": ["Assessment and collection of land revenue", "Forest conservation", "Urban planning", "Industrial licensing"],
+        "answer": 0,
+        "explanation": "The code regulates land revenue-related activities and administration."
+    },
+    {
+        "question": "Which Odisha department is responsible for implementing the Public Distribution System (PDS)?",
+        "options": ["Labour Department", "Finance Department", "Food Supplies and Consumer Welfare Department", "Revenue Department"],
+        "answer": 2,
+        "explanation": "PDS is administered by the Food Supplies and Consumer Welfare Department."
+    },
+    {
+        "question": "The case jurisdiction of Odisha High Court includes:",
+        "options": ["Only civil cases", "Original and appellate jurisdiction over civil and criminal cases", "Only appellate criminal cases", "Only administrative cases"],
+        "answer": 1,
+        "explanation": "The High Court handles both original and appellate cases in civil and criminal matters."
+    },
+    {
+        "question": "Which position coordinates between the state government and local self-government institutions in Odisha?",
+        "options": ["Governor", "Chief Minister", "District Collector", "Chief Secretary"],
+        "answer": 2,
+        "explanation": "The District Collector acts as a key link between state and local governance."
+    },
+    {
+        "question": "The Odisha Gram Panchayat election process is governed by which entity?",
+        "options": ["Panchayat Raj Ministry", "State Election Commission", "Election Commission of India", "District Collector"],
+        "answer": 1,
+        "explanation": "State Election Commission conducts and regulates Gram Panchayat elections."
+    },
+    {
+        "question": "Who is responsible for maintaining public order in an Odisha district?",
+        "options": ["Governor", "Block Development Officer", "District Collector", "Superintendent of Police"],
+        "answer": 3,
+        "explanation": "SP heads the police force and maintains law and order."
+    },
+    {
+        "question": "The Odisha Public Service Commission advises the government on:",
+        "options": ["Recruitment rules and promotions", "Municipal elections", "Police appointments", "State Finance Commission reports"],
+        "answer": 0,
+        "explanation": "OPSC advises on service matters including recruitment and promotion rules."
+    },
+    {
+        "question": "Which act governs the establishment and functioning of Odisha's municipalities?",
+        "options": ["Odisha Municipality Act", "Odisha Panchayati Raj Act", "Odisha Urban Development Act", "Odisha Municipal Corporation Act"],
+        "answer": 0,
+        "explanation": "The Odisha Municipality Act regulates urban local bodies."
+    },
+    {
+        "question": "What is the role of the Odisha Lokayukta?",
+        "options": ["Oversees education policy", "Investigates corruption cases involving public servants", "Conducts state elections", "Manages land records"],
+        "answer": 1,
+        "explanation": "Lokayukta is an anti-corruption ombudsman for government employees and officials."
+    },
+    {
+        "question": "Who appoints judges of the Odisha High Court?",
+        "options": ["Governor of Odisha", "President of India", "Chief Minister", "Attorney General"],
+        "answer": 1,
+        "explanation": "High Court judges are appointed by the President of India, in consultation with the Chief Justice of India and the state's Governor."
+    },
+    {
+        "question": "The Odisha Right to Public Services Act aims to ensure:",
+        "options": ["Local self-governance", "Timely delivery of government services to citizens", "Universal education", "Anti-corruption measures"],
+        "answer": 1,
+        "explanation": "The Act guarantees that services are provided within a specified time."
+    },
+    {
+        "question": "Which official in Odisha is charged with revenue collection and maintaining land records at the tehsil level?",
+        "options": ["Block Development Officer", "Revenue Inspector", "District Magistrate", "Tehsildar"],
+        "answer": 3,
+        "explanation": "The Tehsildar collects land revenue and maintains land records."
+    },
+    {
+        "question": "Which is the apex decision-making body in Odisha's Panchayati Raj system?",
+        "options": ["Panchayat Samiti", "Gram Panchayat", "Zilla Parishad", "State Election Commission"],
+        "answer": 2,
+        "explanation": "Zilla Parishad operates at the district level and is the apex body in rural governance."
+    },
+    {
+        "question": "The Odisha government funds for urban development primarily come from:",
+        "options": ["Local taxes alone", "State Finance Commission recommendations", "Private donors", "Central Government only"],
+        "answer": 1,
+        "explanation": "State Finance Commission recommends funds allocation to urban local bodies."
+    },
+	 {
+        "question": "Who is responsible for maintaining law and order in a district of Odisha?",
+        "options": ["District Collector", "Superintendent of Police", "Mayor", "Municipal Commissioner"],
+        "answer": 1,
+        "explanation": "The Superintendent of Police is the head of the police force responsible for law and order in a district."
+    },
+    {
+        "question": "What is the term length of the Odisha Legislative Assembly?",
+        "options": ["4 years", "5 years", "6 years", "Till dissolved by Governor"],
+        "answer": 1,
+        "explanation": "The normal tenure of the Odisha Legislative Assembly is five years unless dissolved earlier."
+    },
+    {
+        "question": "Which article of the Indian Constitution deals with the powers of the Governor in relation to the state legislature?",
+        "options": ["Article 174", "Article 153", "Article 356", "Article 360"],
+        "answer": 0,
+        "explanation": "Article 174 outlines the Governor's powers in relation to the state legislature."
+    },
+    {
+        "question": "The Odisha Public Service Commission reports to which authority?",
+        "options": ["Governor of Odisha", "Chief Minister", "State Legislature", "Election Commission of India"],
+        "answer": 0,
+        "explanation": "OPSC reports to the Governor and is responsible for recruitment and service matters of state civil services."
+    },
+    {
+        "question": "Which is the appellate authority over Gram Panchayat decisions in Odisha?",
+        "options": ["Panchayat Samiti", "Zilla Parishad", "District Collector", "State Election Commission"],
+        "answer": 0,
+        "explanation": "Panchayat Samiti acts as the first appellate authority over Gram Panchayats."
+    },
+    {
+        "question": "Under the Odisha Panchayati Raj system, the minimum age requirement to contest for Gram Panchayat member is:",
+        "options": ["18 years", "21 years", "25 years", "30 years"],
+        "answer": 1,
+        "explanation": "One must be at least 21 years old to contest as a Gram Panchayat member."
+    },
+    {
+        "question": "Which governmental department implements the MGNREGA scheme in Odisha?",
+        "options": ["Rural Development Department", "Labour Department", "Planning Department", "Agriculture Department"],
+        "answer": 0,
+        "explanation": "MGNREGA is implemented by the Rural Development Department aimed at providing wage employment."
+    },
+    {
+        "question": "The Odisha Lokayukta is an institution designed to combat:",
+        "options": ["Judicial delays", "Electoral fraud", "Corruption and maladministration", "Tax evasion"],
+        "answer": 2,
+        "explanation": "Lokayukta investigates corruption and maladministration among public officials."
+    },
+    {
+        "question": "Which institution in Odisha is responsible for audit of local bodies’ accounts?",
+        "options": ["State Finance Commission", "Comptroller and Auditor General of India", "Local Fund Audit Department", "Public Accounts Committee"],
+        "answer": 2,
+        "explanation": "The Local Fund Audit Department audits local government bodies’ accounts."
+    },
+    {
+        "question": "Which of the following is an example of a notified area in Odisha?",
+        "options": ["Urban local body governed without full municipal status", "Gram Panchayat", "Panchayat Samiti", "Zilla Parishad"],
+        "answer": 0,
+        "explanation": "Notified Areas are urban regions without full municipal status but administered by appointed officials."
+    },
+    {
+        "question": "Under the Odisha Land Reforms Act, what is the ceiling on land ownership for an individual?",
+        "options": ["10 acres", "25 acres", "50 acres", "There is no ceiling"],
+        "answer": 1,
+        "explanation": "The Act fixes a ceiling to prevent concentration of land ownership."
+    },
+    {
+        "question": "‘Mission Shakti’ launched by Odisha Government seeks to:",
+        "options": ["Empower women through self-help groups", "Improve literacy rates", "Promote industrial growth", "Increase agricultural output"],
+        "answer": 0,
+        "explanation": "It is a women’s empowerment programme based on self-help groups."
+    },
+    {
+        "question": "What is the role of a Block Development Officer in Odisha?",
+        "options": ["Coordinate development works at block level", "Maintain law and order", "Supervise district administration", "Oversee urban planning"],
+        "answer": 0,
+        "explanation": "BDO supervises implementation of development programs at the block level."
+    },
+    {
+        "question": "In Odisha’s administrative setup, who is directly responsible for disaster management at the district level?",
+        "options": ["District Collector", "Superintendent of Police", "Block Development Officer", "Chief Minister"],
+        "answer": 0,
+        "explanation": "District Collector is the nodal officer for disaster management and relief."
+    },
+    {
+        "question": "Which of the following departments implements the Public Distribution System in Odisha?",
+        "options": ["Food Supplies and Consumer Welfare Department", "Revenue Department", "Labour Department", "Finance Department"],
+        "answer": 0,
+        "explanation": "This department manages PDS and essential commodities distribution."
+    },
+    {
+        "question": "What is the term of office for members of the Odisha Legislative Assembly?",
+        "options": ["4 years", "5 years", "6 years", "Until dissolved"],
+        "answer": 1,
+        "explanation": "The term is five years unless the assembly is dissolved sooner."
+    },
+    {
+        "question": "The Odisha State Finance Commission is constituted under which article of the Indian Constitution?",
+        "options": ["Article 280", "Article 243-I", "Article 315", "Article 356"],
+        "answer": 1,
+        "explanation": "Article 243-I provides for State Finance Commissions to recommend financial distributions to Panchayats and municipalities."
+    },
+    {
+        "question": "Who presides over the proceedings of the Odisha Legislative Assembly in the absence of the Speaker?",
+        "options": ["Deputy Speaker", "Chief Minister", "Governor", "Leader of Opposition"],
+        "answer": 0,
+        "explanation": "The Deputy Speaker presides when the Speaker is absent."
+    },
+    {
+        "question": "The Odisha Public Service Commission is responsible for recruitment to:",
+        "options": ["All central government services", "Odisha state government services", "Local government bodies", "Judicial services"],
+        "answer": 1,
+        "explanation": "OPSC conducts recruitment exams for Odisha state government posts."
+    },
+    {
+        "question": "The Odisha Legislative Assembly sessions are convened by the authority of:",
+        "options": ["Chief Minister", "Speaker", "Governor", "President of India"],
+        "answer": 2,
+        "explanation": "The Governor summons the Assembly for sessions."
+    },
+    {
+        "question": "The Odisha State Election Commission is an independent body responsible for:",
+        "options": ["Conducting panchayat and municipality elections", "State assembly elections", "Lok Sabha elections", "Conducting census"],
+        "answer": 0,
+        "explanation": "It is responsible for local body elections in Odisha."
+    },
+    {
+        "question": "Who exercises judicial powers in the state of Odisha?",
+        "options": ["Odisha High Court", "District Magistrates", "Governor", "Chief Secretary"],
+        "answer": 0,
+        "explanation": "The Odisha High Court is the highest judicial authority in the state."
+    },
+    {
+        "question": "Odisha’s 'KALIA' scheme primarily targets:",
+        "options": ["Small and marginal farmers", "Urban youth", "Industrial workers", "Teachers"],
+        "answer": 0,
+        "explanation": "KALIA scheme aims to support small and marginal farmers."
+    },
+    {
+        "question": "The Odisha Governor acts on the advice of:",
+        "options": ["Chief Minister and Council of Ministers", "State Public Service Commission", "Judiciary", "State Legislature"],
+        "answer": 0,
+        "explanation": "The Governor exercises powers based on aid and advice of the elected Council of Ministers."
+    },
+    {
+        "question": "The Zilla Parishad in Odisha functions at the level of:",
+        "options": ["District", "Block", "Village", "State"],
+        "answer": 0,
+        "explanation": "Zilla Parishad is the district level rural local government."
+    },
+    {
+        "question": "Under the Odisha Panchayati Raj system, the highest decision-making body at the village level is:",
+        "options": ["Gram Sabha", "Gram Panchayat", "Panchayat Samiti", "Zilla Parishad"],
+        "answer": 0,
+        "explanation": "The Gram Sabha includes all adult residents of the village and is the supreme decision-making body."
+    },
+    {
+        "question": "The Right to Public Services Act in Odisha was enacted to ensure:",
+        "options": ["Timely delivery of government services to citizens", "Universal right to education", "Reservation in jobs", "Protection of tribal rights"],
+        "answer": 0,
+        "explanation": "This Act guarantees timely delivery of certain government services to the public."
+    },
+    {
+        "question": "In Odisha, government schemes aimed at Scheduled Tribes welfare are primarily implemented by:",
+        "options": ["ST & SC Development Department", "Labour Department", "Social Welfare Department", "Home Department"],
+        "answer": 0,
+        "explanation": "The ST & SC Development Department focuses on tribal welfare schemes."
+    },
+    {
+        "question": "Which officer is the administrative head of a district in Odisha?",
+        "options": ["District Collector", "Superintendent of Police", "Block Development Officer", "Tehsildar"],
+        "answer": 0,
+        "explanation": "The District Collector is the chief administrative officer in the district."
+    },
+    {
+        "question": "The Odisha State Human Rights Commission protects:",
+        "options": ["Human rights of citizens", "Rights of corporations", "Rights of government officials", "Rights of animals"],
+        "answer": 0,
+        "explanation": "It safeguards the fundamental rights of individuals."
+    },
+    {
+        "question": "Which of the following is NOT a component of Odisha’s local governance structure?",
+        "options": ["Municipal Corporation", "Zilla Parishad", "Panchayat Samiti", "Election Commission of India"],
+        "answer": 3,
+        "explanation": "The Election Commission of India is a national body and not a local governance institution."
+    },
+    {
+        "question": "What role does the Odisha State Finance Commission play in relation to Panchayati Raj Institutions?",
+        "options": ["Recommends the distribution of funds", "Conducts elections", "Manages daily operations", "Audits accounts"],
+        "answer": 0,
+        "explanation": "It recommends the allocation of financial resources to local bodies."
+    },
+    {
+        "question": "The Odisha State Administrative Tribunal hears cases related to:",
+        "options": ["Service matters of state employees", "Public land disputes", "Criminal offences", "Taxation matters"],
+        "answer": 0,
+        "explanation": "The Tribunal deals with disputes related to the service conditions of government employees."
+    },
+    {
+        "question": "Which level of government in Odisha is responsible for primary education?",
+        "options": ["Panchayat Raj Institutions", "State Government", "Central Government", "Municipal Corporation"],
+        "answer": 0,
+        "explanation": "Primary education is largely managed by Panchayats in rural areas."
+    },
+    {
+        "question": "Which body in Odisha recommends developmental schemes and plans for districts?",
+        "options": ["District Planning Committee", "Zilla Parishad", "State Planning Board", "Municipality"],
+        "answer": 0,
+        "explanation": "District Planning Committees coordinate plans and schemes at the district level."
+    },
+	 {
+        "question": "Odisha's Chief Minister is responsible to which authority?",
+        "options": ["Legislative Assembly", "Governor", "President of India", "Supreme Court"],
+        "answer": 0,
+        "explanation": "The Chief Minister and Council of Ministers are collectively responsible to the Legislative Assembly."
+    },
+    {
+        "question": "In the panchayati raj structure of Odisha, the Panchayat Samiti operates at which administrative level?",
+        "options": ["Block level", "District level", "Village level", "State level"],
+        "answer": 0,
+        "explanation": "Panchayat Samiti functions at the block level."
+    },
+    {
+        "question": "To whom does the Odisha Legislative Assembly submit the Appropriation Bill for assent?",
+        "options": ["Governor", "President", "Chief Minister", "Speaker"],
+        "answer": 0,
+        "explanation": "The Appropriation Bill is presented to the Governor for assent."
+    },
+    {
+        "question": "Which of the following rights is specifically protected by the Odisha State Child Protection Society?",
+        "options": ["Child rights", "Land rights", "Labor rights", "Voting rights"],
+        "answer": 0,
+        "explanation": "OSCP Society works for the protection and welfare of children’s rights."
+    },
+    {
+        "question": "Which body has the authority to audit Panchayati Raj institutions in Odisha?",
+        "options": ["Local Fund Audit Department", "Special Audit Committee", "Comptroller and Auditor General", "Finance Department"],
+        "answer": 0,
+        "explanation": "The Local Fund Audit Department audits PRIs in the state."
+    },
+    {
+        "question": "Who appoints the Chief Justice of Odisha High Court?",
+        "options": ["President of India", "Governor of Odisha", "Chief Minister", "Prime Minister"],
+        "answer": 0,
+        "explanation": "The President of India appoints the Chief Justice of a state's High Court."
+    },
+    {
+        "question": "What is a Gram Sabha in Odisha?",
+        "options": ["Body of all registered voters in a village", "Committee of sarpanches", "Panchayat Secretary board", "Urban body"],
+        "answer": 0,
+        "explanation": "Gram Sabha consists of all registered voters of a Gram Panchayat area."
+    },
+    {
+        "question": "The minimum educational qualification to contest Urban Local Body elections in Odisha is:",
+        "options": ["No minimum qualification", "10th standard", "Graduation", "8th standard"],
+        "answer": 0,
+        "explanation": "Currently there is no minimum educational qualification required by law."
+    },
+    {
+        "question": "Who prepares and presents the Annual Financial Statement in the Odisha Assembly?",
+        "options": ["Finance Minister", "Governor", "Chief Minister", "Speaker"],
+        "answer": 0,
+        "explanation": "The Finance Minister presents the annual financial statement (budget)."
+    },
+    {
+        "question": "For which tenure are Zilla Parishad members elected in Odisha?",
+        "options": ["5 years", "2 years", "6 years", "4 years"],
+        "answer": 0,
+        "explanation": "Members serve for a period of 5 years unless dissolved earlier."
+    },
+    {
+        "question": "Who is the highest law officer of the State of Odisha?",
+        "options": ["Advocate General", "Law Secretary", "Public Prosecutor", "Chief Justice"],
+        "answer": 0,
+        "explanation": "The Advocate General is the chief legal advisor to the state government."
+    },
+    {
+        "question": "Which body in Odisha recommends measures for decentralization and empowerment of Panchayati Raj Institutions?",
+        "options": ["State Finance Commission", "State Election Commission", "District Planning Committee", "Odisha Administrative Reforms Commission"],
+        "answer": 3,
+        "explanation": "The commission suggests reforms to improve PRIs’ functioning."
+    },
+    {
+        "question": "In Odisha, who holds the power to create or abolish a municipality?",
+        "options": ["State Legislature", "Governor", "State Election Commission", "NITI Aayog"],
+        "answer": 0,
+        "explanation": "The state legislature holds power regarding creation/abolition of municipalities."
+    },
+    {
+        "question": "Which is a constitutionally mandated institution for the local governance in Odisha?",
+        "options": ["Gram Panchayat", "NGO Forum", "Zonal Office", "Corporate Social Body"],
+        "answer": 0,
+        "explanation": "Gram Panchayat, under the 73rd Constitutional Amendment, is a mandatory local governance institution."
+    },
+    {
+        "question": "The Odisha Janani Suraksha Yojana aims at improving:",
+        "options": ["Maternal health", "Youth employment", "Forestry", "Tax collection"],
+        "answer": 0,
+        "explanation": "Janani Suraksha Yojana focuses on maternal and child health."
+    },
+    {
+        "question": "Who appoints the Secretary in the Odisha Legislative Assembly?",
+        "options": ["Speaker", "Chief Minister", "Governor", "State Election Commission"],
+        "answer": 0,
+        "explanation": "The Secretary is appointed by the Speaker of the Assembly."
+    },
+    {
+        "question": "Which post in Odisha local governance functions as the executive head at the village level?",
+        "options": ["Sarpanch", "BDO", "Collector", "Zilla Parishad Chairperson"],
+        "answer": 0,
+        "explanation": "Sarpanch is the executive head of the Gram Panchayat."
+    },
+    {
+        "question": "The urban local body elections in Odisha are conducted by:",
+        "options": ["State Election Commission", "Election Commission of India", "Municipal Council", "Governor"],
+        "answer": 0,
+        "explanation": "The State Election Commission is responsible for conducting all local level polls."
+    },
+    {
+        "question": "Which is not a responsibility of the Odisha State Finance Commission?",
+        "options": ["Recruitment of teachers", "Recommend devolution of state revenues", "Review financial position of municipalities", "Assess panchayat finances"],
+        "answer": 0,
+        "explanation": "Recruitment of teachers is not under the State Finance Commission’s purview."
+    },
+    {
+        "question": "The Odisha Administrative Tribunal deals mainly with:",
+        "options": ["Service matters of government employees", "Judicial appointments", "Local elections", "Planning and development"],
+        "answer": 0,
+        "explanation": "It deals with service and employment disputes of state government employees."
+    },
+    {
+        "question": "In Odisha, the District Planning Committee is responsible for integrating plans from:",
+        "options": ["Urban and rural local bodies", "State Assembly", "High Court", "Finance Commission"],
+        "answer": 0,
+        "explanation": "It coordinates plans from municipalities and panchayats for holistic district planning."
+    },
+    {
+        "question": "Who recommends financial allocations to Panchayats and Municipalities in Odisha?",
+        "options": ["State Finance Commission", "Prime Minister’s Office", "Collector", "NITI Aayog"],
+        "answer": 0,
+        "explanation": "The State Finance Commission recommends financial allocations to local bodies."
+    },
+    {
+        "question": "The Mayor of a Municipal Corporation in Odisha is elected for a tenure of:",
+        "options": ["5 years", "4 years", "6 years", "3 years"],
+        "answer": 0,
+        "explanation": "The Mayor's tenure is usually five years."
+    },
+    {
+        "question": "Which mission targets improved nutrition for women and children in Odisha?",
+        "options": ["Mamata", "KALIA", "Biju Yuva Shakti", "Biju Swasthya Kalyan"],
+        "answer": 0,
+        "explanation": "The Mamata scheme & related missions aim at improving nutrition of women and children."
+    },
+    {
+        "question": "The Women and Child Development Department of Odisha oversees welfare schemes for:",
+        "options": ["Women and children", "Elderly citizens", "Industrial workers", "Farmers"],
+        "answer": 0,
+        "explanation": "It is responsible for women and child welfare schemes."
+    },
+    {
+        "question": "The Revenue Inspector in a block of Odisha is primarily in charge of:",
+        "options": ["Land records and revenue collection", "Urban planning", "Hospital management", "Municipal sanitation"],
+        "answer": 0,
+        "explanation": "The Revenue Inspector administers land revenue and related records."
+    },
+    {
+        "question": "The Odisha High Court is the highest court in the state for:",
+        "options": ["Civil and criminal cases", "Only criminal cases", "Only revenue cases", "Only administrative disputes"],
+        "answer": 0,
+        "explanation": "It is the supreme judicial authority in the state for both civil and criminal matters."
+    },
+    {
+        "question": "Which authority is responsible for the audit of all state receipts and expenditures in Odisha?",
+        "options": ["CAG of India", "Finance Department", "District Magistrate", "State Election Commission"],
+        "answer": 0,
+        "explanation": "Comptroller and Auditor General audits government finances."
+    },
+    {
+        "question": "Odisha's Village-Level Worker (VLW) is responsible for:",
+        "options": ["Implementing development schemes at village level", "Law enforcement", "Judicial work", "Education policy"],
+        "answer": 0,
+        "explanation": "The VLW assists in implementing rural development schemes."
+    },
+    {
+        "question": "Panchayat Samiti is headed by:",
+        "options": ["Chairperson", "District Collector", "Chief Minister", "Superintendent of Police"],
+        "answer": 0,
+        "explanation": "Each Panchayat Samiti is headed by a chairperson elected from its own members."
+    },
+    {
+        "question": "Which institution recommends the reservation of seats for women in Odisha's local bodies?",
+        "options": ["State Legislature", "State Election Commission", "Finance Commission", "Gram Sabha"],
+        "answer": 0,
+        "explanation": "Reservation for women is provided through acts passed by the state legislature."
+    },
+    {
+        "question": "In Odisha, which department supervises disaster preparedness and relief?",
+        "options": ["Revenue and Disaster Management", "Police Department", "Education Department", "Industry Department"],
+        "answer": 0,
+        "explanation": "The Revenue and Disaster Management Department handles disaster management."
+    },
+    {
+        "question": "For which of the following does the Odisha Municipal Corporation Act provide?",
+        "options": ["Urban governance and functioning of Municipal Corporations", "Village-level governance", "High Court jurisdiction", "Revenue collection"],
+        "answer": 0,
+        "explanation": "The Act specifies roles, powers, and functions of Municipal Corporations."
+    },
+    {
+        "question": "The President of a Zilla Parishad in Odisha is elected by:",
+        "options": ["Elected members of Zilla Parishad", "Governor", "Chief Minister", "Sarpanches"],
+        "answer": 0,
+        "explanation": "Members of the Zilla Parishad elect the President among themselves."
+    },
+    {
+        "question": "Which officer functions as the chief administrative and revenue officer in a subdivision in Odisha?",
+        "options": ["Sub-Divisional Magistrate", "District Collector", "Block Development Officer", "Tehsildar"],
+        "answer": 0,
+        "explanation": "The SDM (Sub-Divisional Magistrate) heads administration and revenue matters in a subdivision."
+    },
+    {
+        "question": "Odisha’s Social Welfare Board mainly focuses on programmes for:",
+        "options": ["Women and children welfare", "Tax administration", "Urban cleanliness", "Police modernization"],
+        "answer": 0,
+        "explanation": "The board implements women and child welfare schemes in the state."
+    },
+    {
+        "question": "The KALIA scheme in Odisha provides support in the form of:",
+        "options": ["Financial assistance to farmers", "Free electricity", "Urban infrastructure", "College scholarships"],
+        "answer": 0,
+        "explanation": "KALIA offers direct cash benefits to support small and marginal farmers."
+    },
+    {
+        "question": "Which position is responsible for collection of land revenue at the grassroots in Odisha?",
+        "options": ["Tehsildar", "Block Officer", "District Collector", "Chief Secretary"],
+        "answer": 0,
+        "explanation": "The Tehsildar heads land revenue administration at the local level."
+    },
+    {
+        "question": "The term 'Notified Area Council' in Odisha refers to:",
+        "options": ["Urban area with attributes of a municipality but not declared one", "Village council", "State assembly body", "Revenue Board"],
+        "answer": 0,
+        "explanation": "NAC is an urban local body for rapidly growing towns not yet upgraded to a municipality."
+    },
+    {
+        "question": "The key responsibility for implementing land reforms in Odisha lies with:",
+        "options": ["Revenue and Disaster Management Department", "Industry Department", "Police Department", "Finance Department"],
+        "answer": 0,
+        "explanation": "Land reform policies are implemented by the Revenue and Disaster Management Department."
+    },
+    {
+        "question": "Who is empowered to order a mid-term dissolution of the Odisha Legislative Assembly?",
+        "options": ["Governor", "President", "Chief Minister", "Speaker"],
+        "answer": 0,
+        "explanation": "The Governor can dissolve the assembly on the advice of the Council of Ministers."
+    },
+    {
+        "question": "The Odisha State Social Welfare Advisory Board is constituted by:",
+        "options": ["State Government", "Union Government", "Governor", "State Legislature"],
+        "answer": 0,
+        "explanation": "The board is set up by the state government to guide social welfare programmes."
+    },
+    {
+        "question": "Who heads a Municipal Corporation in Odisha?",
+        "options": ["Mayor", "Governor", "District Collector", "Speaker"],
+        "answer": 0,
+        "explanation": "The Mayor is elected as the political head of the Corporation."
+    },
+    {
+        "question": "Which scheme launched by Odisha Government provides insurance to small farmers?",
+        "options": ["Biju Krushak Kalyan Yojana", "Mission Shakti", "Janani Suraksha", "Mamata"],
+        "answer": 0,
+        "explanation": "The Biju Krushak Kalyan Yojana covers health and life insurance for small and marginal farmers."
+    },
+    {
+        "question": "Which authority regulates all form of elections in Panchayati Raj and urban bodies in Odisha?",
+        "options": ["State Election Commission", "High Court", "Finance Department", "Governor"],
+        "answer": 0,
+        "explanation": "The State Election Commission is statutorily responsible for these elections."
+    },
+    {
+        "question": "The Odisha Urban Wage Employment Initiative was launched for:",
+        "options": ["Urban poor workers", "Farmers only", "Teachers", "IT professionals"],
+        "answer": 0,
+        "explanation": "It provides wage work for the urban poor and daily wage workers."
+    },
+    {
+        "question": "Who acts as the executive authority in a Panchayat Samiti?",
+        "options": ["Block Development Officer", "Panchayat Samiti Chairperson", "District Collector", "Zilla Parishad President"],
+        "answer": 0,
+        "explanation": "BDO is the executive officer of the block and Panchayat Samiti."
+    },
+	{
+        "question": "Which article of the Constitution provides for the establishment of a State Election Commission for Odisha?",
+        "options": ["Article 243K", "Article 315", "Article 356", "Article 320"],
+        "answer": 0,
+        "explanation": "Article 243K mandates the creation of State Election Commissions for local body elections."
+    },
+    {
+        "question": "Which department oversees the implementation of the Biju Pucca Ghar Yojana in Odisha?",
+        "options": ["Housing and Urban Development Department", "Rural Development Department", "Revenue Department", "Finance Department"],
+        "answer": 1,
+        "explanation": "The Rural Development Department implements this housing scheme for rural poor."
+    },
+    {
+        "question": "The Odisha Khadi and Village Industries Board is primarily responsible for:",
+        "options": ["Promotion of rural industries and self-employment", "Land reforms implementation", "Education policy", "Health services"],
+        "answer": 0,
+        "explanation": "It promotes rural industrialization and livelihood through khadi and village industries."
+    },
+    {
+        "question": "Which legal body in Odisha deals with election disputes related to local bodies?",
+        "options": ["State Election Commission", "High Court", "Election Tribunal", "District Court"],
+        "answer": 2,
+        "explanation": "Election Tribunals handle disputes arising from local body elections."
+    },
+    {
+        "question": "Under the Odisha Land Reforms Act, what happens to surplus land?",
+        "options": ["It is redistributed among the landless", "It is sold to private companies", "It is acquired by the central government", "It remains with large landowners"],
+        "answer": 0,
+        "explanation": "Surplus land beyond prescribed limits is acquired and redistributed to the landless."
+    },
+    {
+        "question": "The fundamental administrative unit in Odisha's rural governance system is:",
+        "options": ["Gram Panchayat", "District", "Municipal Corporation", "Block"],
+        "answer": 0,
+        "explanation": "Gram Panchayat is the basic local government unit at the village level."
+    },
+    {
+        "question": "Which Act governs the functioning of Urban Local Bodies in Odisha?",
+        "options": ["Odisha Municipal Act, 1950", "Odisha Panchayati Raj Act, 1994", "Municipal Corporation Act, 2009", "Urban Development Act, 2015"],
+        "answer": 0,
+        "explanation": "The Odisha Municipal Act, 1950 governs urban local bodies."
+    },
+    {
+        "question": "The Chief Secretary of Odisha is appointed by:",
+        "options": ["Chief Minister", "Governor", "President of India", "State Public Service Commission"],
+        "answer": 0,
+        "explanation": "The Chief Secretary is appointed by the Chief Minister and holds the highest bureaucratic post."
+    },
+    {
+        "question": "Which is the apex administrative body in Odisha responsible for state policy and governance?",
+        "options": ["Council of Ministers", "Legislative Assembly", "Governor", "State Planning Board"],
+        "answer": 0,
+        "explanation": "The Council of Ministers headed by the Chief Minister administers the state."
+    },
+    {
+        "question": "The Odisha State Human Rights Commission was established under which act?",
+        "options": ["Protection of Human Rights Act, 1993", "Right to Information Act, 2005", "Juvenile Justice Act, 2015", "Odisha Public Welfare Act"],
+        "answer": 0,
+        "explanation": "It was constituted under the Protection of Human Rights Act, 1993."
+    },
+    {
+        "question": "In Odisha, who is responsible for preparing and implementing the district disaster management plan?",
+        "options": ["District Collector", "Sub-Divisional Magistrate", "Block Development Officer", "District Police Superintendent"],
+        "answer": 0,
+        "explanation": "The District Collector coordinates disaster preparedness plans at the district level."
+    },
+    {
+        "question": "Which is the primary objective of the Odisha 'Ama Gaon Ama Bikash' initiative?",
+        "options": ["Village development and decentralization", "Urban beautification", "Industrial growth", "Education reforms"],
+        "answer": 0,
+        "explanation": "This initiative aims to promote village-level development and governance."
+    },
+    {
+        "question": "The Odisha Legislative Assembly can be summoned and prorogued by:",
+        "options": ["Governor", "Chief Minister", "Speaker", "President of India"],
+        "answer": 0,
+        "explanation": "The Governor has the authority to summon and prorogue the state legislature."
+    },
+    {
+        "question": "Who has the power to recommend President's Rule in Odisha to the central government?",
+        "options": ["Governor", "Chief Minister", "Legislative Assembly Speaker", "State Election Commission"],
+        "answer": 0,
+        "explanation": "The Governor recommends imposition of President's Rule when constitutional machinery breaks down."
+    },
+    {
+        "question": "Municipal Corporations in Odisha derive their powers from:",
+        "options": ["Odisha Municipal Act", "42nd Constitutional Amendment Act", "73rd Constitutional Amendment", "64th Constitutional Amendment"],
+        "answer": 0,
+        "explanation": "The Odisha Municipal Act governs the powers and functions of Municipal Corporations."
+    },
+    {
+        "question": "Which department is responsible for Tribal Welfare in Odisha?",
+        "options": ["ST & SC Development Department", "Social Security Department", "Labour Department", "Revenue Department"],
+        "answer": 0,
+        "explanation": "This department implements policies and welfare schemes for scheduled tribes."
+    },
+    {
+        "question": "The Odisha Governance Reforms Commission was constituted to:",
+        "options": ["Suggest measures for improving governance and public administration", "Oversee state finances", "Conduct elections", "Provide legal aid"],
+        "answer": 0,
+        "explanation": "Its mandate is to improve state governance efficiency."
+    },
+    {
+        "question": "Which is the key legislation that introduced Panchayati Raj institutions in Odisha?",
+        "options": ["73rd Constitutional Amendment Act", "Seventy-fourth Amendment Act", "Odisha Panchayati Raj Act", "Land Revenue Code"],
+        "answer": 2,
+        "explanation": "Odisha Panchayati Raj Act implements Panchayati Raj system in the state."
+    },
+    {
+        "question": "Who officiates as the ex-officio chairman of the Zilla Parishad in Odisha?",
+        "options": ["District Collector", "Chief Minister", "Governor", "Member of Legislative Assembly"],
+        "answer": 0,
+        "explanation": "District Collector usually serves as the ex-officio chairman of the Zilla Parishad."
+    },
+    {
+        "question": "In Odisha, the Revenue Divisional Commissioner oversees administration of:",
+        "options": ["Multiple districts", "Single district", "Tehsil", "Block"],
+        "answer": 0,
+        "explanation": "Revenue Divisional Commissioner supervises administration across multiple districts."
+    },
+    {
+        "question": "The Odisha Social Welfare Department primarily caters to:",
+        "options": ["Backward classes and disabled persons", "Agricultural development", "Urban infrastructure", "Police welfare"],
+        "answer": 0,
+        "explanation": "It works for socially and educationally backward classes and persons with disabilities."
+    },
+    {
+        "question": "Which scheme in Odisha provides skill development for youth?",
+        "options": ["Biju Yuva Shakti Yojana", "KALIA", "Mission Shakti", "Odisha Urban Wage Employment"],
+        "answer": 0,
+        "explanation": "Biju Yuva Shakti Yojana helps youth acquire employment-oriented skills."
+    },
+    {
+        "question": "Who is the electoral authority for Municipal Corporation elections in Odisha?",
+        "options": ["State Election Commission", "Election Commission of India", "District Collector", "Governor"],
+        "answer": 0,
+        "explanation": "State Election Commission conducts urban local body elections."
+    },
+    {
+        "question": "Which is the smallest revenue administrative unit in Odisha?",
+        "options": ["Village", "Tehsil", "District", "Block"],
+        "answer": 0,
+        "explanation": "Village is the smallest revenue unit for administration."
+    },
+    {
+        "question": "Which of the following posts is elected directly by the public in Odisha’s urban bodies?",
+        "options": ["Mayor", "Municipal Commissioner", "Municipal Secretary", "Governor"],
+        "answer": 0,
+        "explanation": "Mayors in Odisha Municipal Corporations are directly elected by citizens."
+    },
+    {
+        "question": "What is the function of the Odisha Information Commission?",
+        "options": ["Ensuring right to information laws are implemented", "Conducting elections", "Managing state finances", "Overseeing public services"],
+        "answer": 0,
+        "explanation": "The Information Commission safeguards RTI implementation."
+    },
+	{
+        "question": "The Odisha Right to Public Services Act provides for:",
+        "options": ["Guarantee of timely delivery of public services", "Reservation in government jobs", "Protection of tribal lands", "Right to education"],
+        "answer": 0,
+        "explanation": "The Act ensures delivery of certain public services within stipulated time frames."
+    },
+    {
+        "question": "The tenure of the Governor of Odisha is:",
+        "options": ["Five years", "Six years", "Four years", "At the pleasure of the President"],
+        "answer": 3,
+        "explanation": "The Governor holds office at the pleasure of the President of India."
+    },
+    {
+        "question": "Odisha’s Women Development Corporation primarily focuses on:",
+        "options": ["Empowerment of women through various schemes", "Industrial development", "Maintaining law and order", "Tax collection"],
+        "answer": 0,
+        "explanation": "The Corporation implements schemes to empower women economically and socially."
+    },
+    {
+        "question": "Who presides over the meetings of the Odisha Zilla Parishad?",
+        "options": ["Elected President of Zilla Parishad", "District Collector", "Governor", "Chief Minister"],
+        "answer": 0,
+        "explanation": "The elected President leads meetings of the Zilla Parishad."
+    },
+    {
+        "question": "Which institution in Odisha oversees the welfare of Scheduled Castes?",
+        "options": ["ST & SC Development Department", "Labour Department", "Agriculture Department", "Revenue Department"],
+        "answer": 0,
+        "explanation": "This department manages welfare schemes for Scheduled Castes and Scheduled Tribes."
+    },
+    {
+        "question": "In Odisha, which authority can promulgate ordinances when the legislative assembly is not in session?",
+        "options": ["Governor", "Chief Minister", "President", "Speaker"],
+        "answer": 0,
+        "explanation": "The Governor has the power to promulgate ordinances in such situations."
+    },
+    {
+        "question": "Who appoints the Advocate General of Odisha?",
+        "options": ["Governor", "Chief Minister", "President of India", "Attorney General"],
+        "answer": 0,
+        "explanation": "The Governor appoints the Advocate General, who is the state's chief legal advisor."
+    },
+    {
+        "question": "Which Odisha government scheme is aimed at financial support for senior citizens?",
+        "options": ["Biju Swasthya Kalyan Yojana", "Khushi Scheme", "Mamata Scheme", "Chief Minister Samman Pension Yojana"],
+        "answer": 3,
+        "explanation": "The Samman Pension Yojana gives financial assistance to elderly persons."
+    },
+    {
+        "question": "What is the maximum number of members allowed in the Odisha Legislative Assembly?",
+        "options": ["147", "150", "160", "172"],
+        "answer": 0,
+        "explanation": "The legislative assembly can have up to 147 members."
+    },
+    {
+        "question": "The Odisha State Social Welfare Board primarily focuses on:",
+        "options": ["Implementation of welfare schemes for vulnerable groups", "Revenue management", "Disaster management", "Agriculture development"],
+        "answer": 0,
+        "explanation": "It coordinates social welfare activities for marginalized groups."
+    },
+    {
+        "question": "In Odisha, the Legislative Assembly budget sessions are convened by:",
+        "options": ["Governor", "Speaker", "Chief Minister", "President of India"],
+        "answer": 0,
+        "explanation": "The Governor summons and prorogues the Assembly sessions."
+    },
+    {
+        "question": "The main function of the Odisha Public Service Commission is:",
+        "options": ["Recruitment of state civil services", "Conducting elections", "Auditing government accounts", "Implementing welfare schemes"],
+        "answer": 0,
+        "explanation": "OPSC conducts examinations and recruitment for various state government posts."
+    },
+    {
+        "question": "Which department in Odisha is primarily responsible for the implementation of the KALIA scheme?",
+        "options": ["Agriculture and Farmers Empowerment Department", "Rural Development Department", "Finance Department", "Industrial Development Department"],
+        "answer": 0,
+        "explanation": "The Agriculture Department oversees the KALIA scheme for farmers’ welfare."
+    },
+    {
+        "question": "Who in Odisha is the custodian of land records?",
+        "options": ["Tehsildar", "Revenue Inspector", "District Collector", "Block Development Officer"],
+        "answer": 0,
+        "explanation": "Tehsildars maintain land records at the revenue circle or tehsil level."
+    },
+    {
+        "question": "Which constitutional amendment introduced Panchayati Raj Institutions in Odisha?",
+        "options": ["73rd Amendment", "74th Amendment", "42nd Amendment", "44th Amendment"],
+        "answer": 0,
+        "explanation": "The 73rd Amendment provided constitutional status to Panchayati Raj Institutions."
+    },
+    {
+        "question": "The Odisha High Court was established in the city of?",
+        "options": ["Cuttack", "Bhubaneswar", "Rourkela", "Puri"],
+        "answer": 0,
+        "explanation": "The Odisha High Court is located in Cuttack."
+    },
+    {
+        "question": "The Social Security and Empowerment of Persons with Disabilities Department in Odisha focuses on:",
+        "options": ["Welfare of the disabled", "Women's education", "Agricultural subsidies", "Urban infrastructure"],
+        "answer": 0,
+        "explanation": "This department implements welfare schemes for disabled persons."
+    },
+    {
+        "question": "Which Odisha department handles administration and regulation of municipal bodies?",
+        "options": ["Housing and Urban Development Department", "Finance Department", "Public Works Department", "Labour Department"],
+        "answer": 0,
+        "explanation": "Housing and Urban Development Department is responsible for urban local bodies."
+    },
+    {
+        "question": "The highest level of Panchayati Raj Institution in Odisha is:",
+        "options": ["Zilla Parishad", "Gram Panchayat", "Panchayat Samiti", "Municipality"],
+        "answer": 0,
+        "explanation": "Zilla Parishad functions at the district level, the highest tier of rural local governance."
+    },
+    {
+        "question": "The Odisha Lokayukta is appointed by:",
+        "options": ["Governor on recommendation of Chief Minister", "Chief Justice of Odisha High Court", "Speaker of Legislative Assembly", "State Election Commission"],
+        "answer": 0,
+        "explanation": "The Governor appoints the Lokayukta based on the Chief Minister’s recommendation."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

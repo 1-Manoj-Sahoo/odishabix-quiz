@@ -1,0 +1,3616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Idioms Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">IDIOMS</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+ {
+        "question": "What does the idiom 'Let the cat out of the bag' mean?",
+        "options": ["Reveal a secret", "Chase something", "Spoil a plan", "Run away"],
+        "answer": 0,
+        "explanation": "To let the cat out of the bag means to reveal a secret or surprise, often unintentionally."
+    },
+    {
+        "question": "If someone 'hits the nail on the head', what are they doing?",
+        "options": ["Making a mistake", "Giving a precise answer", "Exaggerating", "Missing the point"],
+        "answer": 1,
+        "explanation": "To hit the nail on the head means to do or say something exactly right."
+    },
+    {
+        "question": "The idiom 'Cry over spilt milk' means?",
+        "options": ["Worry about future", "Regret past losses", "Make a mess", "Cause trouble"],
+        "answer": 1,
+        "explanation": "It means to complain about a loss that cannot be undone."
+    },
+    {
+        "question": "What is the meaning of 'Leave no stone unturned'?",
+        "options": ["Not try enough", "Try everything possible", "Turn things upside down", "Be careless"],
+        "answer": 1,
+        "explanation": "It means to try every possible way to achieve something."
+    },
+    {
+        "question": "‘Dance to someone’s tune’ refers to?",
+        "options": ["Argue with others", "Follow orders", "Delay decisions", "Be energetic"],
+        "answer": 1,
+        "explanation": "It means to do what others want you to do."
+    },
+    {
+        "question": "‘A pig in a poke’ is about?",
+        "options": ["Obstructing work", "Bravery", "Buying without examining", "Ending something"],
+        "answer": 2,
+        "explanation": "Buying something without proper inspection."
+    },
+    {
+        "question": "To ‘kick the bucket’ means?",
+        "options": ["Start a task", "Die", "Waste money", "Run away"],
+        "answer": 1,
+        "explanation": "It's a euphemism for dying."
+    },
+    {
+        "question": "If someone ‘goes the extra mile’, they are?",
+        "options": ["Showing laziness", "Trying hard", "Cheating", "Running late"],
+        "answer": 1,
+        "explanation": "Trying harder than necessary to achieve something."
+    },
+    {
+        "question": "A person ‘burning the midnight oil’ is?",
+        "options": ["Working late", "Getting angry", "Sleeping early", "Cooking"],
+        "answer": 0,
+        "explanation": "Studying or working late at night."
+    },
+    {
+        "question": "‘Back to square one’ means?",
+        "options": ["Starting afresh", "Making progress", "Success", "End of journey"],
+        "answer": 0,
+        "explanation": "Returning to the starting point due to a failure."
+    },
+    {
+        "question": "‘Bite the bullet’ refers to?",
+        "options": ["Endure pain bravely", "Eat quickly", "Get scared", "Chase someone"],
+        "answer": 0,
+        "explanation": "To face a difficult situation bravely."
+    },
+    {
+        "question": "'Bring to the table' means?",
+        "options": ["Eat food", "Offer something useful", "Start debate", "Clean up"],
+        "answer": 1,
+        "explanation": "To contribute something useful, such as skills or resources."
+    },
+    {
+        "question": "To 'call it a day' means?",
+        "options": ["Postpone", "Finish work for the day", "Start process", "Call someone"],
+        "answer": 1,
+        "explanation": "To stop working for the rest of the day."
+    },
+    {
+        "question": "If someone is 'caught red-handed', what does it mean?",
+        "options": ["Innocent", "Caught in the act", "Lost", "Confused"],
+        "answer": 1,
+        "explanation": "They are caught doing something wrong."
+    },
+    {
+        "question": "To 'cut corners' is to?",
+        "options": ["Do something well", "Do something cheaply", "Decorate", "Reduce prices"],
+        "answer": 1,
+        "explanation": "To do something in the easiest, cheapest, or fastest way, often sacrificing quality."
+    },
+    {
+        "question": "‘Throw in the towel’ means?",
+        "options": ["Rest", "Refuse to participate", "Give up", "Insult"],
+        "answer": 2,
+        "explanation": "To quit or surrender."
+    },
+    {
+        "question": "‘A blessing in disguise’ indicates?",
+        "options": ["Hidden advantage", "Bad luck", "Danger", "Disguise"],
+        "answer": 0,
+        "explanation": "An apparent misfortune that results in something good."
+    },
+    {
+        "question": "‘Beat around the bush’ means?",
+        "options": ["Talk indirectly", "Hunt animals", "Rush", "Fight"],
+        "answer": 0,
+        "explanation": "Avoiding the main topic, not speaking directly."
+    },
+    {
+        "question": "To be ‘at sea’ is to be?",
+        "options": ["In trouble", "Puzzled", "Sailing", "Relaxed"],
+        "answer": 1,
+        "explanation": "To be confused or not sure what to do."
+    },
+    {
+        "question": "‘Fish out of water’ means?",
+        "options": ["Swimming", "Discomfortable", "Out of place", "Relaxed"],
+        "answer": 2,
+        "explanation": "Someone who feels uncomfortable in unfamiliar surroundings."
+    },
+    {
+        "question": "To ‘go the whole hog’ means?",
+        "options": ["Be strict", "Eat a lot", "Do something completely", "Behave wildly"],
+        "answer": 2,
+        "explanation": "To do something as fully as possible."
+    },
+    {
+        "question": "‘A close shave’ refers to?",
+        "options": ["Cutting hair", "Narrow escape", "Quick run", "Being caught"],
+        "answer": 1,
+        "explanation": "A narrow escape from danger."
+    },
+    {
+        "question": "To ‘make a mountain out of a molehill’ means?",
+        "options": ["Exaggerate a problem", "Climb a mountain", "Build something", "Start a big task"],
+        "answer": 0,
+        "explanation": "To make a small problem seem much bigger."
+    },
+    {
+        "question": "‘Hit the sack’ means?",
+        "options": ["Go to sleep", "Get angry", "Work hard", "Pack things up"],
+        "answer": 0,
+        "explanation": "To go to bed."
+    },
+    {
+        "question": "To ‘spill the beans’ means?",
+        "options": ["Cook", "Reveal a secret", "Drop the ball", "Make a mess"],
+        "answer": 1,
+        "explanation": "To reveal secret information."
+    },
+    {
+        "question": "When someone is 'under the weather', they are?",
+        "options": ["Happy", "Unwell", "Excited", "Lost"],
+        "answer": 1,
+        "explanation": "Feeling sick or ill."
+    },
+    {
+        "question": "‘A piece of cake’ refers to?",
+        "options": ["A hard task", "An easy task", "Giving a treat", "A sweet dish"],
+        "answer": 1,
+        "explanation": "Something very easy to do."
+    },
+    {
+        "question": "‘Break the ice’ means?",
+        "options": ["Add ice", "Make someone angry", "Start conversation", "Fight"],
+        "answer": 2,
+        "explanation": "To initiate conversation in a social setting."
+    },
+    {
+        "question": "‘Pulling your leg’ means?",
+        "options": ["Teasing or joking", "Running", "Helping", "Being rude"],
+        "answer": 0,
+        "explanation": "To tease someone playfully."
+    },
+    {
+        "question": "‘Go down in flames’ means?",
+        "options": ["Succeed", "Fail spectacularly", "Cook", "Burn"],
+        "answer": 1,
+        "explanation": "To fail in a dramatic way."
+    },
+    {
+        "question": "To ‘jump the gun’ means?",
+        "options": ["Start too soon", "Run fast", "Act lazily", "Give up"],
+        "answer": 0,
+        "explanation": "Do something prematurely."
+    },
+    {
+        "question": "‘On cloud nine’ means?",
+        "options": ["Extremely angry", "Extremely happy", "Confused", "Sad"],
+        "answer": 1,
+        "explanation": "To be very happy."
+    },
+    {
+        "question": "‘Cut the mustard’ means?",
+        "options": ["Slice vegetables", "Meet expectations", "Cheat", "Farm work"],
+        "answer": 1,
+        "explanation": "To succeed or meet the required standard."
+    },
+    {
+        "question": "‘Once in a blue moon’ means?",
+        "options": ["Rarely", "Often", "Always", "Sometimes"],
+        "answer": 0,
+        "explanation": "Something that happens very rarely."
+    },
+    {
+        "question": "‘Out of the blue’ means?",
+        "options": ["Suddenly", "Always", "Randomly", "Late"],
+        "answer": 0,
+        "explanation": "To happen unexpectedly."
+    },
+    {
+        "question": "‘Barking up the wrong tree’ means?",
+        "options": ["Asking for help", "Making wrong assumptions", "Being rude", "Getting angry"],
+        "answer": 1,
+        "explanation": "To make a wrong assumption."
+    },
+    {
+        "question": "‘A hot potato’ is?",
+        "options": ["A tasty snack", "A controversial topic", "Easy work", "A warm object"],
+        "answer": 1,
+        "explanation": "A situation or topic that is difficult to handle."
+    },
+    {
+        "question": "‘Hit the books’ means?",
+        "options": ["Read books", "Study hard", "Throw books", "Sell books"],
+        "answer": 1,
+        "explanation": "To begin to study seriously."
+    },
+    {
+        "question": "‘The ball is in your court’ means?",
+        "options": ["It's your turn to act", "Playing cricket", "A sports game", "Dribble a ball"],
+        "answer": 0,
+        "explanation": "It is now your responsibility to take action."
+    },
+    {
+        "question": "‘Burn one’s bridges’ means?",
+        "options": ["Build relationships", "Destroy connections", "Light a fire", "Be friendly"],
+        "answer": 1,
+        "explanation": "To destroy one's path, connections, or opportunities."
+    },
+    {
+        "question": "‘Hit the jackpot’ means?",
+        "options": ["Win big", "Lose money", "Play cards", "Buy a lottery"],
+        "answer": 0,
+        "explanation": "To win or achieve success, especially unexpectedly."
+    },
+    {
+        "question": "‘Let sleeping dogs lie’ means?",
+        "options": ["Provoke", "Avoid stirring trouble", "Wake up dogs", "Report a crime"],
+        "answer": 1,
+        "explanation": "Do not instigate problems."
+    },
+    {
+        "question": "‘Jump on the bandwagon’ means?",
+        "options": ["Start a new band", "Join a popular activity", "Lead a group", "Sing"],
+        "answer": 1,
+        "explanation": "To join others in doing something that is becoming popular."
+    },
+    {
+        "question": "If a plan is 'up in the air' it is?",
+        "options": ["Fixed", "Undecided", "Failed", "Unexpected"],
+        "answer": 1,
+        "explanation": "It means the outcome or decision is not settled."
+    },
+    {
+        "question": "‘A bird in hand is worth two in the bush’ means?",
+        "options": ["Take a risk", "Value what you have", "Search more", "Be greedy"],
+        "answer": 1,
+        "explanation": "It is better to be content with what you have than risk losing it by seeking more."
+    },
+    {
+        "question": "‘Turn a blind eye’ means?",
+        "options": ["Ignore something", "Close your eyes", "Help someone", "Lose sight"],
+        "answer": 0,
+        "explanation": "To deliberately ignore something."
+    },
+    {
+        "question": "‘Cost an arm and a leg’ means?",
+        "options": ["Very cheap", "Very expensive", "Easy to get", "Worthless"],
+        "answer": 1,
+        "explanation": "Something that is very costly."
+    },
+    {
+        "question": "‘At the drop of a hat’ means?",
+        "options": ["After a long time", "Immediately", "Never", "Irregularly"],
+        "answer": 1,
+        "explanation": "To do something instantly or without any hesitation."
+    },
+    {
+        "question": "‘Throw cold water on’ means?",
+        "options": ["Discourage", "Encourage", "Start an argument", "Water plants"],
+        "answer": 0,
+        "explanation": "To discourage an idea or plan."
+    },
+    {
+        "question": "‘Don’t put all your eggs in one basket’ means?",
+        "options": ["Be greedy", "Don’t risk everything on a single venture", "Eat eggs daily", "Be careful"],
+        "answer": 1,
+        "explanation": "Don’t invest all your resources in one possibility."
+    },
+    {
+        "question": "‘To turn the tables’ means?",
+        "options": ["Reverse a situation", "Set a table", "Start a meal", "Make plans"],
+        "answer": 0,
+        "explanation": "Reverse the previous situation or gain the upper hand."
+    },
+	{
+        "question": "What does 'Shoulder the responsibility' mean?",
+        "options": ["Ignore the problem", "Blame others", "Take responsibility", "Pass on work"],
+        "answer": 2,
+        "explanation": "To shoulder the responsibility means to accept and take on the duty."
+    },
+    {
+        "question": "If you 'lose heart', you...",
+        "options": ["Become encouraged", "Feel confident", "Get discouraged", "Fall in love"],
+        "answer": 2,
+        "explanation": "Lose heart means to become discouraged and lose hope."
+    },
+    {
+        "question": "What is meant by 'Keep something at bay'?",
+        "options": ["Keep away", "Hide", "Delay", "Exaggerate"],
+        "answer": 0,
+        "explanation": "To keep something at bay means to keep it away and prevent it from approaching."
+    },
+    {
+        "question": "'To bell the cat' means?",
+        "options": ["Reveal a secret", "Complete an easy task", "Face the risk", "Make known"],
+        "answer": 2,
+        "explanation": "Bell the cat means to face the risk or challenge of undertaking something difficult."
+    },
+    {
+        "question": "'A thorn in the flesh' is...",
+        "options": ["A minor problem", "A constant annoyance", "In a strange situation", "At the last moment"],
+        "answer": 1,
+        "explanation": "A thorn in the flesh is a constant source of annoyance."
+    },
+    {
+        "question": "To 'drop the ball' means?",
+        "options": ["Make a mistake", "Let go of a grudge", "Relax", "Lower expectations"],
+        "answer": 0,
+        "explanation": "Drop the ball means to make a mistake or fail in your responsibilities."
+    },
+    {
+        "question": "'Get one's ducks in a row' means?",
+        "options": ["Get everything organized", "Follow rules", "Make everyone happy", "Achieve goals"],
+        "answer": 0,
+        "explanation": "The idiom means to arrange things systematically or get organized."
+    },
+    {
+        "question": "If someone is 'reading between the lines', they are...",
+        "options": ["Ignoring details", "Understanding hidden meaning", "Making a mess", "Being rude"],
+        "answer": 1,
+        "explanation": "It means to interpret or find the hidden meaning."
+    },
+    {
+        "question": "'To put up with' someone means?",
+        "options": ["Tolerate", "Agree", "Dislike", "Help"],
+        "answer": 0,
+        "explanation": "Put up with means tolerate or accept someone's behavior."
+    },
+    {
+        "question": "'To eat a humble pie' means?",
+        "options": ["To apologize", "To boast", "To lie", "To enjoy a feast"],
+        "answer": 0,
+        "explanation": "Eat a humble pie means to apologize and admit one's fault."
+    },
+    {
+        "question": "'Heads will roll' means?",
+        "options": ["People will be punished", "A tragedy", "Celebrate", "Promote"],
+        "answer": 0,
+        "explanation": "Heads will roll refers to people being punished or losing jobs."
+    },
+    {
+        "question": "'A dime a dozen' means?",
+        "options": ["Rare", "Common", "Expensive", "None"],
+        "answer": 1,
+        "explanation": "Dime a dozen means something is very common and not special."
+    },
+    {
+        "question": "'Face the music' means?",
+        "options": ["Attend concert", "Accept punishment", "Lose money", "Enjoy moment"],
+        "answer": 1,
+        "explanation": "Face the music means to accept criticism or punishment."
+    },
+    {
+        "question": "'Pay off old scores' implies?",
+        "options": ["Forgive", "Revenge", "Save money", "Lose points"],
+        "answer": 1,
+        "explanation": "Pay off old scores means to take revenge or settle old disputes."
+    },
+    {
+        "question": "'Blow over' means?",
+        "options": ["Fade away", "Increase", "Destroy", "Become famous"],
+        "answer": 0,
+        "explanation": "Blow over means to pass off or fade away."
+    },
+    {
+        "question": "'Bad blood' refers to?",
+        "options": ["Angry feelings", "Love", "Peace", "Happiness"],
+        "answer": 0,
+        "explanation": "Bad blood means feelings of animosity."
+    },
+    {
+        "question": "'Storm in a teacup' means?",
+        "options": ["Trivial anger", "Big tragedy", "Huge celebration", "Disaster"],
+        "answer": 0,
+        "explanation": "Storm in a teacup means a lot of fuss over a trivial matter."
+    },
+    {
+        "question": "'To turn up one's nose at' means?",
+        "options": ["Appreciate", "Reject with disdain", "Encourage", "Ignore"],
+        "answer": 1,
+        "explanation": "To turn up one's nose at means to show disdain or reject something."
+    },
+    {
+        "question": "'To be all at sea' means?",
+        "options": ["Confused", "Relaxed", "In trouble", "Working hard"],
+        "answer": 0,
+        "explanation": "All at sea means to be confused and not know what to do."
+    },
+    {
+        "question": "'To lay out' means?",
+        "options": ["Expand something", "Decorate", "Celebrate", "Hide"],
+        "answer": 0,
+        "explanation": "Lay out means to present or expand something clearly."
+    },
+    {
+        "question": "'To draw on fancy' means?",
+        "options": ["Use imagination", "Spend money", "Get angry", "Make friends"],
+        "answer": 0,
+        "explanation": "Draw on fancy means to use one's imagination."
+    },
+    {
+        "question": "'To keep someone under wraps' is to...",
+        "options": ["Keep secret", "Expose", "Celebrate", "Ignore"],
+        "answer": 0,
+        "explanation": "Keep under wraps means to keep something concealed or secret."
+    },
+    {
+        "question": "'High and dry' means?",
+        "options": ["Neglected", "Celebrated", "Rich", "Excited"],
+        "answer": 0,
+        "explanation": "High and dry means left helpless or without support."
+    },
+    {
+        "question": "'To shake in one's shoes' implies?",
+        "options": ["Afraid", "Happy", "Confused", "Tired"],
+        "answer": 0,
+        "explanation": "Shake in one's shoes means to tremble with fear."
+    },
+    {
+        "question": "'To mince matters' means?",
+        "options": ["Use polite expressions", "Ignore", "Be angry", "Make a mess"],
+        "answer": 0,
+        "explanation": "Mince matters means to speak carefully using polite language, often to show disapproval."
+    },
+    {
+        "question": "'To set the record straight' implies?",
+        "options": ["Give correct account", "Confuse", "Lie", "Celebrate"],
+        "answer": 0,
+        "explanation": "Set the record straight means to give the true facts."
+    },
+    {
+        "question": "'To curry favour' means?",
+        "options": ["Try to please", "Be angry", "Make friends", "Ignore"],
+        "answer": 0,
+        "explanation": "Curry favour means try to ingratiate or please somebody excessively."
+    },
+    {
+        "question": "'Bone to pick' means?",
+        "options": ["Cause of quarrel", "Cook dinner", "Celebrate", "Make peace"],
+        "answer": 0,
+        "explanation": "Bone to pick means a reason for disagreement or a dispute."
+    },
+    {
+        "question": "'Blue-eyed boy' means?",
+        "options": ["Favourite person", "Newcomer", "Talented", "Ignored"],
+        "answer": 0,
+        "explanation": "Blue-eyed boy means a favourite or highly regarded person."
+    },
+    {
+        "question": "'Heads will roll' means?",
+        "options": ["People punished", "People promoted", "Sudden joy", "Disaster"],
+        "answer": 0,
+        "explanation": "Heads will roll means there will be consequences and people will be punished."
+    },
+    {
+        "question": "'White elephant' means?",
+        "options": ["Costly but useless", "Large animal", "Minor expense", "Cheap gift"],
+        "answer": 0,
+        "explanation": "White elephant means something costly but useless."
+    },
+    {
+        "question": "'Take with a grain of salt' means?",
+        "options": ["With doubt", "With excitement", "Without thought", "With anger"],
+        "answer": 0,
+        "explanation": "Take with a grain of salt means to listen with considerable doubt."
+    },
+    {
+        "question": "'Go to the whole hog' means?",
+        "options": ["Do completely", "Eat a lot", "Make a mess", "Ignore"],
+        "answer": 0,
+        "explanation": "Go to the whole hog means to do something to its fullest extent."
+    },
+    {
+        "question": "'Turn one's head' means?",
+        "options": ["Feel proud", "Become confused", "Become shy", "Get angry"],
+        "answer": 0,
+        "explanation": "Turn one's head means to feel proud in a way that others find annoying."
+    },
+    {
+        "question": "'Put one's foot down' means?",
+        "options": ["Assert authority", "Resign", "Be silent", "Quit job"],
+        "answer": 0,
+        "explanation": "Put one's foot down means to take a firm stand."
+    },
+    {
+        "question": "'To eat humble pie' means?",
+        "options": ["Apologize", "Celebrate", "Boast", "Lie"],
+        "answer": 0,
+        "explanation": "Eat humble pie means to apologize and admit one's mistakes."
+    },
+    {
+        "question": "'Go down swinging' means?",
+        "options": ["Give up easily", "Fight till the end", "Play sports", "Dance"],
+        "answer": 1,
+        "explanation": "Go down swinging means to fight hard even when losing."
+    },
+    {
+        "question": "'Between the devil and the deep blue sea' means?",
+        "options": ["In a difficult situation", "Happy", "Lost", "Confused"],
+        "answer": 0,
+        "explanation": "Between the devil and the deep blue sea means caught in a dilemma or difficult situation."
+    },
+    {
+        "question": "'To stave off' means?",
+        "options": ["Prevent", "Delay", "Ignore", "Hasten"],
+        "answer": 0,
+        "explanation": "Stave off means to prevent something from happening."
+    },
+    {
+        "question": "'To cut no ice' means?",
+        "options": ["No effect", "Make angry", "Confuse", "Be helpful"],
+        "answer": 0,
+        "explanation": "Cut no ice means to have no influence or effect."
+    },
+    {
+        "question": "'A sore point' means?",
+        "options": ["Hurts", "Excites", "Confuses", "Celebrates"],
+        "answer": 0,
+        "explanation": "A sore point means something which causes hurt or is sensitive."
+    },
+    {
+        "question": "'A bone to pick' means?",
+        "options": ["Cause for dispute", "Happy occasion", "Old friend", "Delicious meal"],
+        "answer": 0,
+        "explanation": "Bone to pick means a reason to argue or quarrel."
+    },
+    {
+        "question": "'Blow your own trumpet' means?",
+        "options": ["Boast", "Sing", "Cook", "Anger"],
+        "answer": 0,
+        "explanation": "Blow your own trumpet means to boast or brag about oneself."
+    },
+    {
+        "question": "'Lay bare' means?",
+        "options": ["Reveal", "Hide", "Ignore", "Celebrate"],
+        "answer": 0,
+        "explanation": "Lay bare means to reveal or make something known."
+    },
+    {
+        "question": "'To read between the lines' means?",
+        "options": ["Understand deeper meaning", "Ignore", "Celebrate", "Lie"],
+        "answer": 0,
+        "explanation": "Read between the lines means to look for the underlying meaning."
+    },
+    {
+        "question": "'At one's beck and call' means?",
+        "options": ["Ready to serve", "Ignore", "Be angry", "Quit job"],
+        "answer": 0,
+        "explanation": "At one's beck and call means ready to serve whenever needed."
+    },
+    {
+        "question": "'To cast pearls before swine' means?",
+        "options": ["Offer something valuable to someone who can't appreciate it", "Throw away", "Donate", "Cook"],
+        "answer": 0,
+        "explanation": "Cast pearls before swine means to offer something valuable to someone who cannot appreciate it."
+    },
+	{
+        "question": "What does the idiom 'Bite off more than you can chew' mean?",
+        "options": ["Work too little", "Attempt more than you can handle", "Chew loudly", "Eat quickly"],
+        "answer": 1,
+        "explanation": "It means to try to do something too difficult or beyond your capacity."
+    },
+    {
+        "question": "The phrase 'Burn bridges' means?",
+        "options": ["Travel a lot", "Destroy relationships", "Light bonfires", "Build new connections"],
+        "answer": 1,
+        "explanation": "To burn bridges means to destroy relationships or opportunities permanently."
+    },
+    {
+        "question": "What does 'Caught between two stools' imply?",
+        "options": ["Indecisive", "Successful", "Careful", "Angry"],
+        "answer": 0,
+        "explanation": "It means being unable to choose between two alternatives."
+    },
+    {
+        "question": "'Fit as a fiddle' means?",
+        "options": ["Healthy and strong", "Clumsy", "Sad", "Old-fashioned"],
+        "answer": 0,
+        "explanation": "It means to be in very good health."
+    },
+    {
+        "question": "To 'Hit below the belt' is to?",
+        "options": ["Fight unfairly", "Aim correctly", "Hit slowly", "Make up"],
+        "answer": 0,
+        "explanation": "To act unfairly or dishonestly."
+    },
+    {
+        "question": "'To keep one's fingers crossed' means?",
+        "options": ["Hope for good luck", "Hide something", "Pray daily", "Refuse"],
+        "answer": 0,
+        "explanation": "It means to hope for a positive outcome."
+    },
+    {
+        "question": "What does it mean to 'Know the ropes'?",
+        "options": ["Be experienced", "Be confused", "Learn to swim", "Quit"],
+        "answer": 0,
+        "explanation": "It means to be knowledgeable or experienced in something."
+    },
+    {
+        "question": "'Pull someone's leg' means?",
+        "options": ["Help them", "Tease or joke", "Lie to them", "Support"],
+        "answer": 1,
+        "explanation": "To tease or joke with someone."
+    },
+    {
+        "question": "To 'Run out of steam' means?",
+        "options": ["Lose energy or enthusiasm", "Win a race", "Breathe heavily", "Start a task"],
+        "answer": 0,
+        "explanation": "To lose energy or enthusiasm to continue."
+    },
+    {
+        "question": "To 'See eye to eye' means?",
+        "options": ["Disagree", "Agree fully", "Ignore", "Look carefully"],
+        "answer": 1,
+        "explanation": "To agree completely with someone."
+    },
+    {
+        "question": "What does 'Take it with a pinch of salt' mean?",
+        "options": ["Accept something skeptically", "Completely believe", "Ignore", "Eat carefully"],
+        "answer": 0,
+        "explanation": "To view something with doubt or skepticism."
+    },
+    {
+        "question": "'To add fuel to fire' means?",
+        "options": ["Make a situation worse", "Cook quickly", "Stop problems", "Help others"],
+        "answer": 0,
+        "explanation": "To worsen a bad situation."
+    },
+    {
+        "question": "What does 'Blow off steam' mean?",
+        "options": ["Relax and release stress", "Cook food", "Run fast", "Get angry"],
+        "answer": 0,
+        "explanation": "To release pent-up emotions."
+    },
+    {
+        "question": "'To face the music' means?",
+        "options": ["Accept unpleasant consequences", "Attend a concert", "Play an instrument", "Ignore problems"],
+        "answer": 0,
+        "explanation": "To accept blame or punishment."
+    },
+    {
+        "question": "'Jump on the bandwagon' means?",
+        "options": ["Join a trend", "Lead a group", "Start a band", "Leave a party"],
+        "answer": 0,
+        "explanation": "To join others in doing something popular."
+    },
+    {
+        "question": "‘Like a fish out of water’ means?",
+        "options": ["Comfortable", "Uncomfortable and out of place", "Swimming well", "Dancing happily"],
+        "answer": 1,
+        "explanation": "Feeling uncomfortable or out of place."
+    },
+    {
+        "question": "What does 'Make hay while the sun shines' advise?",
+        "options": ["Delay work", "Take opportunity while available", "Sleep early", "Work at night"],
+        "answer": 1,
+        "explanation": "To make the best use of opportunities while they last."
+    },
+    {
+        "question": "'Miss the boat' means?",
+        "options": ["Miss an opportunity", "Travel by boat", "Be late", "Lose items"],
+        "answer": 0,
+        "explanation": "To miss a chance or opportunity."
+    },
+    {
+        "question": "'On the ball' means?",
+        "options": ["Being attentive", "Being lazy", "Playing sports", "Relaxing"],
+        "answer": 0,
+        "explanation": "Being alert and quick to respond."
+    },
+    {
+        "question": "What does 'Once in a blue moon' mean?",
+        "options": ["Very rarely", "Frequently", "Occasionally", "Daily"],
+        "answer": 0,
+        "explanation": "Something that happens very rarely."
+    },
+    {
+        "question": "'Barking up the wrong tree' means?",
+        "options": ["Making a wrong assumption", "Shouting loudly", "Hunting animals", "Being angry"],
+        "answer": 0,
+        "explanation": "To make a wrong assumption or pursue a false lead."
+    },
+    {
+        "question": "The idiom 'Break the ice' means?",
+        "options": ["Start a conversation", "Ice breaking", "Fight", "Make a mess"],
+        "answer": 0,
+        "explanation": "To initiate social interaction."
+    },
+    {
+        "question": "What does 'By the skin of your teeth' mean?",
+        "options": ["Just barely", "With ease", "Carefully", "Quickly"],
+        "answer": 0,
+        "explanation": "To narrowly or barely manage to do something."
+    },
+    {
+        "question": "'Cold feet' means?",
+        "options": ["Fear or nervousness", "Being calm", "Anger", "Excitement"],
+        "answer": 0,
+        "explanation": "Fear or hesitation before doing something."
+    },
+    {
+        "question": "What does 'Elephant in the room' mean?",
+        "options": ["Obvious problem ignored", "Large animal nearby", "Kindness", "Big opportunity"],
+        "answer": 0,
+        "explanation": "A big problem or issue that everyone ignores."
+    },
+    {
+        "question": "'Every cloud has a silver lining' means?",
+        "options": ["Every problem has a hopeful aspect", "Clouds are silver", "Disappointment", "Sunshine always follows rain"],
+        "answer": 0,
+        "explanation": "There is something good in every bad situation."
+    },
+    {
+        "question": "If something is 'Food for thought', it is?",
+        "options": ["Something to think about", "Good to eat", "Confusing", "Boring"],
+        "answer": 0,
+        "explanation": "Something that deserves serious consideration."
+    },
+    {
+        "question": "'Go back to the drawing board' means?",
+        "options": ["Start over", "Go home", "Relax", "Ignore"],
+        "answer": 0,
+        "explanation": "To start planning again after a failure."
+    },
+    {
+        "question": "What does 'Hit the sack' mean?",
+        "options": ["Go to bed", "Work hard", "Shout loudly", "Eat quickly"],
+        "answer": 0,
+        "explanation": "To go to sleep."
+    },
+    {
+        "question": "'In the blink of an eye' means?",
+        "options": ["Very quickly", "Slowly", "With surprise", "Carefully"],
+        "answer": 0,
+        "explanation": "Very quickly or instantly."
+    },
+    {
+        "question": "'Kick the bucket' means?",
+        "options": ["To die", "To give up", "To shout", "To run"],
+        "answer": 0,
+        "explanation": "A euphemism for dying."
+    },
+    {
+        "question": "'Let the cat out of the bag' means?",
+        "options": ["Reveal secret", "Hide", "Run fast", "Fight"],
+        "answer": 0,
+        "explanation": "To reveal a secret unintentionally."
+    },
+    {
+        "question": "What is 'No pain, no gain' referring to?",
+        "options": ["Without effort, no success", "No injury", "No painkillers", "Avoiding work"],
+        "answer": 0,
+        "explanation": "You must work hard to achieve something."
+    },
+    {
+        "question": "'Once bitten, twice shy' means?",
+        "options": ["Learn from mistakes", "Get hurt twice", "Run fast", "Be careful with food"],
+        "answer": 0,
+        "explanation": "Being cautious after a bad experience."
+    },
+    {
+        "question": "'Piece of cake' means?",
+        "options": ["Easy task", "Difficult task", "Tasty food", "Small portion"],
+        "answer": 0,
+        "explanation": "Something very easy to do."
+    },
+    {
+        "question": "'Put all your eggs in one basket' means?",
+        "options": ["Risk everything on one plan", "Prepare breakfast", "Divide resources", "Ignore risk"],
+        "answer": 0,
+        "explanation": "To risk everything on one opportunity."
+    },
+    {
+        "question": "'See red' means?",
+        "options": ["Become angry", "Get embarrassed", "Feel sad", "Become excited"],
+        "answer": 0,
+        "explanation": "To become very angry."
+    },
+    {
+        "question": "What does 'Spill the beans' mean?",
+        "options": ["Reveal secret", "Cook beans", "Make mistake", "Spill food"],
+        "answer": 0,
+        "explanation": "To disclose secret information."
+    },
+    {
+        "question": "'Take the bull by the horns' means?",
+        "options": ["Face a problem courageously", "Ride a bull", "Ignore problems", "Delay action"],
+        "answer": 0,
+        "explanation": "To confront a difficult situation bravely."
+    },
+    {
+        "question": "'Under the weather' means?",
+        "options": ["Sick or unwell", "Happy", "Tired", "Excited"],
+        "answer": 0,
+        "explanation": "Feeling ill or sick."
+    },
+    {
+        "question": "'When pigs fly' means?",
+        "options": ["Something impossible", "Something fast", "Something strange", "Flying pigs"],
+        "answer": 0,
+        "explanation": "Something that will never happen."
+    },
+    {
+        "question": "What does 'You can't judge a book by its cover' mean?",
+        "options": ["Don't judge by appearances", "Don't read books", "Judge by looks", "Be critical"],
+        "answer": 0,
+        "explanation": "Appearances can be misleading."
+    },
+    {
+        "question": "'Your guess is as good as mine' means?",
+        "options": ["I have no idea", "I know exactly", "Guess better", "Don't guess"],
+        "answer": 0,
+        "explanation": "I do not know any more than you do."
+    },
+    {
+        "question": "'Zip your lip' means?",
+        "options": ["Be silent", "Talk too much", "Sing loudly", "Whisper"],
+        "answer": 0,
+        "explanation": "To keep quiet or stop talking."
+    },
+	 {
+        "question": "What does the idiom 'At the eleventh hour' mean?",
+        "options": ["At the last moment", "Just in time", "Very early", "Too late"],
+        "answer": 0,
+        "explanation": "At the eleventh hour means at the last possible moment."
+    },
+    {
+        "question": "The phrase 'By the skin of your teeth' means?",
+        "options": ["Narrowly or barely", "Carefully", "With ease", "Slowly"],
+        "answer": 0,
+        "explanation": "It means just barely managing to do something."
+    },
+    {
+        "question": "To 'Cast the first stone' is to?",
+        "options": ["Criticize first", "Take initiative", "Help others", "Leave first"],
+        "answer": 0,
+        "explanation": "To criticize or accuse first, often hypocritically."
+    },
+    {
+        "question": "What does the idiom 'Dead ringer' mean?",
+        "options": ["Exact duplicate", "A warning bell", "A defeated person", "A loud noise"],
+        "answer": 0,
+        "explanation": "A dead ringer is someone or something that looks exactly like another."
+    },
+    {
+        "question": "'Down to earth' refers to someone who is?",
+        "options": ["Practical and realistic", "Dreamy", "Rich", "Famous"],
+        "answer": 0,
+        "explanation": "Being practical, sensible, and realistic."
+    },
+    {
+        "question": "To 'Eat crow' means?",
+        "options": ["To admit a mistake", "To eat quickly", "To boast", "To lie"],
+        "answer": 0,
+        "explanation": "To admit you were wrong and apologize."
+    },
+    {
+        "question": "What does 'Feather in your cap' mean?",
+        "options": ["An achievement", "A failure", "A gift", "A mistake"],
+        "answer": 0,
+        "explanation": "An accomplishment or honor to be proud of."
+    },
+    {
+        "question": "'Give someone the cold shoulder' means?",
+        "options": ["Ignore or snub someone", "Offer help", "Greet warmly", "Entertain"],
+        "answer": 0,
+        "explanation": "To deliberately ignore or show unfriendliness."
+    },
+    {
+        "question": "What is meant by 'Hear it on the grapevine'?",
+        "options": ["Hear a rumor", "Listen carefully", "Gossip freely", "Announce"],
+        "answer": 0,
+        "explanation": "To hear unofficial or informal information."
+    },
+    {
+        "question": "'Hit the nail on the head' means?",
+        "options": ["Describe exactly", "Miss the point", "Argue", "Get angry"],
+        "answer": 0,
+        "explanation": "To be exactly right about something."
+    },
+    {
+        "question": "To 'Jump the gun' means?",
+        "options": ["Act too soon", "Win a race", "Be careful", "Quit"],
+        "answer": 0,
+        "explanation": "To act before the proper time."
+    },
+    {
+        "question": "What does 'Keep your chin up' mean?",
+        "options": ["Remain cheerful", "Stay quiet", "Be angry", "Look down"],
+        "answer": 0,
+        "explanation": "To stay positive and optimistic."
+    },
+    {
+        "question": "'Let bygones be bygones' means?",
+        "options": ["Forget past disagreements", "Remember mistakes", "Discuss problems", "Hold grudges"],
+        "answer": 0,
+        "explanation": "Let the past be ignored; forgive and forget."
+    },
+    {
+        "question": "The idiom 'Miss the boat' is used when?",
+        "options": ["Missing an opportunity", "Missing transport", "Being late", "Losing money"],
+        "answer": 0,
+        "explanation": "To miss a chance or opportunity."
+    },
+    {
+        "question": "'Once bitten, twice shy' means?",
+        "options": ["Cautious after a bad experience", "Forget past events", "Take risks", "Be brave"],
+        "answer": 0,
+        "explanation": "Being careful after being hurt before."
+    },
+    {
+        "question": "What does 'On thin ice' mean?",
+        "options": ["In a risky situation", "Relaxed", "Carefree", "Successful"],
+        "answer": 0,
+        "explanation": "In a dangerous or risky position."
+    },
+    {
+        "question": "To 'Play devil’s advocate' means?",
+        "options": ["Argue against something for the sake of argument", "Support fully", "Stay silent", "Make peace"],
+        "answer": 0,
+        "explanation": "To argue a point you don’t necessarily believe to test the argument."
+    },
+    {
+        "question": "'Put one's foot in the mouth' means?",
+        "options": ["Say something embarrassing", "Take a rest", "Run fast", "Make a joke"],
+        "answer": 0,
+        "explanation": "To say something inappropriate or embarrassing."
+    },
+    {
+        "question": "'Rain on someone’s parade' means?",
+        "options": ["Spoil someone’s plans or celebrations", "Celebrate together", "Ignore", "Help someone"],
+        "answer": 0,
+        "explanation": "To spoil someone’s fun or plans."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Agree", "Disagree", "Argue", "Ignore"],
+        "answer": 0,
+        "explanation": "To agree fully with someone."
+    },
+    {
+        "question": "What does 'Sit on the fence' mean?",
+        "options": ["Be undecided", "Take sides", "Be confident", "Help others"],
+        "answer": 0,
+        "explanation": "To avoid making a decision."
+    },
+    {
+        "question": "‘Spill the beans’ means?",
+        "options": ["Reveal secret", "Cook", "Make a mistake", "Lose something"],
+        "answer": 0,
+        "explanation": "To disclose secret information."
+    },
+    {
+        "question": "'Straight from the horse’s mouth' means?",
+        "options": ["From a reliable source", "From a rumor", "Confusing", "Secretly"],
+        "answer": 0,
+        "explanation": "Information coming from the most reliable source."
+    },
+    {
+        "question": "'Take it with a grain of salt' means?",
+        "options": ["View skeptically", "Completely believe", "Ignore", "Accept happily"],
+        "answer": 0,
+        "explanation": "To not completely believe something; to doubt it."
+    },
+    {
+        "question": "'The ball is in your court' means?",
+        "options": ["It’s your responsibility to act", "Game starts", "Play ball", "End conversation"],
+        "answer": 0,
+        "explanation": "It means it is now your decision or responsibility."
+    },
+    {
+        "question": "'The best of both worlds' implies?",
+        "options": ["All advantages", "Difficult situation", "Small problem", "Good luck"],
+        "answer": 0,
+        "explanation": "An ideal situation with all the advantages."
+    },
+    {
+        "question": "'Throw in the towel' means?",
+        "options": ["Give up", "Start", "Fight", "Celebrate"],
+        "answer": 0,
+        "explanation": "To admit defeat or give up."
+    },
+    {
+        "question": "'Turn a blind eye' means?",
+        "options": ["Ignore deliberately", "Help", "Be blind", "See carefully"],
+        "answer": 0,
+        "explanation": "To ignore something intentionally."
+    },
+    {
+        "question": "What does 'Weather the storm' mean?",
+        "options": ["Survive difficulties", "Enjoy party", "Be angry", "Quit"],
+        "answer": 0,
+        "explanation": "To endure difficult times."
+    },
+    {
+        "question": "'Your guess is as good as mine' means?",
+        "options": ["I don't know", "I know", "Try guessing", "Guess better"],
+        "answer": 0,
+        "explanation": "I have no more information than you."
+    },
+    {
+        "question": "'Add fuel to the fire' means?",
+        "options": ["Make a bad situation worse", "Calm down", "Help", "Start fire"],
+        "answer": 0,
+        "explanation": "To worsen an already bad situation."
+    },
+    {
+        "question": "'Barking up the wrong tree' means?",
+        "options": ["Misguided", "Shouting", "Hunting", "Angry"],
+        "answer": 0,
+        "explanation": "To pursue a mistaken or misguided course of action."
+    },
+    {
+        "question": "What does 'Burn the midnight oil' mean?",
+        "options": ["Work late into the night", "Sleep early", "Cook late", "Stay calm"],
+        "answer": 0,
+        "explanation": "To work or study late at night."
+    },
+    {
+        "question": "'Caught red-handed' means?",
+        "options": ["Caught in the act", "Angry", "Shy", "Surprised"],
+        "answer": 0,
+        "explanation": "To be caught while doing something wrong."
+    },
+    {
+        "question": "'Cut corners' means?",
+        "options": ["Do something badly to save time or money", "Cut vegetables", "Do well", "Be slow"],
+        "answer": 0,
+        "explanation": "To do something cheaply or poorly."
+    },
+    {
+        "question": "'Devil’s advocate' means?",
+        "options": ["Argue for the sake of argument", "Evil person", "Support fully", "Agree"],
+        "answer": 0,
+        "explanation": "To argue against a position for debate purposes."
+    },
+    {
+        "question": "What does 'Don’t put all your eggs in one basket' mean?",
+        "options": ["Don’t risk everything in one venture", "Invest carefully", "Cook eggs", "Be greedy"],
+        "answer": 0,
+        "explanation": "Avoid risking everything on a single plan."
+    },
+    {
+        "question": "'Every cloud has a silver lining' means?",
+        "options": ["There is good in every bad situation", "Clouds are shiny", "Be sad", "Avoid trouble"],
+        "answer": 0,
+        "explanation": "Even bad situations have a positive aspect."
+    },
+    {
+        "question": "'Give someone the benefit of the doubt' means?",
+        "options": ["Believe someone despite doubts", "Distrust", "Ignore", "Question"],
+        "answer": 0,
+        "explanation": "To believe someone even if unsure."
+    },
+    {
+        "question": "What does 'Go the extra mile' mean?",
+        "options": ["Make extra effort", "Travel far", "Be lazy", "Take rest"],
+        "answer": 0,
+        "explanation": "To make more effort than expected."
+    },
+    {
+        "question": "'In hot water' means?",
+        "options": ["In trouble", "Enjoying", "Be calm", "Excited"],
+        "answer": 0,
+        "explanation": "To be in trouble."
+    },
+    {
+        "question": "'Kill two birds with one stone' means?",
+        "options": ["Achieve two things at once", "Hunt birds", "Fight", "Be successful"],
+        "answer": 0,
+        "explanation": "To accomplish two tasks with one action."
+    },
+    {
+        "question": "'Let the cat out of the bag' means?",
+        "options": ["Reveal a secret", "Hide something", "Be angry", "Run fast"],
+        "answer": 0,
+        "explanation": "To disclose a secret accidentally."
+    },
+    {
+        "question": "What does 'Out of the frying pan into the fire' mean?",
+        "options": ["From bad to worse", "Stay safe", "Relax", "Solve problem"],
+        "answer": 0,
+        "explanation": "Moving from a bad situation to a worse one."
+    },
+    {
+        "question": "'Put two and two together' means?",
+        "options": ["Draw conclusions", "Make mistakes", "Add numbers", "Ignore signs"],
+        "answer": 0,
+        "explanation": "To deduce something from the evidence."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Agree", "Disagree", "Ignore", "Fight"],
+        "answer": 0,
+        "explanation": "To agree fully."
+    },
+    {
+        "question": "What does 'Take the bull by the horns' mean?",
+        "options": ["Face a problem bravely", "Run away", "Ignore it", "Get angry"],
+        "answer": 0,
+        "explanation": "To confront a difficult situation boldly."
+    },
+    {
+        "question": "'Throw in the towel' means?",
+        "options": ["Surrender", "Start", "Fight", "Hide"],
+        "answer": 0,
+        "explanation": "To give up or admit defeat."
+    },
+    {
+        "question": "'Turn a blind eye' means?",
+        "options": ["Ignore deliberately", "See carefully", "Help secretly", "Be confused"],
+        "answer": 0,
+        "explanation": "To ignore something intentionally."
+    },
+	 {
+        "question": "What does the idiom 'Ace up one's sleeve' mean?",
+        "options": ["A secret advantage", "To lose", "Play cards", "Be honest"],
+        "answer": 0,
+        "explanation": "A hidden advantage or resource kept in reserve."
+    },
+    {
+        "question": "If someone 'Backs the wrong horse', they are?",
+        "options": ["Supporting the losing side", "Helping a friend", "Cheating", "Winning"],
+        "answer": 0,
+        "explanation": "Supporting someone or something that fails."
+    },
+    {
+        "question": "The phrase 'Bite the bullet' means?",
+        "options": ["Face a painful situation bravely", "Eat quickly", "Run away", "Make noise"],
+        "answer": 0,
+        "explanation": "To endure a difficult or unpleasant situation courageously."
+    },
+    {
+        "question": "'Break the ice' means?",
+        "options": ["Start social interaction", "Break something", "Run away", "Celebrate"],
+        "answer": 0,
+        "explanation": "To initiate conversation and ease tension."
+    },
+    {
+        "question": "If you 'Call it a day', you?",
+        "options": ["Stop working", "Keep working", "Begin a task", "Make a call"],
+        "answer": 0,
+        "explanation": "To stop working for the day."
+    },
+    {
+        "question": "'Cut to the chase' means?",
+        "options": ["Get to the point", "Run fast", "Cut something", "Make a movie"],
+        "answer": 0,
+        "explanation": "To skip unnecessary details and get to the main point."
+    },
+    {
+        "question": "'Down in the dumps' means?",
+        "options": ["Feeling sad", "Working hard", "Relaxed", "Happy"],
+        "answer": 0,
+        "explanation": "Feeling very unhappy or depressed."
+    },
+    {
+        "question": "What does 'Elvis has left the building' mean?",
+        "options": ["The show is over", "Someone is late", "Someone is dancing", "The music stopped"],
+        "answer": 0,
+        "explanation": "An event is finished or something has ended."
+    },
+    {
+        "question": "'Feather in one's cap' is?",
+        "options": ["An achievement or honor", "A feather decoration", "A hat", "A failure"],
+        "answer": 0,
+        "explanation": "Something to be proud of."
+    },
+    {
+        "question": "To 'Feel under the weather' means?",
+        "options": ["Feeling sick", "Feeling happy", "Feeling angry", "Feeling tired"],
+        "answer": 0,
+        "explanation": "To feel unwell or sick."
+    },
+    {
+        "question": "'Give someone the cold shoulder' means?",
+        "options": ["Ignore deliberately", "Help", "Praise", "Invite"],
+        "answer": 0,
+        "explanation": "Deliberately showing unfriendliness."
+    },
+    {
+        "question": "'Go the extra mile' means?",
+        "options": ["Make extra effort", "Travel far", "Take rest", "Be lazy"],
+        "answer": 0,
+        "explanation": "To do more than what is expected."
+    },
+    {
+        "question": "'Hit the sack' means?",
+        "options": ["Go to bed", "Hit someone", "Work hard", "Sing loudly"],
+        "answer": 0,
+        "explanation": "To go to sleep."
+    },
+    {
+        "question": "'In hot water' means?",
+        "options": ["In trouble", "Enjoying", "Cooking", "Calm"],
+        "answer": 0,
+        "explanation": "Being in difficulty or trouble."
+    },
+    {
+        "question": "'Jump on the bandwagon' means?",
+        "options": ["Join a popular trend", "Lead a group", "Start a band", "Stop working"],
+        "answer": 0,
+        "explanation": "To join others in doing something popular."
+    },
+    {
+        "question": "'Keep your chin up' means?",
+        "options": ["Stay positive", "Look down", "Be angry", "Be quiet"],
+        "answer": 0,
+        "explanation": "Maintain a positive attitude in difficult times."
+    },
+    {
+        "question": "'Let the cat out of the bag' means?",
+        "options": ["Reveal a secret", "Hide something", "Run fast", "Be quiet"],
+        "answer": 0,
+        "explanation": "To accidentally reveal a secret."
+    },
+    {
+        "question": "'Make a mountain out of a molehill' means?",
+        "options": ["Overreact to something minor", "Build something", "Make a mess", "Fix a problem"],
+        "answer": 0,
+        "explanation": "To exaggerate the importance of a small problem."
+    },
+    {
+        "question": "'No pain, no gain' means?",
+        "options": ["Effort is needed to succeed", "Avoid pain", "Relax", "Work hard only sometimes"],
+        "answer": 0,
+        "explanation": "You have to work hard to achieve success."
+    },
+    {
+        "question": "'On cloud nine' means?",
+        "options": ["Very happy", "Confused", "Angry", "Sad"],
+        "answer": 0,
+        "explanation": "To be extremely happy."
+    },
+    {
+        "question": "'Piece of cake' means?",
+        "options": ["Very easy", "Delicious food", "Huge challenge", "Difficult task"],
+        "answer": 0,
+        "explanation": "Something that is very easy to do."
+    },
+    {
+        "question": "'Pull someone's leg' means?",
+        "options": ["Tease someone", "Help someone", "Lie", "Fight"],
+        "answer": 0,
+        "explanation": "To joke or tease someone playfully."
+    },
+    {
+        "question": "'Beat around the bush' means?",
+        "options": ["Avoid the main topic", "Hunt animals", "Be direct", "Rush"],
+        "answer": 0,
+        "explanation": "To avoid talking about what is important."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Agree fully", "Disagree", "Ignore", "Fight"],
+        "answer": 0,
+        "explanation": "To have the same opinion."
+    },
+    {
+        "question": "'Sit on the fence' means?",
+        "options": ["Be undecided", "Take sides", "Support strongly", "Leave"],
+        "answer": 0,
+        "explanation": "To remain neutral and not take sides."
+    },
+    {
+        "question": "'Spill the beans' means?",
+        "options": ["Reveal a secret", "Cook beans", "Make a mess", "Lose something"],
+        "answer": 0,
+        "explanation": "To disclose confidential information unintentionally."
+    },
+    {
+        "question": "'Take it with a grain of salt' means?",
+        "options": ["View skeptically", "Completely believe", "Ignore", "Accept happily"],
+        "answer": 0,
+        "explanation": "To not completely trust something."
+    },
+    {
+        "question": "'Throw in the towel' means?",
+        "options": ["Give up", "Start", "Fight", "Celebrate"],
+        "answer": 0,
+        "explanation": "To admit defeat or surrender."
+    },
+    {
+        "question": "'Turn a blind eye' means?",
+        "options": ["Ignore deliberately", "See carefully", "Help secretly", "Be confused"],
+        "answer": 0,
+        "explanation": "To deliberately ignore something."
+    },
+    {
+        "question": "'Under the weather' means?",
+        "options": ["Feeling unwell", "Feeling angry", "Feeling happy", "Feeling tired"],
+        "answer": 0,
+        "explanation": "Not feeling well or sick."
+    },
+    {
+        "question": "'Water under the bridge' means?",
+        "options": ["Past event forgiven", "Water in river", "Ongoing issue", "Forgotten memory"],
+        "answer": 0,
+        "explanation": "Past problems that are no longer important."
+    },
+    {
+        "question": "'When pigs fly' means?",
+        "options": ["Something impossible", "Something easy", "Something strange", "Flying pigs"],
+        "answer": 0,
+        "explanation": "An expression used to describe something that will never happen."
+    },
+    {
+        "question": "'You scratch my back, I’ll scratch yours' means?",
+        "options": ["Mutual help", "Literal meaning", "Conflict", "Avoidance"],
+        "answer": 0,
+        "explanation": "Helping each other out for mutual benefit."
+    },
+    {
+        "question": "'Bite the dust' means?",
+        "options": ["To die or fail", "Run fast", "Eat quickly", "Compliment"],
+        "answer": 0,
+        "explanation": "To die or be defeated."
+    },
+    {
+        "question": "'Cut the mustard' means?",
+        "options": ["Meet expectations", "Cut vegetables", "Fail", "Lie"],
+        "answer": 0,
+        "explanation": "To meet the required standard."
+    },
+    {
+        "question": "'Get the ball rolling' means?",
+        "options": ["Start something", "Stop work", "Play sports", "Throw a ball"],
+        "answer": 0,
+        "explanation": "To begin an activity or process."
+    },
+    {
+        "question": "'Hit the jackpot' means?",
+        "options": ["Win big", "Lose money", "Play cards", "Take risk"],
+        "answer": 0,
+        "explanation": "To achieve great success, often unexpectedly."
+    },
+    {
+        "question": "'Let sleeping dogs lie' means?",
+        "options": ["Avoid stirring up old trouble", "Wake up dogs", "Start argument", "Forget"],
+        "answer": 0,
+        "explanation": "To avoid interfering in a situation that is currently causing no problems."
+    },
+    {
+        "question": "'Off the hook' means?",
+        "options": ["Free from obligation", "In trouble", "Fishing", "Late"],
+        "answer": 0,
+        "explanation": "Freed from a difficult situation."
+    },
+    {
+        "question": "'On the fence' means?",
+        "options": ["Undecided", "Ready to act", "Happy", "Angry"],
+        "answer": 0,
+        "explanation": "Undecided or neutral in a dispute or decision."
+    },
+    {
+        "question": "'Pull the wool over someone's eyes' means?",
+        "options": ["Deceive", "Help", "Protect", "Surprise"],
+        "answer": 0,
+        "explanation": "To deceive or trick someone."
+    },
+    {
+        "question": "'Burn the midnight oil' means?",
+        "options": ["Work late", "Sleep early", "Cook", "Rest"],
+        "answer": 0,
+        "explanation": "To work late into the night."
+    },
+    {
+        "question": "'Go cold turkey' means?",
+        "options": ["Quit abruptly", "Eat turkey", "Go shopping", "Start something"],
+        "answer": 0,
+        "explanation": "To quit a habit suddenly."
+    },
+    {
+        "question": "'Under the gun' means?",
+        "options": ["Under pressure", "Free", "Late", "Successful"],
+        "answer": 0,
+        "explanation": "Under pressure to do something."
+    },
+	 {
+        "question": "What does the idiom 'Bend over backwards' mean?",
+        "options": ["Make a great effort", "Give up easily", "Be dishonest", "Relax completely"],
+        "answer": 0,
+        "explanation": "To make a great effort to help or please someone."
+    },
+    {
+        "question": "The phrase 'Burn bridges' means?",
+        "options": ["Build new connections", "Destroy relationships", "Travel a lot", "Light bonfires"],
+        "answer": 1,
+        "explanation": "To destroy relationships or opportunities permanently."
+    },
+    {
+        "question": "To 'Spill the beans' means?",
+        "options": ["Hide a secret", "Reveal a secret", "Cook food", "Lose something"],
+        "answer": 1,
+        "explanation": "To disclose secret information accidentally."
+    },
+    {
+        "question": "'Throw in the towel' means?",
+        "options": ["Start working", "Give up", "Celebrate", "Fight"],
+        "answer": 1,
+        "explanation": "To admit defeat or surrender."
+    },
+    {
+        "question": "What does 'Hit the sack' mean?",
+        "options": ["Work hard", "Sleep", "Go out", "Fight"],
+        "answer": 1,
+        "explanation": "To go to bed or go to sleep."
+    },
+    {
+        "question": "'Get out of hand' means?",
+        "options": ["Become uncontrollable", "Be helpful", "Go out", "Stay calm"],
+        "answer": 0,
+        "explanation": "To become chaotic or difficult to control."
+    },
+    {
+        "question": "'Kick the bucket' means?",
+        "options": ["Die", "Run fast", "Get angry", "Give up"],
+        "answer": 0,
+        "explanation": "A euphemism for dying."
+    },
+    {
+        "question": "What does 'Barking up the wrong tree' mean?",
+        "options": ["Making wrong assumptions", "Shouting loudly", "Angry", "Hunting"],
+        "answer": 0,
+        "explanation": "To pursue a mistaken or misguided course of action."
+    },
+    {
+        "question": "'Break the ice' means?",
+        "options": ["Start social interaction", "Break something", "Celebrate", "Run away"],
+        "answer": 0,
+        "explanation": "To initiate conversation and ease social tension."
+    },
+    {
+        "question": "'Cry over spilt milk' means?",
+        "options": ["Regret past mistakes", "Cry unnecessarily", "Spill milk", "Make a mess"],
+        "answer": 0,
+        "explanation": "To be upset about something that cannot be changed."
+    },
+    {
+        "question": "The idiom 'Cut corners' means?",
+        "options": ["Do something poorly to save time", "Cut vegetables", "Work carefully", "Waste time"],
+        "answer": 0,
+        "explanation": "To take shortcuts or do something badly to save time or money."
+    },
+    {
+        "question": "'Face the music' means?",
+        "options": ["Accept unpleasant consequences", "Listen to music", "Ignore problems", "Punish others"],
+        "answer": 0,
+        "explanation": "To accept responsibility or punishment."
+    },
+    {
+        "question": "What does 'Go the extra mile' mean?",
+        "options": ["Make additional effort", "Stop working", "Travel long distance", "Relax"],
+        "answer": 0,
+        "explanation": "To do more than what is expected."
+    },
+    {
+        "question": "'Hit the nail on the head' means?",
+        "options": ["Do or say something exactly right", "Miss the point", "Argue", "Be angry"],
+        "answer": 0,
+        "explanation": "To correctly identify or describe the problem."
+    },
+    {
+        "question": "'Jump on the bandwagon' means?",
+        "options": ["Join a popular trend", "Lead a group", "Start a band", "Refuse to participate"],
+        "answer": 0,
+        "explanation": "To join others in doing something popular."
+    },
+    {
+        "question": "'Keep your chin up' means?",
+        "options": ["Stay positive", "Look down", "Be quiet", "Feel sad"],
+        "answer": 0,
+        "explanation": "To remain optimistic during tough times."
+    },
+    {
+        "question": "'Let the cat out of the bag' means?",
+        "options": ["Reveal a secret", "Catch a cat", "Hide something", "Run fast"],
+        "answer": 0,
+        "explanation": "To disclose a secret, often accidentally."
+    },
+    {
+        "question": "'Make a mountain out of a molehill' means?",
+        "options": ["Exaggerate a small problem", "Build a house", "Make a mess", "Ignore something"],
+        "answer": 0,
+        "explanation": "To make a small problem seem much bigger."
+    },
+    {
+        "question": "'No pain, no gain' means?",
+        "options": ["Hard work is necessary for success", "Avoid pain", "No effort needed", "Relax"],
+        "answer": 0,
+        "explanation": "Effort is required to achieve something worthwhile."
+    },
+    {
+        "question": "'On cloud nine' means?",
+        "options": ["Extremely happy", "Confused", "Angry", "Sad"],
+        "answer": 0,
+        "explanation": "To feel very happy or joyful."
+    },
+    {
+        "question": "'Piece of cake' means?",
+        "options": ["Very easy", "Delicious food", "A difficult task", "A small portion"],
+        "answer": 0,
+        "explanation": "Something that is easy to accomplish."
+    },
+    {
+        "question": "'Pull someone's leg' means?",
+        "options": ["Tease or joke", "Help someone", "Lie", "Support"],
+        "answer": 0,
+        "explanation": "To tease someone playfully."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Agree fully", "Disagree", "Ignore", "Fight"],
+        "answer": 0,
+        "explanation": "To have the same opinion as someone."
+    },
+    {
+        "question": "'Sit on the fence' means?",
+        "options": ["Remain neutral or undecided", "Take a side", "Be confident", "Leave"],
+        "answer": 0,
+        "explanation": "To avoid making a decision."
+    },
+    {
+        "question": "'Take it with a grain of salt' means?",
+        "options": ["View something skeptically", "Completely believe", "Ignore", "Accept happily"],
+        "answer": 0,
+        "explanation": "To not fully trust something said."
+    },
+    {
+        "question": "'The ball is in your court' means?",
+        "options": ["It is your responsibility to act", "Play a game", "Ignore", "Wait"],
+        "answer": 0,
+        "explanation": "Now it is your decision or turn to do something."
+    },
+    {
+        "question": "'The best of both worlds' means?",
+        "options": ["Having all advantages", "Difficult situation", "Small problem", "Bad luck"],
+        "answer": 0,
+        "explanation": "An ideal situation with all the benefits."
+    },
+    {
+        "question": "'Turn a blind eye' means?",
+        "options": ["Ignore deliberately", "See carefully", "Help secretly", "Be confused"],
+        "answer": 0,
+        "explanation": "To ignore something intentionally."
+    },
+    {
+        "question": "'Under the weather' means?",
+        "options": ["Feeling unwell", "Feeling happy", "Feeling angry", "Feeling tired"],
+        "answer": 0,
+        "explanation": "Not feeling well or sick."
+    },
+    {
+        "question": "'You scratch my back, I'll scratch yours' means?",
+        "options": ["Mutual help", "Conflict", "Avoidance", "Indifference"],
+        "answer": 0,
+        "explanation": "Helping one another for mutual benefit."
+    },
+    {
+        "question": "'Bite the dust' means?",
+        "options": ["To die or fail", "Run fast", "Eat quickly", "Compliment"],
+        "answer": 0,
+        "explanation": "To die or be defeated."
+    },
+    {
+        "question": "'Cut the mustard' means?",
+        "options": ["Meet expectations", "Fail", "Lie", "Cut vegetables"],
+        "answer": 0,
+        "explanation": "To meet the required standard or perform well."
+    },
+    {
+        "question": "'Get the ball rolling' means?",
+        "options": ["Start something", "Stop work", "Play sports", "Throw a ball"],
+        "answer": 0,
+        "explanation": "To initiate an activity or process."
+    },
+    {
+        "question": "'Hit the jackpot' means?",
+        "options": ["Win big", "Lose money", "Play cards", "Take risk"],
+        "answer": 0,
+        "explanation": "To achieve great success or win suddenly."
+    },
+    {
+        "question": "'Let sleeping dogs lie' means?",
+        "options": ["Avoid causing trouble", "Wake up dogs", "Start argument", "Forget"],
+        "answer": 0,
+        "explanation": "To avoid stirring up a problem from the past."
+    },
+    {
+        "question": "'Off the hook' means?",
+        "options": ["Released from difficulty", "In trouble", "Fishing", "Late"],
+        "answer": 0,
+        "explanation": "To be freed from a difficult situation."
+    },
+    {
+        "question": "'On the fence' means?",
+        "options": ["Undecided", "Ready to act", "Happy", "Angry"],
+        "answer": 0,
+        "explanation": "Undecided about an issue."
+    },
+    {
+        "question": "'Pull the wool over someone's eyes' means?",
+        "options": ["Deceive someone", "Help", "Protect", "Surprise"],
+        "answer": 0,
+        "explanation": "To trick or deceive someone."
+    },
+    {
+        "question": "'Burn the midnight oil' means?",
+        "options": ["Work late at night", "Sleep early", "Cook food", "Rest"],
+        "answer": 0,
+        "explanation": "To work or study late into the night."
+    },
+    {
+        "question": "'Go cold turkey' means?",
+        "options": ["Quit abruptly", "Eat turkey", "Go shopping", "Start a habit"],
+        "answer": 0,
+        "explanation": "To quit a habit suddenly and completely."
+    },
+    {
+        "question": "'Under the gun' means?",
+        "options": ["Under pressure", "Free", "Late", "Successful"],
+        "answer": 0,
+        "explanation": "Being forced to do something under pressure."
+    },
+    {
+        "question": "If someone 'Costs an arm and a leg', it means?",
+        "options": ["Very expensive", "Very cheap", "Easy to buy", "Low quality"],
+        "answer": 0,
+        "explanation": "Something that is very costly or expensive."
+    },
+    {
+        "question": "'Don't beat around the bush' means?",
+        "options": ["Be direct", "Avoid topic", "Tell a story", "Stay quiet"],
+        "answer": 0,
+        "explanation": "To speak plainly and directly."
+    },
+    {
+        "question": "'Hit the books' means?",
+        "options": ["Study hard", "Throw books", "Sell books", "Read for pleasure"],
+        "answer": 0,
+        "explanation": "To study seriously."
+    },
+    {
+        "question": "'Jump the gun' means?",
+        "options": ["Start too soon", "Jump high", "Wait patiently", "Lose control"],
+        "answer": 0,
+        "explanation": "To act prematurely or too early."
+    },
+    {
+        "question": "'Let bygones be bygones' means?",
+        "options": ["Forget past troubles", "Hold grudges", "Remember mistakes", "Start a fight"],
+        "answer": 0,
+        "explanation": "To forgive and forget past offenses."
+    },
+	{
+        "question": "What does 'Cry over spilt milk' mean?",
+        "options": ["Complain about a loss in the past", "Express joy over a recent accomplishment", "Appreciate a good deed", "Avoid a difficult situation"],
+        "answer": 0,
+        "explanation": "To regret or complain about something that cannot be undone."
+    },
+    {
+        "question": "'Hit the nail on the head' means?",
+        "options": ["Do or say something exactly right", "Break something accidentally", "Do something in a rush", "Miss the target completely"],
+        "answer": 0,
+        "explanation": "To be precisely correct about something."
+    },
+    {
+        "question": "'Keep something at bay' means?",
+        "options": ["Delay making a decision", "Exaggerate the importance", "Hide something from others", "Keep something away"],
+        "answer": 3,
+        "explanation": "To keep something away or prevent it from approaching."
+    },
+    {
+        "question": "'Let the cat out of the bag' means?",
+        "options": ["Reveal a secret", "Buy a cat as a pet", "Solve a difficult problem", "Take a risk"],
+        "answer": 0,
+        "explanation": "To reveal a secret, usually unintentionally."
+    },
+    {
+        "question": "'Dance to someone's tune' means?",
+        "options": ["Do what others want you to do", "Be engaged in an energetic activity", "Delay in making a decision", "Argue with others on petty matters"],
+        "answer": 0,
+        "explanation": "To follow someone's instructions or wishes."
+    },
+    {
+        "question": "'Leave no stone unturned' means?",
+        "options": ["Leave the path halfway", "Not make enough efforts", "Turn everything upside down", "Try everything possible"],
+        "answer": 3,
+        "explanation": "To use every possible means to achieve a goal."
+    },
+    {
+        "question": "'Pig in a poke' means?",
+        "options": ["To obstruct someone’s work", "Bought without examining properly", "Bring something to an end", "Brave man among cowards"],
+        "answer": 1,
+        "explanation": "To buy something without examining it properly."
+    },
+    {
+        "question": "'Burn the midnight oil' means?",
+        "options": ["Work late at night", "Sleep very late", "Use a lot of electricity", "Waste time"],
+        "answer": 0,
+        "explanation": "To study or work until late in the night."
+    },
+    {
+        "question": "'Break the ice' means?",
+        "options": ["Start a conversation", "Make people laugh", "Destroy something", "Do something wrong"],
+        "answer": 0,
+        "explanation": "To start a conversation in a social setting."
+    },
+    {
+        "question": "'Cost an arm and a leg' means?",
+        "options": ["Be very risky", "Be very painful", "Be very expensive", "Be very cheap"],
+        "answer": 2,
+        "explanation": "Something very expensive or costly."
+    },
+    {
+        "question": "'Strained every nerve' means?",
+        "options": ["Tried hard", "Criticized", "Tried half heartedly", "Raised questions"],
+        "answer": 0,
+        "explanation": "To make a very great effort."
+    },
+    {
+        "question": "'Palm off' means?",
+        "options": ["To dispose off with intent to deceive", "Avoid completely", "Give as a gift", "Get rid due to error"],
+        "answer": 0,
+        "explanation": "To get rid of something by trick or deceit."
+    },
+    {
+        "question": "'From stem to stern' means?",
+        "options": ["All the way from the front to the back", "From the beginning", "All at once", "From the root"],
+        "answer": 0,
+        "explanation": "Completely; throughout."
+    },
+    {
+        "question": "'White elephant' means?",
+        "options": ["Costly but useless possession", "Large animal", "Minor expense", "Cheap gift"],
+        "answer": 0,
+        "explanation": "An expensive item with little practical value."
+    },
+    {
+        "question": "'Heads will roll' means?",
+        "options": ["Rules will change", "People will be punished", "Heads will be cut", "Celebration will happen"],
+        "answer": 1,
+        "explanation": "People will lose their jobs or be punished."
+    },
+    {
+        "question": "'Give the game away' means?",
+        "options": ["Reveal a secret", "Lie to someone", "Play a game", "Lose a match"],
+        "answer": 0,
+        "explanation": "To reveal something that was meant to be secret."
+    },
+    {
+        "question": "'Talking through one's hat' means?",
+        "options": ["Talking nonsense", "Speaking confidently", "Complaining", "Boasting"],
+        "answer": 0,
+        "explanation": "To speak informally or without knowledge."
+    },
+    {
+        "question": "'Put up with' means?",
+        "options": ["Tolerate", "Refuse", "Imitate", "Make happy"],
+        "answer": 0,
+        "explanation": "To accept patiently or endure."
+    },
+    {
+        "question": "'Reading between the lines' means?",
+        "options": ["Ignoring details", "Help someone", "Understand the hidden meaning", "Lie about facts"],
+        "answer": 2,
+        "explanation": "Understanding implied or deeper meanings from what is said or written."
+    },
+    {
+        "question": "'Fine tooth comb' means?",
+        "options": ["Examine carefully", "Brush quickly", "Attempt to deceive", "Mix thoroughly"],
+        "answer": 0,
+        "explanation": "To examine something in great detail."
+    },
+    {
+        "question": "'Explore all avenues' means?",
+        "options": ["Try every possibility", "Ignore alternatives", "Choose randomly", "Follow others"],
+        "answer": 0,
+        "explanation": "To try every possible way or method."
+    },
+    {
+        "question": "'Acid test' means?",
+        "options": ["Proves effectiveness", "Causes damage", "Harsh criticism", "Tough exam"],
+        "answer": 0,
+        "explanation": "A decisive test to prove quality or effectiveness."
+    },
+    {
+        "question": "'Cut the ground from under one's feet' means?",
+        "options": ["Weaken someone's position", "Force someone to act", "Help someone escape", "Support someone"],
+        "answer": 0,
+        "explanation": "To weaken someone's position or advantage."
+    },
+    {
+        "question": "'Chase your tail' means?",
+        "options": ["Achieve too little despite effort", "Become angry easily", "Become popular", "Follow blindly"],
+        "answer": 0,
+        "explanation": "To waste time and energy on futile tasks."
+    },
+    {
+        "question": "'A whole bag of tricks' means?",
+        "options": ["Try all clever means", "Plan for disaster", "Act dishonestly", "Trust someone"],
+        "answer": 0,
+        "explanation": "Trying every clever method to achieve something."
+    },
+    {
+        "question": "'Deliver the goods' means?",
+        "options": ["Fulfil expectations", "Fail to perform", "Lie to gain", "Be disappointed"],
+        "answer": 0,
+        "explanation": "To do what is expected or promised."
+    },
+    {
+        "question": "'Bad blood' means?",
+        "options": ["Angry feeling", "Forgiveness", "Excitement", "Love"],
+        "answer": 0,
+        "explanation": "Feelings of animosity or hatred."
+    },
+    {
+        "question": "'High and dry' means?",
+        "options": ["Neglected", "Excited", "Prosperous", "Celebrated"],
+        "answer": 0,
+        "explanation": "Left helpless or without resources."
+    },
+    {
+        "question": "'Sharp practices' means?",
+        "options": ["Unfair means", "Good habits", "Careless mistakes", "Quick reactions"],
+        "answer": 0,
+        "explanation": "Dishonest or unethical behaviour."
+    },
+    {
+        "question": "'Shake in your shoes' means?",
+        "options": ["Tremble with fear", "Dance", "Speak loudly", "Ignore danger"],
+        "answer": 0,
+        "explanation": "To be very frightened."
+    },
+    {
+        "question": "'Go to the whole hog' means?",
+        "options": ["Do completely", "Not participate", "Eat a lot", "Waste time"],
+        "answer": 0,
+        "explanation": "To do something as fully as possible."
+    },
+    {
+        "question": "'Lay out' means?",
+        "options": ["Expand or present clearly", "Hide details", "Confuse", "Talk loudly"],
+        "answer": 0,
+        "explanation": "To present something in detail."
+    },
+    {
+        "question": "'Went to the winds' means?",
+        "options": ["Dissipated, lost", "Gained strongly", "Improved", "Travelled fast"],
+        "answer": 0,
+        "explanation": "To be utterly lost or dissipated."
+    },
+    {
+        "question": "'Set the record straight' means?",
+        "options": ["Give the correct account", "Confuse someone", "Lie about facts", "Ignore history"],
+        "answer": 0,
+        "explanation": "To provide accurate information or clarification."
+    },
+    {
+        "question": "'Blow over' means?",
+        "options": ["Fade away", "Cause a disaster", "Get famous", "Make noise"],
+        "answer": 0,
+        "explanation": "To pass off or disappear."
+    },
+    {
+        "question": "'Bone to pick' means?",
+        "options": ["Cause of quarrel", "Happy occasion", "Trust issue", "Solve quickly"],
+        "answer": 0,
+        "explanation": "Reason for dispute or a complaint."
+    },
+    {
+        "question": "'Blue-eyed boy' means?",
+        "options": ["Favourite person", "Talented newcomer", "Ignored completely", "Old friend"],
+        "answer": 0,
+        "explanation": "A favourite or well-liked person."
+    },
+    {
+        "question": "'Turn up one's nose at' means?",
+        "options": ["Reject with disdain", "Accept happily", "Invite with pride", "Show kindness"],
+        "answer": 0,
+        "explanation": "To show contempt or refuse."
+    },
+    {
+        "question": "'Mince matters' means?",
+        "options": ["Use polite language showing disapproval", "Speak harshly", "Be silent", "Lie"],
+        "answer": 0,
+        "explanation": "Speak in a softened or less direct way."
+    },
+    {
+        "question": "'Curry favour' means?",
+        "options": ["Try to please", "Curse someone", "Insult others", "Ignore"],
+        "answer": 0,
+        "explanation": "Ingratiating oneself to gain benefits."
+    },
+    {
+        "question": "'At one's beck and call' means?",
+        "options": ["Ready to serve", "Disobedient", "Refuse", "Demand respect"],
+        "answer": 0,
+        "explanation": "Ready to serve whenever needed."
+    },
+    {
+        "question": "'Cast pearls before swine' means?",
+        "options": ["Offer value that's not appreciated", "Feed animals", "Win a prize", "Enjoy luxuries"],
+        "answer": 0,
+        "explanation": "Offer something valuable to those who don't appreciate it."
+    },
+    {
+        "question": "'Storm in a teacup' means?",
+        "options": ["Trivial anger", "Major disaster", "Big celebration", "Huge change"],
+        "answer": 0,
+        "explanation": "A lot of fuss about something trivial."
+    },
+    {
+        "question": "'Blow your own trumpet' means?",
+        "options": ["Boast", "Sing loudly", "Cook food", "Anger"],
+        "answer": 0,
+        "explanation": "To boast or brag about oneself."
+    },
+    {
+        "question": "'Lay bare' means?",
+        "options": ["Reveal", "Hide", "Ignore", "Celebrate"],
+        "answer": 0,
+        "explanation": "To reveal or uncover something."
+    },
+    {
+        "question": "'Turn one's head' means?",
+        "options": ["Feel proud (annoy others)", "Become shy", "Get confused", "Feel tired"],
+        "answer": 0,
+        "explanation": "To feel proud in a way that others may not like."
+    },
+    {
+        "question": "'Put one's foot down' means?",
+        "options": ["Assert authority", "Stay silent", "Resign", "Give up"],
+        "answer": 0,
+        "explanation": "To take a firm stand or assert yourself."
+    },
+	 {
+        "question": "What does the idiom 'Bite the bullet' mean?",
+        "options": ["Eat fast", "Avoid difficulty", "Endure a painful situation bravely", "Lie"],
+        "answer": 2,
+        "explanation": "To face a difficult or unpleasant situation courageously."
+    },
+    {
+        "question": "The phrase 'Burn bridges' means?",
+        "options": ["Travel extensively", "Destroy relationships and opportunities", "Create new friendships", "Light bonfires"],
+        "answer": 1,
+        "explanation": "To damage relationships beyond repair."
+    },
+    {
+        "question": "'Caught red-handed' means?",
+        "options": ["Feeling embarrassed", "Being angry", "Awkward situation", "Caught in the act of wrongdoing"],
+        "answer": 3,
+        "explanation": "Being caught while doing something wrong."
+    },
+    {
+        "question": "'Cut corners' means?",
+        "options": ["Take long time", "Do something poorly to save time or money", "Cut vegetables", "Decorate carefully"],
+        "answer": 1,
+        "explanation": "To take shortcuts that may compromise quality."
+    },
+    {
+        "question": "What does 'Devil’s advocate' mean?",
+        "options": ["Silent observer", "Argue against something for the sake of argument", "Evil person", "Full supporter"],
+        "answer": 1,
+        "explanation": "To take a position you don't necessarily agree with, just for debate."
+    },
+    {
+        "question": "'Elephant in the room' refers to?",
+        "options": ["A friendly person", "A large animal", "An obvious problem that is being ignored", "A rare opportunity"],
+        "answer": 2,
+        "explanation": "A big issue that people avoid discussing."
+    },
+    {
+        "question": "'Face the music' means?",
+        "options": ["Accept unpleasant consequences", "Ignore feedback", "Celebrate", "Enjoy music"],
+        "answer": 0,
+        "explanation": "To accept criticism or punishment."
+    },
+    {
+        "question": "'Go the extra mile' means?",
+        "options": ["Make additional effort", "Stop working", "Travel long distance", "Relax"],
+        "answer": 0,
+        "explanation": "To do more than the minimum required."
+    },
+    {
+        "question": "'Hit the sack' means?",
+        "options": ["Go to bed", "Start work", "Hit someone", "Be energetic"],
+        "answer": 0,
+        "explanation": "To go to sleep."
+    },
+    {
+        "question": "'Jump the gun' means?",
+        "options": ["Wait patiently", "Be cautious", "Act too soon", "Run fast"],
+        "answer": 2,
+        "explanation": "To start something too early or prematurely."
+    },
+    {
+        "question": "'Keep your chin up' means?",
+        "options": ["Be silent", "Look down", "Stay positive and confident", "Feel angry"],
+        "answer": 2,
+        "explanation": "Remain optimistic despite difficulties."
+    },
+    {
+        "question": "'Let sleeping dogs lie' means?",
+        "options": ["Wake up dogs", "Start arguments", "Avoid interfering in troubled situations", "Ignore advice"],
+        "answer": 2,
+        "explanation": "To avoid stirring up trouble."
+    },
+    {
+        "question": "'Miss the boat' means?",
+        "options": ["Be late", "Lose money", "Miss an opportunity", "Miss transport"],
+        "answer": 2,
+        "explanation": "Fail to take advantage of an opportunity."
+    },
+    {
+        "question": "'No pain, no gain' means?",
+        "options": ["Avoid pain", "Relax", "Hard work is essential for success", "Gain without effort"],
+        "answer": 2,
+        "explanation": "Effort and struggle are necessary to achieve something."
+    },
+    {
+        "question": "'Once in a blue moon' means?",
+        "options": ["Very rarely", "Every day", "Occasionally", "Frequently"],
+        "answer": 0,
+        "explanation": "Something that happens very infrequently."
+    },
+    {
+        "question": "'Pull someone's leg' means?",
+        "options": ["Lie", "Tease or joke", "Help", "Fight"],
+        "answer": 1,
+        "explanation": "To joke with or tease someone playfully."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Ignore", "Fight", "Disagree", "Agree fully"],
+        "answer": 3,
+        "explanation": "To have the same opinion."
+    },
+    {
+        "question": "'Spill the beans' means?",
+        "options": ["Cook beans", "Reveal a secret", "Make a mess", "Lose something"],
+        "answer": 1,
+        "explanation": "To disclose confidential information unintentionally."
+    },
+    {
+        "question": "'Take it with a grain of salt' means?",
+        "options": ["Completely believe", "Ignore", "View skeptically", "Accept happily"],
+        "answer": 2,
+        "explanation": "To not fully trust or believe something."
+    },
+    {
+        "question": "'Throw in the towel' means?",
+        "options": ["Start", "Give up", "Fight", "Celebrate"],
+        "answer": 1,
+        "explanation": "To surrender or quit."
+    },
+    {
+        "question": "'Turn a blind eye' means?",
+        "options": ["Pay attention", "Ignore deliberately", "Inspect carefully", "Help secretly"],
+        "answer": 1,
+        "explanation": "To ignore something intentionally."
+    },
+    {
+        "question": "'Under the weather' means?",
+        "options": ["Feeling angry", "Feeling happy", "Feeling unwell or sick", "Feeling tired"],
+        "answer": 2,
+        "explanation": "Not feeling well or being ill."
+    },
+    {
+        "question": "'Water under the bridge' means?",
+        "options": ["Water in river", "Ongoing trouble", "Past problems forgiven or forgotten", "Future problems"],
+        "answer": 2,
+        "explanation": "A past disagreement or issue that is no longer important."
+    },
+    {
+        "question": "'When pigs fly' means?",
+        "options": ["Flying pigs", "Something strange", "Something easy", "Something that will never happen"],
+        "answer": 3,
+        "explanation": "An expression for an impossible event."
+    },
+    {
+        "question": "'Your guess is as good as mine' means?",
+        "options": ["Take a guess", "Try harder", "I am sure", "I don't know either"],
+        "answer": 3,
+        "explanation": "I have no more information than you."
+    },
+    {
+        "question": "'Zip your lip' means?",
+        "options": ["Keep quiet", "Speak loudly", "Sing", "Shout"],
+        "answer": 0,
+        "explanation": "To stop talking or keep silent."
+    },
+    {
+        "question": "'Add fuel to the fire' means?",
+        "options": ["Make a bad situation worse", "Start a fire", "Help someone", "Calm down"],
+        "answer": 0,
+        "explanation": "To worsen an already bad situation."
+    },
+    {
+        "question": "'Barking up the wrong tree' means?",
+        "options": ["Being angry", "Hunting", "Making wrong assumptions", "Shouting loudly"],
+        "answer": 2,
+        "explanation": "To make a wrong assumption or follow the wrong lead."
+    },
+    {
+        "question": "'Break the bank' means?",
+        "options": ["Start a business", "Spend all of one's money", "Break rules", "Win a lot of money"],
+        "answer": 1,
+        "explanation": "To use up all your money."
+    },
+    {
+        "question": "'Call it a day' means?",
+        "options": ["Make a phone call", "Celebrate", "Stop working for the day", "Begin a task"],
+        "answer": 2,
+        "explanation": "To stop working on something."
+    },
+    {
+        "question": "'Come rain or shine' means?",
+        "options": ["During rain only", "No matter what happens", "Only on sunny days", "Sometimes"],
+        "answer": 1,
+        "explanation": "Whether the weather is good or bad; no matter what."
+    },
+    {
+        "question": "'Cut to the chase' means?",
+        "options": ["Get to the point", "Run away", "Waste time", "Avoid topic"],
+        "answer": 0,
+        "explanation": "To skip the details and get to the main point."
+    },
+    {
+        "question": "'Down to earth' means?",
+        "options": ["Excited", "Dreamy", "Shy", "Practical and realistic"],
+        "answer": 3,
+        "explanation": "Sensible and realistic."
+    },
+    {
+        "question": "'Easy come, easy go' means?",
+        "options": ["Save money", "Hard to gain money", "Money or fortune gained easily and lost easily", "Money comes slowly"],
+        "answer": 2,
+        "explanation": "Things gained easily are lost easily."
+    },
+    {
+        "question": "'Eye opener' means?",
+        "options": ["Eye infection", "Prank", "An enlightening experience", "Surprise gift"],
+        "answer": 2,
+        "explanation": "A surprising or revealing experience."
+    },
+    {
+        "question": "'Face the facts' means?",
+        "options": ["Ignore reality", "Celebrate success", "Accept reality", "Create problems"],
+        "answer": 2,
+        "explanation": "To accept reality as it is."
+    },
+    {
+        "question": "'Foot the bill' means?",
+        "options": ["Make an excuse", "Run away", "Walk fast", "Pay the expenses"],
+        "answer": 3,
+        "explanation": "To pay for something."
+    },
+    {
+        "question": "'Go back to square one' means?",
+        "options": ["Move forward", "Be successful", "Give up", "Start over again"],
+        "answer": 3,
+        "explanation": "To start from the beginning after failure."
+    },
+    {
+        "question": "'Hit below the belt' means?",
+        "options": ["Play sports", "Hit accurately", "Fight fairly", "Act unfairly or unethically"],
+        "answer": 3,
+        "explanation": "To act unfairly or dishonestly."
+    },
+    {
+        "question": "'In hot water' means?",
+        "options": ["Being calm", "Enjoying", "In trouble", "Excited"],
+        "answer": 2,
+        "explanation": "Being in difficulty or trouble."
+    },
+    {
+        "question": "'Kick the bucket' means?",
+        "options": ["To run", "To shout", "To die", "To quit"],
+        "answer": 2,
+        "explanation": "A euphemism for dying."
+    },
+    {
+        "question": "'Know the ropes' means?",
+        "options": ["Be angry", "Be experienced or know how to do something", "Be slow", "Be confused"],
+        "answer": 1,
+        "explanation": "To understand the details of how to do a job."
+    },
+    {
+        "question": "'Let the chips fall where they may' means?",
+        "options": ["Hide the truth", "Avoid consequences", "Control everything", "Let events happen naturally"],
+        "answer": 3,
+        "explanation": "To let events unfold without trying to control them."
+    },
+    {
+        "question": "'Miss the boat' means?",
+        "options": ["Be late", "Lose money", "Miss an opportunity", "Miss transport"],
+        "answer": 2,
+        "explanation": "Fail to take advantage of an opportunity."
+    },
+    {
+        "question": "'On thin ice' means?",
+        "options": ["Walking on ice", "In a risky or dangerous situation", "Being calm", "Feeling cold"],
+        "answer": 1,
+        "explanation": "In a precarious or risky position."
+    },
+    {
+        "question": "'Once in a blue moon' means?",
+        "options": ["Very often", "Very rarely", "Every day", "Every week"],
+        "answer": 1,
+        "explanation": "Something happening very rarely."
+    },
+    {
+        "question": "'Out of the blue' means?",
+        "options": ["Slowly", "Carefully", "Suddenly and unexpectedly", "Rarely"],
+        "answer": 2,
+        "explanation": "Something happening unexpectedly."
+    },
+    {
+        "question": "'Piece of cake' means?",
+        "options": ["Very easy", "A big challenge", "A delicious dessert", "A small portion"],
+        "answer": 0,
+        "explanation": "Something that is very easy to do."
+    },
+    {
+        "question": "'Put all your eggs in one basket' means?",
+        "options": ["Divide resources", "Risk everything on one plan or venture", "Be cautious", "Save money"],
+        "answer": 1,
+        "explanation": "To risk everything on a single opportunity."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Disagree", "Agree completely", "Ignore", "Fight"],
+        "answer": 1,
+        "explanation": "To agree fully or have the same opinion."
+    },
+    {
+        "question": "'Straight from the horse's mouth' means?",
+        "options": ["From rumors", "From the original source", "From an unreliable source", "From gossip"],
+        "answer": 1,
+        "explanation": "Information directly from the most reliable source."
+    },
+    {
+        "question": "'Take the bull by the horns' means?",
+        "options": ["Run away", "Face a problem bravely", "Avoid responsibility", "Give up"],
+        "answer": 1,
+        "explanation": "To confront a difficult situation courageously."
+    },
+	 {
+        "question": "What does the idiom 'A blessing in disguise' mean?",
+        "options": ["A hidden good thing", "A curse", "A bad situation", "An obvious benefit"],
+        "answer": 0,
+        "explanation": "Something that seems bad at first but turns out to be good."
+    },
+    {
+        "question": "The phrase 'Add fuel to the fire' means?",
+        "options": ["Make a bad situation worse", "Start a fire", "Calm a situation", "Solve a problem"],
+        "answer": 0,
+        "explanation": "To worsen an already bad situation."
+    },
+    {
+        "question": "'Ball is in your court' means?",
+        "options": ["It’s your turn to act", "Playing a game", "Ignore a situation", "Take a break"],
+        "answer": 0,
+        "explanation": "It is your responsibility to make the next decision or step."
+    },
+    {
+        "question": "'Barking up the wrong tree' means?",
+        "options": ["Making a wrong assumption", "Shouting loudly", "Winning a debate", "Winning a game"],
+        "answer": 0,
+        "explanation": "Pursuing an incorrect course of action."
+    },
+    {
+        "question": "'Beat around the bush' means?",
+        "options": ["Avoiding the main topic", "Hunting animals", "Speaking honestly", "Rushing a decision"],
+        "answer": 0,
+        "explanation": "To avoid talking about the main point."
+    },
+    {
+        "question": "'Better late than never' means?",
+        "options": ["It's better to do something late than not at all", "Never do things late", "Always arrive on time", "Ignore deadlines"],
+        "answer": 0,
+        "explanation": "It's preferable to do something late than not do it at all."
+    },
+    {
+        "question": "'Burn the midnight oil' means?",
+        "options": ["Work late into the night", "Go to sleep early", "Wake up late", "Waste time"],
+        "answer": 0,
+        "explanation": "To work or study late at night."
+    },
+    {
+        "question": "'By the skin of your teeth' means?",
+        "options": ["Barely", "With ease", "Messily", "With help"],
+        "answer": 0,
+        "explanation": "To narrowly or barely succeed."
+    },
+    {
+        "question": "'Call it a day' means?",
+        "options": ["Stop working for the day", "Start working", "Make a phone call", "Celebrate"],
+        "answer": 0,
+        "explanation": "To stop working on something for the rest of the day."
+    },
+    {
+        "question": "'Caught between two stools' means?",
+        "options": ["Unable to decide between two options", "Close friend", "Winning in two ways", "Confident decision"],
+        "answer": 0,
+        "explanation": "Being unable to choose between two options."
+    },
+    {
+        "question": "'Cross that bridge when you come to it' means?",
+        "options": ["Deal with a problem when it comes", "Prepare early for problems", "Avoid problems", "Cross safely"],
+        "answer": 0,
+        "explanation": "Don't worry about a problem until it actually happens."
+    },
+    {
+        "question": "'Cut the mustard' means?",
+        "options": ["Meet expectations", "Cut vegetables", "Fail", "Lie"],
+        "answer": 0,
+        "explanation": "To perform satisfactorily."
+    },
+    {
+        "question": "'Devil's advocate' means?",
+        "options": ["Argue for the sake of argument", "Believe firmly", "Stay neutral", "Ignore problems"],
+        "answer": 0,
+        "explanation": "To argue against a viewpoint for debate."
+    },
+    {
+        "question": "'Don’t count your chickens before they hatch' means?",
+        "options": ["Don’t assume success before it happens", "Count carefully", "Prepare early", "Celebrate premature success"],
+        "answer": 0,
+        "explanation": "Don't assume something will happen before it actually does."
+    },
+    {
+        "question": "'Down to earth' means?",
+        "options": ["Practical and realistic", "Dreamy", "Shy", "Excited"],
+        "answer": 0,
+        "explanation": "Being practical and sensible."
+    },
+    {
+        "question": "'Eat humble pie' means?",
+        "options": ["Admit your mistake", "Cook food", "Eat quietly", "Ignore errors"],
+        "answer": 0,
+        "explanation": "To apologize or admit error."
+    },
+    {
+        "question": "'Every cloud has a silver lining' means?",
+        "options": ["There’s something good in every bad situation", "Clouds bring rain", "Stormy weather", "All troubles"],
+        "answer": 0,
+        "explanation": "Every bad situation has a hopeful side."
+    },
+    {
+        "question": "'Feel a bit under the weather' means?",
+        "options": ["Feel slightly ill", "Feel happy", "Feel angry", "Feel tired"],
+        "answer": 0,
+        "explanation": "To feel slightly unwell."
+    },
+    {
+        "question": "'Get a taste of your own medicine' means?",
+        "options": ["Experience the same bad treatment you give", "Try new food", "Improve health", "Be kind"],
+        "answer": 0,
+        "explanation": "To be treated the way you have treated others."
+    },
+    {
+        "question": "'Get out of hand' means?",
+        "options": ["Become uncontrollable", "Become obedient", "Help others", "Get angry"],
+        "answer": 0,
+        "explanation": "To become out of control."
+    },
+    {
+        "question": "'Give the benefit of the doubt' means?",
+        "options": ["Believe someone despite doubts", "Distrust someone", "Ignore advice", "Question everything"],
+        "answer": 0,
+        "explanation": "To believe someone even if you are not sure."
+    },
+    {
+        "question": "'Go back to the drawing board' means?",
+        "options": ["Start over", "Give up", "Stay calm", "Ignore problems"],
+        "answer": 0,
+        "explanation": "To start again after a failure."
+    },
+    {
+        "question": "'Go the extra mile' means?",
+        "options": ["Make additional effort", "Travel long distance", "Relax", "Be lazy"],
+        "answer": 0,
+        "explanation": "To make more effort than necessary."
+    },
+    {
+        "question": "'Hang in there' means?",
+        "options": ["Don't give up", "Stay angry", "Relax", "Become tired"],
+        "answer": 0,
+        "explanation": "To persevere through difficulties."
+    },
+    {
+        "question": "'Hit the road' means?",
+        "options": ["Start a journey", "Stop working", "Run quickly", "Be lazy"],
+        "answer": 0,
+        "explanation": "To begin traveling."
+    },
+    {
+        "question": "'Hit the sack' means?",
+        "options": ["Go to sleep", "Fight", "Work hard", "Sing"],
+        "answer": 0,
+        "explanation": "To go to bed or sleep."
+    },
+    {
+        "question": "'In a nutshell' means?",
+        "options": ["In brief", "In detail", "Carefully", "Late"],
+        "answer": 0,
+        "explanation": "In a few words; briefly."
+    },
+    {
+        "question": "'In hot water' means?",
+        "options": ["In trouble", "Relaxed", "Eating", "Celebrating"],
+        "answer": 0,
+        "explanation": "Being in difficulty or trouble."
+    },
+    {
+        "question": "'Jump on the bandwagon' means?",
+        "options": ["Join a popular activity", "Lead a group", "Ignore others", "Start a band"],
+        "answer": 0,
+        "explanation": "To join others in doing something popular."
+    },
+    {
+        "question": "'Keep your chin up' means?",
+        "options": ["Stay positive", "Look down", "Feel angry", "Stay silent"],
+        "answer": 0,
+        "explanation": "Remain optimistic despite challenges."
+    },
+    {
+        "question": "'Last straw' means?",
+        "options": ["Final problem causing failure", "Beginning of troubles", "A light breeze", "An easy task"],
+        "answer": 0,
+        "explanation": "The final problem in a series that causes failure or collapse."
+    },
+    {
+        "question": "'Let the cat out of the bag' means?",
+        "options": ["Reveal a secret", "Catch a cat", "Hide something", "Keep a secret"],
+        "answer": 0,
+        "explanation": "To disclose a secret."
+    },
+    {
+        "question": "'Make a mountain out of a molehill' means?",
+        "options": ["Exaggerate a minor issue", "Build a mountain", "Fix a problem", "Ignore something"],
+        "answer": 0,
+        "explanation": "To make a small problem appear big."
+    },
+    {
+        "question": "'Miss the boat' means?",
+        "options": ["Miss an opportunity", "Miss a bus", "Be late", "Lose something"],
+        "answer": 0,
+        "explanation": "Fail to take advantage of something."
+    },
+    {
+        "question": "'No use crying over spilt milk' means?",
+        "options": ["Don’t regret over past mistakes", "Avoid crying", "Don’t spill milk", "Be happy"],
+        "answer": 0,
+        "explanation": "No point in worrying about something that cannot be changed."
+    },
+    {
+        "question": "'On the ball' means?",
+        "options": ["Alert and active", "Lazy", "Clumsy", "Excited"],
+        "answer": 0,
+        "explanation": "Being quick to understand and react."
+    },
+    {
+        "question": "'Piece of cake' means?",
+        "options": ["Something very easy", "A delicious dessert", "A big challenge", "A small slice"],
+        "answer": 0,
+        "explanation": "Something that is very easy to do."
+    },
+    {
+        "question": "'Pull someone’s leg' means?",
+        "options": ["Tease playfully", "Help someone", "Hurt someone", "Lie seriously"],
+        "answer": 0,
+        "explanation": "To joke or tease someone."
+    },
+    {
+        "question": "'Put all your eggs in one basket' means?",
+        "options": ["Risk everything on one plan", "Make many plans", "Avoid risk", "Save money"],
+        "answer": 0,
+        "explanation": "To risk everything on a single opportunity."
+    },
+    {
+        "question": "'Roll with the punches' means?",
+        "options": ["Adapt to difficulties", "Keep fighting", "Give up", "Avoid work"],
+        "answer": 0,
+        "explanation": "To adjust to difficulties or setbacks."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Agree fully", "Disagree", "Fight", "Ignore"],
+        "answer": 0,
+        "explanation": "To share the same opinion."
+    },
+    {
+        "question": "'Speak of the devil' means?",
+        "options": ["The person being spoken about appears", "Talking about evil things", "Arguing", "Avoiding topic"],
+        "answer": 0,
+        "explanation": "When someone appears just as they are being talked about."
+    },
+    {
+        "question": "'Steal someone's thunder' means?",
+        "options": ["Take credit for someone else's achievement", "Steal something", "Make noise", "Hide something"],
+        "answer": 0,
+        "explanation": "To take attention or praise away from someone."
+    },
+    {
+        "question": "'Take the bull by the horns' means?",
+        "options": ["Face a problem bravely", "Avoid responsibility", "Give up", "Run away"],
+        "answer": 0,
+        "explanation": "To confront a difficult situation directly."
+    },
+    {
+        "question": "'The ball is in your court' means?",
+        "options": ["It's your responsibility to act", "Game starts", "Play ball", "End conversation"],
+        "answer": 0,
+        "explanation": "It is your turn to make a decision or take action."
+    },
+    {
+        "question": "'Throw in the towel' means?",
+        "options": ["Give up", "Start", "Fight", "Hide"],
+        "answer": 0,
+        "explanation": "To surrender or admit defeat."
+    },
+    {
+        "question": "'Turn a blind eye' means?",
+        "options": ["Ignore deliberately", "Pay attention", "Help secretly", "Inspect carefully"],
+        "answer": 0,
+        "explanation": "To deliberately ignore something."
+    },
+	 {
+        "question": "What does the idiom 'A dime a dozen' mean?",
+        "options": ["Very common", "Very expensive", "Rare", "Unique"],
+        "answer": 0,
+        "explanation": "Something that is very common and easily obtained."
+    },
+    {
+        "question": "'Bite off more than you can chew' means?",
+        "options": ["Take on more than one can handle", "Eat fast", "Chew loudly", "Be cautious"],
+        "answer": 0,
+        "explanation": "To try to do something that is too difficult."
+    },
+    {
+        "question": "'Burn the candle at both ends' means?",
+        "options": ["Overwork oneself", "Be efficient", "Waste resources", "Light a candle"],
+        "answer": 0,
+        "explanation": "To work excessively hard and get little rest."
+    },
+    {
+        "question": "'Cat got your tongue?' means?",
+        "options": ["Why are you silent?", "Are you angry?", "Are you hungry?", "Are you joking?"],
+        "answer": 0,
+        "explanation": "Asked when someone is unusually silent."
+    },
+    {
+        "question": "What does 'Cut the mustard' imply?",
+        "options": ["Meet expectations", "Fail to perform", "Cut grass", "Cook well"],
+        "answer": 0,
+        "explanation": "To meet the required standard."
+    },
+    {
+        "question": "'Don't give up the day job' means?",
+        "options": ["You are not good at something", "Stay focused", "Change jobs", "Work at night"],
+        "answer": 0,
+        "explanation": "Used to tell someone they are not proficient at something."
+    },
+    {
+        "question": "What is meant by 'Elephant in the room'?",
+        "options": ["A major problem ignored", "A large animal", "A popular idea", "An easy solution"],
+        "answer": 0,
+        "explanation": "An obvious problem or issue that people avoid discussing."
+    },
+    {
+        "question": "'Every cloud has a silver lining' means?",
+        "options": ["There is something good in every bad situation", "Clouds are shiny", "Rain will wash away", "Storm is bad"],
+        "answer": 0,
+        "explanation": "There is something positive in every negative situation."
+    },
+    {
+        "question": "'Far cry from' means?",
+        "options": ["Very different from", "A long distance", "Close to", "A loud sound"],
+        "answer": 0,
+        "explanation": "Something very different from something else."
+    },
+    {
+        "question": "What does 'Feel under the weather' mean?",
+        "options": ["Feel slightly ill", "Feel happy", "Feel cold", "Feel excited"],
+        "answer": 0,
+        "explanation": "To feel unwell or sick."
+    },
+    {
+        "question": "'From the horse's mouth' means?",
+        "options": ["From a reliable source", "From a story", "Gossip", "Rumor"],
+        "answer": 0,
+        "explanation": "Information coming directly from the original source."
+    },
+    {
+        "question": "'Get cold feet' means?",
+        "options": ["Become afraid", "Feel cold", "Run fast", "Be excited"],
+        "answer": 0,
+        "explanation": "To become nervous or scared to proceed."
+    },
+    {
+        "question": "'Give the cold shoulder' means?",
+        "options": ["Ignore or snub", "Help warmly", "Celebrate", "Compliment"],
+        "answer": 0,
+        "explanation": "To deliberately ignore someone."
+    },
+    {
+        "question": "'Hit the books' means?",
+        "options": ["Study hard", "Hit something", "Throw books", "Read casually"],
+        "answer": 0,
+        "explanation": "To study seriously."
+    },
+    {
+        "question": "'In the same boat' means?",
+        "options": ["In the same situation", "Different conditions", "Traveling", "Helping others"],
+        "answer": 0,
+        "explanation": "Facing the same problem or challenge."
+    },
+    {
+        "question": "'Jump on the bandwagon' means?",
+        "options": ["Join a popular trend", "Lead a campaign", "Start a fight", "Avoid responsibility"],
+        "answer": 0,
+        "explanation": "To follow others in doing something popular."
+    },
+    {
+        "question": "'Keep your eyes peeled' means?",
+        "options": ["Be watchful and attentive", "Close your eyes", "Be calm", "Ignore details"],
+        "answer": 0,
+        "explanation": "To be alert and watchful."
+    },
+    {
+        "question": "'Kick the bucket' means?",
+        "options": ["Die", "Run away", "Succeed", "Fight"],
+        "answer": 0,
+        "explanation": "To die."
+    },
+    {
+        "question": "'Let sleeping dogs lie' means?",
+        "options": ["Avoid interfering in a situation", "Wake up dogs", "Start problems", "Forget everything"],
+        "answer": 0,
+        "explanation": "Avoid causing trouble by leaving things alone."
+    },
+    {
+        "question": "'Miss the boat' means?",
+        "options": ["Miss an opportunity", "Miss a transport", "Be late", "Lose an item"],
+        "answer": 0,
+        "explanation": "Fail to take advantage of an opportunity."
+    },
+    {
+        "question": "'No stone unturned' means?",
+        "options": ["Try every possible way", "Avoid something", "Make an excuse", "Change method"],
+        "answer": 0,
+        "explanation": "To try every possible method."
+    },
+    {
+        "question": "'Off the hook' means?",
+        "options": ["Free from blame", "In trouble", "Start work", "Late"],
+        "answer": 0,
+        "explanation": "Released from responsibility or difficulty."
+    },
+    {
+        "question": "'On the fence' means?",
+        "options": ["Undecided", "Ready", "Happy", "Angry"],
+        "answer": 0,
+        "explanation": "Not having made a decision."
+    },
+    {
+        "question": "'Out of the blue' means?",
+        "options": ["Suddenly and unexpectedly", "Slowly", "Carefully", "Rarely"],
+        "answer": 0,
+        "explanation": "Happening unexpectedly."
+    },
+    {
+        "question": "'Pass the buck' means?",
+        "options": ["Shift responsibility", "Win a game", "Pass money", "Lose"],
+        "answer": 0,
+        "explanation": "To shift responsibility to someone else."
+    },
+    {
+        "question": "'Pull someone's leg' means?",
+        "options": ["Tease playfully", "Help kindly", "Lie", "Fight"],
+        "answer": 0,
+        "explanation": "To joke or tease someone."
+    },
+    {
+        "question": "'Put the cart before the horse' means?",
+        "options": ["Do things in the wrong order", "Be efficient", "Work hard", "Start late"],
+        "answer": 0,
+        "explanation": "To reverse the natural or correct order of things."
+    },
+    {
+        "question": "'Put your best foot forward' means?",
+        "options": ["Try your best", "Step forward", "Be lazy", "Walk away"],
+        "answer": 0,
+        "explanation": "To try as hard as possible."
+    },
+    {
+        "question": "'Quit cold turkey' means?",
+        "options": ["Stop suddenly and completely", "Eat turkey", "Quit gradually", "Keep smoking"],
+        "answer": 0,
+        "explanation": "To quit a habit abruptly."
+    },
+    {
+        "question": "'Rain on someone's parade' means?",
+        "options": ["Spoil someone's plans", "Celebrate with someone", "Dance happily", "Cheer up"],
+        "answer": 0,
+        "explanation": "To ruin someone's plans or happiness."
+    },
+    {
+        "question": "'Read between the lines' means?",
+        "options": ["Understand hidden meaning", "Read carefully", "Skip details", "Ignore facts"],
+        "answer": 0,
+        "explanation": "To understand what is not explicitly stated."
+    },
+    {
+        "question": "'Rock the boat' means?",
+        "options": ["Cause trouble", "Fix things", "Be silly", "Stay calm"],
+        "answer": 0,
+        "explanation": "To cause disturbance or trouble."
+    },
+    {
+        "question": "'Shoot the breeze' means?",
+        "options": ["Chat idly", "Be angry", "Shoot", "Listen carefully"],
+        "answer": 0,
+        "explanation": "To chat casually without purpose."
+    },
+    {
+        "question": "'Sit tight' means?",
+        "options": ["Wait patiently", "Sit uncomfortably", "Sit firmly", "Leave quickly"],
+        "answer": 0,
+        "explanation": "To wait patiently without taking action."
+    },
+    {
+        "question": "'Storm in a teacup' means?",
+        "options": ["A small problem blown out of proportion", "A big storm", "Celebration", "Peace"],
+        "answer": 0,
+        "explanation": "A lot of fuss about something small."
+    },
+    {
+        "question": "'Take it easy' means?",
+        "options": ["Relax", "Work hard", "Be angry", "Come quickly"],
+        "answer": 0,
+        "explanation": "To calm down or relax."
+    },
+    {
+        "question": "'Take the bull by the horns' means?",
+        "options": ["Face a difficult situation bravely", "Avoid problems", "Run away", "Give up"],
+        "answer": 0,
+        "explanation": "To tackle a difficult problem directly."
+    },
+    {
+        "question": "'The last straw' means?",
+        "options": ["The final problem in a series", "A light breeze", "A small joy", "An easy task"],
+        "answer": 0,
+        "explanation": "The final problem or annoyance that causes a situation to become unbearable."
+    },
+    {
+        "question": "'Throw caution to the wind' means?",
+        "options": ["Take a risk", "Be cautious", "Hold back", "Ignore"],
+        "answer": 0,
+        "explanation": "To act without worrying about the risk."
+    },
+    {
+        "question": "'Turn over a new leaf' means?",
+        "options": ["Make a fresh start", "Destroy something", "Change directions", "Stay the same"],
+        "answer": 0,
+        "explanation": "To start anew with good intentions."
+    },
+    {
+        "question": "'Under the gun' means?",
+        "options": ["Under pressure", "Free", "Late", "Successful"],
+        "answer": 0,
+        "explanation": "Being pressured to do something."
+    },
+    {
+        "question": "'Up in the air' means?",
+        "options": ["Uncertain or undecided", "Flying high", "Canceled", "Complete"],
+        "answer": 0,
+        "explanation": "Something not yet resolved or decided."
+    },
+    {
+        "question": "'Your guess is as good as mine' means?",
+        "options": ["I don't know", "I know better", "Try guessing", "Guess fast"],
+        "answer": 0,
+        "explanation": "I have no more information than you do."
+    },
+    {
+        "question": "'You can't judge a book by its cover' means?",
+        "options": ["Appearances can be deceptive", "Judge quickly", "Read books carefully", "Buy expensive books"],
+        "answer": 0,
+        "explanation": "Don’t judge things by their outward appearance."
+    },
+	 {
+        "question": "What does the idiom 'Bark up the wrong tree' mean?",
+        "options": ["Make a wrong assumption", "Shout loudly", "Hunt animals", "Be angry"],
+        "answer": 0,
+        "explanation": "To pursue a mistaken or misguided course of action."
+    },
+    {
+        "question": "'Beat a dead horse' means?",
+        "options": ["Waste effort on something hopeless", "Win an argument", "Run quickly", "Celebrate"],
+        "answer": 0,
+        "explanation": "To waste time or effort on something futile."
+    },
+    {
+        "question": "'Beginner’s luck' means?",
+        "options": ["Success by chance for a newcomer", "Luck of a professional", "Bad luck", "Steady improvement"],
+        "answer": 0,
+        "explanation": "Success due to chance for someone new at something."
+    },
+    {
+        "question": "'Between a rock and a hard place' means?",
+        "options": ["Facing two difficult choices", "Being comfortable", "Flying high", "Taking a risk"],
+        "answer": 0,
+        "explanation": "Being in a difficult situation with no easy choices."
+    },
+    {
+        "question": "'Blow your own trumpet' means?",
+        "options": ["Brag about yourself", "Be humble", "Sing loudly", "Compliment others"],
+        "answer": 0,
+        "explanation": "To boast about one’s own achievements."
+    },
+    {
+        "question": "'Bite the hand that feeds you' means?",
+        "options": ["Hurt someone who helps you", "Take food away", "Be kind", "Ignore advice"],
+        "answer": 0,
+        "explanation": "To harm someone who is helping you."
+    },
+    {
+        "question": "'By the book' means?",
+        "options": ["Following rules strictly", "Doing something carelessly", "Making rules", "Ignoring instructions"],
+        "answer": 0,
+        "explanation": "To do things according to the rules or law."
+    },
+    {
+        "question": "'Burn your bridges' means?",
+        "options": ["Destroy your chances", "Build new paths", "Help others", "Take risks"],
+        "answer": 0,
+        "explanation": "To damage your future opportunities."
+    },
+    {
+        "question": "'Cold turkey' means?",
+        "options": ["Suddenly quitting a habit", "Cold food", "Avoiding work", "Being lazy"],
+        "answer": 0,
+        "explanation": "To stop a habit abruptly."
+    },
+    {
+        "question": "'Cry wolf' means?",
+        "options": ["Raise a false alarm", "Be truthful", "Help others", "Be quiet"],
+        "answer": 0,
+        "explanation": "To raise a false alarm or lie repeatedly."
+    },
+    {
+        "question": "'Cut the Gordian knot' means?",
+        "options": ["Solve a complex problem creatively", "Tie knots", "Avoid problems", "Create difficulties"],
+        "answer": 0,
+        "explanation": "To solve a complicated problem in a simple, decisive way."
+    },
+    {
+        "question": "'Devil’s in the details' means?",
+        "options": ["Small details cause big problems", "Good details", "Ignore small things", "Big problems are easy"],
+        "answer": 0,
+        "explanation": "Small elements can cause significant difficulties."
+    },
+    {
+        "question": "'Don’t beat a dead horse' means?",
+        "options": ["Don’t waste effort on something hopeless", "Keep trying", "Argue fiercely", "Celebrate"],
+        "answer": 0,
+        "explanation": "Don’t continue to pursue a lost cause."
+    },
+    {
+        "question": "'Down in the dumps' means?",
+        "options": ["Feeling sad or depressed", "Feeling energetic", "Celebrating", "Being lazy"],
+        "answer": 0,
+        "explanation": "Feeling very unhappy."
+    },
+    {
+        "question": "'Drag one’s feet' means?",
+        "options": ["Delay doing something", "Run fast", "Be careless", "Dance happily"],
+        "answer": 0,
+        "explanation": "To do something slowly or reluctantly."
+    },
+    {
+        "question": "'Eleventh hour' means?",
+        "options": ["At the last moment", "Early morning", "Always on time", "Never"],
+        "answer": 0,
+        "explanation": "At the last possible moment."
+    },
+    {
+        "question": "'Every dog has his day' means?",
+        "options": ["Everyone has a moment of success", "Dogs have fun", "Life is unfair", "Some dogs are lucky"],
+        "answer": 0,
+        "explanation": "Everyone gets a chance at success."
+    },
+    {
+        "question": "'Eye candy' means?",
+        "options": ["Something pleasing to look at", "Bad quality", "Hard work", "Fake"],
+        "answer": 0,
+        "explanation": "Something that is attractive or pretty."
+    },
+    {
+        "question": "'Fall on deaf ears' means?",
+        "options": ["Be ignored", "Be understood", "Be accepted", "Make noise"],
+        "answer": 0,
+        "explanation": "Advice or warnings that are ignored."
+    },
+    {
+        "question": "'Feather in the cap' means?",
+        "options": ["An achievement", "A bird", "A failure", "A small mistake"],
+        "answer": 0,
+        "explanation": "An accomplishment to be proud of."
+    },
+    {
+        "question": "'Fight fire with fire' means?",
+        "options": ["Respond to aggression with similar aggression", "Be peaceful", "Stop fighting", "Fight with water"],
+        "answer": 0,
+        "explanation": "To respond to an attack with similar methods."
+    },
+    {
+        "question": "'Fish out of water' means?",
+        "options": ["Someone uncomfortable in unfamiliar surroundings", "Good swimmer", "Hungry person", "Confident speaker"],
+        "answer": 0,
+        "explanation": "A person feeling out of place or uncomfortable."
+    },
+    {
+        "question": "'Flying off the handle' means?",
+        "options": ["Lose temper suddenly", "Fly fast", "Start a fight", "Become confident"],
+        "answer": 0,
+        "explanation": "To suddenly lose one’s temper."
+    },
+    {
+        "question": "'For the birds' means?",
+        "options": ["Worthless", "Very good", "In the sky", "Unusual"],
+        "answer": 0,
+        "explanation": "Something not worth considering."
+    },
+    {
+        "question": "'Get your act together' means?",
+        "options": ["Organize oneself", "Perform a show", "Sleep early", "Help others"],
+        "answer": 0,
+        "explanation": "To behave properly or function efficiently."
+    },
+    {
+        "question": "'Give someone the cold shoulder' means?",
+        "options": ["Ignore someone", "Welcome warmly", "Help politely", "Give a compliment"],
+        "answer": 0,
+        "explanation": "To deliberately ignore or show indifference."
+    },
+    {
+        "question": "'Go down in flames' means?",
+        "options": ["Fail spectacularly", "Win easily", "Burn papers", "Fly a plane"],
+        "answer": 0,
+        "explanation": "To fail dramatically."
+    },
+    {
+        "question": "'Hit below the belt' means?",
+        "options": ["Act unfairly", "Hit accurately", "Play sports", "Lose control"],
+        "answer": 0,
+        "explanation": "To behave unfairly or dishonestly."
+    },
+    {
+        "question": "'In a pickle' means?",
+        "options": ["In trouble", "Feeling happy", "Hungry", "Tired"],
+        "answer": 0,
+        "explanation": "To be in a difficult situation."
+    },
+    {
+        "question": "'Jump on the bandwagon' means?",
+        "options": ["Join a trend", "Start a fight", "Run fast", "Be first"],
+        "answer": 0,
+        "explanation": "To join others in doing something popular."
+    },
+    {
+        "question": "'Keep your fingers crossed' means?",
+        "options": ["Hope for good luck", "Hide something", "Pray daily", "Give up"],
+        "answer": 0,
+        "explanation": "To wish for good luck."
+    },
+    {
+        "question": "'Know the ropes' means?",
+        "options": ["Be experienced", "Be confused", "Be late", "Lead others"],
+        "answer": 0,
+        "explanation": "To understand how to do something properly."
+    },
+    {
+        "question": "'Leave no stone unturned' means?",
+        "options": ["Try every possible way", "Ignore problems", "Give up", "Wait and see"],
+        "answer": 0,
+        "explanation": "To make every possible effort."
+    },
+    {
+        "question": "'Let the cat out of the bag' means?",
+        "options": ["Reveal a secret", "Hide something", "Run fast", "Be quiet"],
+        "answer": 0,
+        "explanation": "To disclose a secret, usually unintentionally."
+    },
+    {
+        "question": "'Like two peas in a pod' means?",
+        "options": ["Very similar", "Arguing a lot", "Opposite views", "Very different"],
+        "answer": 0,
+        "explanation": "Two people who are very alike."
+    },
+    {
+        "question": "'Make a long story short' means?",
+        "options": ["Present something briefly", "Tell everything", "Stop talking", "Make something up"],
+        "answer": 0,
+        "explanation": "To summarize or shorten a story."
+    },
+    {
+        "question": "'Miss the boat' means?",
+        "options": ["Miss an opportunity", "Miss a train", "Fail an exam", "Forget something"],
+        "answer": 0,
+        "explanation": "To miss a chance."
+    },
+    {
+        "question": "'On the ball' means?",
+        "options": ["Alert and attentive", "Lazy", "Clumsy", "Confused"],
+        "answer": 0,
+        "explanation": "Being alert and quick to respond."
+    },
+    {
+        "question": "'Once in a blue moon' means?",
+        "options": ["Very rarely", "Frequently", "Often", "Daily"],
+        "answer": 0,
+        "explanation": "Something happening very infrequently."
+    },
+    {
+        "question": "'Out of the frying pan into the fire' means?",
+        "options": ["From bad situation to worse", "Going to cook", "Safe situation", "Happy outcome"],
+        "answer": 0,
+        "explanation": "Move from a bad situation to an even worse one."
+    },
+    {
+        "question": "'Pass the buck' means?",
+        "options": ["Shift responsibility", "Win a game", "Handle a problem", "Take initiative"],
+        "answer": 0,
+        "explanation": "To transfer responsibility to another."
+    },
+    {
+        "question": "'Pull the plug' means?",
+        "options": ["Stop a project", "Take out a plug", "Continue working", "Pull hard"],
+        "answer": 0,
+        "explanation": "To discontinue or terminate something."
+    },
+    {
+        "question": "'Put your foot in your mouth' means?",
+        "options": ["Say something embarrassing", "Step on something", "Be angry", "Stay quiet"],
+        "answer": 0,
+        "explanation": "To say something foolish or embarrassing."
+    },
+    {
+        "question": "'Rain cats and dogs' means?",
+        "options": ["Rain heavily", "Animal fight", "Be sunny", "Snow heavily"],
+        "answer": 0,
+        "explanation": "To rain very heavily."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Agree", "Disagree", "Ignore", "Fight"],
+        "answer": 0,
+        "explanation": "To agree completely."
+    },
+    {
+        "question": "'Spill the beans' means?",
+        "options": ["Reveal secret", "Make a mess", "Cook food", "Hide something"],
+        "answer": 0,
+        "explanation": "To disclose secret information."
+    },
+    {
+        "question": "'Take it with a grain of salt' means?",
+        "options": ["View skeptically", "Completely trust", "Ignore", "Accept happily"],
+        "answer": 0,
+        "explanation": "To not fully believe something."
+    },
+    {
+        "question": "'The best of both worlds' means?",
+        "options": ["All advantages", "Difficult situation", "Big problem", "Surprise"],
+        "answer": 0,
+        "explanation": "A situation where one can enjoy two different opportunities."
+    },
+    {
+        "question": "'Throw caution to the wind' means?",
+        "options": ["Act carelessly", "Be cautious", "Hold back", "Think carefully"],
+        "answer": 0,
+        "explanation": "To take a risk without worrying."
+    },
+    {
+        "question": "'Turn a blind eye' means?",
+        "options": ["Ignore deliberately", "See clearly", "Help secretly", "Check carefully"],
+        "answer": 0,
+        "explanation": "To deliberately ignore something wrong."
+    },
+    {
+        "question": "'Under the radar' means?",
+        "options": ["Unnoticed", "Highly visible", "Dangerous", "Too fast"],
+        "answer": 0,
+        "explanation": "Not attracting attention."
+    },
+    {
+        "question": "'Up in the air' means?",
+        "options": ["Uncertain", "Flying high", "Resolved", "Dropped"],
+        "answer": 0,
+        "explanation": "Undecided or unresolved."
+    },
+	{
+        "question": "What does the idiom 'Shoulder the responsibility' mean?",
+        "options": ["Take responsibility for something", "Avoid responsibility", "Assign task to someone", "Ignore duties"],
+        "answer": 0,
+        "explanation": "To accept and take on responsibility."
+    },
+    {
+        "question": "What does 'At cross purposes' mean?",
+        "options": ["Working in opposition or misunderstanding", "Agreeing fully", "Working as a team", "Completing a task"],
+        "answer": 0,
+        "explanation": "Two parties misunderstanding each other or working against each other."
+    },
+    {
+        "question": "To 'Lose heart' means?",
+        "options": ["Become discouraged", "Gain courage", "Help others", "Become angry"],
+        "answer": 0,
+        "explanation": "To lose confidence or hope."
+    },
+    {
+        "question": "'Dance to someone’s tune' means?",
+        "options": ["Do what someone else wants", "Be very happy", "Sing loudly", "Be confused"],
+        "answer": 0,
+        "explanation": "To follow someone's orders or wishes."
+    },
+    {
+        "question": "Meaning of 'Leave no stone unturned'?",
+        "options": ["Try every possible means", "Ignore options", "Work carelessly", "Give up quickly"],
+        "answer": 0,
+        "explanation": "Make every possible effort to achieve something."
+    },
+    {
+        "question": "'Pig in a poke' means?",
+        "options": ["Buy something without inspecting", "A gift", "A treasure", "A piglet"],
+        "answer": 0,
+        "explanation": "To purchase something without proper examination."
+    },
+    {
+        "question": "What does it mean to 'Burn the midnight oil'?",
+        "options": ["Work late into the night", "Wake up early", "Go to bed early", "Relax during day"],
+        "answer": 0,
+        "explanation": "To study or work late into the night."
+    },
+    {
+        "question": "Meaning of 'Cry over spilt milk'?",
+        "options": ["Regret past mistakes", "Celebrate success", "Waste food", "Ignore problems"],
+        "answer": 0,
+        "explanation": "To complain about something that cannot be undone."
+    },
+    {
+        "question": "'Cost an arm and a leg' means?",
+        "options": ["Very expensive", "Free", "Very cheap", "Worthless"],
+        "answer": 0,
+        "explanation": "Something that costs a lot of money."
+    },
+    {
+        "question": "Meaning of 'Palm off'?",
+        "options": ["Deceive by selling something fake", "Palm a leaf", "Help others", "Share equally"],
+        "answer": 0,
+        "explanation": "To trick someone into accepting something."
+    },
+    {
+        "question": "'White elephant' means?",
+        "options": ["Costly but useless possession", "A large animal", "Cheap gift", "Small problem"],
+        "answer": 0,
+        "explanation": "An expensive but useless thing."
+    },
+    {
+        "question": "'Heads will roll' means?",
+        "options": ["People will be punished", "Heads will fall", "Heads will swim", "Heads will roll dice"],
+        "answer": 0,
+        "explanation": "People will suffer consequences or lose jobs."
+    },
+    {
+        "question": "Meaning of 'Give the game away'?",
+        "options": ["Reveal a secret", "Win a game", "Play fair", "Stay silent"],
+        "answer": 0,
+        "explanation": "To disclose something meant to be secret."
+    },
+    {
+        "question": "'Talking through one's hat' means?",
+        "options": ["Talking nonsense", "Talking smartly", "Talking quietly", "Talking loudly"],
+        "answer": 0,
+        "explanation": "To speak without knowledge or sense."
+    },
+    {
+        "question": "Meaning of 'Put up with'?",
+        "options": ["Tolerate or endure", "Avoid", "Help", "Complain"],
+        "answer": 0,
+        "explanation": "To accept something unpleasant."
+    },
+    {
+        "question": "'Reading between the lines' means?",
+        "options": ["Understand hidden meaning", "Read loudly", "Skip details", "Ignore facts"],
+        "answer": 0,
+        "explanation": "To perceive implicit meanings."
+    },
+    {
+        "question": "'Fine tooth comb' means?",
+        "options": ["Examine carefully", "Brush hair", "Make a mess", "Collect things"],
+        "answer": 0,
+        "explanation": "To examine something thoroughly."
+    },
+    {
+        "question": "Meaning of 'Acid test'?",
+        "options": ["A decisive test to prove something", "A harmful acid", "Small test", "Unfair test"],
+        "answer": 0,
+        "explanation": "A test that clearly shows if something is satisfactory."
+    },
+    {
+        "question": "'Strain every nerve' means?",
+        "options": ["Make maximum effort", "Relax", "Give up", "Make minor effort"],
+        "answer": 0,
+        "explanation": "To try very hard."
+    },
+    {
+        "question": "'Blue-eyed boy' means?",
+        "options": ["A favorite person", "A very clever person", "A shy person", "A beginner"],
+        "answer": 0,
+        "explanation": "Someone favored by others."
+    },
+    {
+        "question": "'Bone to pick' means?",
+        "options": ["A grievance or complaint", "A tasty meal", "A gift", "A happy event"],
+        "answer": 0,
+        "explanation": "A reason for disagreement."
+    },
+    {
+        "question": "'Storm in a teacup' means?",
+        "options": ["A lot of fuss over a trivial matter", "A big storm", "A celebration", "A fight"],
+        "answer": 0,
+        "explanation": "An exaggerated reaction to a minor issue."
+    },
+    {
+        "question": "'Take with a grain of salt' means?",
+        "options": ["View skeptically", "Completely accept", "Ignore", "Believe immediately"],
+        "answer": 0,
+        "explanation": "To doubt something."
+    },
+    {
+        "question": "'Eat humble pie' means?",
+        "options": ["Apologize", "Eat quietly", "Cook food", "Complain"],
+        "answer": 0,
+        "explanation": "To admit one’s mistakes."
+    },
+    {
+        "question": "'Bad blood' means?",
+        "options": ["Animosity or hatred", "Good relationship", "Health problem", "Excitement"],
+        "answer": 0,
+        "explanation": "Feelings of hostility."
+    },
+    {
+        "question": "'High and dry' means?",
+        "options": ["Helpless or abandoned", "Wealthy", "Happy", "Relaxed"],
+        "answer": 0,
+        "explanation": "Left in a difficult situation without help."
+    },
+    {
+        "question": "'Sharp practices' means?",
+        "options": ["Dishonest or unfair behavior", "Smart work", "Slow work", "Good habits"],
+        "answer": 0,
+        "explanation": "Unethical or deceitful behavior."
+    },
+    {
+        "question": "'Set the record straight' means?",
+        "options": ["Clarify facts", "Make a record", "Hide truth", "Ignore details"],
+        "answer": 0,
+        "explanation": "To correct a misunderstanding."
+    },
+    {
+        "question": "'Blow over' means?",
+        "options": ["Pass away or be forgotten", "Blow air", "Become worse", "Blow up"],
+        "answer": 0,
+        "explanation": "To pass off without serious consequences."
+    },
+    {
+        "question": "'Lay bare' means?",
+        "options": ["Reveal or expose", "Cover up", "Build", "Hide"],
+        "answer": 0,
+        "explanation": "To expose or uncover."
+    },
+    {
+        "question": "'Curry favour' means?",
+        "options": ["Try to win favour by flattery", "Cook food", "Ignore someone", "Lose favour"],
+        "answer": 0,
+        "explanation": "To seek to please someone for gain."
+    },
+    {
+        "question": "'At one's beck and call' means?",
+        "options": ["Always ready to serve", "Behind someone's back", "Angry", "Refuse to listen"],
+        "answer": 0,
+        "explanation": "Always ready to obey orders."
+    },
+    {
+        "question": "'Cast pearls before swine' means?",
+        "options": ["Offer something valuable to someone who won't appreciate it", "Feed animals", "Give a gift", "Save money"],
+        "answer": 0,
+        "explanation": "To waste something valuable on those who can't appreciate it."
+    },
+    {
+        "question": "'Storm in a teacup' means?",
+        "options": ["Overreaction to a small problem", "A big disaster", "Party", "Peace"],
+        "answer": 0,
+        "explanation": "An unnecessary fuss about a minor issue."
+    },
+    {
+        "question": "'Throw in the towel' means?",
+        "options": ["Give up", "Start a fight", "Celebrate", "Help others"],
+        "answer": 0,
+        "explanation": "To surrender or admit defeat."
+    },
+    {
+        "question": "'Put one's foot down' means?",
+        "options": ["Assert authority firmly", "Go down", "Start running", "Be silent"],
+        "answer": 0,
+        "explanation": "To take a firm stance."
+    },
+    {
+        "question": "'Turn a blind eye' means?",
+        "options": ["Deliberately ignore", "Look carefully", "Help secretly", "Be confused"],
+        "answer": 0,
+        "explanation": "To ignore something on purpose."
+    },
+    {
+        "question": "'See eye to eye' means?",
+        "options": ["Agree fully", "Disagree", "Fight", "Ignore"],
+        "answer": 0,
+        "explanation": "To have the same opinion."
+    },
+    {
+        "question": "'Under the weather' means?",
+        "options": ["Feeling ill", "Feeling happy", "Feeling sleepy", "Feeling angry"],
+        "answer": 0,
+        "explanation": "Slightly ill or sick."
+    },
+    {
+        "question": "'Beating around the bush' means?",
+        "options": ["Avoid talking about the main point", "Talking clearly", "Making noise", "Wasting time"],
+        "answer": 0,
+        "explanation": "To avoid addressing the main issue directly."
+    },
+    {
+        "question": "'Cut to the chase' means?",
+        "options": ["Get to the point", "Waste time", "Talk indirectly", "Run fast"],
+        "answer": 0,
+        "explanation": "To get to the main point without delay."
+    },
+    {
+        "question": "'Get a taste of your own medicine' means?",
+        "options": ["Experience the same bad treatment you give", "Eat medicine", "Get better", "Be kind"],
+        "answer": 0,
+        "explanation": "To be treated the way you've treated others."
+    },
+    {
+        "question": "'Hit below the belt' means?",
+        "options": ["Act unfairly", "Fight fairly", "Hit accurately", "Be honest"],
+        "answer": 0,
+        "explanation": "To do something unfair or unethical."
+    },
+    {
+        "question": "'Keep your chin up' means?",
+        "options": ["Stay positive", "Feel sad", "Look down", "Be angry"],
+        "answer": 0,
+        "explanation": "Remain hopeful and optimistic."
+    },
+    {
+        "question": "'Let sleeping dogs lie' means?",
+        "options": ["Avoid stirring up trouble", "Wake up dogs", "Cause problems", "Forget everything"],
+        "answer": 0,
+        "explanation": "Avoid causing avoidable trouble."
+    },
+    {
+        "question": "'On the ball' means?",
+        "options": ["Alert and attentive", "Clumsy", "Lazy", "Confused"],
+        "answer": 0,
+        "explanation": "Being alert and quick to respond."
+    },
+    {
+        "question": "'Take it with a grain of salt' means?",
+        "options": ["View skeptically", "Completely believe", "Ignore", "Accept happily"],
+        "answer": 0,
+        "explanation": "To not fully believe something is true."
+    },
+    {
+        "question": "'Throw caution to the wind' means?",
+        "options": ["Take a risk", "Be cautious", "Stay calm", "Wait patiently"],
+        "answer": 0,
+        "explanation": "To act without worrying about the risks."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

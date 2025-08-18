@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Abbreviations Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">COMPUTER ABBREVIATIONS</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+	 {
+        "question": "What does CPU stand for?",
+        "options": ["Control Program Utility", "Central Processing Unit", "Central Program User", "Computer Processing Unit"],
+        "answer": 1,
+        "explanation": "CPU stands for Central Processing Unit, the primary component for processing instructions."
+    },
+    {
+        "question": "What is the full form of RAM in computers?",
+        "options": ["Random Access Memory", "Read All Memory", "Run Application Memory", "Read Access Module"],
+        "answer": 0,
+        "explanation": "RAM stands for Random Access Memory, used for temporary data storage."
+    },
+    {
+        "question": "In computer hardware, what does SSD mean?",
+        "options": ["Solid State Drive", "Serial Storage Drive", "System Storage Disk", "Standard State Drive"],
+        "answer": 0,
+        "explanation": "SSD stands for Solid State Drive, a fast storage device."
+    },
+    {
+        "question": "What does BIOS mean in computers?",
+        "options": ["Basic Input Output System", "Backup Input Output System", "Binary Integrated Output Software", "Basic International Output System"],
+        "answer": 0,
+        "explanation": "BIOS stands for Basic Input Output System, the firmware used at startup."
+    },
+    {
+        "question": "What is the full form of PDF?",
+        "options": ["Portable Document Format", "Page Data Format", "Programmed Document File", "Public Document Folder"],
+        "answer": 0,
+        "explanation": "PDF stands for Portable Document Format, a popular format for sharing documents."
+    },
+    {
+        "question": "In networking, what does LAN stand for?",
+        "options": ["Local Area Network", "Large Area Network", "Low Access Networking", "Lost Application Node"],
+        "answer": 0,
+        "explanation": "LAN stands for Local Area Network, a network within a small area."
+    },
+    {
+        "question": "What is the full form of GUI?",
+        "options": ["Graphical User Interface", "General User Integration", "Global Utility Input", "Grouped User Interface"],
+        "answer": 0,
+        "explanation": "GUI stands for Graphical User Interface."
+    },
+    {
+        "question": "What does OS stand for?",
+        "options": ["Output System", "Operating System", "Organizing Software", "Open System"],
+        "answer": 1,
+        "explanation": "OS means Operating System."
+    },
+    {
+        "question": "What is meant by HTTP?",
+        "options": ["Hyper Terminal Type Protocol", "High-Tier Transfer Program", "HyperText Transfer Protocol", "Host Type Transport Protocol"],
+        "answer": 2,
+        "explanation": "HTTP stands for HyperText Transfer Protocol, used for web communication."
+    },
+    {
+        "question": "What is the expansion of DNS?",
+        "options": ["Domain Numbering Service", "Data Network Server", "Direct Name Service", "Domain Name System"],
+        "answer": 3,
+        "explanation": "DNS stands for Domain Name System, translates names to IP addresses."
+    },
+    {
+        "question": "In Internet protocols, what does FTP stand for?",
+        "options": ["File Transfer Protocol", "Fast Track Project", "File Transmission Parameter", "FullTime Protocol"],
+        "answer": 0,
+        "explanation": "FTP stands for File Transfer Protocol, used for transferring files online."
+    },
+    {
+        "question": "What does SQL stand for?",
+        "options": ["Standard Query Logic", "Structured Query Language", "System Queue Language", "Standard Query List"],
+        "answer": 1,
+        "explanation": "SQL stands for Structured Query Language, used in databases."
+    },
+    {
+        "question": "What does IP stand for in networking?",
+        "options": ["Internet Protocol", "Internal Processor", "Instant Processing", "Input Parameter"],
+        "answer": 0,
+        "explanation": "IP is Internet Protocol, crucial for devices on networks."
+    },
+    {
+        "question": "What is the full form of ROM?",
+        "options": ["Ready Operating Memory", "Read Only Memory", "Random Operation Module", "Replaceable Output Memory"],
+        "answer": 1,
+        "explanation": "ROM means Read Only Memory."
+    },
+    {
+        "question": "In Internet security, what does SSL mean?",
+        "options": ["Secure Sockets Layer", "System Security Level", "Strong Security Layer", "Secure Software Level"],
+        "answer": 0,
+        "explanation": "SSL stands for Secure Sockets Layer, used to secure online communication."
+    },
+    {
+        "question": "What is the meaning of HTML?",
+        "options": ["HyperText Markup Language", "High Technology Machine Language", "Hyper Terminal Markup Language", "Hosting Text Markup Language"],
+        "answer": 0,
+        "explanation": "HTML is HyperText Markup Language, the standard for web pages."
+    },
+    {
+        "question": "In messaging, what does SMS stand for?",
+        "options": ["Short Message Service", "Secure Mail System", "Signal Management System", "Simple Media Sending"],
+        "answer": 0,
+        "explanation": "SMS stands for Short Message Service."
+    },
+    {
+        "question": "What does USB stand for?",
+        "options": ["Universal Serial Bus", "Unique Service Bus", "Ultra Speed Band", "User Service Board"],
+        "answer": 0,
+        "explanation": "USB is Universal Serial Bus, a standard for connecting peripherals."
+    },
+    {
+        "question": "In display technology, what does LCD stand for?",
+        "options": ["Liquid Crystal Display", "Low Cost Display", "Large Color Display", "Light Circuit Device"],
+        "answer": 0,
+        "explanation": "LCD is Liquid Crystal Display."
+    },
+    {
+        "question": "What does ISP mean regarding Internet?",
+        "options": ["Internet Service Provider", "Input Signal Processing", "International Satellite Provider", "Internal Service Protocol"],
+        "answer": 0,
+        "explanation": "ISP stands for Internet Service Provider."
+    },
+	{
+        "question": "What does CPU stand for?",
+        "options": ["Central Processing Unit", "Central Program Unit", "Computer Processing Unit", "Control Program Utility"],
+        "answer": 0,
+        "explanation": "CPU stands for Central Processing Unit, the core unit that processes instructions in a computer."
+    },
+    {
+        "question": "What is the full form of RAM?",
+        "options": ["Random Access Memory", "Read Access Memory", "Read Authorization Memory", "Run Accurate Memory"],
+        "answer": 0,
+        "explanation": "RAM stands for Random Access Memory, a type of computer memory that is volatile and used for temporary data storage."
+    },
+    {
+        "question": "What is the full form of ROM?",
+        "options": ["Read Only Memory", "Run Only Memory", "Random Only Memory", "Read Output Memory"],
+        "answer": 0,
+        "explanation": "ROM stands for Read Only Memory, which is non-volatile storage that retains data even after power off."
+    },
+    {
+        "question": "What does USB stand for?",
+        "options": ["Universal Serial Bus", "United Serial Board", "Universal Storage Block", "Unique Service Bus"],
+        "answer": 0,
+        "explanation": "USB stands for Universal Serial Bus, a standard for connecting peripherals to computers."
+    },
+    {
+        "question": "What is the full form of BIOS?",
+        "options": ["Basic Input Output System", "Binary Input Output Service", "Base Integrated Operating System", "Basic Information Output Storage"],
+        "answer": 0,
+        "explanation": "BIOS stands for Basic Input Output System, the firmware used to perform hardware initialization at startup."
+    },
+    {
+        "question": "What does OS stand for in computers?",
+        "options": ["Operating System", "Output Storage", "Operating Service", "Open Software"],
+        "answer": 0,
+        "explanation": "OS means Operating System, the main software that manages computer hardware and software resources."
+    },
+    {
+        "question": "What is the full form of HTTP?",
+        "options": ["HyperText Transfer Protocol", "Hyperlink Text Transfer Protocol", "High Transfer Text Protocol", "Hyper Terminal Transfer Protocol"],
+        "answer": 0,
+        "explanation": "HTTP stands for HyperText Transfer Protocol, the base protocol for data communication on the web."
+    },
+    {
+        "question": "What does HTML stand for?",
+        "options": ["HyperText Markup Language", "HighText Markup Language", "High Transmission Mark Language", "Hyperlink Machine Language"],
+        "answer": 0,
+        "explanation": "HTML is HyperText Markup Language, the standard language for creating web pages."
+    },
+    {
+        "question": "What is the full form of PDF?",
+        "options": ["Portable Document Format", "Program Data File", "Partial Data File", "Portable Data Format"],
+        "answer": 0,
+        "explanation": "PDF means Portable Document Format, a widely used file format for documents."
+    },
+    {
+        "question": "What does LAN stand for?",
+        "options": ["Local Area Network", "Large Area Network", "Logical Area Network", "Linked Area Network"],
+        "answer": 0,
+        "explanation": "LAN stands for Local Area Network, which connects computers in a limited area like an office."
+    },
+    {
+        "question": "What does WAN stand for?",
+        "options": ["Wide Area Network", "Wireless Area Network", "Wide Application Network", "Wire Access Network"],
+        "answer": 0,
+        "explanation": "WAN means Wide Area Network, covering a broad geographic area."
+    },
+    {
+        "question": "What is the full form of ALU?",
+        "options": ["Arithmetic Logic Unit", "Analog Logic Unit", "Arithmetic Logic Utility", "Advanced Logic Unit"],
+        "answer": 0,
+        "explanation": "ALU stands for Arithmetic Logic Unit, a part of CPU that performs calculations and logical operations."
+    },
+    {
+        "question": "What does UPS stand for?",
+        "options": ["Uninterruptible Power Supply", "Universal Power Source", "Uninterrupted Port Source", "United Power System"],
+        "answer": 0,
+        "explanation": "UPS means Uninterruptible Power Supply, a backup device for power failures."
+    },
+    {
+        "question": "What is the full form of GUI?",
+        "options": ["Graphical User Interface", "General User Interface", "Graphical Universal Interface", "General Use Integration"],
+        "answer": 0,
+        "explanation": "GUI is a Graphical User Interface which enables users to interact with devices via graphics."
+    },
+    {
+        "question": "What is the full form of URL?",
+        "options": ["Uniform Resource Locator", "Universal Resource Link", "Unified Resource locator", "Uniform Reference Locator"],
+        "answer": 0,
+        "explanation": "URL stands for Uniform Resource Locator, which specifies the address of a resource on the internet."
+    },
+    {
+        "question": "What does ICT stand for?",
+        "options": ["Information and Communication Technology", "Integrated Computer Technology", "Information Computer Telephony", "Inter Communication Technology"],
+        "answer": 0,
+        "explanation": "ICT means Information and Communication Technology."
+    },
+    {
+        "question": "What is the full form of SMTP in email?",
+        "options": ["Simple Mail Transfer Protocol", "Standard Mail Transfer Protocol", "Suite Mail Transfer Protocol", "Simple Messaging Transfer Protocol"],
+        "answer": 0,
+        "explanation": "SMTP stands for Simple Mail Transfer Protocol, used for sending emails."
+    },
+    {
+        "question": "What does VGA stand for?",
+        "options": ["Video Graphics Array", "Virtual Graphics Adapter", "Variable Graphics Array", "Video General Adapter"],
+        "answer": 0,
+        "explanation": "VGA is Video Graphics Array, a display standard for monitors."
+    },
+    {
+        "question": "What is the full form of DVD?",
+        "options": ["Digital Versatile Disc", "Disk Visual Data", "Double Video Disk", "Digital Visual Data"],
+        "answer": 0,
+        "explanation": "DVD stands for Digital Versatile Disc, a type of optical storage."
+    },
+    {
+        "question": "What is the full form of SSD?",
+        "options": ["Solid State Drive", "Super Speed Disk", "Standard Storage Drive", "Solid Storage Data"],
+        "answer": 0,
+        "explanation": "SSD stands for Solid State Drive, a storage device with no moving parts."
+    },
+    {
+        "question": "What does LED stand for?",
+        "options": ["Light Emitting Diode", "Low Emission Display", "Laser Emission Device", "Light Electric Device"],
+        "answer": 0,
+        "explanation": "LED means Light Emitting Diode, a semiconductor light source."
+    },
+    {
+        "question": "What does IP stand for in networking?",
+        "options": ["Internet Protocol", "Information Process", "Input Processor", "Interface Protocol"],
+        "answer": 0,
+        "explanation": "IP is Internet Protocol, foundational for Internet data exchange."
+    },
+    {
+        "question": "What is the full form of MICR?",
+        "options": ["Magnetic Ink Character Recognition", "Micro Input Character Reader", "Machine Input Character Recognition", "Magnetic Input Character Reader"],
+        "answer": 0,
+        "explanation": "MICR stands for Magnetic Ink Character Recognition, used in banking."
+    },
+    {
+        "question": "What does OCR stand for?",
+        "options": ["Optical Character Recognition", "Optimum Character Reader", "Optical Code Regulator", "Optical Computer Resource"],
+        "answer": 0,
+        "explanation": "OCR is Optical Character Recognition, used for digitizing printed text."
+    },
+    {
+        "question": "What is the full form of ATM (for networks)?",
+        "options": ["Asynchronous Transfer Mode", "Automatic Teller Machine", "Access Transfer Mode", "Asynchronous Terminal Mode"],
+        "answer": 0,
+        "explanation": "ATM stands for Asynchronous Transfer Mode, a networking technology."
+    },
+    {
+        "question": "What does DNS stand for?",
+        "options": ["Domain Name System", "Data Name Service", "Domain Numeric Service", "Distributed Name System"],
+        "answer": 0,
+        "explanation": "DNS is Domain Name System, which converts domain names to IP addresses."
+    },
+    {
+        "question": "What is the full form of SSL?",
+        "options": ["Secure Sockets Layer", "Server Secure Layer", "Secure System Layer", "Super Secure Layer"],
+        "answer": 0,
+        "explanation": "SSL stands for Secure Sockets Layer, used for website security."
+    },
+    {
+        "question": "What does PAN stand for in networking?",
+        "options": ["Personal Area Network", "Professional Area Network", "Primary Access Network", "Publicly Accessible Network"],
+        "answer": 0,
+        "explanation": "PAN is Personal Area Network, covering a very small distance, like Bluetooth connections."
+    },
+    {
+        "question": "What is the full form of CD-ROM?",
+        "options": ["Compact Disc Read Only Memory", "Central Data Read Only Memory", "Compact Disk Read Output Memory", "Compact Data Recordable Only Memory"],
+        "answer": 0,
+        "explanation": "CD-ROM is Compact Disc Read Only Memory, a read-only optical disk."
+    },
+    {
+        "question": "What does SMTP stand for?",
+        "options": ["Simple Mail Transfer Protocol", "Simple Message Transfer Protocol", "System Mail Transfer Protocol", "Super Mail Text Protocol"],
+        "answer": 0,
+        "explanation": "SMTP is Simple Mail Transfer Protocol, used to send outgoing emails."
+    },
+    {
+        "question": "What is the full form of FDD?",
+        "options": ["Floppy Disk Drive", "Fast Disk Drive", "File Data Device", "Floppy Data Disk"],
+        "answer": 0,
+        "explanation": "FDD means Floppy Disk Drive, an older data storage device."
+    },
+    {
+        "question": "What does WWW stand for?",
+        "options": ["World Wide Web", "Wide Web World", "Web Wide World", "World Web Wide"],
+        "answer": 0,
+        "explanation": "WWW stands for World Wide Web, the collection of interlinked web pages."
+    },
+    {
+        "question": "What is the full form of FTP?",
+        "options": ["File Transfer Protocol", "Fast Transfer Program", "File Transmission Program", "Folder Transfer Protocol"],
+        "answer": 0,
+        "explanation": "FTP is File Transfer Protocol, used for transferring files over computer networks."
+    },
+    {
+        "question": "What does GUI stand for?",
+        "options": ["Graphical User Interface", "General User Interface", "Grouped User Interface", "Global User Integration"],
+        "answer": 0,
+        "explanation": "GUI enables users to interact visually with digital devices."
+    },
+    {
+        "question": "What is the full form of SQL?",
+        "options": ["Structured Query Language", "Standard Question Language", "Sequential Query Language", "Simple Query Language"],
+        "answer": 0,
+        "explanation": "SQL means Structured Query Language, used in managing databases."
+    },
+    {
+        "question": "What does HDMI stand for?",
+        "options": ["High Definition Multimedia Interface", "Hypertext Device Management Interface", "High Data Multimedia Interface", "Hybrid Digital Media Interface"],
+        "answer": 0,
+        "explanation": "HDMI is High Definition Multimedia Interface, transmitting video and audio digitally."
+    },
+    {
+        "question": "What is the full form of OCR?",
+        "options": ["Optical Character Recognition", "Optimum Computer Reader", "Optical Computer Relay", "Optical Communication Reader"],
+        "answer": 0,
+        "explanation": "OCR is used to convert scanned documents and images into editable text."
+    },
+    {
+        "question": "What does MODEM stand for?",
+        "options": ["Modulator Demodulator", "Modern Device", "Modular Device Emulator", "Minimum Data Module"],
+        "answer": 0,
+        "explanation": "MODEM stands for Modulator Demodulator, which modulates and demodulates digital data."
+    },
+    {
+        "question": "What is the full form of PDF?",
+        "options": ["Portable Document Format", "Primary Data Format", "Partial Download Format", "Print Data File"],
+        "answer": 0,
+        "explanation": "PDF is a popular digital document file format."
+    },
+    {
+        "question": "What does HDD stand for?",
+        "options": ["Hard Disk Drive", "High Data Disk", "Hybrid Data Drive", "Hard Dynamic Drive"],
+        "answer": 0,
+        "explanation": "HDD stands for Hard Disk Drive, used for long-term data storage."
+    },
+    {
+        "question": "What is the full form of DPI?",
+        "options": ["Dots Per Inch", "Digital Print Interface", "Data Per Inch", "Disc Print Index"],
+        "answer": 0,
+        "explanation": "DPI refers to the resolution of printers and screens."
+    },
+    {
+        "question": "What does MAC stand for in networking?",
+        "options": ["Media Access Control", "Memory Access Controller", "Multimedia Application Control", "Master Access Code"],
+        "answer": 0,
+        "explanation": "MAC means Media Access Control, a unique hardware address for devices on a network."
+    },
+    {
+        "question": "What is the full form of ISP?",
+        "options": ["Internet Service Provider", "Internal System Provider", "Internet System Program", "International Service Provider"],
+        "answer": 0,
+        "explanation": "ISP is Internet Service Provider, a company that offers internet access."
+    },
+    {
+        "question": "What does LCD stand for?",
+        "options": ["Liquid Crystal Display", "Linear Crystal Diagram", "Light Computer Display", "Logical Computer Device"],
+        "answer": 0,
+        "explanation": "LCD stands for Liquid Crystal Display, common in screens and monitors."
+    },
+	{
+        "question": "What does PNG stand for in file formats?",
+        "options": ["Portable Network Graphics", "Printable Network Graphics", "Public Network Graphic", "Personal Network Graphics"],
+        "answer": 0,
+        "explanation": "PNG stands for Portable Network Graphics, a lossless image file format."
+    },
+    {
+        "question": "What is the full form of VGA used for monitors?",
+        "options": ["Video Graphics Array", "Virtual Graphical Adapter", "Video Group Adapter", "Visual Graphics Axis"],
+        "answer": 0,
+        "explanation": "VGA means Video Graphics Array, a display hardware standard."
+    },
+    {
+        "question": "In computing, what does API stand for?",
+        "options": ["Application Programming Interface", "Advanced Program Interface", "Applied Programming Integration", "Automatic Program Input"],
+        "answer": 0,
+        "explanation": "API refers to Application Programming Interface, a set of routines for software interaction."
+    },
+    {
+        "question": "What does GIF stand for?",
+        "options": ["Graphics Interchange Format", "General Image File", "Graphical Interface Form", "Generated Image Format"],
+        "answer": 0,
+        "explanation": "GIF stands for Graphics Interchange Format, a bitmap image format with animation support."
+    },
+    {
+        "question": "What is the full form of EEPROM?",
+        "options": ["Electrically Erasable Programmable Read Only Memory", "Enhanced Erasable Programmed ROM", "Electromagnetic Erasable and Programmable ROM", "Extended Electronically Erased ROM"],
+        "answer": 0,
+        "explanation": "EEPROM is a type of non-volatile memory that can be erased and reprogrammed using electrical charge."
+    },
+    {
+        "question": "What does TCP stand for in networking?",
+        "options": ["Transmission Control Protocol", "Transfer Communication Protocol", "Technical Computer Protocol", "Time Control Pathway"],
+        "answer": 0,
+        "explanation": "TCP stands for Transmission Control Protocol, which manages data packet transmission reliability."
+    },
+    {
+        "question": "What does AI stand for in computers?",
+        "options": ["Artificial Intelligence", "Automated Input", "Analog Interface", "Application Integration"],
+        "answer": 0,
+        "explanation": "AI means Artificial Intelligence, the simulation of human intelligence in machines."
+    },
+    {
+        "question": "What is the full form of DHCP?",
+        "options": ["Dynamic Host Configuration Protocol", "Direct Host Computer Protocol", "Data Host Computer Protocol", "Dynamic Host Connection Path"],
+        "answer": 0,
+        "explanation": "DHCP stands for Dynamic Host Configuration Protocol, which assigns IP addresses automatically."
+    },
+    {
+        "question": "What does SMS stand for?",
+        "options": ["Short Message Service", "Simple Message Service", "Serial Messaging Software", "Single Mail Server"],
+        "answer": 0,
+        "explanation": "SMS is Short Message Service, a protocol for sending text messages."
+    },
+    {
+        "question": "In databases, what does DBMS stand for?",
+        "options": ["Database Management System", "Data Basic Management System", "Disk Basic Management System", "Database Master System"],
+        "answer": 0,
+        "explanation": "DBMS stands for Database Management System, used to manage collections of data."
+    },
+    {
+        "question": "What is the full form of NIC?",
+        "options": ["Network Interface Card", "Network Internet Chip", "Network Internal Computer", "Network Integrated Circuit"],
+        "answer": 0,
+        "explanation": "NIC means Network Interface Card, a hardware component for network communication."
+    },
+    {
+        "question": "What is the full meaning of PPT in terms of files?",
+        "options": ["PowerPoint Presentation", "Personal Portable Template", "Printer Protocol Type", "Portable Presentation Type"],
+        "answer": 0,
+        "explanation": "PPT is the file extension for Microsoft PowerPoint presentations."
+    },
+    {
+        "question": "What does BIOS stand for in relation to computers?",
+        "options": ["Basic Input Output System", "Basic Instruction Output System", "Binary Input Output Structure", "Basic Integrated Output Service"],
+        "answer": 0,
+        "explanation": "BIOS stands for Basic Input Output System, a firmware for hardware initialization."
+    },
+    {
+        "question": "What is the full form of ASCII?",
+        "options": ["American Standard Code for Information Interchange", "Advanced System Command Information Interface", "Analog Signal Controlled Input Interface", "Automated Standard Code for Information Integration"],
+        "answer": 0,
+        "explanation": "ASCII stands for American Standard Code for Information Interchange, for text encoding."
+    },
+    {
+        "question": "What does PDF stand for?",
+        "options": ["Portable Document Format", "Program Data File", "Public Data File", "Print Document File"],
+        "answer": 0,
+        "explanation": "PDF is Portable Document Format, used for sharing documents."
+    },
+    {
+        "question": "What is the abbreviation for SEO?",
+        "options": ["Search Engine Optimization", "Simple Electronic Operation", "System Engine Output", "Software Engineering Office"],
+        "answer": 0,
+        "explanation": "SEO stands for Search Engine Optimization, improving web-site ranking in search results."
+    },
+    {
+        "question": "What does URL stand for?",
+        "options": ["Uniform Resource Locator", "Universal Registered Link", "Unique Record Locator", "User Reserved License"],
+        "answer": 0,
+        "explanation": "URL stands for Uniform Resource Locator, addressing resources on the internet."
+    },
+    {
+        "question": "What is meant by PSU in the context of computer hardware?",
+        "options": ["Power Supply Unit", "Personal Storage Utility", "Print Service Unit", "Program Storage Utility"],
+        "answer": 0,
+        "explanation": "PSU means Power Supply Unit, which provides power to a computer."
+    },
+    {
+        "question": "What does JVM stand for in programming?",
+        "options": ["Java Virtual Machine", "Joint Variable Memory", "Java Version Manager", "Joint Virtual Method"],
+        "answer": 0,
+        "explanation": "JVM stands for Java Virtual Machine, which runs Java programs on any platform."
+    },
+    {
+        "question": "What is the full form of OSI as in the OSI Model?",
+        "options": ["Open Systems Interconnection", "Operating System Integration", "Open Source Interface", "Operating System Interconnectivity"],
+        "answer": 0,
+        "explanation": "OSI means Open Systems Interconnection, a reference model for network communication."
+    },
+    {
+        "question": "What does CAD mean in the context of computers?",
+        "options": ["Computer Aided Design", "Computer Application Database", "Central Access Device", "Core Access Data"],
+        "answer": 0,
+        "explanation": "CAD stands for Computer Aided Design, software for creating engineering drawings."
+    },
+    {
+        "question": "What is the full form of LED in display technology?",
+        "options": ["Light Emitting Diode", "Light Electric Display", "Liquid Electronic Display", "Low End Display"],
+        "answer": 0,
+        "explanation": "LED stands for Light Emitting Diode, used in modern screens."
+    },
+    {
+        "question": "What does DSL represent in networking?",
+        "options": ["Digital Subscriber Line", "Direct Subscriber Link", "Data Signal Link", "Digital Service Layer"],
+        "answer": 0,
+        "explanation": "DSL refers to Digital Subscriber Line, a technology for high-speed internet access."
+    },
+    {
+        "question": "What does SCSI stand for?",
+        "options": ["Small Computer System Interface", "Small Computer System Integration", "System Computer Signal Interface", "Standard Computer Storage Interface"],
+        "answer": 0,
+        "explanation": "SCSI stands for Small Computer System Interface, used to connect and transfer data between computers and peripherals."
+    },
+    {
+        "question": "What does GIF stand for?",
+        "options": ["Graphics Interchange Format", "General Information File", "Graphical Information Format", "Global Interface Form"],
+        "answer": 0,
+        "explanation": "A GIF is Graphics Interchange Format, an image file format with animation support."
+    },
+    {
+        "question": "What is the full form of XML?",
+        "options": ["eXtensible Markup Language", "eXchange Message Language", "Extra Mailing Language", "eXact Marking Language"],
+        "answer": 0,
+        "explanation": "XML is eXtensible Markup Language, used for data storage and transport."
+    },
+    {
+        "question": "What does HTTPS stand for?",
+        "options": ["HyperText Transfer Protocol Secure", "HyperText Test Protocol Secure", "Hyper Transmission Transport Protocol Secure", "High Transfer Protocol Secure"],
+        "answer": 0,
+        "explanation": "HTTPS means HyperText Transfer Protocol Secure, providing encrypted communication on the web."
+    },
+    {
+        "question": "What is the full form of PSU (in software engineering)?",
+        "options": ["Problem Statement Unit", "Process Scheduling Unit", "Program Service Utility", "Proposed Solution Utility"],
+        "answer": 0,
+        "explanation": "In software engineering, PSU can stand for Problem Statement Unit."
+    },
+    {
+        "question": "What does VPN stand for?",
+        "options": ["Virtual Private Network", "Visual Processing Network", "Virtual Protocol Node", "Verified Program Node"],
+        "answer": 0,
+        "explanation": "VPN is Virtual Private Network, used for secure and private network connections."
+    },
+    {
+        "question": "What does RAID mean in storage?",
+        "options": ["Redundant Array of Independent Disks", "Random Access Integrated Database", "Registered Array Internal Device", "Run Access Instruction Decoder"],
+        "answer": 0,
+        "explanation": "RAID stands for Redundant Array of Independent Disks, enhancing storage performance and reliability."
+    },
+    {
+        "question": "What is the full form of Bluetooth?",
+        "options": ["It is not an acronym", "Basic Local Upload Terminal", "Bus Link Technology", "Binary Link Timeout"],
+        "answer": 0,
+        "explanation": "Bluetooth is a trademark and not an acronym, named after Danish King Harald Bluetooth."
+    },
+    {
+        "question": "What does CAPTCHA stand for?",
+        "options": ["Completely Automated Public Turing test to tell Computers and Humans Apart", "Computer Algorithm for Public Turing Challenge", "Computer Assisted Pattern Tracking and Checking Algorithm", "Common Application Protocol for Testing Human Access"],
+        "answer": 0,
+        "explanation": "CAPTCHA differentiates between human and automated bot users."
+    },
+    {
+        "question": "What is the full form of UDP in networking?",
+        "options": ["User Datagram Protocol", "Unified Data Protocol", "Universal Datagram Platform", "User Data Processing"],
+        "answer": 0,
+        "explanation": "UDP means User Datagram Protocol, a simple connectionless network communication protocol."
+    },
+    {
+        "question": "What does DDoS mean?",
+        "options": ["Distributed Denial of Service", "Dynamic Data Output System", "Digital Download Over Satellite", "Device Data Operation Scheme"],
+        "answer": 0,
+        "explanation": "DDoS, Distributed Denial of Service, is a network attack where multiple systems flood a target."
+    },
+    {
+        "question": "What is the full form of GIF?",
+        "options": ["Graphics Interchange Format", "Generic Image File", "Graphical Interface File", "Global Image Folder"],
+        "answer": 0,
+        "explanation": "GIF is Graphics Interchange Format, a type of image file."
+    },
+    {
+        "question": "What is the full form of JSON?",
+        "options": ["JavaScript Object Notation", "Java Storage Object Number", "Joint System Operating Node", "Java Scalar Object Naming"],
+        "answer": 0,
+        "explanation": "JSON is JavaScript Object Notation, a lightweight data interchange format."
+    },
+	{
+        "question": "What does RDBMS stand for?",
+        "options": ["Relational Database Management System", "Real-time Data Block Management System", "Remote Data Backup Management Server", "Read-Only Database Management Software"],
+        "answer": 0,
+        "explanation": "RDBMS stands for Relational Database Management System, which stores data in tabular form with relations."
+    },
+    {
+        "question": "What is the full form of POST in computers?",
+        "options": ["Power-On Self-Test", "Primary Output Software Tool", "Processor Output Summary Table", "Pre-Operating System Test"],
+        "answer": 0,
+        "explanation": "POST stands for Power-On Self-Test, the initial test run by firmware at boot."
+    },
+    {
+        "question": "What does SSD stand for?",
+        "options": ["Solid State Drive", "Secure Storage Device", "System Software Driver", "Super Speed Disk"],
+        "answer": 0,
+        "explanation": "SSD refers to Solid State Drive, a data storage device with no moving parts."
+    },
+    {
+        "question": "What is the full form of WLAN?",
+        "options": ["Wireless Local Area Network", "Wide Local Application Network", "Wide Local Access Node", "Wireless Long Area Node"],
+        "answer": 0,
+        "explanation": "WLAN stands for Wireless Local Area Network, used for wireless network connections in a small area."
+    },
+    {
+        "question": "What does BIOS stand for?",
+        "options": ["Basic Input Output System", "Binary Input Output Sequence", "Basic Integrated Operating Service", "Base Input Output Server"],
+        "answer": 0,
+        "explanation": "BIOS is Basic Input Output System, the firmware to initialize hardware during boot."
+    },
+    {
+        "question": "What is the full form of OCR in computing?",
+        "options": ["Optical Character Recognition", "Optimum Character Rendering", "Open-source Coding Registry", "Optical Communication Resource"],
+        "answer": 0,
+        "explanation": "OCR is Optical Character Recognition, converting images/text to machine-encoded text."
+    },
+    {
+        "question": "What does CGI mean in web development?",
+        "options": ["Common Gateway Interface", "Computer Graphics Interface", "Central Gateway Integration", "Computer Graphics Interchange"],
+        "answer": 0,
+        "explanation": "CGI stands for Common Gateway Interface, a standard for web server scripts."
+    },
+    {
+        "question": "What is the full form of SIM in mobile technology?",
+        "options": ["Subscriber Identity Module", "Subscriber Integrated Machine", "System Integrated Module", "Secondary Interface Module"],
+        "answer": 0,
+        "explanation": "SIM means Subscriber Identity Module, a chip for storing network information."
+    },
+    {
+        "question": "What does SaaS stand for?",
+        "options": ["Software as a Service", "System as a Software", "Storage as a Service", "Solution as a Service"],
+        "answer": 0,
+        "explanation": "SaaS stands for Software as a Service, software delivered over the internet."
+    },
+    {
+        "question": "What is the full form of ARP?",
+        "options": ["Address Resolution Protocol", "Automatic Routing Process", "Active Resource Protocol", "Application Relay Protocol"],
+        "answer": 0,
+        "explanation": "ARP is Address Resolution Protocol, mapping IP addresses to MAC addresses."
+    },
+    {
+        "question": "What does DNS stand for?",
+        "options": ["Domain Name System", "Data Network Security", "Digital Network Service", "Distributed Name Service"],
+        "answer": 0,
+        "explanation": "DNS translates human-readable domain names to IP addresses."
+    },
+    {
+        "question": "What is the full form of CMOS?",
+        "options": ["Complementary Metal Oxide Semiconductor", "Central Main Output Storage", "Computer Memory Output System", "Central Metal Oxide Storage"],
+        "answer": 0,
+        "explanation": "CMOS is Complementary Metal Oxide Semiconductor, used for BIOS memory."
+    },
+    {
+        "question": "What does PDF stand for?",
+        "options": ["Portable Document Format", "Print Data File", "Program Data File", "Primary Download Format"],
+        "answer": 0,
+        "explanation": "PDF is Portable Document Format, a common file type for documents."
+    },
+    {
+        "question": "What does GPS stand for?",
+        "options": ["Global Positioning System", "Global Packet Switch", "General Processing System", "Ground Protocol Switch"],
+        "answer": 0,
+        "explanation": "GPS stands for Global Positioning System, a satellite-based navigation system."
+    },
+    {
+        "question": "What does SMTP stand for?",
+        "options": ["Simple Mail Transfer Protocol", "Secure Mail Transport Protocol", "Single Mail Transfer Protocol", "Secure Mail Transfer Provider"],
+        "answer": 0,
+        "explanation": "SMTP is Simple Mail Transfer Protocol, used for sending emails."
+    },
+    {
+        "question": "What is the full form of PDF?",
+        "options": ["Portable Document Format", "Personal Data File", "Program Delivery Format", "Print Data Format"],
+        "answer": 0,
+        "explanation": "PDF is widely recognized as Portable Document Format."
+    },
+    {
+        "question": "What does SSL stand for?",
+        "options": ["Secure Sockets Layer", "Simple Safety Layer", "Standard Security Layer", "System Sockets Level"],
+        "answer": 0,
+        "explanation": "SSL stands for Secure Sockets Layer, ensures secure data transfer."
+    },
+    {
+        "question": "What is meant by SQL?",
+        "options": ["Structured Query Language", "System Query Library", "Simple Question Language", "Sequential Query Language"],
+        "answer": 0,
+        "explanation": "SQL means Structured Query Language, a standard for databases."
+    },
+    {
+        "question": "What does 3G stand for in mobile technology?",
+        "options": ["Third Generation", "Triple Grid", "Third Grade", "Three-way Gap"],
+        "answer": 0,
+        "explanation": "3G means Third Generation, a type of mobile telecom standard."
+    },
+    {
+        "question": "What is the full form of 4G in telecom?",
+        "options": ["Fourth Generation", "Four Grid", "Fast Generation", "Fourth Gateway"],
+        "answer": 0,
+        "explanation": "4G means Fourth Generation mobile telecommunications technology."
+    },
+    {
+        "question": "What does GIF mean in computer graphics?",
+        "options": ["Graphics Interchange Format", "General Information File", "Graphical Interface File", "Global Image Folder"],
+        "answer": 0,
+        "explanation": "GIF stands for Graphics Interchange Format, supports static and animated images."
+    },
+    {
+        "question": "What is the full form of DTP?",
+        "options": ["Desktop Publishing", "Data Termination Protocol", "Direct Transmission Port", "Data Text Processing"],
+        "answer": 0,
+        "explanation": "DTP is Desktop Publishing, using computers for creating publications."
+    },
+    {
+        "question": "What does CAD stand for?",
+        "options": ["Computer Aided Design", "Central Area Design", "Computer Analog Decoder", "Central Access Device"],
+        "answer": 0,
+        "explanation": "CAD means Computer Aided Design, used mainly for engineering drawings."
+    },
+    {
+        "question": "What is the full form of AI?",
+        "options": ["Artificial Intelligence", "Automated Interface", "Analog Input", "Advanced Integration"],
+        "answer": 0,
+        "explanation": "AI is Artificial Intelligence, enabling computers to simulate human intelligence."
+    },
+    {
+        "question": "What does Wi-Fi stand for?",
+        "options": ["It is not an acronym", "Wireless Fidelity", "Wireless File", "Wide Fast Internet"],
+        "answer": 0,
+        "explanation": "Wi-Fi is a trademarked name and not an acronym. It refers to wireless networking technology."
+    },
+    {
+        "question": "What is the full form of EEPROM?",
+        "options": ["Electrically Erasable Programmable Read Only Memory", "Electronic Erased Primary RAM", "Easy Erase Processed ROM", "Electronically Editable Primary Memory"],
+        "answer": 0,
+        "explanation": "EEPROM refers to memory that can be electrically erased and reprogrammed."
+    },
+    {
+        "question": "What does ISP stand for?",
+        "options": ["Internet Service Provider", "Information System Program", "Integrated Software Platform", "International Standards Protocol"],
+        "answer": 0,
+        "explanation": "ISP stands for Internet Service Provider, the provider of internet access to users."
+    },
+    {
+        "question": "What is the full form of DEMUX?",
+        "options": ["Demultiplexer", "Double Multiplex", "Decimal Multiplexer", "Data Expander Multiplex"],
+        "answer": 0,
+        "explanation": "DEMUX means Demultiplexer, a device that separates multiplexed signals."
+    },
+    {
+        "question": "What does LAN mean?",
+        "options": ["Local Area Network", "Long Area Network", "Large Access Network", "Linked Access Network"],
+        "answer": 0,
+        "explanation": "LAN stands for Local Area Network."
+    },
+    {
+        "question": "What does ASCII stand for?",
+        "options": ["American Standard Code for Information Interchange", "Automatic System Computer Interface", "Analog Signal Coding Integration", "Advanced Standard Code for Information Interchange"],
+        "answer": 0,
+        "explanation": "ASCII is a standard code for representing text in computers."
+    },
+    {
+        "question": "What is the full form of DNS?",
+        "options": ["Domain Name System", "Distributed Network Standard", "Direct Network Service", "Disk Networking System"],
+        "answer": 0,
+        "explanation": "DNS means Domain Name System, translating domain names to IP addresses."
+    },
+    {
+        "question": "What does IC stand for in electronics?",
+        "options": ["Integrated Circuit", "Internal Computer", "Input Code", "Information Cell"],
+        "answer": 0,
+        "explanation": "IC stands for Integrated Circuit, a set of electronic circuits on a small chip."
+    },
+    {
+        "question": "What does MOSFET stand for?",
+        "options": ["Metal Oxide Semiconductor Field Effect Transistor", "Magneto Operating System Feedback Electronic Transistor", "Main Output System Field Electronic Technology", "Model Output Signal Field Effect Torque"],
+        "answer": 0,
+        "explanation": "MOSFET is a type of transistor used in electronics."
+    },
+    {
+        "question": "What is the full form of GUI?",
+        "options": ["Graphical User Interface", "Global Utility Interface", "General Usage Instruction", "Graphical User Integration"],
+        "answer": 0,
+        "explanation": "GUI enables users to interact visually using windows, icons, and menus."
+    },
+    {
+        "question": "What does IT stand for?",
+        "options": ["Information Technology", "Information Time", "Input Transmission", "Internet Technology"],
+        "answer": 0,
+        "explanation": "IT is the broad domain of Information Technology."
+    },
+    {
+        "question": "What does SMS stand for?",
+        "options": ["Short Message Service", "System Message Service", "Standard Messaging Software", "Short Mail System"],
+        "answer": 0,
+        "explanation": "SMS stands for Short Message Service, used for text messaging."
+    },
+    {
+        "question": "What is the full form of RAM?",
+        "options": ["Random Access Memory", "Read Analog Memory", "Required Application Memory", "Randomized Application Mapping"],
+        "answer": 0,
+        "explanation": "RAM is Random Access Memory, temporary and quickly accessible storage."
+    },
+    {
+        "question": "What does 'SQL' stand for in IT?",
+        "options": ["Structured Query Language", "System Quantitative Language", "Standard Queue Language", "Sequential Question Log"],
+        "answer": 0,
+        "explanation": "SQL is Structured Query Language."
+    },
+	 {
+        "question": "What does SSL stand for in website security?",
+        "options": ["Secure Sockets Layer", "System Service Layer", "Serial Signal Line", "Software Security Layer"],
+        "answer": 0,
+        "explanation": "SSL stands for Secure Sockets Layer, a protocol for securing web communications."
+    },
+    {
+        "question": "What is the full form of IPv6?",
+        "options": ["Internet Protocol version 6", "Integrated Protocol vector 6", "Internal Packet version 6", "Internet Processing vector 6"],
+        "answer": 0,
+        "explanation": "IPv6 stands for Internet Protocol version 6, the newest version used for addressing on the Internet."
+    },
+    {
+        "question": "What does PCI stand for in computer hardware?",
+        "options": ["Peripheral Component Interconnect", "Personal Computer Interface", "Processor Control Interface", "Programmed Communication Input"],
+        "answer": 0,
+        "explanation": "PCI is Peripheral Component Interconnect, a standard for connecting internal components."
+    },
+    {
+        "question": "What is the full form of AI in technology?",
+        "options": ["Artificial Intelligence", "Advanced Integration", "Automated Instruction", "Active Internet"],
+        "answer": 0,
+        "explanation": "AI stands for Artificial Intelligence, technologies that simulate human intelligence."
+    },
+    {
+        "question": "What does MIME stand for in emails?",
+        "options": ["Multipurpose Internet Mail Extensions", "Mail Internet Message Encryption", "Multiple Interaction Message Extender", "Mail Integrated Messaging Engine"],
+        "answer": 0,
+        "explanation": "MIME makes it possible to send different types of files by email."
+    },
+    {
+        "question": "What is the full form of BIOS in a computer?",
+        "options": ["Basic Input Output System", "Binary Input Output Signal", "Batch Information Output Software", "Base Internet Operating System"],
+        "answer": 0,
+        "explanation": "BIOS is Basic Input Output System, firmware that initializes hardware at startup."
+    },
+    {
+        "question": "What does CRT stand for in monitor technology?",
+        "options": ["Cathode Ray Tube", "Central Rendering Terminal", "Calculated Reaction Transistor", "Cathode Response Track"],
+        "answer": 0,
+        "explanation": "CRT stands for Cathode Ray Tube, a legacy monitor display technology."
+    },
+    {
+        "question": "In antivirus software, what does AVG stand for?",
+        "options": ["Anti-Virus Guard", "Automatic Version Generator", "Advanced Virtual Guard", "Automatic Video Generator"],
+        "answer": 0,
+        "explanation": "AVG is Anti-Virus Guard, an antivirus software suite."
+    },
+    {
+        "question": "What is the full form of TB in data storage?",
+        "options": ["Terabyte", "Total Byte", "Terminal Buffer", "Transfer Bandwidth"],
+        "answer": 0,
+        "explanation": "TB stands for Terabyte, equal to 1024 gigabytes."
+    },
+    {
+        "question": "What does BSOD stand for in Windows OS?",
+        "options": ["Blue Screen of Death", "Basic System Output Data", "Binary System Output Display", "Boot System on Demand"],
+        "answer": 0,
+        "explanation": "BSOD stands for Blue Screen of Death, an error screen in Windows."
+    },
+    {
+        "question": "What does IoT stand for in modern technology?",
+        "options": ["Internet of Things", "Input Output Transfer", "Instance of Technology", "Input of Terminal"],
+        "answer": 0,
+        "explanation": "IoT stands for Internet of Things, a network of connected devices."
+    },
+    {
+        "question": "What is the full form of SMB in file sharing?",
+        "options": ["Server Message Block", "System Management Bus", "Server Management Base", "Secure Message Bridge"],
+        "answer": 0,
+        "explanation": "SMB is Server Message Block, a protocol for network file and printer sharing."
+    },
+    {
+        "question": "What does FOSS stand for in software?",
+        "options": ["Free and Open Source Software", "File Object Storage System", "File Open Source Software", "Fast Operating Software System"],
+        "answer": 0,
+        "explanation": "FOSS refers to software that is both free and open source."
+    },
+    {
+        "question": "What is the full form of GUID in programming?",
+        "options": ["Globally Unique Identifier", "General User ID", "Global Unique Interface Device", "Generated Unique ID"],
+        "answer": 0,
+        "explanation": "GUID stands for Globally Unique Identifier, used to identify objects uniquely."
+    },
+    {
+        "question": "What does RFID stand for?",
+        "options": ["Radio Frequency Identification", "Radio Fast Integrated Device", "Remote File Identification", "Random File Index Device"],
+        "answer": 0,
+        "explanation": "RFID is Radio Frequency Identification, for tracking and identifying objects using radio waves."
+    },
+    {
+        "question": "What is the full form of CPA in computers?",
+        "options": ["Certified Public Accountant", "Central Processing Algorithm", "Computer Programming Assistant", "Central Processor Application"],
+        "answer": 0,
+        "explanation": "CPA is Certified Public Accountant, though not directly a computer term, it often appears in software exams."
+    },
+    {
+        "question": "In memory chips, what does SRAM stand for?",
+        "options": ["Static Random Access Memory", "System Resource Access Management", "Sequential Random Access Memory", "Super RAM"],
+        "answer": 0,
+        "explanation": "SRAM is Static Random Access Memory, a fast but expensive memory type."
+    },
+    {
+        "question": "What does JPEG mean in image formats?",
+        "options": ["Joint Photographic Experts Group", "Java Portal Enterprise Group", "Java Programming Expert Guide", "Joint Process Enhancement Guide"],
+        "answer": 0,
+        "explanation": "JPEG is Joint Photographic Experts Group, a compressed image file format."
+    },
+    {
+        "question": "What is the full form of ISP?",
+        "options": ["Internet Service Provider", "Internal Software Program", "International Software Producer", "International Service Provider"],
+        "answer": 0,
+        "explanation": "ISP means Internet Service Provider."
+    },
+    {
+        "question": "What does CMOS in computers denote?",
+        "options": ["Complementary Metal Oxide Semiconductor", "Central Main Output Structure", "Computer Main Output Section", "Central Multiplexed Output Semiconductor"],
+        "answer": 0,
+        "explanation": "CMOS is used for storing BIOS and date/time settings."
+    },
+    {
+        "question": "What does HTML5 stand for?",
+        "options": ["HyperText Markup Language version 5", "High Transmission Markup Language", "Hypertext Terminal Message Layer 5", "Hyperlink Machine Language 5"],
+        "answer": 0,
+        "explanation": "HTML5 is the fifth version of HyperText Markup Language."
+    },
+    {
+        "question": "What is the full form of OMR?",
+        "options": ["Optical Mark Recognition", "Open Mark Register", "Optimum Memory Register", "Optical Magnetic Register"],
+        "answer": 0,
+        "explanation": "OMR stands for Optical Mark Recognition, for automated checking of tests/sheets."
+    },
+    {
+        "question": "What does WAN stand for in network terminology?",
+        "options": ["Wide Area Network", "Web Accessable Node", "Wide Array Network", "Wireless Area Network"],
+        "answer": 0,
+        "explanation": "WAN is a Wide Area Network, covering large geographical areas."
+    },
+    {
+        "question": "Full form of DTP?",
+        "options": ["Desktop Publishing", "Data Transmission Protocol", "Direct Transfer Process", "Distributed Time Process"],
+        "answer": 0,
+        "explanation": "DTP is Desktop Publishing."
+    },
+    {
+        "question": "What does POP stand for in email?",
+        "options": ["Post Office Protocol", "Primary Online Protocol", "Personal Office Program", "Public Online Platform"],
+        "answer": 0,
+        "explanation": "POP stands for Post Office Protocol, used for email retrieval."
+    },
+    {
+        "question": "What does GSM mean in cellular communication?",
+        "options": ["Global System for Mobile Communications", "General Subscriber Management", "General Signal Modulation", "Global Secure Module"],
+        "answer": 0,
+        "explanation": "GSM is Global System for Mobile Communications, a digital mobile network."
+    },
+    {
+        "question": "What is the full form of SMS?",
+        "options": ["Short Message Service", "Simple Message Service", "Secure Mail System", "Short Mail Switching"],
+        "answer": 0,
+        "explanation": "SMS stands for Short Message Service, a text messaging service."
+    },
+    {
+        "question": "What does HTTPS indicate?",
+        "options": ["HyperText Transfer Protocol Secure", "High Text Transfer Protocol Standard", "Hyper Terminal Transfer Protocol Secure", "Hypertext Transmission Processing Secure"],
+        "answer": 0,
+        "explanation": "HTTPS is the secure version of HTTP, encrypting data in transit."
+    },
+    {
+        "question": "What does AI stand for in machine learning?",
+        "options": ["Artificial Intelligence", "Algorithm Integration", "Application Interpreter", "Active Intelligence"],
+        "answer": 0,
+        "explanation": "AI means Artificial Intelligence."
+    },
+    {
+        "question": "What does LED mean in screen technology?",
+        "options": ["Light Emitting Diode", "Low Emission Display", "Linear Emission Device", "Large Electronic Display"],
+        "answer": 0,
+        "explanation": "LED is Light Emitting Diode."
+    },
+    {
+        "question": "What is the full form of GUI?",
+        "options": ["Graphical User Interface", "General User Interface", "Global User Input", "Grouped Universal Interface"],
+        "answer": 0,
+        "explanation": "GUI is Graphical User Interface."
+    },
+    {
+        "question": "What is JPEG an acronym for in image files?",
+        "options": ["Joint Photographic Experts Group", "Java Processing Expert Guide", "Java Photo Enhancement Group", "Joint Photo Encoding Group"],
+        "answer": 0,
+        "explanation": "JPEG is a compressed image format."
+    },
+    {
+        "question": "What is the full form of HTTP?",
+        "options": ["HyperText Transfer Protocol", "Host Transfer Type Protocol", "Hyperlink Text Transfer Process", "High Transmission Protocol"],
+        "answer": 0,
+        "explanation": "HTTP is the fundamental protocol of the World Wide Web."
+    },
+    {
+        "question": "What does API stand for in software?",
+        "options": ["Application Programming Interface", "Automated Program Initiator", "Advanced Program Installer", "Agent-based Protocol Input"],
+        "answer": 0,
+        "explanation": "API stands for Application Programming Interface."
+    },
+    {
+        "question": "What is the full form of RAM?",
+        "options": ["Random Access Memory", "Read Access Memory", "Rendered Address Management", "Real-time Access Module"],
+        "answer": 0,
+        "explanation": "RAM is Random Access Memory."
+    },
+    {
+        "question": "What does PSU usually mean in a desktop computer?",
+        "options": ["Power Supply Unit", "Programmed Storage Unit", "Primary System Ultra", "Parallel Service Utility"],
+        "answer": 0,
+        "explanation": "PSU delivers the required power to computer components."
+    },
+    {
+        "question": "What is the full form of VPN?",
+        "options": ["Virtual Private Network", "Visual Programming Node", "Virtual Print Network", "Verified Public Network"],
+        "answer": 0,
+        "explanation": "VPN stands for Virtual Private Network."
+    },
+    {
+        "question": "In search engines, what is SEO?",
+        "options": ["Search Engine Optimization", "Serial Event Output", "Software Enrichment Output", "System Enhanced Optimization"],
+        "answer": 0,
+        "explanation": "SEO is Search Engine Optimization."
+    },
+    {
+        "question": "What does ZIP mean in file compression?",
+        "options": ["It is not an acronym", "Zonal Internet Protocol", "Zero Interactive Processing", "Zipped Item Protocol"],
+        "answer": 0,
+        "explanation": "ZIP is not an acronym but a format for compressed files."
+    },
+    {
+        "question": "What is the full form of ROM?",
+        "options": ["Read Only Memory", "Run Output Module", "Resource Output Management", "Random Order Memory"],
+        "answer": 0,
+        "explanation": "ROM is Read Only Memory."
+    },
+    {
+        "question": "What does SMTP refer to in emailing?",
+        "options": ["Simple Mail Transfer Protocol", "Secure Messaging Transmission Program", "Synchronized Message Transition Protocol", "Structured Mail Transfer Program"],
+        "answer": 0,
+        "explanation": "SMTP stands for Simple Mail Transfer Protocol."
+    },
+	{
+        "question": "What does BIOS stand for?",
+        "options": ["Basic Input Output System", "Binary Internal Output Specification", "Base Input Operation System", "Basic Integrated Output Structure"],
+        "answer": 0,
+        "explanation": "BIOS is Basic Input Output System, critical firmware for computer startup."
+    },
+    {
+        "question": "What is the full form of UEFI?",
+        "options": ["Unified Extensible Firmware Interface", "Universal Electronic File Interface", "Universal Email File Initialization", "Unified External File Index"],
+        "answer": 0,
+        "explanation": "UEFI is the Unified Extensible Firmware Interface, modern firmware for devices."
+    },
+    {
+        "question": "What does Kbps stand for?",
+        "options": ["Kilobits per second", "Key bytes per second", "Kilo binary process system", "Key bits per scan"],
+        "answer": 0,
+        "explanation": "Kbps is Kilobits per second, a measure of data transfer speed."
+    },
+    {
+        "question": "What does GUI mean in computer software?",
+        "options": ["Graphical User Interface", "Grouped Utility Interface", "General User Index", "Group Unified Interface"],
+        "answer": 0,
+        "explanation": "GUI is Graphical User Interface, a window/menu-driven user interface."
+    },
+    {
+        "question": "What is the full form of ANSI in standardization?",
+        "options": ["American National Standards Institute", "Analog Network Standards International", "Applied Network Security Integration", "American Network Service Information"],
+        "answer": 0,
+        "explanation": "ANSI is American National Standards Institute, responsible for standardizations."
+    },
+    {
+        "question": "In internet terminologies, what does ISP stand for?",
+        "options": ["Internet Service Provider", "International Security Program", "Integrated Storage Platform", "Interactive System Processor"],
+        "answer": 0,
+        "explanation": "ISP is Internet Service Provider, the supplier of online access."
+    },
+    {
+        "question": "What does GUI basically refer to?",
+        "options": ["Graphical User Interface", "Global User Interpreter", "Grouped Utility Identifier", "Generic Utility Interface"],
+        "answer": 0,
+        "explanation": "GUI stands for Graphical User Interface."
+    },
+    {
+        "question": "What is the full form of BIOS in computer hardware?",
+        "options": ["Basic Input Output System", "Binary Input Output System", "Basic Internal Optimize System", "Branch Input Output Selector"],
+        "answer": 0,
+        "explanation": "BIOS: Basic Input Output System."
+    },
+    {
+        "question": "What does OCR stand for in scanners?",
+        "options": ["Optical Character Recognition", "Optic Code Reader", "Optimized Call Registry", "On-chip Renderer"],
+        "answer": 0,
+        "explanation": "OCR means Optical Character Recognition."
+    },
+    {
+        "question": "What is the acronym for PHP?",
+        "options": ["Hypertext Preprocessor", "Primary Hosting Protocol", "Public Host Program", "Post Hyperlink Processor"],
+        "answer": 0,
+        "explanation": "PHP stands for PHP: Hypertext Preprocessor, a scripting language for web development."
+    },
+    {
+        "question": "Full form of CRT in display screens?",
+        "options": ["Cathode Ray Tube", "Central Rendering Tool", "Calculated Rendering Terminal", "Cathode Reflection Tube"],
+        "answer": 0,
+        "explanation": "CRT is Cathode Ray Tube, an old technology for monitors/TVs."
+    },
+    {
+        "question": "What does WWW expand to?",
+        "options": ["World Wide Web", "Wide World Web", "Web Wide World", "World Web Wide"],
+        "answer": 0,
+        "explanation": "WWW means World Wide Web."
+    },
+    {
+        "question": "What does DNS stand for in computer networking?",
+        "options": ["Domain Name System", "Distributed Network Storage", "Direct Network Service", "Data Node Segmentation"],
+        "answer": 0,
+        "explanation": "DNS stands for Domain Name System."
+    },
+    {
+        "question": "In databases, what does SQL mean?",
+        "options": ["Structured Query Language", "Standard Queuing Logic", "String Query Language", "System Query Local"],
+        "answer": 0,
+        "explanation": "SQL stands for Structured Query Language."
+    },
+    {
+        "question": "What is the full form of DPI in printing/display?",
+        "options": ["Dots Per Inch", "Data Per Inch", "Display Processing Index", "Documents Per Image"],
+        "answer": 0,
+        "explanation": "DPI is Dots Per Inch, a measure of image resolution."
+    },
+    {
+        "question": "What is the abbreviation for SMTP?",
+        "options": ["Simple Mail Transfer Protocol", "Standard Message Transfer Protocol", "System Mail Transfer Protocol", "Structured Multicast Transmission Protocol"],
+        "answer": 0,
+        "explanation": "SMTP: Simple Mail Transfer Protocol for email sending."
+    },
+    {
+        "question": "What does HTML stand for?",
+        "options": ["HyperText Markup Language", "High Text Markup Logic", "Hyper Tabular Markup Language", "Hyper Tool Mark Language"],
+        "answer": 0,
+        "explanation": "HTML: HyperText Markup Language."
+    },
+    {
+        "question": "Full form of S.M.A.R.T. in storage devices?",
+        "options": ["Self-Monitoring Analysis and Reporting Technology", "Standard Memory Architecture and Reporting Technology", "Serial Memory Analysis Recoding Tab", "Self Modular Analysis Reporting Terminal"],
+        "answer": 0,
+        "explanation": "S.M.A.R.T. helps predict hard drive failures."
+    },
+    {
+        "question": "What does LED mean in display?",
+        "options": ["Light Emitting Diode", "Local Emission Display", "Low Emission Diode", "Line Editing Device"],
+        "answer": 0,
+        "explanation": "LED: Light Emitting Diode."
+    },
+    {
+        "question": "What is the full form of CPU in computers?",
+        "options": ["Central Processing Unit", "Central Programming Unit", "Computer Processing Utility", "Central Peripheral Unit"],
+        "answer": 0,
+        "explanation": "CPU: Central Processing Unit."
+    },
+    {
+        "question": "Meaning of API in programming?",
+        "options": ["Application Programming Interface", "Array Parallel Interface", "Analytical Processing Indicator", "Automatic Program Initiator"],
+        "answer": 0,
+        "explanation": "API: Application Programming Interface."
+    },
+    {
+        "question": "What does JPEG stand for?",
+        "options": ["Joint Photographic Experts Group", "Java Programming Extensible Generator", "Joint Programming Extension Graph", "Java Photo Estimate Graph"],
+        "answer": 0,
+        "explanation": "JPEG is Joint Photographic Experts Group."
+    },
+    {
+        "question": "Full form of PDF in file formats?",
+        "options": ["Portable Document Format", "Page Data Framework", "Program Dataset File", "Primary Data File"],
+        "answer": 0,
+        "explanation": "PDF: Portable Document Format."
+    },
+    {
+        "question": "What is the abbreviation for RAM?",
+        "options": ["Random Access Memory", "Rapid Access Module", "Range Array Machine", "Rendered Application Memory"],
+        "answer": 0,
+        "explanation": "RAM: Random Access Memory."
+    },
+    {
+        "question": "What is the meaning of SMS?",
+        "options": ["Short Message Service", "Structured Messaging System", "Software Maintenance Service", "Simple Mail Sender"],
+        "answer": 0,
+        "explanation": "SMS: Short Message Service."
+    },
+    {
+        "question": "What does PDF abbreviation mean?",
+        "options": ["Portable Document Format", "Printable Data File", "Program Data Feature", "Primary Document File"],
+        "answer": 0,
+        "explanation": "PDF stands for Portable Document Format."
+    },
+    {
+        "question": "Meaning of OSI as a model in networking?",
+        "options": ["Open Systems Interconnection", "Optical System Integration", "Operating System Instructions", "Operating System Interlink"],
+        "answer": 0,
+        "explanation": "OSI: Open Systems Interconnection."
+    },
+    {
+        "question": "What does GIF mean for images?",
+        "options": ["Graphics Interchange Format", "Graphical Integrated File", "Graphics Input Format", "General Interchange File"],
+        "answer": 0,
+        "explanation": "GIF is Graphics Interchange Format."
+    },
+    {
+        "question": "Full form of HDD in computers?",
+        "options": ["Hard Disk Drive", "High Data Device", "Hybrid Data Drive", "Hard Digital Device"],
+        "answer": 0,
+        "explanation": "HDD: Hard Disk Drive."
+    },
+    {
+        "question": "What does HDMI stand for?",
+        "options": ["High Definition Multimedia Interface", "Hybrid Digital Machine Interface", "High Digital Media Interface", "High Density Machine Input"],
+        "answer": 0,
+        "explanation": "HDMI: High Definition Multimedia Interface."
+    },
+    {
+        "question": "Meaning of ICT?",
+        "options": ["Information and Communication Technology", "Information Control Terminal", "Internet Communication Terminal", "Internal Control Terminal"],
+        "answer": 0,
+        "explanation": "ICT: Information and Communication Technology."
+    },
+    {
+        "question": "What does DTP mean in publishing?",
+        "options": ["Desktop Publishing", "Data Transmission Protocol", "Direct Terminal Publishing", "Digital Text Processor"],
+        "answer": 0,
+        "explanation": "DTP: Desktop Publishing."
+    },
+    {
+        "question": "Full form of NTFS in file systems?",
+        "options": ["New Technology File System", "Non-Transferable File System", "Network Transfer File Schema", "Native Technology File Structure"],
+        "answer": 0,
+        "explanation": "NTFS: New Technology File System."
+    },
+    {
+        "question": "What does ISP mean?",
+        "options": ["Internet Service Provider", "Integrated Software Platform", "International Security Profile", "Input System Patch"],
+        "answer": 0,
+        "explanation": "ISP: Internet Service Provider."
+    },
+    {
+        "question": "Meaning of IoT in technology?",
+        "options": ["Internet of Things", "Input Output Terminal", "Integrated Operating Transmission", "Internet of Technology"],
+        "answer": 0,
+        "explanation": "IoT: Internet of Things."
+    },
+    {
+        "question": "Expansion of URL?",
+        "options": ["Uniform Resource Locator", "Universal Read Logic", "Unified Resource Label", "User Response Link"],
+        "answer": 0,
+        "explanation": "URL: Uniform Resource Locator."
+    },
+    {
+        "question": "What is FTP in internet communication?",
+        "options": ["File Transfer Protocol", "Fast Technology Process", "Free Transmission Protocol", "File Terminal Protocol"],
+        "answer": 0,
+        "explanation": "FTP: File Transfer Protocol."
+    },
+    {
+        "question": "Full form of DNS?",
+        "options": ["Domain Name System", "Data Network System", "Distributed Node System", "Dynamic Network Service"],
+        "answer": 0,
+        "explanation": "DNS: Domain Name System."
+    },
+    {
+        "question": "What is SFTP abbreviation?",
+        "options": ["SSH File Transfer Protocol", "Secure File Transfer Page", "System File Transport Protocol", "Special File Transport Proxy"],
+        "answer": 0,
+        "explanation": "SFTP: SSH File Transfer Protocol."
+    },
+    {
+        "question": "Meaning of KB in computer storage?",
+        "options": ["Kilobyte", "Key Bit", "Keyboard", "Kilo binary"],
+        "answer": 0,
+        "explanation": "KB: Kilobyte (1024 bytes)."
+    },
+    {
+        "question": "What does IRC stand for in digital communication?",
+        "options": ["Internet Relay Chat", "Integrated Remote Communication", "Instant Response Center", "International Routing Center"],
+        "answer": 0,
+        "explanation": "IRC: Internet Relay Chat."
+    },
+    {
+        "question": "What is GUI in the context of user interfaces?",
+        "options": ["Graphical User Interface", "Global User Integration", "General User Interface", "Group User Index"],
+        "answer": 0,
+        "explanation": "GUI: Graphical User Interface."
+    },
+	{
+        "question": "What does HDMI stand for?",
+        "options": ["High Definition Multimedia Interface", "High Data Multimedia Interface", "Home Digital Media Interface", "High Digital Media Integration"],
+        "answer": 0,
+        "explanation": "HDMI stands for High Definition Multimedia Interface, a standard for transmitting high-definition video and audio."
+    },
+    {
+        "question": "What is the full form of HTTP?",
+        "options": ["HyperText Transfer Protocol", "Hyper Terminal Transfer Protocol", "High Transfer Text Protocol", "HyperText Transmission Protocol"],
+        "answer": 0,
+        "explanation": "HTTP stands for HyperText Transfer Protocol, which is the foundation of data communication for the World Wide Web."
+    },
+    {
+        "question": "What does URL stand for in internet terminology?",
+        "options": ["Uniform Resource Locator", "Universal Resource Link", "Uniform Reference Location", "Universal Request Link"],
+        "answer": 0,
+        "explanation": "URL stands for Uniform Resource Locator, indicating the address of a resource on the Internet."
+    },
+    {
+        "question": "What does PDF stand for?",
+        "options": ["Portable Document Format", "Page Description File", "Public Document Format", "Program Data File"],
+        "answer": 0,
+        "explanation": "PDF stands for Portable Document Format, a popular file format for documents."
+    },
+    {
+        "question": "What does ISP stand for?",
+        "options": ["Internet Service Provider", "Information Service Provider", "Internet Security Protocol", "Integrated Service Platform"],
+        "answer": 0,
+        "explanation": "ISP stands for Internet Service Provider, which provides Internet services to users."
+    },
+    {
+        "question": "What is the full form of FTP?",
+        "options": ["File Transfer Protocol", "Fast Transfer Protocol", "File Transmission Process", "File Transport Program"],
+        "answer": 0,
+        "explanation": "FTP stands for File Transfer Protocol, used for transferring files over a network."
+    },
+    {
+        "question": "What does SMTP stand for?",
+        "options": ["Simple Mail Transfer Protocol", "Standard Mail Transfer Program", "Secure Mail Transfer Protocol", "Sequential Mail Transmission Process"],
+        "answer": 0,
+        "explanation": "SMTP stands for Simple Mail Transfer Protocol, used for sending emails."
+    },
+    {
+        "question": "What does SMS stand for?",
+        "options": ["Short Message Service", "Simple Message System", "System Message Service", "Security Message Service"],
+        "answer": 0,
+        "explanation": "SMS stands for Short Message Service, a text messaging service component."
+    },
+    {
+        "question": "What is the full form of BIOS?",
+        "options": ["Basic Input Output System", "Binary Input Output System", "Basic Internal Output Service", "Base Integrated Operating System"],
+        "answer": 0,
+        "explanation": "BIOS stands for Basic Input Output System, essential firmware to start a computer."
+    },
+    {
+        "question": "What does USB stand for?",
+        "options": ["Universal Serial Bus", "Universal Software Bus", "Unique Serial Bus", "Universal System Board"],
+        "answer": 0,
+        "explanation": "USB stands for Universal Serial Bus, a standard for connecting peripherals."
+    },
+    {
+        "question": "What is the full form of PDF?",
+        "options": ["Portable Document Format", "Personal Document Format", "Program Data Format", "Public Document File"],
+        "answer": 0,
+        "explanation": "PDF is widely known as Portable Document Format."
+    },
+    {
+        "question": "What does RAM stand for?",
+        "options": ["Random Access Memory", "Read Access Memory", "Rapid Allocation Memory", "Real Access Machine"],
+        "answer": 0,
+        "explanation": "RAM stands for Random Access Memory used for temporary data storage."
+    },
+    {
+        "question": "What is the full form of HDMI?",
+        "options": ["High Definition Multimedia Interface", "High Data Management Interface", "High Digital Media Interface", "High Definition Media Integration"],
+        "answer": 0,
+        "explanation": "HDMI is High Definition Multimedia Interface used for audio/video transmission."
+    },
+    {
+        "question": "What does CPU stand for?",
+        "options": ["Central Processing Unit", "Computer Processing Unit", "Control Processing Unit", "Central Program Unit"],
+        "answer": 0,
+        "explanation": "CPU stands for Central Processing Unit, the brain of the computer."
+    },
+    {
+        "question": "What is the full form of GPU?",
+        "options": ["Graphics Processing Unit", "General Processing Unit", "Graphical Program Unit", "General Purpose Unit"],
+        "answer": 0,
+        "explanation": "GPU stands for Graphics Processing Unit, responsible for rendering images."
+    },
+    {
+        "question": "What does LAN stand for?",
+        "options": ["Local Area Network", "Low Area Network", "Long Area Network", "Large Access Network"],
+        "answer": 0,
+        "explanation": "LAN stands for Local Area Network, a network covering a small geographic area."
+    },
+    {
+        "question": "What is the full form of WAN?",
+        "options": ["Wide Area Network", "Wireless Area Network", "World Area Network", "Web Access Network"],
+        "answer": 0,
+        "explanation": "WAN stands for Wide Area Network, spanning large geographic areas."
+    },
+    {
+        "question": "What does URL stand for?",
+        "options": ["Uniform Resource Locator", "Universal Resource Link", "Universal Reference Locator", "Uniform Reference Link"],
+        "answer": 0,
+        "explanation": "URL is Uniform Resource Locator, the address of a web resource."
+    },
+    {
+        "question": "What does VPN stand for?",
+        "options": ["Virtual Private Network", "Virtual Public Network", "Verified Private Network", "Verified Public Network"],
+        "answer": 0,
+        "explanation": "VPN stands for Virtual Private Network, used to create secure network connections."
+    },
+    {
+        "question": "What is the full form of XML?",
+        "options": ["Extensible Markup Language", "Executable Markup Language", "Extra Markup Language", "External Markup Language"],
+        "answer": 0,
+        "explanation": "XML stands for Extensible Markup Language, used to encode documents."
+    },
+    {
+        "question": "What does PDF stand for?",
+        "options": ["Portable Document Format", "Personal Document File", "Process Document Format", "Private Document File"],
+        "answer": 0,
+        "explanation": "PDF is Portable Document Format."
+    },
+    {
+        "question": "What is the full form of HTTP?",
+        "options": ["HyperText Transfer Protocol", "Home Text Transfer Protocol", "Hyper Terminal Transfer Protocol", "High Type Transfer Protocol"],
+        "answer": 0,
+        "explanation": "HTTP is the protocol used to transfer web pages."
+    },
+    {
+        "question": "What does SMTP stand for?",
+        "options": ["Simple Mail Transfer Protocol", "Secure Mail Transfer Protocol", "Symbolic Mail Transfer Protocol", "Standard Mail Transfer Protocol"],
+        "answer": 0,
+        "explanation": "SMTP is used to send emails from clients to servers."
+    },
+    {
+        "question": "What is the full form of DOS?",
+        "options": ["Disk Operating System", "Digital Operating System", "Data Operating System", "Distributed Operating System"],
+        "answer": 0,
+        "explanation": "DOS is Disk Operating System, an early OS for PCs."
+    },
+    {
+        "question": "What does FTP stand for?",
+        "options": ["File Transfer Protocol", "Fast Transfer Protocol", "File Transmission Program", "Fast Transmission Protocol"],
+        "answer": 0,
+        "explanation": "FTP is used to transfer files over a network."
+    },
+    {
+        "question": "What is the full form of URL?",
+        "options": ["Uniform Resource Locator", "Universal Relative Link", "Uniform Reference Link", "User Resource Locator"],
+        "answer": 0,
+        "explanation": "URL is the address used to access websites on the internet."
+    },
+    {
+        "question": "What does RAM stand for?",
+        "options": ["Random Access Memory", "Read Access Memory", "Ready Access Memory", "Rapid Access Memory"],
+        "answer": 0,
+        "explanation": "RAM is a type of volatile memory for temporary data."
+    },
+    {
+        "question": "What is the full form of LCD?",
+        "options": ["Liquid Crystal Display", "Light Crystal Display", "Light Color Display", "Liquid Color Display"],
+        "answer": 0,
+        "explanation": "LCD is a display technology using liquid crystals."
+    },
+    {
+        "question": "What does USB mean?",
+        "options": ["Universal Serial Bus", "User Serial Bus", "Universal Service Bus", "User Service Bus"],
+        "answer": 0,
+        "explanation": "USB is a standard for computer peripherals."
+    },
+    {
+        "question": "What is the meaning of GIF?",
+        "options": ["Graphics Interchange Format", "Graphic Internet Format", "General Image File", "Graphics Integration File"],
+        "answer": 0,
+        "explanation": "GIF is a popular image format supporting animations."
+    },
+    {
+        "question": "What does JPEG stand for?",
+        "options": ["Joint Photographic Experts Group", "Joint Picture Expert Group", "Joint Photo Export Group", "JPEG is not an acronym"],
+        "answer": 0,
+        "explanation": "JPEG is a standard image compression format."
+    },
+	{
+        "question": "What does API stand for in computing?",
+        "options": ["Automated Program Interface", "Application Programming Interface", "Advanced Peripheral Integration", "Access Personal Interface"],
+        "answer": 1,
+        "explanation": "API stands for Application Programming Interface."
+    },
+    {
+        "question": "In networking, what does ARP stand for?",
+        "options": ["Address Resolution Protocol", "Automatic Run Process", "Assignment Resource Path", "Apple Remote Protocol"],
+        "answer": 0,
+        "explanation": "ARP is Address Resolution Protocol, used to map IP addresses to MAC addresses."
+    },
+    {
+        "question": "What is the full form of LAN?",
+        "options": ["Large Area Network", "Last Access Node", "Local Area Network", "Linked Array Node"],
+        "answer": 2,
+        "explanation": "LAN stands for Local Area Network."
+    },
+    {
+        "question": "What does PDF mean in documents?",
+        "options": ["Personal Data File", "Public Document Form", "Printable Data File", "Portable Document Format"],
+        "answer": 3,
+        "explanation": "PDF stands for Portable Document Format."
+    },
+    {
+        "question": "What is the meaning of OLED in display technology?",
+        "options": ["Organic Light Emitting Diode", "Online Light Enhanced Display", "Operational Layer Emitting Device", "Optical Light Emitting Display"],
+        "answer": 0,
+        "explanation": "OLED is Organic Light Emitting Diode, a modern display technology."
+    },
+    {
+        "question": "What is VPN short for?",
+        "options": ["Virtual Protocol Node", "Verified Private Network", "Virtual Private Network", "Volume Program Network"],
+        "answer": 2,
+        "explanation": "VPN is Virtual Private Network."
+    },
+    {
+        "question": "In internet tech, what does DNS stand for?",
+        "options": ["Domain Name System", "Data Node Service", "Domain Network Service", "Direct Network Structure"],
+        "answer": 0,
+        "explanation": "DNS means Domain Name System."
+    },
+    {
+        "question": "What is the full form of USB?",
+        "options": ["Universal Serial Bus", "Unlimited Shared Band", "User Service Base", "Ultra Service Bus"],
+        "answer": 0,
+        "explanation": "USB stands for Universal Serial Bus."
+    },
+    {
+        "question": "What does HTTP stand for?",
+        "options": ["HyperText Transfer Protocol", "Hypertool Transfer Processor", "Hardware Transmission Protocol", "High Text Transmission Protocol"],
+        "answer": 0,
+        "explanation": "HTTP means HyperText Transfer Protocol."
+    },
+    {
+        "question": "What is RAM an abbreviation for?",
+        "options": ["Run Access Method", "Random Array Module", "Read And Move", "Random Access Memory"],
+        "answer": 3,
+        "explanation": "RAM is Random Access Memory."
+    },
+    {
+        "question": "What does SMS mean in communication?",
+        "options": ["Short Messaging Service", "Secure Message Signal", "System Message Solution", "Short Message Service"],
+        "answer": 3,
+        "explanation": "SMS is Short Message Service."
+    },
+    {
+        "question": "What is the full form of IPv4?",
+        "options": ["Internet Protocol version 4", "International Protocol volume 4", "Input Protocol v.4", "Internal Processing version 4"],
+        "answer": 0,
+        "explanation": "IPv4 is Internet Protocol version 4."
+    },
+    {
+        "question": "In web technology, what does URL stand for?",
+        "options": ["Uniform Resource Link", "United Resource Locator", "Uniform Resource Locator", "Universal Record Locator"],
+        "answer": 2,
+        "explanation": "URL is Uniform Resource Locator."
+    },
+    {
+        "question": "What does VGA represent in monitors?",
+        "options": ["Virtual General Adapter", "Video Graphics Array", "Visual Graphics Application", "Visual Gamut Adapter"],
+        "answer": 1,
+        "explanation": "VGA is Video Graphics Array."
+    },
+    {
+        "question": "What does SMTP stand for?",
+        "options": ["Serial Message Transfer Protocol", "Simple Messaging Terminal Platform", "Simple Mail Transfer Protocol", "Special Message Transfer Pool"],
+        "answer": 2,
+        "explanation": "SMTP is Simple Mail Transfer Protocol."
+    },
+    {
+        "question": "What is the abbreviation 'DOS' used for?",
+        "options": ["Data Output System", "Disk Operating System", "Direct Online Service", "Daily Operation Software"],
+        "answer": 1,
+        "explanation": "DOS is Disk Operating System."
+    },
+    {
+        "question": "In messaging, what does MMS mean?",
+        "options": ["Media Messaging System", "Multi Media Services", "Message Management Service", "Multimedia Messaging Service"],
+        "answer": 3,
+        "explanation": "MMS is Multimedia Messaging Service."
+    },
+    {
+        "question": "What does SSD stand for?",
+        "options": ["Solid State Drive", "System Software Device", "Static Storage Drive", "Shared Storage Disk"],
+        "answer": 0,
+        "explanation": "SSD is Solid State Drive."
+    },
+    {
+        "question": "In computing, what is CPU?",
+        "options": ["Central Processing Unit", "Control Protocol Utility", "Core Process Utility", "Central Power Unit"],
+        "answer": 0,
+        "explanation": "CPU stands for Central Processing Unit."
+    },
+    {
+        "question": "What does GIF mean in files?",
+        "options": ["Graphical Interchange Format", "Graphic Internal File", "Graphics Interface Font", "Graphics Interchange Format"],
+        "answer": 3,
+        "explanation": "GIF stands for Graphics Interchange Format."
+    },
+    {
+        "question": "What is the meaning of SaaS?",
+        "options": ["Software as a Service", "System as a Service", "Service automation Application Software", "Secure and Safe Software"],
+        "answer": 0,
+        "explanation": "SaaS stands for Software as a Service."
+    },
+    {
+        "question": "What does HTML stand for?",
+        "options": ["HyperText Markup Language", "Hyper Transfer Markup Layout", "High Technology Markup Language", "Hyperlink Tag Markup Language"],
+        "answer": 0,
+        "explanation": "HTML is HyperText Markup Language."
+    },
+    {
+        "question": "What is meant by GUI?",
+        "options": ["Graphical User Interface", "Grouped User Interface", "General Use Interface", "Graphics Utility Interface"],
+        "answer": 0,
+        "explanation": "GUI: Graphical User Interface."
+    },
+    {
+        "question": "What does HDD refer to?",
+        "options": ["Hard Disk Drive", "Hardware Data Device", "Host Data Directory", "Hybrid Device Disk"],
+        "answer": 0,
+        "explanation": "HDD stands for Hard Disk Drive."
+    },
+    {
+        "question": "In programming, what does IDE stand for?",
+        "options": ["Integrated Development Environment", "Instant Data Execution", "Image Document Editor", "Input Data Emulator"],
+        "answer": 0,
+        "explanation": "IDE is Integrated Development Environment."
+    },
+    {
+        "question": "What is PAN as a network type?",
+        "options": ["Personal Area Network", "Primary Access Network", "Physical Associated Node", "Peripheral Awareness Net"],
+        "answer": 0,
+        "explanation": "PAN stands for Personal Area Network."
+    },
+    {
+        "question": "In cloud services, what does PaaS mean?",
+        "options": ["Platform as a Service", "Program as a Solution", "Protocol as a Service", "Project automation as a Service"],
+        "answer": 0,
+        "explanation": "PaaS is Platform as a Service."
+    },
+    {
+        "question": "What is the expansion of Wi-Fi?",
+        "options": ["Wireless Fidelity", "Wide Frequency", "Wired Fiber", "Wireless Fund Interface"],
+        "answer": 0,
+        "explanation": "Wi-Fi is popularly known as Wireless Fidelity."
+    },
+    {
+        "question": "What is 'CD-ROM' in storage devices?",
+        "options": ["Compact Disc Read Only Memory", "Centralized Disk Random Output Module", "Central Data Record Only Memory", "Compact Data Rewritable Optical Material"],
+        "answer": 0,
+        "explanation": "CD-ROM is Compact Disc Read Only Memory."
+    },
+    {
+        "question": "What does DVD mean?",
+        "options": ["Digital Versatile Disc", "Data Video Device", "Digital Value Disk", "Direct Visual Disc"],
+        "answer": 0,
+        "explanation": "DVD is Digital Versatile Disc."
+    },
+    {
+        "question": "What does SSL indicate in internet security?",
+        "options": ["Secure Sockets Layer", "Secured System Level", "System Security Layer", "Safe Socket Library"],
+        "answer": 0,
+        "explanation": "SSL: Secure Sockets Layer, a security protocol."
+    },
+    {
+        "question": "What is IC in electronics?",
+        "options": ["Integrated Circuit", "Internal Controller", "Input Core", "Interface Controller"],
+        "answer": 0,
+        "explanation": "IC is Integrated Circuit."
+    },
+    {
+        "question": "What does BCC stand for in emails?",
+        "options": ["Blind Carbon Copy", "Best Communication Channel", "Basic Cloud Connection", "Binary Code Control"],
+        "answer": 0,
+        "explanation": "BCC: Blind Carbon Copy."
+    },
+    {
+        "question": "In computer science, what does OOP stand for?",
+        "options": ["Object Oriented Programming", "Ordered Operation Process", "Other Optional Protocols", "Offline Output Preparation"],
+        "answer": 0,
+        "explanation": "OOP: Object Oriented Programming."
+    },
+    {
+        "question": "What is ERP in business software?",
+        "options": ["Enterprise Resource Planning", "Encryption Requirements Protocol", "Event Registration Panel", "Error Recovery Packet"],
+        "answer": 0,
+        "explanation": "ERP: Enterprise Resource Planning."
+    },
+    {
+        "question": "What does PNG mean in image files?",
+        "options": ["Portable Network Graphics", "Programmed New Graphic", "Photo Node Graph", "Pixel Number Group"],
+        "answer": 0,
+        "explanation": "PNG: Portable Network Graphics."
+    },
+    {
+        "question": "What does DSL stand for in internet connections?",
+        "options": ["Digital Subscriber Line", "Direct Satellite Link", "Data Session Layer", "Distance System Loader"],
+        "answer": 0,
+        "explanation": "DSL: Digital Subscriber Line."
+    },
+    {
+        "question": "What is the meaning of FAQ?",
+        "options": ["Frequently Asked Questions", "File Access Query", "Format Acquisition Queue", "Fast Access Queue"],
+        "answer": 0,
+        "explanation": "FAQ: Frequently Asked Questions."
+    },
+    {
+        "question": "What is the expansion of HTML?",
+        "options": ["HyperText Markup Language", "High Traffic Markup Language", "Hosted Text Markup Layer", "Hybrid Text Machine Language"],
+        "answer": 0,
+        "explanation": "HTML stands for HyperText Markup Language."
+    },
+    {
+        "question": "What does DNS mean in computer terms?",
+        "options": ["Domain Name System", "Device Node System", "Dynamic Node Server", "Dynamic Network Stream"],
+        "answer": 0,
+        "explanation": "DNS: Domain Name System."
+    },
+    {
+        "question": "What does PCI refer to in computer hardware?",
+        "options": ["Peripheral Component Interconnect", "Personal Computer Interface", "Primary Control Instruction", "Programmed Circuit Integration"],
+        "answer": 0,
+        "explanation": "PCI: Peripheral Component Interconnect."
+    },
+    {
+        "question": "What is EEPROM?",
+        "options": ["Electrically Erasable Programmable Read Only Memory", "External Electronic Output RAM", "Emergency Erase Only Page", "Expandable Erasable Output Program"],
+        "answer": 0,
+        "explanation": "EEPROM: Electrically Erasable Programmable Read Only Memory."
+    },
+	 {
+        "question": "What does SMTP stand for?",
+        "options": ["Simple Mail Transfer Protocol", "Standard Mail Transmission Procedure", "Secure Mail Transfer Platform", "System Managed Transfer Protocol"],
+        "answer": 0,
+        "explanation": "SMTP is the protocol used for sending emails."
+    },
+    {
+        "question": "What is the full form of JPEG?",
+        "options": ["Joint Photographic Experts Group", "Joint Picture Encoding Guide", "JPEG is not an acronym", "Java Photo Electronic Group"],
+        "answer": 0,
+        "explanation": "JPEG stands for Joint Photographic Experts Group, a commonly used image format."
+    },
+    {
+        "question": "What does USB stand for?",
+        "options": ["Universal Serial Bus", "Universal System Bus", "Universal Service Bridge", "Unified Service Bus"],
+        "answer": 0,
+        "explanation": "USB is the Universal Serial Bus used for connecting peripherals."
+    },
+    {
+        "question": "What is the full form of HTTP?",
+        "options": ["HyperText Transfer Protocol", "Hyperlink Transfer Protocol", "HyperText Transmission Process", "Hyper Terminal Transfer Protocol"],
+        "answer": 0,
+        "explanation": "HTTP is the base protocol for the World Wide Web."
+    },
+    {
+        "question": "What does PDF mean?",
+        "options": ["Portable Document Format", "Personal Data File", "Printed Document File", "Page Display Format"],
+        "answer": 0,
+        "explanation": "PDF is widely used as a portable file format."
+    },
+    {
+        "question": "What is the full form of IDE?",
+        "options": ["Integrated Development Environment", "Internal Device Emulator", "Interactive Display Environment", "Integrated Device Emulator"],
+        "answer": 0,
+        "explanation": "IDE is a software suite that provides tools for software development."
+    },
+    {
+        "question": "What does LCD stand for?",
+        "options": ["Liquid Crystal Display", "Light Crystal Display", "Luminous Color Display", "Liquid Color Device"],
+        "answer": 0,
+        "explanation": "LCD is a common flat-panel display technology."
+    },
+    {
+        "question": "What is the expansion of CAPTCHA?",
+        "options": ["Completely Automated Public Turing test to tell Computers and Humans Apart", "Computer Android Public Test for Humans", "Common Automated Program to Test Humans", "Complete Automated Protected Test Hub"],
+        "answer": 0,
+        "explanation": "CAPTCHA is a security measure to prevent bots from abusing services."
+    },
+    {
+        "question": "What does DSL mean?",
+        "options": ["Digital Subscriber Line", "Direct Subscriber Link", "Digital Satellite Link", "Data Streaming Line"],
+        "answer": 0,
+        "explanation": "DSL is a technology for high-speed internet over telephone lines."
+    },
+    {
+        "question": "What is the full form of GUI?",
+        "options": ["Graphical User Interface", "Global User Input", "General Utility Interface", "Grouped User Interaction"],
+        "answer": 0,
+        "explanation": "GUI allows users to interact through graphical icons."
+    },
+    {
+        "question": "What does CPU stand for?",
+        "options": ["Central Processing Unit", "Computer Processing Unit", "Central Program Unit", "Control Processor Unit"],
+        "answer": 0,
+        "explanation": "CPU is the main processor of a computer, responsible for executing instructions."
+    },
+    {
+        "question": "What does IP stand for?",
+        "options": ["Internet Protocol", "Internal Processor", "Interconnected Protocol", "Information Packet"],
+        "answer": 0,
+        "explanation": "IP is used for addressing devices in a network."
+    },
+    {
+        "question": "What is the full form of RAM?",
+        "options": ["Random Access Memory", "Read Access Memory", "Rapid Access Memory", "Range Access Memory"],
+        "answer": 0,
+        "explanation": "RAM is the memory used by a computer to store data temporarily."
+    },
+    {
+        "question": "What does ROM mean?",
+        "options": ["Read Only Memory", "Random Operational Memory", "Rapid Output Memory", "Ready Operational Module"],
+        "answer": 0,
+        "explanation": "ROM stores data permanently in computers."
+    },
+    {
+        "question": "What is the full form of HTML?",
+        "options": ["HyperText Markup Language", "Hyper Technical Markup Language", "High Transfer Markup Language", "Hyperlink Text Markup Language"],
+        "answer": 0,
+        "explanation": "HTML is the standard language for creating web pages."
+    },
+    {
+        "question": "What does FTP stand for?",
+        "options": ["File Transfer Protocol", "Fast Transfer Process", "File Transmission Protocol", "First Transfer Protocol"],
+        "answer": 0,
+        "explanation": "FTP is used to transfer files over the Internet."
+    },
+    {
+        "question": "What is the full form of URL?",
+        "options": ["Uniform Resource Locator", "Universal Resource Link", "Unified Reference Locator", "User Route Link"],
+        "answer": 0,
+        "explanation": "URL specifies the address of a resource on the web."
+    },
+    {
+        "question": "What does DNS stand for?",
+        "options": ["Domain Name System", "Digital Network System", "Distributed Name Server", "Domain Network Service"],
+        "answer": 0,
+        "explanation": "DNS translates domain names to IP addresses."
+    },
+    {
+        "question": "What is the full form of SQL?",
+        "options": ["Structured Query Language", "Simple Query Language", "Sequential Query Language", "Standard Query Language"],
+        "answer": 0,
+        "explanation": "SQL is used for managing and querying databases."
+    },
+    {
+        "question": "What does OLED mean?",
+        "options": ["Organic Light Emitting Diode", "Optimized Light Emitting Display", "Optical Light Emitting Device", "Other Light Emitting Display"],
+        "answer": 0,
+        "explanation": "OLED is a display technology in screens."
+    },
+    {
+        "question": "What is the full form of URL?",
+        "options": ["Uniform Resource Locator", "Unique Resource Locator", "Universal Resource Locator", "Uniform Registration Locator"],
+        "answer": 0,
+        "explanation": "URL is the standardized address of resources on the internet."
+    },
+    {
+        "question": "What does ADSL stand for?",
+        "options": ["Asymmetric Digital Subscriber Line", "Advanced Digital Subscriber Line", "Asynchronous Digital Subscriber Link", "Advanced Data System Link"],
+        "answer": 0,
+        "explanation": "ADSL is a type of DSL broadband communications technology."
+    },
+    {
+        "question": "What is the full form of SMS?",
+        "options": ["Short Message Service", "Simple Messaging System", "Secure Message Service", "Standard Messaging Software"],
+        "answer": 0,
+        "explanation": "SMS is used for sending text messages."
+    },
+    {
+        "question": "What does RAM stand for in computers?",
+        "options": ["Random Access Memory", "Read Access Memory", "Rapid Access Memory", "Run Access Memory"],
+        "answer": 0,
+        "explanation": "RAM is the main memory used for temporary data storage."
+    },
+    {
+        "question": "What does URL stand for?",
+        "options": ["Uniform Resource Locator", "Universal Resource Location", "Universal Relay Locator", "Uniform Relay Link"],
+        "answer": 0,
+        "explanation": "URL indicates the location of a resource on the internet."
+    },
+    {
+        "question": "What is the full form of USB?",
+        "options": ["Universal Serial Bus", "Uniform System Bus", "Ultima Service Bus", "User System Bridge"],
+        "answer": 0,
+        "explanation": "USB is a widely used interface for peripherals."
+    },
+    {
+        "question": "What does IoT stand for?",
+        "options": ["Internet of Things", "Internet of Technology", "Information on Time", "Input Output Transfer"],
+        "answer": 0,
+        "explanation": "IoT refers to interconnected devices communicating over the internet."
+    },
+    {
+        "question": "What is the full form of SMTP?",
+        "options": ["Simple Mail Transfer Protocol", "Secure Messaging Transfer Protocol", "Simple Messaging Transport Platform", "System Managed Transfer Protocol"],
+        "answer": 0,
+        "explanation": "SMTP is a protocol for sending electronic mail."
+    },
+    {
+        "question": "What does RAID stand for?",
+        "options": ["Redundant Array of Independent Disks", "Random Access Individual Drive", "Remote Array of Indexed Data", "Redundant Access of Integrated Data"],
+        "answer": 0,
+        "explanation": "RAID is a data storage technology combining multiple disks."
+    },
+    {
+        "question": "What is the full form of SVG?",
+        "options": ["Scalable Vector Graphics", "Standard Vector Graphics", "Static Vector Graphics", "Simple Vector Graphics"],
+        "answer": 0,
+        "explanation": "SVG is a vector image format for two-dimensional graphics."
+    },
+    {
+        "question": "What does DSL stand for?",
+        "options": ["Digital Subscriber Line", "Direct Service Line", "Digital Service Link", "Direct Subscriber Link"],
+        "answer": 0,
+        "explanation": "DSL is a technology for high-speed data transmission over telephone lines."
+    },
+    {
+        "question": "What is BIOS in computers?",
+        "options": ["Basic Input Output System", "Binary Input Output System", "Basic Internal Operating System", "Base Input Output System"],
+        "answer": 0,
+        "explanation": "BIOS is firmware used to initialize hardware during booting."
+    },
+    {
+        "question": "What does PPT stand for?",
+        "options": ["PowerPoint Presentation", "Portable Page Template", "Primary Power Point", "Power Processing Tool"],
+        "answer": 0,
+        "explanation": "PPT is the file format for Microsoft PowerPoint presentations."
+    },
+    {
+        "question": "What is the full form of URL?",
+        "options": ["Uniform Resource Locator", "Universal Resource Link", "Uniform Resource List", "Unique Resource Locator"],
+        "answer": 0,
+        "explanation": "URL is used to specify addresses of web resources."
+    },
+    {
+        "question": "What is the full form of LCD?",
+        "options": ["Liquid Crystal Display", "Light Color Display", "Liquid Color Display", "Local Crystal Display"],
+        "answer": 0,
+        "explanation": "LCD is a technology used in displays."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

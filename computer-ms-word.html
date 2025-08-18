@@ -1,0 +1,2602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MS Word Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">MS Word</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+    "question": "What is the default file extension for a Microsoft Word 2010 document?",
+    "options": [".doc", ".docx", ".xlsx", ".pptx"],
+    "answer": 1,
+    "explanation": "The default file extension for Word 2010 and newer versions is .docx."
+},
+{
+    "question": "Which key combination is used to save a document in MS Word?",
+    "options": ["Ctrl+N", "Ctrl+S", "Ctrl+O", "Ctrl+P"],
+    "answer": 1,
+    "explanation": "Ctrl+S is the shortcut key to save a document."
+},
+{
+    "question": "Which tab contains the 'Page Number' option in MS Word?",
+    "options": ["Insert", "Home", "References", "Layout"],
+    "answer": 0,
+    "explanation": "The 'Page Number' option is found on the Insert tab."
+},
+{
+    "question": "Which feature helps correct common spelling or grammar errors automatically as you type?",
+    "options": ["Spell Check", "AutoCorrect", "Find and Replace", "Thesaurus"],
+    "answer": 1,
+    "explanation": "AutoCorrect makes corrections as you type."
+},
+{
+    "question": "Where can you customize the margins of a document in MS Word?",
+    "options": ["File tab", "Page Layout tab", "Insert tab", "View tab"],
+    "answer": 1,
+    "explanation": "Margins can be adjusted from the Page Layout (or Layout) tab."
+},
+{
+    "question": "Which of the following is NOT a view mode in MS Word?",
+    "options": ["Print Layout", "Web Layout", "Slide Show", "Outline"],
+    "answer": 2,
+    "explanation": "Slide Show is not a view in MS Word; it's in MS PowerPoint."
+},
+{
+    "question": "What is the function of the Thesaurus tool in MS Word?",
+    "options": ["Check grammar", "Suggest synonyms", "Insert images", "Track changes"],
+    "answer": 1,
+    "explanation": "The Thesaurus suggests synonyms and antonyms."
+},
+{
+    "question": "Which keyboard shortcut opens a new blank document in MS Word?",
+    "options": ["Ctrl+O", "Ctrl+N", "Ctrl+P", "Ctrl+S"],
+    "answer": 1,
+    "explanation": "Ctrl+N opens a new blank document."
+},
+{
+    "question": "Which bar shows information like page number, section, and word count in MS Word?",
+    "options": ["Toolbar", "Status Bar", "Title Bar", "Menu Bar"],
+    "answer": 1,
+    "explanation": "Status Bar displays current document information."
+},
+{
+    "question": "The option to add a watermark is available in which tab?",
+    "options": ["Insert", "Design", "References", "Home"],
+    "answer": 1,
+    "explanation": "Watermarks are found under the Design tab."
+},
+{
+    "question": "Which function enables you to insert the current date and time into a document?",
+    "options": ["Insert -> Date & Time", "Home -> Clipboard", "Review -> Spell Check", "View -> Header & Footer"],
+    "answer": 0,
+    "explanation": "Insert tab provides the option to insert Date & Time."
+},
+{
+    "question": "What does the Zoom slider in the status bar control?",
+    "options": ["Font size", "Document zoom level", "Page margins", "Header/Footer"],
+    "answer": 1,
+    "explanation": "Zoom slider adjusts the view zoom level of the document."
+},
+{
+    "question": "Which command is used to close a document in MS Word?",
+    "options": ["Alt+F4", "Ctrl+Q", "Ctrl+W", "Ctrl+M"],
+    "answer": 2,
+    "explanation": "Ctrl+W is the shortcut to close the active document window."
+},
+{
+    "question": "In MS Word, what is Mail Merge primarily used for?",
+    "options": ["Editing documents", "Creating presentations", "Sending personalized letters", "Proofreading text"],
+    "answer": 2,
+    "explanation": "Mail Merge automates sending personalized letters or emails."
+},
+{
+    "question": "Which tab is used to add a table to your document?",
+    "options": ["Insert", "Review", "References", "Home"],
+    "answer": 0,
+    "explanation": "Insert tab allows you to create a table."
+},
+{
+    "question": "Shortcut for making the selected text bold in MS Word is?",
+    "options": ["Ctrl+B", "Ctrl+U", "Ctrl+I", "Ctrl+S"],
+    "answer": 0,
+    "explanation": "Ctrl+B makes the selected text bold."
+},
+{
+    "question": "Which tool would you use to check spelling errors in a document?",
+    "options": ["AutoFormat", "Spell Check", "Macro", "Track Changes"],
+    "answer": 1,
+    "explanation": "The 'Spell Check' tool highlights and corrects spelling errors."
+},
+{
+    "question": "To move text from one position to another, which operation is used?",
+    "options": ["Copy and Paste", "Move and Replace", "Cut and Paste", "Find and Replace"],
+    "answer": 2,
+    "explanation": "Cut removes and Paste inserts the text in a new location."
+},
+{
+    "question": "Which menu would you use to change line spacing in a Word document?",
+    "options": ["Insert", "File", "Home", "Review"],
+    "answer": 2,
+    "explanation": "The Home tab contains options for line spacing."
+},
+{
+    "question": "Which shortcut is used to undo the last action in MS Word?",
+    "options": ["Ctrl+Y", "Ctrl+U", "Ctrl+Z", "Ctrl+A"],
+    "answer": 2,
+    "explanation": "Ctrl+Z undoes the previous action."
+},
+{
+    "question": "The 'Track Changes' feature is primarily used for?",
+    "options": ["Formatting text", "Collaborative editing", "Counting pages", "Adjusting margins"],
+    "answer": 1,
+    "explanation": "Track Changes is used to monitor edits made by multiple users."
+},
+{
+    "question": "Which of the following is used to create a drop cap effect?",
+    "options": ["Insert -> Picture", "Design -> Watermark", "Insert -> Drop Cap", "Home -> Paste"],
+    "answer": 2,
+    "explanation": "Drop Cap is applied from Insert -> Drop Cap."
+},
+{
+    "question": "Where is the ruler located in MS Word, and what is it used for?",
+    "options": ["At the bottom - for inserting pictures", "At the top and left - to align text and objects", "Top only - to change line spacing", "Right only - to check word count"],
+    "answer": 1,
+    "explanation": "The ruler is on top and left and helps in alignment."
+},
+{
+    "question": "Which keyboard shortcut selects all text in a Word document?",
+    "options": ["Ctrl+S", "Ctrl+A", "Ctrl+E", "Ctrl+L"],
+    "answer": 1,
+    "explanation": "Ctrl+A selects all the text in the document."
+},
+{
+    "question": "What is the maximum font size available in the font size tool on the formatting toolbar?",
+    "options": ["64", "72", "36", "28"],
+    "answer": 1,
+    "explanation": "72 is the largest standard font size on the toolbar."
+},
+{
+    "question": "Which file menu option is used to print a document?",
+    "options": ["Save", "New", "Print", "Exit"],
+    "answer": 2,
+    "explanation": "'Print' is used to print documents."
+},
+{
+    "question": "Which option lets you insert headers and footers?",
+    "options": ["Insert Tab", "Home Tab", "Review Tab", "View Tab"],
+    "answer": 0,
+    "explanation": "Headers and Footers are found under the Insert tab."
+},
+{
+    "question": "What is the use of clipboard in MS Word?",
+    "options": ["Format text", "Store copied or cut content temporarily", "Insert images", "Undo actions"],
+    "answer": 1,
+    "explanation": "Clipboard stores cut or copied items for pasting."
+},
+{
+    "question": "How can you break the current column and move to the next column in MS Word?",
+    "options": ["Insert->Page Break", "Insert->Column Break", "Ctrl+Enter", "Alt+Enter"],
+    "answer": 1,
+    "explanation": "Insert -> Column Break starts a new column."
+},
+{
+    "question": "The default orientation of a Word page is?",
+    "options": ["Portrait", "Landscape", "Horizontal", "Vertical"],
+    "answer": 0,
+    "explanation": "Portrait is the default page orientation."
+},
+{
+    "question": "Which key is used to insert a manual page break?",
+    "options": ["Ctrl+Enter", "Ctrl+Shift+Enter", "Alt+Enter", "Ctrl+P"],
+    "answer": 0,
+    "explanation": "Ctrl+Enter inserts a page break."
+},
+{
+    "question": "What is the purpose of the Format Painter tool?",
+    "options": ["Correct grammar", "Copy formatting", "Insert tables", "Insert page numbers"],
+    "answer": 1,
+    "explanation": "Format Painter copies formatting from one place to another."
+},
+{
+    "question": "What is the use of 'Ctrl+F' in MS Word?",
+    "options": ["Find text", "Format text", "Full screen", "Freeze Panes"],
+    "answer": 0,
+    "explanation": "Ctrl+F opens the Find dialog to search text."
+},
+{
+    "question": "Which panel allows you to insert symbols and special characters?",
+    "options": ["Review", "Insert", "View", "References"],
+    "answer": 1,
+    "explanation": "Insert tab contains Symbols and Special Characters options."
+},
+{
+    "question": "What do you use to create bulleted lists in MS Word?",
+    "options": ["Numbering tool", "Bullets tool", "Styles tool", "Sort tool"],
+    "answer": 1,
+    "explanation": "The Bullets tool is used for creating bullet lists."
+},
+{
+    "question": "In MS Word, what is the function of the Undo and Redo buttons?",
+    "options": ["To change font style", "To reverse or repeat actions", "To insert pictures", "To align text"],
+    "answer": 1,
+    "explanation": "Undo reverses, Redo repeats recent actions."
+},
+{
+    "question": "Which command is used to combine names and addresses with a document?",
+    "options": ["Mail Merge", "Document Merge", "Data Merge", "Table Merge"],
+    "answer": 0,
+    "explanation": "Mail Merge automates inserting variable content."
+},
+{
+    "question": "Which key opens the Help window in MS Word?",
+    "options": ["F5", "F1", "F2", "F7"],
+    "answer": 1,
+    "explanation": "F1 is commonly used for Help."
+},
+{
+    "question": "How would you start a bulleted list using a keyboard shortcut?",
+    "options": ["Ctrl+Shift+L", "Ctrl+B", "Ctrl+L", "Ctrl+Alt+B"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+L applies bullet formatting."
+},
+{
+    "question": "Which menu/tab would you use to add a cover page?",
+    "options": ["Insert", "Home", "Review", "Layout"],
+    "answer": 0,
+    "explanation": "Insert tab provides Cover Page options."
+},
+{
+    "question": "What does the 'Superscript' option in the Font menu do?",
+    "options": ["Reduces font", "Displays text above the baseline", "Adds a shadow", "Italicizes text"],
+    "answer": 1,
+    "explanation": "Superscript raises text above the baseline."
+},
+{
+    "question": "Which of the following options is available under the 'References' tab?",
+    "options": ["Insert Footnote", "Change Font", "Insert Table", "Sort Data"],
+    "answer": 0,
+    "explanation": "Footnotes are added using the References tab."
+},
+{
+    "question": "What is the default font size in Microsoft Word 2013?",
+    "options": ["10", "11", "12", "14"],
+    "answer": 1,
+    "explanation": "Default font size is 11 in Word 2013 and newer."
+},
+{
+    "question": "What function do you use to find synonyms for a word?",
+    "options": ["AutoCorrect", "Spell Check", "Thesaurus", "Find and Replace"],
+    "answer": 2,
+    "explanation": "The Thesaurus suggests synonyms for words."
+},
+{
+    "question": "In MS Word, what is a 'gutter margin'?",
+    "options": ["Extra space for binding", "Margin at bottom", "Space in footer", "Space after paragraph"],
+    "answer": 0,
+    "explanation": "Gutter margin allows space for binding pages."
+},
+{
+    "question": "Which feature should you use for repetitive content at the top of every page?",
+    "options": ["Footer", "Watermark", "Header", "Style"],
+    "answer": 2,
+    "explanation": "Header is used for content at the top of every page."
+},
+{
+    "question": "What is the minimum zoom percentage available in MS Word?",
+    "options": ["10%", "25%", "5%", "20%"],
+    "answer": 1,
+    "explanation": "The minimum zoom is typically 25%."
+},
+{
+    "question": "Which shortcut key is used to make selected text italic in MS Word?",
+    "options": ["Ctrl+I", "Ctrl+B", "Ctrl+U", "Ctrl+T"],
+    "answer": 0,
+    "explanation": "Ctrl+I italicizes selected text."
+},
+{
+    "question": "How can you switch between multiple open Word documents?",
+    "options": ["Alt+Tab", "Ctrl+Tab", "Ctrl+Alt+Tab", "Shift+Tab"],
+    "answer": 0,
+    "explanation": "Alt+Tab switches between open applications, including Word documents."
+},
+{
+    "question": "Which feature allows you to capture a portion of text formatting and apply it elsewhere?",
+    "options": ["Copy", "Format Painter", "Paste", "Replace"],
+    "answer": 1,
+    "explanation": "Format Painter copies formatting to other text."
+},
+{
+    "question": "Which tab would you use to change the document orientation?",
+    "options": ["File", "Home", "Layout", "Insert"],
+    "answer": 2,
+    "explanation": "Layout tab has options for orientation."
+},
+{
+    "question": "What does Ctrl+Shift+> do in MS Word?",
+    "options": ["Increase font size", "Decrease font size", "Underline text", "Save document"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+> increases the font size."
+},
+{
+    "question": "Which shortcut key is used to underline selected text in MS Word?",
+    "options": ["Ctrl+I", "Ctrl+B", "Ctrl+U", "Ctrl+S"],
+    "answer": 2,
+    "explanation": "Ctrl+U applies underline formatting to selected text."
+},
+{
+    "question": "What feature in MS Word automatically moves text to the next line when it reaches the end of a line?",
+    "options": ["Text Wrap", "Word Wrap", "Scroll Lock", "Line Break"],
+    "answer": 1,
+    "explanation": "Word Wrap moves text to the next line automatically."
+},
+{
+    "question": "Which tab contains options for Paragraph alignment in MS Word?",
+    "options": ["Review", "Layout", "Home", "References"],
+    "answer": 2,
+    "explanation": "The Home tab provides paragraph alignment options."
+},
+{
+    "question": "In the context of MS Word, what does 'Justify' do to selected text?",
+    "options": ["Aligns text left", "Aligns text right", "Aligns text to both left and right margins", "Centers text"],
+    "answer": 2,
+    "explanation": "Justify aligns text evenly to both left and right margins."
+},
+{
+    "question": "What is a footnote in MS Word used for?",
+    "options": ["Insert table", "Display additional information at the bottom of a page", "Highlight text", "Track changes"],
+    "answer": 1,
+    "explanation": "Footnotes are notes at the bottom of a page for extra information or citations."
+},
+{
+    "question": "Which feature allows you to combine two or more cells in a table in MS Word?",
+    "options": ["Merge cells", "Split cells", "Insert row", "Sort cells"],
+    "answer": 0,
+    "explanation": "Merge cells combines selected cells into one."
+},
+{
+    "question": "What is the use of the 'Find and Replace' feature?",
+    "options": ["Formatting text", "Searching and substituting text", "Checking grammar", "Inserting images"],
+    "answer": 1,
+    "explanation": "Find and Replace searches for specified text and replaces it with new text."
+},
+{
+    "question": "Which shortcut inserts a hyperlink in MS Word?",
+    "options": ["Ctrl+K", "Ctrl+L", "Ctrl+H", "Ctrl+T"],
+    "answer": 0,
+    "explanation": "Ctrl+K is the shortcut for inserting a hyperlink."
+},
+{
+    "question": "What happens when you double-click a word in MS Word?",
+    "options": ["Deletes the word", "Selects the word", "Bold the word", "Starts a new paragraph"],
+    "answer": 1,
+    "explanation": "Double-clicking a word selects the entire word."
+},
+{
+    "question": "Which tool checks document spelling as you type?",
+    "options": ["Spell Check", "AutoCorrect", "AutoFormat", "Format Painter"],
+    "answer": 0,
+    "explanation": "The Spell Check tool underlines misspelled words as you type."
+},
+{
+    "question": "What is the extension of a macro-enabled Word document?",
+    "options": [".doc", ".docm", ".pdf", ".dot"],
+    "answer": 1,
+    "explanation": "Macro-enabled Word documents use the .docm extension."
+},
+{
+    "question": "Which section of MS Word allows you to insert a Table of Contents?",
+    "options": ["Insert", "References", "View", "Home"],
+    "answer": 1,
+    "explanation": "The References tab is used to insert a Table of Contents."
+},
+{
+    "question": "Which file format allows saving Word documents so they cannot be easily edited?",
+    "options": [".txt", ".docx", ".html", ".pdf"],
+    "answer": 3,
+    "explanation": ".pdf is widely used to prevent document editing."
+},
+{
+    "question": "Which of the following is NOT a file type supported by Save As in MS Word?",
+    "options": ["PDF", "XLSX", "DOCX", "RTF"],
+    "answer": 1,
+    "explanation": "XLSX is an Excel file format, not supported by Word's Save As."
+},
+{
+    "question": "Which command inserts a comment in a document?",
+    "options": ["Review -> Comment", "Insert -> Symbol", "Home -> Font", "Layout -> Margins"],
+    "answer": 0,
+    "explanation": "Insert a comment via the Review tab's Comment option."
+},
+{
+    "question": "Which feature helps you to view only the headings of your document?",
+    "options": ["Outline View", "Draft View", "Print Layout", "Web Layout"],
+    "answer": 0,
+    "explanation": "Outline View displays only document headings."
+},
+{
+    "question": "To split a table cell in MS Word into multiple cells, use which option?",
+    "options": ["Insert -> Cells", "Table Tools -> Split Cells", "Layout -> Page Break", "Review -> Split"],
+    "answer": 1,
+    "explanation": "Split Cells option is found in Table Tools Layout."
+},
+{
+    "question": "What is the function of the 'Header and Footer' tool?",
+    "options": ["Insert images", "Add text at the top and bottom of each page", "Set page orientation", "Edit theme"],
+    "answer": 1,
+    "explanation": "Headers and footers place repeatable content at top/bottom of pages."
+},
+{
+    "question": "Which shortcut is used to center align a paragraph?",
+    "options": ["Ctrl+E", "Ctrl+J", "Ctrl+R", "Ctrl+L"],
+    "answer": 0,
+    "explanation": "Ctrl+E centers the selected paragraph."
+},
+{
+    "question": "Where can you find the 'SmartArt' feature?",
+    "options": ["Home tab", "Insert tab", "Design tab", "Layout tab"],
+    "answer": 1,
+    "explanation": "SmartArt graphics are available from the Insert tab."
+},
+{
+    "question": "What is 'Track Changes' used for?",
+    "options": ["Changing fonts", "Recording all edits made in the document", "Closing documents", "Changing file type"],
+    "answer": 1,
+    "explanation": "Track Changes records and shows edits/changes in the document."
+},
+{
+    "question": "By default, new Word documents use which line spacing?",
+    "options": ["Single", "1.5 lines", "Double", "Multiple 1.08"],
+    "answer": 3,
+    "explanation": "The default is usually multiple line spacing set to 1.08."
+},
+{
+    "question": "What does the 'Show/Hide ¶' button do?",
+    "options": ["Shows spelling errors", "Shows formatting marks and paragraph breaks", "Hides ribbon", "Enables track changes"],
+    "answer": 1,
+    "explanation": "Show/Hide displays non-printing characters."
+},
+{
+    "question": "What is the use of the 'Table Styles' gallery?",
+    "options": ["Format text", "Apply design and color schemes to tables", "Add pages", "Insert images"],
+    "answer": 1,
+    "explanation": "Table Styles applies pre-set designs to tables."
+},
+{
+    "question": "Which dialog box helps to set advanced font options?",
+    "options": ["Font Dialog Box", "Page Setup", "Paragraph Settings", "Bullets and Numbering"],
+    "answer": 0,
+    "explanation": "The Font dialog box contains advanced font settings."
+},
+{
+    "question": "In Mail Merge, what is a 'Main Document'?",
+    "options": ["A recipient list", "The template document for merged letters", "An address database", "A macro file"],
+    "answer": 1,
+    "explanation": "The template letter/form is the 'Main Document' in Mail Merge."
+},
+{
+    "question": "How can you protect a Word document with a password?",
+    "options": ["Review -> Protect -> Restrict Editing", "File -> Info -> Protect Document", "Insert -> Password", "Home -> Encrypt"],
+    "answer": 1,
+    "explanation": "File -> Info -> Protect Document lets you add a password."
+},
+{
+    "question": "Which feature lets you remove all formatting from a Word document section?",
+    "options": ["Clear All Formatting", "AutoFormat", "Format Painter", "SmartArt"],
+    "answer": 0,
+    "explanation": "Clear All Formatting removes all applied formatting."
+},
+{
+    "question": "Which key lets you enter a new line without starting a new paragraph?",
+    "options": ["Ctrl+Enter", "Alt+Enter", "Shift+Enter", "Ctrl+Shift+Enter"],
+    "answer": 2,
+    "explanation": "Shift+Enter inserts a line break within a paragraph."
+},
+{
+    "question": "The shortcut Ctrl+Shift+C does what in MS Word?",
+    "options": ["Copy text", "Copy formatting", "Copy image", "Copy paragraph"],
+    "answer": 1,
+    "explanation": "Ctrl+Shift+C copies formatting only."
+},
+{
+    "question": "What does the 'Quick Access Toolbar' provide?",
+    "options": ["Keyboard shortcuts", "One-click access to frequently used commands", "Preview document", "Insert equations"],
+    "answer": 1,
+    "explanation": "Quick Access Toolbar gives quick access to chosen commands."
+},
+{
+    "question": "Which key combination increases indent in a paragraph?",
+    "options": ["Ctrl+M", "Ctrl+T", "Ctrl+E", "Ctrl+U"],
+    "answer": 0,
+    "explanation": "Ctrl+M increases the indentation."
+},
+{
+    "question": "Which panel is used to insert shapes into a Word document?",
+    "options": ["Home", "Insert", "Design", "References"],
+    "answer": 1,
+    "explanation": "Shapes are inserted via the Insert tab."
+},
+{
+    "question": "What is a page break?",
+    "options": ["A character symbol", "A code that tells Word to start a new page", "A paragraph break", "A line spacing option"],
+    "answer": 1,
+    "explanation": "Page break forces content to start from next page."
+},
+{
+    "question": "Which option is used to print only specific pages?",
+    "options": ["File -> Print -> Pages", "Review -> Print", "Insert -> Print", "Design -> Print"],
+    "answer": 0,
+    "explanation": "'Pages' under Print options allows printing specific page ranges."
+},
+{
+    "question": "Which feature allows simultaneous text editing by multiple users?",
+    "options": ["AutoSave", "Co-authoring", "Track Changes", "Clipboard"],
+    "answer": 1,
+    "explanation": "Co-authoring allows multiple users to edit at the same time."
+},
+{
+    "question": "A 'section break' is used for what?",
+    "options": ["Separating chapters or layout changes", "Highlighting text", "Creating new paragraphs", "Making tables"],
+    "answer": 0,
+    "explanation": "Section break lets you apply different formatting to sections."
+},
+{
+    "question": "The option for adding columns to a Word page is found under which tab?",
+    "options": ["Home", "Insert", "Layout", "References"],
+    "answer": 2,
+    "explanation": "Columns can be added via the Layout tab."
+},
+{
+    "question": "Which key combination is a shortcut for single-spacing a paragraph?",
+    "options": ["Ctrl+1", "Ctrl+2", "Ctrl+5", "Ctrl+0"],
+    "answer": 0,
+    "explanation": "Ctrl+1 toggles single line spacing."
+},
+{
+    "question": "To view two pages side-by-side in Print Layout, use which feature?",
+    "options": ["Split", "Arrange All", "View Side by Side", "Multiple Pages"],
+    "answer": 3,
+    "explanation": "Multiple Pages option in Print Layout enables side-by-side view."
+},
+{
+    "question": "What does the 'Navigation Pane' help with?",
+    "options": ["Spell checking", "Finding and organizing document headings", "Applying themes", "Printing documents"],
+    "answer": 1,
+    "explanation": "Navigation Pane helps quickly move between headings or find text."
+},
+{
+    "question": "Where can you find options to change paper size?",
+    "options": ["Insert tab", "File tab", "Layout tab", "View tab"],
+    "answer": 2,
+    "explanation": "Paper size is changed from the Layout tab."
+},
+{
+    "question": "The shortcut Ctrl+Shift+N applies which style in MS Word?",
+    "options": ["Heading 1", "Normal", "Subtitle", "Table of Contents"],
+    "answer": 1,
+    "explanation": "Ctrl+Shift+N resets to Normal style."
+},
+{
+    "question": "Which feature lets you create an index automatically?",
+    "options": ["Mail Merge", "Table of Contents", "Insert Index", "Sort"],
+    "answer": 2,
+    "explanation": "'Insert Index' auto-generates an index from marked entries."
+},
+{
+    "question": "In Word, what is the maximum number of columns available in a table?",
+    "options": ["63", "255", "100", "Unlimited"],
+    "answer": 0,
+    "explanation": "Word tables can have up to 63 columns."
+},
+{
+    "question": "Which chart type can you insert into an MS Word document?",
+    "options": ["Pie chart", "Bar chart", "Line chart", "All of the above"],
+    "answer": 3,
+    "explanation": "MS Word supports various chart types."
+},
+{
+    "question": "Which option best describes 'Style' in MS Word?",
+    "options": ["A font type", "A set of predefined formatting attributes", "A page border", "A table format"],
+    "answer": 1,
+    "explanation": "Style is a collection of formatting options."
+},
+{
+    "question": "If you want to type in Hindi, which MS Word feature do you use?",
+    "options": ["Spelling checker", "Font Change", "Language settings", "Track changes"],
+    "answer": 2,
+    "explanation": "Language settings enable typing in different scripts."
+},
+{
+    "question": "Which pane lists document headings and page numbers for navigation?",
+    "options": ["Navigation Pane", "Review Pane", "Task Pane", "Styles Pane"],
+    "answer": 0,
+    "explanation": "Navigation Pane lists headings for easy access."
+},
+{
+    "question": "To insert a bookmark for quick navigation, use which menu?",
+    "options": ["Insert", "Layout", "Review", "References"],
+    "answer": 0,
+    "explanation": "Insert -> Bookmark adds navigation bookmarks."
+},
+{
+    "question": "The shortcut for opening the Print dialog is?",
+    "options": ["Ctrl+P", "Ctrl+D", "Ctrl+S", "Ctrl+C"],
+    "answer": 0,
+    "explanation": "Ctrl+P opens the Print dialog."
+},
+{
+    "question": "To show rulers in MS Word, you use which tab?",
+    "options": ["View", "Insert", "File", "Layout"],
+    "answer": 0,
+    "explanation": "The View tab allows you to display rulers."
+},
+{
+    "question": "Which tab contains the 'Word Count' tool in MS Word?",
+    "options": ["File", "Review", "Insert", "View"],
+    "answer": 1,
+    "explanation": "The Review tab contains the Word Count tool."
+},
+{
+    "question": "What is the shortcut to open the 'Font' dialog box in MS Word?",
+    "options": ["Ctrl+D", "Ctrl+F", "Ctrl+Shift+F", "Ctrl+P"],
+    "answer": 0,
+    "explanation": "Ctrl+D opens the Font dialog box."
+},
+{
+    "question": "Which view mode is best for editing a document without layout distractions?",
+    "options": ["Draft View", "Print Layout", "Read Mode", "Outline View"],
+    "answer": 0,
+    "explanation": "Draft View focuses on text editing without page layout distractions."
+},
+{
+    "question": "In MS Word, what does 'Widow/Orphan Control' prevent?",
+    "options": ["Images overflowing margins", "Single lines of a paragraph at top or bottom of a page", "Paragraph numbering reset", "Font shrinkage"],
+    "answer": 1,
+    "explanation": "Widow/Orphan Control prevents single lines from appearing alone at page starts or ends."
+},
+{
+    "question": "Which alignment option in MS Word stretches text so that it aligns with both left and right margins?",
+    "options": ["Left Align", "Right Align", "Center", "Justify"],
+    "answer": 3,
+    "explanation": "Justify alignment aligns text to both left and right margins."
+},
+{
+    "question": "How can you quickly apply superscript to selected text?",
+    "options": ["Ctrl+Shift+=", "Ctrl+=", "Ctrl+Shift++", "Ctrl++"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+= applies superscript formatting."
+},
+{
+    "question": "In MS Word, which menu allows changing the spacing before and after paragraphs?",
+    "options": ["Page Layout/Layout", "View", "Insert", "Review"],
+    "answer": 0,
+    "explanation": "Spacing before and after paragraphs can be adjusted under Layout (or Page Layout)."
+},
+{
+    "question": "What is the maximum zoom percentage in MS Word?",
+    "options": ["200%", "300%", "400%", "500%"],
+    "answer": 3,
+    "explanation": "MS Word supports zoom up to 500%."
+},
+{
+    "question": "Which shortcut closes the currently open MS Word document but keeps the application running?",
+    "options": ["Ctrl+F4", "Alt+F4", "Ctrl+W", "Shift+F4"],
+    "answer": 0,
+    "explanation": "Ctrl+F4 closes the active document without exiting Word."
+},
+{
+    "question": "When using MS Word's 'Columns' feature, what is the default number of columns?",
+    "options": ["2", "3", "1", "4"],
+    "answer": 2,
+    "explanation": "By default, Word uses a single column layout."
+},
+{
+    "question": "Which option do you select to save only part of a Word document to a new file?",
+    "options": ["Save As", "Save Selection As", "Export", "Send To"],
+    "answer": 1,
+    "explanation": "'Save Selection As' allows saving only selected text/content as a new file."
+},
+{
+    "question": "In MS Word, the default language for spelling and grammar check is usually?",
+    "options": ["English (UK)", "English (US)", "English (Canada)", "English (Australia)"],
+    "answer": 1,
+    "explanation": "English (US) is the default language unless changed by the user."
+},
+{
+    "question": "What is the function of the 'Split' option in MS Word?",
+    "options": ["Split the page into two sections", "Split the window to view different parts of a document", "Split table cells", "Divide the document into two files"],
+    "answer": 1,
+    "explanation": "Split divides the window so you can view and edit different parts of the same document."
+},
+{
+    "question": "Which shortcut key is used to insert a non-breaking space?",
+    "options": ["Ctrl+Shift+Space", "Alt+Space", "Shift+Space", "Ctrl+Alt+Space"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+Space inserts a non-breaking space."
+},
+{
+    "question": "In MS Word, what is 'Kerning'?",
+    "options": ["Spacing between lines", "Spacing between characters", "Page margins", "Font style change"],
+    "answer": 1,
+    "explanation": "Kerning refers to adjusting the space between characters."
+},
+{
+    "question": "How can you quickly remove a hyperlink from selected text?",
+    "options": ["Right-click -> Remove Hyperlink", "Delete key", "Backspace", "Go to File -> Remove Link"],
+    "answer": 0,
+    "explanation": "Right-clicking the hyperlink gives the 'Remove Hyperlink' option."
+},
+{
+    "question": "Which feature lets you apply a border around selected text?",
+    "options": ["Page Border", "Paragraph Borders", "Text Wrap", "Cell Border"],
+    "answer": 1,
+    "explanation": "Paragraph Borders applies borders around selected text/paragraph."
+},
+{
+    "question": "In the 'Font' dialog box, what does the 'Small Caps' option do?",
+    "options": ["Makes letters smaller", "Displays lowercase letters as uppercase but smaller in size", "Converts text to uppercase", "Reduces font size by half"],
+    "answer": 1,
+    "explanation": "Small Caps shows lowercase as uppercase but smaller in size than normal caps."
+},
+{
+    "question": "What does pressing F7 do in MS Word?",
+    "options": ["Open Find dialog", "Spell and Grammar check", "Refresh document", "Open Help window"],
+    "answer": 1,
+    "explanation": "F7 runs spelling and grammar check."
+},
+{
+    "question": "Which type of break is used to move text to a new line without creating a new paragraph?",
+    "options": ["Page Break", "Section Break", "Line Break", "Column Break"],
+    "answer": 2,
+    "explanation": "Line Break (Shift+Enter) moves text to a new line within the same paragraph."
+},
+{
+    "question": "Which tool in MS Word converts text to a table?",
+    "options": ["Format Text", "Convert Text to Table", "Draw Table", "AutoFormat Table"],
+    "answer": 1,
+    "explanation": "Convert Text to Table changes selected text into a table format."
+},
+{
+    "question": "What does the shortcut Ctrl+Shift+> do in MS Word?",
+    "options": ["Increase font size", "Decrease font size", "Increase indent", "Zoom in"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+> increases selected text's font size."
+},
+{
+    "question": "How do you insert an equation in MS Word?",
+    "options": ["Insert -> Equation", "View -> Equation", "Review -> Equation", "Layout -> Equation"],
+    "answer": 0,
+    "explanation": "Equations are inserted via Insert -> Equation."
+},
+{
+    "question": "In MS Word, how can you insert the © symbol quickly?",
+    "options": ["Alt+0169", "Alt+0174", "Alt+0153", "Alt+0163"],
+    "answer": 0,
+    "explanation": "© is inserted using Alt+0169 on the numeric keypad."
+},
+{
+    "question": "Which MS Word feature helps create professional-looking text effects like shadows and reflections?",
+    "options": ["WordArt", "SmartArt", "Text Box", "ClipArt"],
+    "answer": 0,
+    "explanation": "WordArt applies decorative text effects."
+},
+{
+    "question": "What is the default paper size in MS Word?",
+    "options": ["A3", "Letter", "A4", "Legal"],
+    "answer": 2,
+    "explanation": "A4 is the default paper size in most editions."
+},
+{
+    "question": "Which option allows you to keep text and the following paragraph together on the same page?",
+    "options": ["Keep Lines Together", "Keep with Next", "Widow/Orphan Control", "Page Break"],
+    "answer": 1,
+    "explanation": "'Keep with Next' ensures paragraphs stay together when breaking pages."
+},
+{
+    "question": "How do you insert a horizontal line quickly in MS Word?",
+    "options": ["Type --- and press Enter", "Insert -> Shapes -> Line", "Page Layout -> Line", "Ctrl+L"],
+    "answer": 0,
+    "explanation": "Typing three hyphens and pressing Enter creates a horizontal line."
+},
+{
+    "question": "In MS Word, what does 'Ctrl+Shift+L' do?",
+    "options": ["Apply bullet list", "Left align text", "Lowercase text", "Lock document"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+L applies bullet formatting to text."
+},
+{
+    "question": "Which feature lets you display content in multiple levels like chapters and sub-chapters?",
+    "options": ["Table", "Outline View", "Table of Contents", "Column"],
+    "answer": 1,
+    "explanation": "Outline View allows structured content display with levels."
+},
+{
+    "question": "What is the default view in MS Word?",
+    "options": ["Draft", "Print Layout", "Outline", "Web Layout"],
+    "answer": 1,
+    "explanation": "Print Layout is the default view in most versions."
+},
+{
+    "question": "Which ribbon tab has the 'Themes' option?",
+    "options": ["Design", "Layout", "Insert", "Review"],
+    "answer": 0,
+    "explanation": "Themes can be applied under the Design tab."
+},
+{
+    "question": "In a table, which command splits one cell into multiple cells?",
+    "options": ["Split Cells", "Merge Cells", "Divide Cells", "Break Cells"],
+    "answer": 0,
+    "explanation": "Split Cells divides a table cell into multiple cells."
+},
+{
+    "question": "What is the use of 'Change Case' in MS Word?",
+    "options": ["Change font", "Change text size", "Change capitalization style", "Change paragraph layout"],
+    "answer": 2,
+    "explanation": "Change Case alters capitalization style of text."
+},
+{
+    "question": "In MS Word, which dialog box lets you adjust tab stops?",
+    "options": ["Tabs", "Paragraph", "Font", "Styles"],
+    "answer": 0,
+    "explanation": "The Tabs dialog box manages tab stops."
+},
+{
+    "question": "What is the shortcut to open the 'Paragraph' dialog box?",
+    "options": ["Ctrl+P", "Ctrl+Shift+P", "Alt+P", "Alt+O+P"],
+    "answer": 1,
+    "explanation": "Ctrl+Shift+P opens the Paragraph formatting dialog box."
+},
+{
+    "question": "Which option allows text to automatically adjust around inserted images?",
+    "options": ["Image Wrap", "Text Wrap", "Picture Style", "Align Object"],
+    "answer": 1,
+    "explanation": "Text Wrap allows text to flow around images."
+},
+{
+    "question": "How do you select non-adjacent text in MS Word?",
+    "options": ["Hold Ctrl while selecting", "Hold Shift while selecting", "Hold Alt while selecting", "Use arrow keys"],
+    "answer": 0,
+    "explanation": "Holding Ctrl lets you select multiple non-adjacent pieces of text."
+},
+{
+    "question": "Which shortcut inserts a page break?",
+    "options": ["Ctrl+Enter", "Shift+Enter", "Alt+Enter", "Ctrl+Shift+Enter"],
+    "answer": 0,
+    "explanation": "Ctrl+Enter inserts a page break."
+},
+{
+    "question": "Which feature can be used to highlight grammar errors in Word?",
+    "options": ["Proofing", "Grammar Check", "Thesaurus", "AutoFormat"],
+    "answer": 1,
+    "explanation": "Grammar Check highlights grammatical mistakes."
+},
+{
+    "question": "The 'Document Map' feature is replaced by what in newer versions of Word?",
+    "options": ["Bookmark Pane", "Navigation Pane", "Outline Pane", "Heading Pane"],
+    "answer": 1,
+    "explanation": "Document Map has been replaced by the Navigation Pane."
+},
+{
+    "question": "Which layout option adjusts a document for screen reading?",
+    "options": ["Draft View", "Print Layout", "Web Layout", "Read Mode"],
+    "answer": 3,
+    "explanation": "Read Mode optimizes the view for on-screen reading."
+},
+{
+    "question": "How can you insert a continuous section break?",
+    "options": ["Layout -> Breaks -> Continuous", "Insert -> Break -> Continuous", "File -> Break -> Continuous", "Review -> Break -> Continuous"],
+    "answer": 0,
+    "explanation": "Layout tab's Breaks menu has the Continuous option."
+},
+{
+    "question": "In MS Word, pressing Ctrl+E does what?",
+    "options": ["Aligns text to center", "Aligns text to left", "Aligns text to right", "Justifies text"],
+    "answer": 0,
+    "explanation": "Ctrl+E centers the selected text."
+},
+{
+    "question": "Which feature lets you record a sequence of actions for reuse?",
+    "options": ["Track Changes", "Macro", "AutoFormat", "Style"],
+    "answer": 1,
+    "explanation": "Macro records a sequence of actions for automation."
+},
+{
+    "question": "What does the 'Reading Highlight' option in Find do?",
+    "options": ["Highlights the text being read aloud", "Highlights all occurrences of the searched word", "Highlights formatted text", "Marks comments"],
+    "answer": 1,
+    "explanation": "Reading Highlight marks all instances of the searched word."
+},
+{
+    "question": "In MS Word, which key removes character to the right of the cursor?",
+    "options": ["Backspace", "Delete", "Ctrl+Delete", "Shift+Delete"],
+    "answer": 1,
+    "explanation": "Delete key removes the character to the right of the cursor."
+},
+{
+    "question": "Which feature can be used to detect and correct typing mistakes automatically?",
+    "options": ["Spell Check", "AutoCorrect", "Find and Replace", "Track Changes"],
+    "answer": 1,
+    "explanation": "AutoCorrect replaces common typing errors with correct words automatically."
+},
+{
+    "question": "Which shortcut key opens the 'Replace' dialog box?",
+    "options": ["Ctrl+R", "Ctrl+F", "Ctrl+H", "Ctrl+Shift+H"],
+    "answer": 2,
+    "explanation": "Ctrl+H opens the Find and Replace dialog directly in Replace mode."
+},
+{
+    "question": "What does the shortcut 'Ctrl+Shift+K' do in MS Word?",
+    "options": ["Applies small caps formatting", "Inserts a footnote", "Changes case to uppercase", "Clears formatting"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+K applies small caps formatting to selected text."
+},
+{
+    "question": "Which menu option allows you to adjust margins in MS Word?",
+    "options": ["File -> Options", "Layout -> Margins", "Insert -> Margins", "Review -> Margins"],
+    "answer": 1,
+    "explanation": "Margins are adjusted from Layout (Page Layout) tab under the Margins menu."
+},
+{
+    "question": "Which function key opens the Go To dialog box?",
+    "options": ["F1", "F5", "F7", "F12"],
+    "answer": 1,
+    "explanation": "F5 opens the Find and Replace dialog box in the Go To tab."
+},
+{
+    "question": "In MS Word, which key combination inserts a copyright symbol?",
+    "options": ["Alt+0169", "Alt+0174", "Alt+0153", "Alt+0163"],
+    "answer": 0,
+    "explanation": "Holding Alt and typing 0169 inserts © symbol."
+},
+{
+    "question": "Which feature adjusts space between lines in a paragraph?",
+    "options": ["Line Spacing", "Kerning", "Alignment", "Indentation"],
+    "answer": 0,
+    "explanation": "Line Spacing changes vertical spacing between lines in a paragraph."
+},
+{
+    "question": "Which tab contains the 'Cover Page' option?",
+    "options": ["Design", "Insert", "Layout", "References"],
+    "answer": 1,
+    "explanation": "Insert tab includes the Cover Page option."
+},
+{
+    "question": "How do you insert a pre-defined text block repeatedly in MS Word?",
+    "options": ["Macros", "Quick Parts", "Styles", "Templates"],
+    "answer": 1,
+    "explanation": "Quick Parts stores pre-defined text or objects for reuse."
+},
+{
+    "question": "Which MS Word view hides most of the toolbars and is best for reading?",
+    "options": ["Draft", "Web Layout", "Read Mode", "Outline"],
+    "answer": 2,
+    "explanation": "Read Mode is optimized for comfortable reading."
+},
+{
+    "question": "What does pressing Ctrl+Backspace do?",
+    "options": ["Deletes one letter", "Deletes one word to the left", "Deletes the current paragraph", "Deletes the entire line"],
+    "answer": 1,
+    "explanation": "Ctrl+Backspace deletes one whole word to the left of the cursor."
+},
+{
+    "question": "Which option in 'Breaks' allows starting a new section on the same page?",
+    "options": ["Page Break", "Next Page", "Continuous", "Even Page"],
+    "answer": 2,
+    "explanation": "Continuous section break starts a new section without moving to a new page."
+},
+{
+    "question": "Which feature can number headings automatically?",
+    "options": ["Numbering", "Bullets", "Multilevel List", "Styles"],
+    "answer": 2,
+    "explanation": "Multilevel List enables automatic numbering for headings and subheadings."
+},
+{
+    "question": "What does pressing Ctrl+Alt+1 do in Word?",
+    "options": ["Applies Heading 1 style", "Opens navigation pane", "Starts spell check", "Zooms in"],
+    "answer": 0,
+    "explanation": "Ctrl+Alt+1 applies the Heading 1 style to selected text."
+},
+{
+    "question": "Which symbol is used for displaying hidden formatting marks?",
+    "options": ["¶", "§", "#", "¶¶"],
+    "answer": 0,
+    "explanation": "The ¶ (pilcrow) symbol shows paragraph marks and other hidden formatting."
+},
+{
+    "question": "Which ribbon tab contains the 'Watermark' option?",
+    "options": ["Insert", "Review", "Design", "Layout"],
+    "answer": 2,
+    "explanation": "The Watermark option is found under the Design tab."
+},
+{
+    "question": "What is the shortcut to quickly make text subscript?",
+    "options": ["Ctrl+Shift+=", "Ctrl+=", "Alt+=", "Shift+Ctrl+_"],
+    "answer": 1,
+    "explanation": "Ctrl+= applies subscript formatting."
+},
+{
+    "question": "Where can you change the default font in Word?",
+    "options": ["In the Font dialog box -> Set As Default", "In the Layout tab", "In the Insert tab", "Under File -> Save"],
+    "answer": 0,
+    "explanation": "Font dialog box has 'Set As Default' to change the default font."
+},
+{
+    "question": "Which feature allows inserting field codes like date, author, or filename?",
+    "options": ["Quick Parts -> Field", "Insert -> Text Box", "References -> Field", "Review -> Field"],
+    "answer": 0,
+    "explanation": "Quick Parts -> Field inserts document-related field codes."
+},
+{
+    "question": "What does the 'Keep Lines Together' paragraph setting do?",
+    "options": ["Keeps a paragraph on one page", "Keeps first and last lines together", "Keeps two paragraphs together", "Prevents section breaks"],
+    "answer": 0,
+    "explanation": "It prevents splitting a paragraph across pages."
+},
+{
+    "question": "Which shortcut repeats the last action performed?",
+    "options": ["Ctrl+R", "Ctrl+Y", "Ctrl+Shift+R", "F4"],
+    "answer": 3,
+    "explanation": "F4 repeats the last action in Word."
+},
+{
+    "question": "What is the file extension for Word templates?",
+    "options": [".docx", ".dotx", ".dotm", ".dot"],
+    "answer": 1,
+    "explanation": ".dotx is used for Word template files."
+},
+{
+    "question": "Which feature lets you restrict editing to certain parts of a document?",
+    "options": ["Password Protection", "Restrict Editing", "Track Changes", "Document Lock"],
+    "answer": 1,
+    "explanation": "Restrict Editing allows setting permissions for content editing."
+},
+{
+    "question": "In Word, which box shows the name of the current document?",
+    "options": ["Status Bar", "Title Bar", "Menu Bar", "Scroll Bar"],
+    "answer": 1,
+    "explanation": "The Title Bar displays the document name."
+},
+{
+    "question": "Which option in MS Word is used to change the spacing between characters?",
+    "options": ["Kerning", "Indentation", "Line spacing", "Tracking"],
+    "answer": 3,
+    "explanation": "Tracking adjusts the amount of space between characters uniformly."
+},
+{
+    "question": "Which key is pressed with arrow keys to select text word by word?",
+    "options": ["Ctrl", "Shift", "Alt", "Tab"],
+    "answer": 0,
+    "explanation": "Holding Ctrl with arrows moves or selects entire words."
+},
+{
+    "question": "Which shortcut applies the underline style to a word without selecting it?",
+    "options": ["Ctrl+Shift+U", "Ctrl+U after placing cursor", "Double-click + Ctrl+U", "Alt+U"],
+    "answer": 1,
+    "explanation": "Placing the cursor in a word and pressing Ctrl+U underlines the word."
+},
+{
+    "question": "Which feature allows you to create and run automated tasks in MS Word?",
+    "options": ["Track Changes", "Styles", "Macro", "AutoText"],
+    "answer": 2,
+    "explanation": "Macros are used to automate repetitive tasks."
+},
+{
+    "question": "Which pane helps to rearrange document text by dragging headings?",
+    "options": ["Navigation Pane", "Review Pane", "Styles Pane", "Outline Pane"],
+    "answer": 0,
+    "explanation": "Navigation Pane allows rearranging sections by dragging headings."
+},
+{
+    "question": "Which tab contains 'Page Color' option?",
+    "options": ["Layout", "Design", "Insert", "Review"],
+    "answer": 1,
+    "explanation": "Page Color is under the Design tab."
+},
+{
+    "question": "What does the 'Split Table' command do?",
+    "options": ["Splits a table into two", "Splits a cell", "Deletes table borders", "Splits rows evenly"],
+    "answer": 0,
+    "explanation": "Split Table divides a table into two separate tables."
+},
+{
+    "question": "Which command changes the direction of text in a table cell?",
+    "options": ["Text Orientation", "Text Direction", "Rotate Text", "Align Text"],
+    "answer": 1,
+    "explanation": "Text Direction changes the orientation of text in a cell."
+},
+{
+    "question": "What happens if you press Ctrl+Shift+N in Word?",
+    "options": ["Applies Normal style", "Opens a new document", "Creates numbering", "New window"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+N applies the Normal style."
+},
+{
+    "question": "Which function key inserts a hyperlink?",
+    "options": ["F6", "F10", "F11", "None of these"],
+    "answer": 3,
+    "explanation": "Hyperlinks are inserted with Ctrl+K, not with a function key."
+},
+{
+    "question": "Which tab contains the 'Columns' feature?",
+    "options": ["Layout", "Design", "Insert", "View"],
+    "answer": 0,
+    "explanation": "Columns are set under the Layout tab."
+},
+{
+    "question": "Which command removes all manual tab stops?",
+    "options": ["Clear Tabs", "Reset Tabs", "Remove Tabs", "Delete Tabs"],
+    "answer": 0,
+    "explanation": "Clear Tabs removes all manually set tab stops."
+},
+{
+    "question": "What is the use of the 'Shrink One Page' feature?",
+    "options": ["Reduces font size", "Fits extra content into one less page", "Removes blank pages", "Compresses images"],
+    "answer": 1,
+    "explanation": "Shrink One Page reduces page content slightly to eliminate a page."
+},
+{
+    "question": "Which tab in Page Setup dialog changes page orientation?",
+    "options": ["Margins", "Paper", "Layout", "View"],
+    "answer": 0,
+    "explanation": "The Margins tab in Page Setup changes page orientation."
+},
+{
+    "question": "Which key opens the Save As dialog?",
+    "options": ["F2", "F9", "F12", "Shift+F12"],
+    "answer": 2,
+    "explanation": "F12 opens the Save As dialog directly."
+},
+{
+    "question": "Which option auto-adjusts table column widths based on content?",
+    "options": ["AutoFit", "Fit to Window", "Resize Column", "Even Columns"],
+    "answer": 0,
+    "explanation": "AutoFit adjusts column width to match content size."
+},
+{
+    "question": "Which command positions text evenly between left and right margins?",
+    "options": ["Align Left", "Align Right", "Center", "Justify"],
+    "answer": 3,
+    "explanation": "Justify aligns text to both sides."
+},
+{
+    "question": "What is the default font in Microsoft Word 2016?",
+    "options": ["Calibri", "Times New Roman", "Cambria", "Arial"],
+    "answer": 0,
+    "explanation": "Calibri is the default font in Word 2016."
+},
+{
+    "question": "Which shortcut selects the entire document?",
+    "options": ["Ctrl+A", "Ctrl+Shift+A", "Alt+A", "Shift+A"],
+    "answer": 0,
+    "explanation": "Ctrl+A selects the entire document content."
+},
+{
+    "question": "Which view is used for setting headers and footers?",
+    "options": ["Draft View", "Print Layout", "Outline View", "Web Layout"],
+    "answer": 1,
+    "explanation": "Headers and footers are best set in Print Layout."
+},
+{
+    "question": "Which feature allows drawing custom shapes in Word?",
+    "options": ["Draw Shape", "Freeform Shape", "Curve Tool", "Scribble Tool"],
+    "answer": 3,
+    "explanation": "Scribble Tool allows freehand drawing."
+},
+{
+    "question": "Which menu option is used to check accessibility of a document?",
+    "options": ["Review -> Check Accessibility", "File -> Info -> Check for Issues -> Check Accessibility", "Insert -> Accessibility", "View -> Check Accessibility"],
+    "answer": 1,
+    "explanation": "Accessibility Checker is under File -> Info -> Check for Issues."
+},
+{
+    "question": "In Word, which measurement units can be set for the ruler?",
+    "options": ["Inches", "Centimeters", "Millimeters", "All of these"],
+    "answer": 3,
+    "explanation": "You can set ruler units to inches, cm, mm, points, or picas."
+},
+{
+    "question": "Which shortcut applies double-line spacing to a paragraph in MS Word?",
+    "options": ["Ctrl+1", "Ctrl+2", "Ctrl+5", "Ctrl+D"],
+    "answer": 1,
+    "explanation": "Ctrl+2 applies double-line spacing."
+},
+{
+    "question": "Which feature highlights errors in sentence structure?",
+    "options": ["Grammar Check", "Spell Check", "AutoCorrect", "Track Changes"],
+    "answer": 0,
+    "explanation": "Grammar Check identifies errors in sentence structure."
+},
+{
+    "question": "What does Ctrl+Shift+F open in MS Word?",
+    "options": ["Find dialog", "Font dropdown", "Font dialog box", "Format Painter"],
+    "answer": 1,
+    "explanation": "Ctrl+Shift+F opens the Font dropdown list."
+},
+{
+    "question": "Which tab allows you to insert page breaks?",
+    "options": ["Insert", "Layout", "References", "Review"],
+    "answer": 0,
+    "explanation": "Insert tab contains the Page Break option."
+},
+{
+    "question": "How can you apply the Heading 2 style quickly?",
+    "options": ["Ctrl+Alt+2", "Ctrl+Shift+2", "Alt+2", "Shift+Alt+2"],
+    "answer": 0,
+    "explanation": "Ctrl+Alt+2 applies Heading 2 style."
+},
+{
+    "question": "Which feature in Word lets you create labels and envelopes?",
+    "options": ["Mail Merge", "Quick Parts", "Labels and Envelopes Wizard", "Document Template"],
+    "answer": 0,
+    "explanation": "Mail Merge can be used to print addresses on labels and envelopes."
+},
+{
+    "question": "Which function key updates selected fields in a document?",
+    "options": ["F2", "F5", "F7", "F9"],
+    "answer": 3,
+    "explanation": "F9 updates selected fields or all fields if nothing is selected."
+},
+{
+    "question": "Which tab contains the Shapes gallery?",
+    "options": ["Design", "Insert", "Layout", "References"],
+    "answer": 1,
+    "explanation": "Shapes are available on the Insert tab."
+},
+{
+    "question": "In MS Word, how do you start a new paragraph without space between the current and previous paragraph?",
+    "options": ["Use Shift+Enter", "Use Ctrl+Enter", "Change Line Spacing", "Remove Paragraph Space"],
+    "answer": 3,
+    "explanation": "You can choose 'Remove Space After Paragraph' from the Spacing options."
+},
+{
+    "question": "Which feature lets you insert names or placeholders that update automatically?",
+    "options": ["AutoText", "Quick Parts", "Fields", "Track Changes"],
+    "answer": 2,
+    "explanation": "Fields contain dynamic data such as dates, filenames, or authors."
+},
+{
+    "question": "What is the shortcut for inserting the current date?",
+    "options": ["Alt+Shift+D", "Alt+Shift+T", "Ctrl+Shift+D", "Ctrl+Alt+D"],
+    "answer": 0,
+    "explanation": "Alt+Shift+D inserts the current date."
+},
+{
+    "question": "Which pane shows comments and tracked changes in Word?",
+    "options": ["Styles Pane", "Review Pane", "Navigation Pane", "Formatting Pane"],
+    "answer": 1,
+    "explanation": "The Review Pane displays all comments and tracked changes."
+},
+{
+    "question": "Which option enables you to change column width equally in a table?",
+    "options": ["Distribute Rows", "Distribute Columns", "AutoFit", "Fit Content"],
+    "answer": 1,
+    "explanation": "Distribute Columns makes all selected columns equal in width."
+},
+{
+    "question": "Which menu is used to set background color for a page?",
+    "options": ["Insert", "Layout", "Design", "Review"],
+    "answer": 2,
+    "explanation": "Page background color is set from the Design tab."
+},
+{
+    "question": "In MS Word, which option allows placing a border around the entire page?",
+    "options": ["Paragraph Border", "Page Border", "Text Box Border", "Table Border"],
+    "answer": 1,
+    "explanation": "Page Border applies a decorative or plain border to the whole page."
+},
+{
+    "question": "What is the default font size in Microsoft Word 2010?",
+    "options": ["10", "11", "12", "14"],
+    "answer": 1,
+    "explanation": "Calibri with font size 11 is the default in Word 2010."
+},
+{
+    "question": "What happens when you press Shift+F3 in MS Word?",
+    "options": ["Changes case of selected text", "Opens Find dialog", "Opens Font dialog", "Starts spell check"],
+    "answer": 0,
+    "explanation": "Shift+F3 toggles between uppercase, lowercase, and title case."
+},
+{
+    "question": "Which feature lets you convert a table back into text?",
+    "options": ["Table to Paragraph", "Convert to Text", "Text Only", "Remove Table"],
+    "answer": 1,
+    "explanation": "Convert to Text changes table data into plain text."
+},
+{
+    "question": "Which option allows you to print a document with markups?",
+    "options": ["Print All Pages", "List of Markups", "Print Layout with Markup", "Print Preview Only"],
+    "answer": 2,
+    "explanation": "You can print a document showing all tracked changes and comments."
+},
+{
+    "question": "How do you quickly insert the trademark symbol (™)?",
+    "options": ["Alt+0153", "Alt+0169", "Alt+0174", "Alt+0216"],
+    "answer": 0,
+    "explanation": "Trademark symbol is inserted with Alt+0153."
+},
+{
+    "question": "In MS Word, what is the default measurement unit?",
+    "options": ["Inches", "Centimeters", "Points", "Millimeters"],
+    "answer": 0,
+    "explanation": "Word typically defaults to inches unless changed in settings."
+},
+{
+    "question": "Which feature moves text automatically to the next line when necessary?",
+    "options": ["Text Wrap", "Word Wrap", "Auto Break", "Paragraph Flow"],
+    "answer": 1,
+    "explanation": "Word Wrap moves text to the next line when it reaches the margin."
+},
+{
+    "question": "Which commands are used to increase or decrease font size quickly?",
+    "options": ["Ctrl+Shift+>", "Ctrl+Shift+<", "Ctrl+Alt+>", "Both 1 and 2"],
+    "answer": 3,
+    "explanation": "Ctrl+Shift+> increases and Ctrl+Shift+< decreases font size."
+},
+{
+    "question": "In MS Word, what does Ctrl+Shift+C do?",
+    "options": ["Copy content", "Copy formatting", "Copy paragraph", "Copy comments"],
+    "answer": 1,
+    "explanation": "Ctrl+Shift+C copies existing text formatting."
+},
+{
+    "question": "Which Toolbar enables quick save, undo, and redo?",
+    "options": ["Formatting Toolbar", "Quick Access Toolbar", "Drawing Toolbar", "Standard Toolbar"],
+    "answer": 1,
+    "explanation": "Quick Access Toolbar holds common commands like Save, Undo, and Redo."
+},
+{
+    "question": "Which feature can you use to send a Word file as an email attachment directly from Word?",
+    "options": ["File -> Share -> Email", "Review -> Email", "Insert -> Email", "Tools -> Email"],
+    "answer": 0,
+    "explanation": "File -> Share -> Email enables sending documents quickly."
+},
+{
+    "question": "In Word, how do you quickly double underline text?",
+    "options": ["Ctrl+Shift+D", "Ctrl+D", "Ctrl+Alt+D", "Double click underline button"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+D applies a double underline."
+},
+{
+    "question": "Which option lets you insert pre-designed text boxes?",
+    "options": ["Insert -> Text Box", "Layout -> Text Box", "Design -> Text Box", "Home -> Text Box"],
+    "answer": 0,
+    "explanation": "Insert tab contains a gallery of pre-designed text boxes."
+},
+{
+    "question": "How do you protect a document from being opened without a password?",
+    "options": ["Restrict Editing", "Encrypt with Password", "Track Changes", "Read-only Mode"],
+    "answer": 1,
+    "explanation": "Encrypt with Password requires a password to open the document."
+},
+{
+    "question": "Which command removes hidden personal information from a Word file?",
+    "options": ["Document Inspector", "Review Pane", "Remove Metadata", "Check Accessibility"],
+    "answer": 0,
+    "explanation": "Document Inspector removes personal and hidden information."
+},
+{
+    "question": "Which tab has the option to change document orientation?",
+    "options": ["Insert", "Layout", "Design", "View"],
+    "answer": 1,
+    "explanation": "Orientation can be set to portrait or landscape under Layout."
+},
+{
+    "question": "Which menu option in Print lets you print odd or even pages only?",
+    "options": ["Pages to Print", "Settings", "Custom Print", "Page Layout"],
+    "answer": 2,
+    "explanation": "Custom Print allows printing odd or even pages."
+},
+{
+    "question": "In MS Word, what does Ctrl+Shift+N do?",
+    "options": ["Opens a new document", "Applies Normal style", "Starts numbering", "Opens New Window"],
+    "answer": 1,
+    "explanation": "Ctrl+Shift+N resets selection to the Normal style."
+},
+{
+    "question": "Which function key is used to check spelling and grammar?",
+    "options": ["F1", "F4", "F7", "F12"],
+    "answer": 2,
+    "explanation": "F7 runs the spelling and grammar checker."
+},
+{
+    "question": "Where is the 'Insert Footnote' command located?",
+    "options": ["Insert tab", "References tab", "Layout tab", "Review tab"],
+    "answer": 1,
+    "explanation": "Footnotes are added from the References tab."
+},
+{
+    "question": "Which option ensures that a table header row repeats on every page?",
+    "options": ["Repeat Header Rows", "Table Heading", "Copy Header", "Freeze Panes"],
+    "answer": 0,
+    "explanation": "Repeat Header Rows repeats the heading at the start of each page."
+},
+{
+    "question": "What is the shortcut for creating a hanging indent?",
+    "options": ["Ctrl+T", "Ctrl+M", "Ctrl+H", "Ctrl+Shift+T"],
+    "answer": 0,
+    "explanation": "Ctrl+T creates a hanging indent."
+},
+{
+    "question": "Which chart can be inserted into a Word document?",
+    "options": ["Pie Chart", "Bar Chart", "Line Chart", "All of these"],
+    "answer": 3,
+    "explanation": "Word supports all basic chart types."
+},
+{
+    "question": "What does pressing Ctrl+K do?",
+    "options": ["Opens hyperlink dialog", "Deletes hyperlink", "Inserts comment", "Adds bookmark"],
+    "answer": 0,
+    "explanation": "Ctrl+K opens the Insert Hyperlink dialog."
+},
+{
+    "question": "Which view is best for creating and editing styles?",
+    "options": ["Outline View", "Draft View", "Print Layout", "Web Layout"],
+    "answer": 0,
+    "explanation": "Outline View is practical for style editing."
+},
+{
+    "question": "What is the shortcut to select a sentence?",
+    "options": ["Ctrl+Click", "Alt+Click", "Hold Ctrl and click", "Triple-click"],
+    "answer": 0,
+    "explanation": "Holding Ctrl and clicking a sentence selects it."
+},
+{
+    "question": "Which keyboard key cycles through open Word documents?",
+    "options": ["Alt+Tab", "Ctrl+Tab", "Shift+Tab", "Ctrl+Shift+Tab"],
+    "answer": 1,
+    "explanation": "Ctrl+Tab switches between multiple open Word documents."
+},
+{
+    "question": "Where do you find the option to compare two versions of a document?",
+    "options": ["Review -> Compare", "File -> Compare", "View -> Compare", "Insert -> Compare"],
+    "answer": 0,
+    "explanation": "Review tab has the Compare command to check differences between documents."
+},
+{
+    "question": "Which feature groups several shapes together so they can be moved as one?",
+    "options": ["Merge", "Combine", "Group", "Lock"],
+    "answer": 2,
+    "explanation": "Group merges multiple shapes so they can be moved and resized together."
+},
+{
+    "question": "What is the name of the area at the top of Word that contains commands?",
+    "options": ["Toolbar", "Menu Bar", "Ribbon", "Control Panel"],
+    "answer": 2,
+    "explanation": "The Ribbon is the top section with commands organized in tabs."
+},
+{
+    "question": "Which tab has the option to insert a screenshot?",
+    "options": ["View", "Insert", "Review", "Layout"],
+    "answer": 1,
+    "explanation": "Insert tab allows inserting screenshots from open windows."
+},
+{
+    "question": "Which option in MS Word allows text to be displayed vertically in a cell?",
+    "options": ["Rotate Text", "Text Direction", "Vertical Alignment", "Orientation"],
+    "answer": 1,
+    "explanation": "Text Direction changes the angle or vertical orientation of text in a cell."
+},
+{
+    "question": "What is the shortcut for saving a document in MS Word?",
+    "options": ["Ctrl+S", "Ctrl+Shift+S", "Alt+S", "F12"],
+    "answer": 0,
+    "explanation": "Ctrl+S saves the current document."
+},
+{
+    "question": "Which MS Word feature allows you to insert predefined graphics and illustrations?",
+    "options": ["Clip Art", "Picture", "SmartArt", "WordArt"],
+    "answer": 0,
+    "explanation": "Clip Art provides pre-designed illustrations."
+},
+{
+    "question": "Which view is most suitable for adding endnotes?",
+    "options": ["Draft View", "Print Layout", "Outline View", "Web Layout"],
+    "answer": 0,
+    "explanation": "Draft View is convenient for managing endnotes and footnotes."
+},
+{
+    "question": "Which option allows you to give a document a uniform appearance using predefined colors, fonts, and effects?",
+    "options": ["Theme", "Style", "Template", "Format Painter"],
+    "answer": 0,
+    "explanation": "Themes apply consistent formatting across the document."
+},
+{
+    "question": "In MS Word, what does pressing Ctrl+Z do?",
+    "options": ["Redo", "Undo", "Zoom out", "Cut"],
+    "answer": 1,
+    "explanation": "Ctrl+Z undoes the last action."
+},
+{
+    "question": "Which file format preserves document formatting and is ideal for sharing?",
+    "options": [".docx", ".dotx", ".pdf", ".txt"],
+    "answer": 2,
+    "explanation": "PDF files preserve formatting and are preferred for sharing final versions."
+},
+{
+    "question": "Which tab contains the option to insert a hyperlink?",
+    "options": ["Review", "Insert", "References", "Layout"],
+    "answer": 1,
+    "explanation": "Insert tab has the Hyperlink option."
+},
+{
+    "question": "What is the maximum font size available in the formatting toolbar?",
+    "options": ["72", "96", "100", "120"],
+    "answer": 0,
+    "explanation": "72 points is the largest preset font size in the toolbar."
+},
+{
+    "question": "Which feature lets text flow automatically into the next connected text box?",
+    "options": ["Text Link", "Linked Text Boxes", "AutoFlow", "Text Wrap"],
+    "answer": 1,
+    "explanation": "Linked text boxes pass excess text from one box into another."
+},
+{
+    "question": "Which option lets you draw a table manually?",
+    "options": ["Insert Table", "Draw Table", "Convert Text to Table", "AutoFit Table"],
+    "answer": 1,
+    "explanation": "Draw Table allows manual creation of rows and columns."
+},
+{
+    "question": "Which feature automatically adjusts table width to fit page margins?",
+    "options": ["AutoFit to Contents", "AutoFit to Window", "Distribute Columns", "Resize Table"],
+    "answer": 1,
+    "explanation": "AutoFit to Window adjusts table width to match page margins."
+},
+{
+    "question": "What is the shortcut to cut selected text?",
+    "options": ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Z"],
+    "answer": 0,
+    "explanation": "Ctrl+X cuts selected text."
+},
+{
+    "question": "Which MS Word feature can generate random sample text?",
+    "options": ["=sample()", "=rand()", "=lorem()", "AutoText"],
+    "answer": 1,
+    "explanation": "Typing =rand() and pressing Enter generates random text."
+},
+{
+    "question": "In MS Word, what does 'Ctrl+Shift+<' do?",
+    "options": ["Decrease font size", "Increase font size", "Shrink window", "Zoom out"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+< reduces the selected text's font size."
+},
+{
+    "question": "Which feature protects text so that it cannot be modified?",
+    "options": ["Read-only Mode", "Restrict Editing", "Track Changes", "Comment Lock"],
+    "answer": 1,
+    "explanation": "Restrict Editing prevents changes to certain document parts."
+},
+{
+    "question": "Which shortcut removes paragraph formatting back to Normal style?",
+    "options": ["Ctrl+Shift+N", "Ctrl+Alt+N", "Ctrl+Space", "Ctrl+Q"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+N applies the Normal style."
+},
+{
+    "question": "Which command arranges documents so they can be compared side-by-side?",
+    "options": ["Arrange All", "Split", "View Side by Side", "Compare"],
+    "answer": 2,
+    "explanation": "View Side by Side enables comparing two documents."
+},
+{
+    "question": "Where can you change default line spacing for all new documents?",
+    "options": ["Paragraph Settings -> Set As Default", "Font Settings -> Set As Default", "Layout -> Paragraph", "Design -> Paragraph"],
+    "answer": 0,
+    "explanation": "Paragraph settings allow setting default spacing for all documents."
+},
+{
+    "question": "Which command aligns selected text to both left and right margins?",
+    "options": ["Align Left", "Center", "Align Right", "Justify"],
+    "answer": 3,
+    "explanation": "Justify aligns text evenly on both sides."
+},
+{
+    "question": "Which section of Word options can you change proofing tools settings?",
+    "options": ["Language", "Proofing", "Advanced", "Display"],
+    "answer": 1,
+    "explanation": "Proofing section contains spelling and grammar settings."
+},
+{
+    "question": "Where is the 'Insert Caption' option located?",
+    "options": ["References", "Insert", "Layout", "Review"],
+    "answer": 0,
+    "explanation": "Insert Caption is under the References tab."
+},
+{
+    "question": "Which option in Find & Replace allows replacing text formatting only?",
+    "options": ["Advanced Find", "Replace Formatting", "Format Replace", "Special"],
+    "answer": 0,
+    "explanation": "Advanced Find allows replacing based on formatting only."
+},
+{
+    "question": "What is the shortcut for opening the Open dialog box?",
+    "options": ["Ctrl+O", "Ctrl+N", "Ctrl+Shift+O", "F12"],
+    "answer": 0,
+    "explanation": "Ctrl+O opens the Open dialog to browse files."
+},
+{
+    "question": "Which view displays headers and footers along with the body text?",
+    "options": ["Web Layout", "Draft", "Print Layout", "Outline"],
+    "answer": 2,
+    "explanation": "Print Layout view shows headers, footers, and page structure."
+},
+{
+    "question": "Which feature lets you apply multiple formatting changes in one click?",
+    "options": ["Format Painter", "Style", "Theme", "Template"],
+    "answer": 0,
+    "explanation": "Format Painter copies and applies formatting from one spot to another."
+},
+{
+    "question": "How do you insert a non-breaking hyphen?",
+    "options": ["Ctrl+Shift+-", "Alt+Shift+-", "Ctrl+-", "Ctrl+Alt+-"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+- inserts a non-breaking hyphen."
+},
+{
+    "question": "Where do you find the 'Document Template' management option?",
+    "options": ["File -> Options -> Add-ins", "File -> Options -> Advanced", "File -> New", "View -> Templates"],
+    "answer": 0,
+    "explanation": "Templates are managed under File -> Options -> Add-ins."
+},
+{
+    "question": "Which feature shows a small preview of font or style before applying?",
+    "options": ["Live Preview", "Quick Style", "Font Preview", "Mini Toolbar"],
+    "answer": 0,
+    "explanation": "Live Preview shows changes when you hover over an option."
+},
+{
+    "question": "Which command restarts page numbers in a section?",
+    "options": ["Reset Page Numbers", "Format Page Numbers", "Restart Numbering", "Page Number Settings"],
+    "answer": 1,
+    "explanation": "Format Page Numbers dialog allows restarting numbering."
+},
+{
+    "question": "Which keyboard key deletes text to the left of the cursor?",
+    "options": ["Delete", "Backspace", "Ctrl+Delete", "Ctrl+Backspace"],
+    "answer": 1,
+    "explanation": "Backspace deletes text to the left of the cursor."
+},
+{
+    "question": "What is the maximum zoom-out percentage in Word?",
+    "options": ["5%", "10%", "25%", "50%"],
+    "answer": 2,
+    "explanation": "Minimum zoom available is usually 10% or 25%, depending on version."
+},
+{
+    "question": "What does 'Ctrl+Q' do in MS Word?",
+    "options": ["Quits Word", "Removes paragraph formatting", "Queries a database", "Quick Prints"],
+    "answer": 1,
+    "explanation": "Ctrl+Q removes applied paragraph formatting."
+},
+{
+    "question": "Which feature lists all open Word documents for quick switching?",
+    "options": ["Switch Windows", "View Side by Side", "Arrange All", "Task View"],
+    "answer": 0,
+    "explanation": "Switch Windows lists all open Word documents."
+},
+{
+    "question": "What is the shortcut to apply Heading 3 style?",
+    "options": ["Ctrl+Alt+3", "Ctrl+Shift+3", "Alt+3", "Shift+Alt+3"],
+    "answer": 0,
+    "explanation": "Ctrl+Alt+3 applies Heading 3 style."
+},
+{
+    "question": "Which tab allows inserting a cover page?",
+    "options": ["Insert", "Layout", "Design", "References"],
+    "answer": 0,
+    "explanation": "Cover Page option is in the Insert tab."
+},
+{
+    "question": "What does the 'Compare' feature in MS Word allow?",
+    "options": ["Compare two open documents", "Compare cloud and local versions", "Compare revisions of a document", "Both 1 and 3"],
+    "answer": 3,
+    "explanation": "Compare allows comparing two docs or different versions of one doc."
+},
+{
+    "question": "Which file format is used for Word macros?",
+    "options": [".docm", ".dotm", ".xlsm", ".ppsm"],
+    "answer": 0,
+    "explanation": ".docm supports macros in Word documents."
+},
+{
+    "question": "Which function key toggles field codes display?",
+    "options": ["F2", "F9", "Alt+F9", "Ctrl+F9"],
+    "answer": 2,
+    "explanation": "Alt+F9 toggles display between field codes and results."
+},
+{
+    "question": "What is the shortcut to insert a table?",
+    "options": ["Alt+N+T", "Ctrl+T", "Ctrl+Alt+T", "Shift+T"],
+    "answer": 0,
+    "explanation": "Alt+N+T opens the Insert Table menu."
+},
+{
+    "question": "Which feature ensures consistent spacing between paragraphs throughout a document?",
+    "options": ["Paragraph Spacing", "Line Spacing", "Indentation", "Justification"],
+    "answer": 0,
+    "explanation": "Paragraph Spacing sets uniform space before and after paragraphs."
+},
+{
+    "question": "Which feature lets you collapse or expand sections based on headings?",
+    "options": ["Outline View", "Heading Collapse", "Navigation Pane", "Document Map"],
+    "answer": 1,
+    "explanation": "Heading Collapse allows expanding/collapsing text under headings."
+},
+{
+    "question": "How do you insert an ellipsis (…) in MS Word?",
+    "options": ["Alt+0133", "Ctrl+.", "Alt+0034", "Shift+."],
+    "answer": 0,
+    "explanation": "Alt+0133 inserts an ellipsis symbol."
+},
+{
+    "question": "Which spelling option allows ignoring words in uppercase?",
+    "options": ["Ignore Uppercase", "Skip Caps Words", "Ignore Words in UPPERCASE", "Uppercase Filter"],
+    "answer": 2,
+    "explanation": "The option 'Ignore words in UPPERCASE' is in Proofing settings."
+},
+{
+    "question": "Which shortcut creates a new document window for the same file?",
+    "options": ["View -> New Window", "Ctrl+Shift+N", "Ctrl+Alt+N", "Shift+N"],
+    "answer": 0,
+    "explanation": "View tab's New Window creates another window for the same doc."
+},
+{
+    "question": "Where can you find the 'Language' settings in MS Word?",
+    "options": ["Review tab", "File tab", "Layout tab", "Design tab"],
+    "answer": 0,
+    "explanation": "Language settings are available in the Review tab."
+},
+{
+    "question": "Which key combination is used to paste without formatting?",
+    "options": ["Ctrl+Shift+V", "Ctrl+Alt+V -> Unformatted Text", "Ctrl+V twice", "Alt+V"],
+    "answer": 1,
+    "explanation": "Ctrl+Alt+V opens Paste Special where you can choose Unformatted Text."
+},
+{
+    "question": "Which tool helps you create professional diagrams and flowcharts?",
+    "options": ["SmartArt", "WordArt", "Clip Art", "Chart"],
+    "answer": 0,
+    "explanation": "SmartArt helps create diagrams and flowcharts."
+},
+{
+    "question": "What is Microsoft Word primarily used for?",
+    "options": ["Creating documents", "Editing videos", "Designing websites", "Making music"],
+    "answer": 0,
+    "explanation": "Microsoft Word is a word processor used to create and edit documents."
+},
+{
+    "question": "Which extension is given to a document created in MS Word 2010 by default?",
+    "options": [".doc", ".docx", ".txt", ".pdf"],
+    "answer": 1,
+    "explanation": "Word 2010 and later uses .docx as the default file extension."
+},
+{
+    "question": "Which key combination is used to copy selected text in MS Word?",
+    "options": ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z"],
+    "answer": 0,
+    "explanation": "Pressing Ctrl+C copies the selected text to the clipboard."
+},
+{
+    "question": "Which key combination is used to paste copied text?",
+    "options": ["Ctrl+C", "Ctrl+P", "Ctrl+V", "Ctrl+X"],
+    "answer": 2,
+    "explanation": "Ctrl+V pastes content from the clipboard into the document."
+},
+{
+    "question": "Which shortcut is used to cut selected text?",
+    "options": ["Ctrl+X", "Ctrl+C", "Ctrl+V", "Ctrl+Z"],
+    "answer": 0,
+    "explanation": "Ctrl+X cuts the selected content."
+},
+{
+    "question": "Which button is used to make selected text bold?",
+    "options": ["B", "I", "U", "A"],
+    "answer": 0,
+    "explanation": "The 'B' button in the toolbar applies bold formatting."
+},
+{
+    "question": "Which toolbar contains the Save, Undo, and Redo buttons?",
+    "options": ["Status Bar", "Quick Access Toolbar", "Format Toolbar", "Drawing Toolbar"],
+    "answer": 1,
+    "explanation": "Quick Access Toolbar contains Save, Undo, and Redo buttons."
+},
+{
+    "question": "What happens when you press Ctrl+Z?",
+    "options": ["Undo the last action", "Redo an action", "Save the document", "Close the document"],
+    "answer": 0,
+    "explanation": "Ctrl+Z undoes the most recent action."
+},
+{
+    "question": "What is the default view in MS Word?",
+    "options": ["Draft view", "Web Layout", "Print Layout", "Outline"],
+    "answer": 2,
+    "explanation": "Print Layout is the default view."
+},
+{
+    "question": "How do you start a new blank document quickly?",
+    "options": ["Ctrl+O", "Ctrl+N", "Ctrl+Alt+N", "Ctrl+Shift+N"],
+    "answer": 1,
+    "explanation": "Ctrl+N creates a new blank document."
+},
+{
+    "question": "Which menu/tab has the option to change the font style?",
+    "options": ["Home", "Insert", "Layout", "Review"],
+    "answer": 0,
+    "explanation": "The Home tab contains font style and size settings."
+},
+{
+    "question": "Which shortcut is used to underline text?",
+    "options": ["Ctrl+B", "Ctrl+I", "Ctrl+U", "Ctrl+L"],
+    "answer": 2,
+    "explanation": "Ctrl+U underlines selected text."
+},
+{
+    "question": "Which feature checks spelling mistakes in a document?",
+    "options": ["Spell Check", "Word Wrap", "AutoShape", "Track Changes"],
+    "answer": 0,
+    "explanation": "Spell Check highlights spelling errors."
+},
+{
+    "question": "What does Ctrl+A do?",
+    "options": ["Opens a file", "Selects all content", "Saves a document", "Closes Word"],
+    "answer": 1,
+    "explanation": "Ctrl+A selects all text and objects in the document."
+},
+{
+    "question": "Which menu is used to insert a picture in Word?",
+    "options": ["Home", "Insert", "Layout", "Review"],
+    "answer": 1,
+    "explanation": "Insert tab is used to add pictures, shapes, and other objects."
+},
+{
+    "question": "Which symbol is used to show paragraph marks?",
+    "options": ["¶", "#", "@", "$"],
+    "answer": 0,
+    "explanation": "¶ is the paragraph symbol used in Show/Hide formatting."
+},
+{
+    "question": "Which key combination saves a document?",
+    "options": ["Ctrl+S", "Ctrl+Shift+S", "Alt+S", "F12"],
+    "answer": 0,
+    "explanation": "Ctrl+S is the shortcut to save a document."
+},
+{
+    "question": "Which tab allows you to set page margins?",
+    "options": ["Insert", "Layout", "Home", "Design"],
+    "answer": 1,
+    "explanation": "Layout tab contains page margin settings."
+},
+{
+    "question": "Which tab provides options to insert tables?",
+    "options": ["Insert", "Design", "View", "Layout"],
+    "answer": 0,
+    "explanation": "Insert tab contains the Table option."
+},
+{
+    "question": "Which orientation is default in Word?",
+    "options": ["Portrait", "Landscape", "Horizontal", "Vertical"],
+    "answer": 0,
+    "explanation": "Portrait orientation is the default."
+},
+{
+    "question": "Which key combination selects a single word?",
+    "options": ["Double-click on the word", "Ctrl+Click", "Alt+Click", "Shift+Click"],
+    "answer": 0,
+    "explanation": "Double-clicking selects a whole word."
+},
+{
+    "question": "Which group in the Home tab contains the Bullets option?",
+    "options": ["Paragraph", "Font", "Insert", "Layout"],
+    "answer": 0,
+    "explanation": "Bullets option is in the Paragraph group."
+},
+{
+    "question": "Which feature changes text to uppercase?",
+    "options": ["Small Caps", "Change Case", "Upper Style", "Capitalize"],
+    "answer": 1,
+    "explanation": "Change Case allows changing text to uppercase, lowercase, etc."
+},
+{
+    "question": "Where do you find the Thesaurus in Word?",
+    "options": ["Insert tab", "Review tab", "Home tab", "View tab"],
+    "answer": 1,
+    "explanation": "Thesaurus is in the Review tab."
+},
+{
+    "question": "Which shortcut is used to print a document?",
+    "options": ["Ctrl+S", "Ctrl+P", "Ctrl+O", "Ctrl+Shift+P"],
+    "answer": 1,
+    "explanation": "Ctrl+P opens the Print dialog box."
+},
+{
+    "question": "How do you insert a page number?",
+    "options": ["Insert tab -> Page Number", "Layout tab -> Page Number", "Review tab -> Page Number", "Home tab -> Page Number"],
+    "answer": 0,
+    "explanation": "Insert tab has Page Number options."
+},
+{
+    "question": "Which shortcut opens the 'Help' window?",
+    "options": ["F1", "F2", "F5", "F7"],
+    "answer": 0,
+    "explanation": "F1 opens Word Help."
+},
+{
+    "question": "What is the use of Format Painter?",
+    "options": ["Copy and paste content", "Copy and paste formatting", "Draw shapes", "Format paragraphs"],
+    "answer": 1,
+    "explanation": "Format Painter copies formatting from one location to another."
+},
+{
+    "question": "Where do you find 'Word Count'?",
+    "options": ["Home tab", "Review tab", "Layout tab", "Insert tab"],
+    "answer": 1,
+    "explanation": "'Word Count' is in the Review tab."
+},
+{
+    "question": "What does the Undo button do?",
+    "options": ["Reverses last action", "Repeats last action", "Saves the file", "Deletes text"],
+    "answer": 0,
+    "explanation": "Undo reverses the last action taken."
+},
+{
+    "question": "What does Redo do?",
+    "options": ["Reverses last Undo", "Saves the file", "Deletes text", "Adds page"],
+    "answer": 0,
+    "explanation": "Redo applies the last undone action again."
+},
+{
+    "question": "Which shortcut selects all text?",
+    "options": ["Ctrl+A", "Ctrl+S", "Ctrl+E", "Ctrl+P"],
+    "answer": 0,
+    "explanation": "Ctrl+A selects all content in the document."
+},
+{
+    "question": "Which tab allows inserting a cover page?",
+    "options": ["Insert", "Home", "View", "Review"],
+    "answer": 0,
+    "explanation": "Insert tab has a Cover Page option."
+},
+{
+    "question": "Which key combination creates a line break without a new paragraph?",
+    "options": ["Shift+Enter", "Ctrl+Enter", "Alt+Enter", "Ctrl+Shift+Enter"],
+    "answer": 0,
+    "explanation": "Shift+Enter inserts a line break."
+},
+{
+    "question": "What is WordArt used for?",
+    "options": ["Stylish text effects", "Images", "Shapes", "Tables"],
+    "answer": 0,
+    "explanation": "WordArt adds decorative text styles."
+},
+{
+    "question": "Which color is default for underlines?",
+    "options": ["Black", "Blue", "Red", "Automatic"],
+    "answer": 3,
+    "explanation": "Underlines use 'Automatic' (usually black) by default."
+},
+{
+    "question": "Which icon is used to italicize text?",
+    "options": ["B", "I", "U", "T"],
+    "answer": 1,
+    "explanation": "The 'I' button in the Font group applies italic."
+},
+{
+    "question": "Where do you find options to insert shapes?",
+    "options": ["Insert tab", "Review tab", "Home tab", "View tab"],
+    "answer": 0,
+    "explanation": "Insert tab contains Shapes gallery."
+},
+{
+    "question": "What is the default font in Word 2016?",
+    "options": ["Calibri", "Arial", "Times New Roman", "Cambria"],
+    "answer": 0,
+    "explanation": "Calibri is the default font."
+},
+{
+    "question": "Which shortcut is used to open a file?",
+    "options": ["Ctrl+S", "Ctrl+N", "Ctrl+O", "Ctrl+P"],
+    "answer": 2,
+    "explanation": "Ctrl+O opens the Open dialog box."
+},
+{
+    "question": "What does the 'Zoom' feature do?",
+    "options": ["Resize text", "Change font", "Adjust view size of the page", "Crop the page"],
+    "answer": 2,
+    "explanation": "Zoom changes the viewing size of a document."
+},
+{
+    "question": "What does 'Center Align' do?",
+    "options": ["Align text to right", "Align text to left", "Align text in middle", "Align text vertically"],
+    "answer": 2,
+    "explanation": "Center Align places text in the horizontal middle of the page."
+},
+{
+    "question": "Which menu has 'Save As'?",
+    "options": ["File", "Home", "Insert", "View"],
+    "answer": 0,
+    "explanation": "'Save As' is found under the File menu."
+},
+{
+    "question": "Which keyboard key is used to delete text to the right of the cursor?",
+    "options": ["Backspace", "Delete", "Shift", "Ctrl"],
+    "answer": 1,
+    "explanation": "Delete key removes text to the right."
+},
+{
+    "question": "Which dialog box allows you to change font size?",
+    "options": ["Font dialog", "Paragraph dialog", "Style dialog", "Table dialog"],
+    "answer": 0,
+    "explanation": "Font dialog lets you adjust font type, style, and size."
+},
+{
+    "question": "What is the use of 'Bullet List'?",
+    "options": ["Numbering paragraphs", "Marking list items", "Aligning text", "Highlighting words"],
+    "answer": 1,
+    "explanation": "Bullets visually mark items in a list."
+},
+{
+    "question": "Which command is used to save changes to a file for the first time?",
+    "options": ["Save", "Save As", "Close", "Export"],
+    "answer": 1,
+    "explanation": "'Save As' is used for the first-time save to name and store the file."
+},
+{
+    "question": "What is the function of the 'Content Controls' in MS Word?",
+    "options": ["Inserting fixed text blocks", "Adding interactive form elements such as drop-downs and checkboxes", "Restricting document edits", "Tracking changes"],
+    "answer": 1,
+    "explanation": "Content Controls allow adding interactive elements like drop-down lists, checkboxes, and date pickers in documents."
+},
+{
+    "question": "Which command in MS Word is used to merge multiple versions of a document into one?",
+    "options": ["Track Changes", "Combine", "Compare", "Review"],
+    "answer": 1,
+    "explanation": "The Combine command merges revisions from multiple documents into a single document."
+},
+{
+    "question": "What feature should you use to create a mail merge for sending personalized bulk emails?",
+    "options": ["Quick Parts", "Mail Merge Wizard", "AutoText", "Hyperlink"],
+    "answer": 1,
+    "explanation": "Mail Merge Wizard helps create bulk personalized letters or emails by merging data source with document."
+},
+{
+    "question": "In MS Word, which feature allows you to automate repetitive typing and formatting tasks?",
+    "options": ["Macros", "Quick Styles", "Track Changes", "Templates"],
+    "answer": 0,
+    "explanation": "Macros are used to record and run sequences of commands to automate tasks."
+},
+{
+    "question": "What does the 'Document Inspector' in MS Word do?",
+    "options": ["Counts words and characters", "Removes hidden metadata and personal information", "Checks grammar", "Tracks changes"],
+    "answer": 1,
+    "explanation": "Document Inspector scans document for hidden data like comments, revisions, and personal info to remove them."
+},
+{
+    "question": "Which of the following can you NOT restrict using the 'Restrict Editing' feature in Word?",
+    "options": ["Formatting restrictions", "Editing restrictions", "Inserting comments", "Changing page layout"],
+    "answer": 3,
+    "explanation": "Page layout changes cannot be restricted by the Restrict Editing feature."
+},
+{
+    "question": "Which shortcut key toggles the display of field codes in a Word document?",
+    "options": ["Alt+F9", "Ctrl+F9", "F9", "Shift+F9"],
+    "answer": 0,
+    "explanation": "Alt+F9 shows or hides field codes in the document."
+},
+{
+    "question": "What is the purpose of the 'Quick Parts' gallery in MS Word?",
+    "options": ["To insert reusable pieces of content like headers, footers, and autotext", "To draw shapes", "To format paragraphs", "To create charts"],
+    "answer": 0,
+    "explanation": "Quick Parts allows insertion of reusable content blocks such as fields, document properties, and preformatted text."
+},
+{
+    "question": "How can you enforce a consistent style set across multiple Word documents?",
+    "options": ["Manually copy formatting", "Use Templates with defined styles", "Use AutoCorrect", "Use Track Changes"],
+    "answer": 1,
+    "explanation": "Templates store styles and layouts and can be used to maintain consistency across documents."
+},
+{
+    "question": "What does the 'Cross-Reference' feature in Word allow you to do?",
+    "options": ["Create hyperlinks to web pages", "Insert references to headings, figures, and tables within your document", "Apply document themes", "Add comments"],
+    "answer": 1,
+    "explanation": "Cross-Reference lets you link to numbered items like headings or figures dynamically."
+},
+{
+    "question": "How do you add a custom tab stop in Word?",
+    "options": ["Click on the ruler at the desired location", "Insert -> Tab", "Layout -> Tabs", "Format Painter"],
+    "answer": 0,
+    "explanation": "Clicking on the ruler adds a custom tab stop at that position."
+},
+{
+    "question": "Which feature lets you create sections with different headers, footers, and page numbering?",
+    "options": ["Page Breaks", "Section Breaks", "Column Breaks", "Line Breaks"],
+    "answer": 1,
+    "explanation": "Section breaks allow different page setup for parts of the document."
+},
+{
+    "question": "What is the difference between 'Next Page' and 'Continuous' section breaks?",
+    "options": ["'Next Page' starts new section on a new page, 'Continuous' starts new section on same page", "'Next Page' splits page horizontally, 'Continuous' splits vertically", "No difference", "'Continuous' starts a new page"],
+    "answer": 0,
+    "explanation": "'Next Page' moves to a new page; 'Continuous' starts a section on the same page."
+},
+{
+    "question": "Which Word feature lets you restrict users from making changes without a password?",
+    "options": ["Protect Document", "Restrict Editing", "Encrypt with Password", "All of the above"],
+    "answer": 3,
+    "explanation": "Protect Document includes Restrict Editing and Password Encryption for security."
+},
+{
+    "question": "Which option allows calculating the word count of a selected text only?",
+    "options": ["Review tab -> Word Count", "Status Bar word count", "File menu", "Home tab"],
+    "answer": 1,
+    "explanation": "Selecting text displays its word count on the Status Bar."
+},
+{
+    "question": "How do you add captions to tables and figures for automatic numbering?",
+    "options": ["Right-click -> Insert Caption", "Insert tab -> Caption", "References tab -> Insert Caption", "Review tab -> Caption"],
+    "answer": 2,
+    "explanation": "References tab includes the Insert Caption feature."
+},
+{
+    "question": "What is the use of 'Compare' in Word?",
+    "options": ["Compare two documents to see changes", "Compare font styles", "Compare spelling errors", "Compare tables"],
+    "answer": 0,
+    "explanation": "Compare highlights differences between two versions of a document."
+},
+{
+    "question": "Which option in Word allows you to update all table of contents entries at once?",
+    "options": ["Right-click on TOC -> Update Field", "References tab -> Update TOC", "Home tab -> Refresh", "Insert tab -> Refresh"],
+    "answer": 0,
+    "explanation": "Right-clicking the TOC allows updating all entries simultaneously."
+},
+{
+    "question": "Which feature must be enabled to track changes made by different reviewers?",
+    "options": ["Track Changes", "Comments", "Compare", "Review Pane"],
+    "answer": 0,
+    "explanation": "Track Changes records edits separately from different users."
+},
+{
+    "question": "How do you add a watermark to all pages of a document?",
+    "options": ["Insert tab -> Watermark", "Design tab -> Watermark", "Layout tab -> Watermark", "Review tab -> Watermark"],
+    "answer": 1,
+    "explanation": "The Design tab contains the Watermark option."
+},
+{
+    "question": "What is the maximum number of columns you can have in a Word table?",
+    "options": ["63", "100", "256", "512"],
+    "answer": 0,
+    "explanation": "Word tables support up to 63 columns."
+},
+{
+    "question": "Which of the following is NOT a view mode in MS Word?",
+    "options": ["Print Layout", "Web Layout", "Slide Show", "Outline"],
+    "answer": 2,
+    "explanation": "Slide Show view exists in PowerPoint, not Word."
+},
+{
+    "question": "How can you customize the Quick Access Toolbar in Word?",
+    "options": ["File -> Options -> Quick Access Toolbar", "Home tab -> Customize", "Insert tab -> Toolbar Settings", "Review tab -> Toolbar"],
+    "answer": 0,
+    "explanation": "Customization is accessed via File -> Options."
+},
+{
+    "question": "Which keyboard shortcut duplicates the last action (e.g., formatting changes)?",
+    "options": ["Ctrl+Y or F4", "Ctrl+Z", "Ctrl+Shift+Y", "Ctrl+D"],
+    "answer": 0,
+    "explanation": "Ctrl+Y or F4 repeats the last command."
+},
+{
+    "question": "How do you insert a non-breaking space in a document?",
+    "options": ["Ctrl+Shift+Space", "Ctrl+Space", "Shift+Space", "Alt+Space"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+Space inserts a non-breaking space preventing line breaks."
+},
+{
+    "question": "What happens if you click 'Accept All Changes' in Track Changes?",
+    "options": ["Deletes all comments", "Applies all edits permanently", "Rejects all edits", "Closes the document"],
+    "answer": 1,
+    "explanation": "Accepting all changes permanently incorporates them into the document."
+},
+{
+    "question": "Which position on the ruler shows tab stops?",
+    "options": ["Small markers on the ruler", "Line numbers", "Margin indicators", "Page break markers"],
+    "answer": 0,
+    "explanation": "Tab stops appear as small symbols on the ruler where tabs align."
+},
+{
+    "question": "Which feature allows recording a sequence of commands for automation in Word?",
+    "options": ["Macro", "Template", "Style", "Quick Part"],
+    "answer": 0,
+    "explanation": "Macros automate repetitive actions by recording them."
+},
+{
+    "question": "Which type of break would you use to start a new section on the next even-numbered page?",
+    "options": ["Next Page", "Even Page", "Odd Page", "Continuous"],
+    "answer": 1,
+    "explanation": "Even Page section break starts a new section on the next even page."
+},
+{
+    "question": "How can you protect a Word document so it requires a password to open?",
+    "options": ["File tab -> Info -> Protect Document -> Encrypt with Password", "Review tab -> Restrict Editing", "Layout tab -> Security", "Insert tab -> Password"],
+    "answer": 0,
+    "explanation": "Password protection is set in the File Info section."
+},
+{
+    "question": "Which option in 'Find and Replace' allows searching by formatting or special characters?",
+    "options": ["Advanced Find", "Format Search", "Special Characters", "Wildcards"],
+    "answer": 0,
+    "explanation": "Advanced Find allows specifying formatting and special characters."
+},
+{
+    "question": "What does the 'Outline View' in Word help you with?",
+    "options": ["Rearranging document structure using headings", "Editing headers and footers", "Reviewing spelling and grammar", "Inserting images"],
+    "answer": 0,
+    "explanation": "Outline View helps manipulate the document structure by dragging headings."
+},
+{
+    "question": "How do you convert a table to text in Word?",
+    "options": ["Select table -> Layout -> Convert to Text", "Insert tab -> Convert", "Review tab -> Convert", "Design tab -> Convert"],
+    "answer": 0,
+    "explanation": "Use the Layout tab under Table Tools to convert tables to text."
+},
+{
+    "question": "Which option in Word lets you insert an automatic table of figures?",
+    "options": ["References tab -> Insert Table of Figures", "Insert tab -> Table", "Layout tab -> Table of Figures", "Review tab -> Captions"],
+    "answer": 0,
+    "explanation": "Insert Table of Figures is in the References tab."
+},
+{
+    "question": "What is the use of 'Section Navigation' pane in Word?",
+    "options": ["To view and navigate document sections and headings", "To edit headers and footers", "To manage comments", "To compare documents"],
+    "answer": 0,
+    "explanation": "Section Navigation helps move between document sections quickly."
+},
+{
+    "question": "Which feature allows creating form fields that users can fill in electronically?",
+    "options": ["Developer tab -> Legacy Tools", "Insert tab -> Text Box", "Design tab -> Form", "Review tab -> Form Fields"],
+    "answer": 0,
+    "explanation": "Developer tab provides legacy form controls for interactive forms."
+},
+{
+    "question": "How do you apply a style set to an entire document?",
+    "options": ["Design tab -> Style Set", "Home tab -> Styles", "Layout tab -> Themes", "Insert tab -> Style Set"],
+    "answer": 0,
+    "explanation": "Style Sets are applied from the Design tab."
+},
+{
+    "question": "What is the difference between 'Protect Document' and 'Restrict Formatting and Editing'?",
+    "options": ["Protect Document encrypts file; Restrict Formatting limits formatting changes", "Both are same", "Restrict Formatting encrypts file", "Protect Document limits font size only"],
+    "answer": 0,
+    "explanation": "'Protect Document' includes password encryption, while 'Restrict Formatting' limits editing permissions."
+},
+{
+    "question": "Which tab contains the option to insert a drop cap?",
+    "options": ["Insert tab", "Design tab", "Home tab", "Layout tab"],
+    "answer": 0,
+    "explanation": "Drop Cap is available under the Insert tab."
+},
+{
+    "question": "How can you create a custom list style (numbering or bullet) in Word?",
+    "options": ["Home tab -> Multilevel List -> Define New List Style", "Insert tab -> Bullet", "Review tab -> List Styles", "Design tab -> List Style"],
+    "answer": 0,
+    "explanation": "Custom list styles are created via the Multilevel List option in the Home tab."
+},
+{
+    "question": "In MS Word, which feature allows you to create a template that users can fill in without altering the underlying content?",
+    "options": ["Track Changes", "Content Controls", "Restrict Editing", "Mail Merge"],
+    "answer": 1,
+    "explanation": "Content Controls let you insert interactive fields (like text boxes, dropdowns) in templates that protect underlying content while allowing input."
+},
+{
+    "question": "What happens when you use 'Paste Special' with 'Unformatted Unicode Text' in Word?",
+    "options": ["Preserves all formatting", "Removes all formatting and pastes plain text", "Pastes only images", "Pastes with hyperlink intact"],
+    "answer": 1,
+    "explanation": "Paste Special with 'Unformatted Unicode Text' strips all formatting and inserts plain text only."
+},
+{
+    "question": "Which keyboard shortcut toggles between viewing field codes and their values in a Word document?",
+    "options": ["Alt+F9", "Ctrl+F9", "F9", "Shift+F9"],
+    "answer": 0,
+    "explanation": "Alt+F9 shows or hides all field codes and their results."
+},
+{
+    "question": "In a multi-section Word document, how do you ensure different page numbering formats in different sections?",
+    "options": ["Use different headers and footers", "Insert section breaks and unlink headers/footers", "Use different fonts", "Apply styles to page numbers"],
+    "answer": 1,
+    "explanation": "Insert section breaks and unlink headers/footers to apply distinct page numbering per section."
+},
+{
+    "question": "What is the practical difference between 'Next Page' and 'Continuous' section breaks?",
+    "options": ["Both start new sections on a new page", "'Next Page' starts new section on new page, 'Continuous' on same page", "'Continuous' starts a new page", "No difference"],
+    "answer": 1,
+    "explanation": "'Next Page' inserts a new section on a new page, 'Continuous' starts a new section in the same page."
+},
+{
+    "question": "If you want to create a custom style that updates automatically when the style is modified, which style type should you use?",
+    "options": ["Character Style", "Paragraph Style", "Linked Style", "Table Style"],
+    "answer": 2,
+    "explanation": "Linked styles act as both character and paragraph styles and update when modified."
+},
+{
+    "question": "What effect does enabling 'Widow/Orphan Control' have in a paragraph?",
+    "options": ["Prevents single lines of a paragraph at top or bottom of a page", "Prevents page breaks", "Adds extra spacing", "Removes formatting"],
+    "answer": 0,
+    "explanation": "Widow/Orphan Control keeps at least two lines of a paragraph together at the top or bottom of a page."
+},
+{
+    "question": "In Mail Merge, what is the role of the 'Main Document'?",
+    "options": ["Data source with recipient info", "Template containing fixed text and merge fields", "Output document", "Email server"],
+    "answer": 1,
+    "explanation": "The Main Document contains the letter or template text with fields for variable data."
+},
+{
+    "question": "Which of the following is NOT true about macros in MS Word?",
+    "options": ["Can automate repetitive tasks", "Can contain viruses and should be handled cautiously", "Are written in VBA", "Can only be run on Windows versions"],
+    "answer": 3,
+    "explanation": "Macros can be run on both Windows and Mac versions of Word."
+},
+{
+    "question": "What is the result of selecting text and pressing Ctrl+Shift+F3?",
+    "options": ["Shows Font dialog", "Converts text to uppercase", "Deletes text without copy", "Creates a Spike for text storage"],
+    "answer": 3,
+    "explanation": "Ctrl+Shift+F3 cuts selected text to the Spike (a special text buffer) for pasting later."
+},
+{
+    "question": "How do you insert a non-breaking hyphen in MS Word?",
+    "options": ["Ctrl+Shift+-", "Alt+0150", "Ctrl+-", "Shift+Hyphen"],
+    "answer": 0,
+    "explanation": "Ctrl+Shift+- inserts a non-breaking hyphen to prevent line breaks at hyphens."
+},
+{
+    "question": "What happens if you press Ctrl+Shift+N in a Word document?",
+    "options": ["Starts a new document", "Applies the Normal style", "Creates a numbered list", "Opens the style pane"],
+    "answer": 1,
+    "explanation": "Ctrl+Shift+N applies the Normal style to the selected text."
+},
+{
+    "question": "Which function would be best used to automatically update page numbers after adding new sections?",
+    "options": ["Cross-reference", "Bookmark", "Field codes", "Hyperlink"],
+    "answer": 2,
+    "explanation": "Field codes for page numbers update automatically when sections or pages change."
+},
+{
+    "question": "How does the 'Format Painter' differ from the 'Clear Formatting' option?",
+    "options": ["Copies formatting vs. removes all formatting", "Copies text vs. clears text", "Formats paragraphs vs. formats tables", "Copies images vs. removes images"],
+    "answer": 0,
+    "explanation": "Format Painter copies existing formatting to another area, while Clear Formatting removes formatting."
+},
+{
+    "question": "If you want to link multiple text boxes so text flows continuously from one box to another, which feature do you use?",
+    "options": ["Text Wrap", "Linked Text Boxes", "Mail Merge", "Text Art"],
+    "answer": 1,
+    "explanation": "Linked Text Boxes let overflowing text flow across connected boxes."
+},
+{
+    "question": "What is the limitation of the 'Track Changes' feature in Word regarding performance?",
+    "options": ["Fails to track all edits", "Slows down Word with large documents", "Does not track formatting changes", "Cannot be turned off"],
+    "answer": 1,
+    "explanation": "Large documents with many tracked changes can cause Word to slow down."
+},
+{
+    "question": "How can you modify footnote numbering to restart on each page?",
+    "options": ["References tab -> Footnotes -> Numbering -> Restart Each Page", "Page Layout -> Breaks -> Section Break", "Insert -> Footnote -> Restart", "Review -> Footnotes -> Reset Numbering"],
+    "answer": 0,
+    "explanation": "The References tab footnote settings allow numbering to restart each page."
+},
+{
+    "question": "Which of these is true about headers and footers in different sections of a document?",
+    "options": ["Headers and footers are always the same in a document", "You must unlink headers/footers to have different content", "Headers can be different but footers cannot", "Footers can be different but headers cannot"],
+    "answer": 1,
+    "explanation": "To have different headers/footers across sections, you need to unlink them from previous sections."
+},
+{
+    "question": "When working with long documents, which feature helps you to quickly navigate through headings?",
+    "options": ["Document Map", "Navigation Pane", "Review Pane", "Outline View"],
+    "answer": 1,
+    "explanation": "The Navigation Pane lets users scroll through and jump to headings quickly."
+},
+{
+    "question": "What is the main advantage of using 'Quick Parts' over 'AutoText'?",
+    "options": ["Quick Parts can include tables and images, AutoText only stores text", "AutoText is a newer feature", "Quick Parts cannot be saved", "AutoText is more customizable"],
+    "answer": 0,
+    "explanation": "Quick Parts store a wider range of reusable content including formatted text, pictures, and document properties, while AutoText stores only text."
+},
+{
+    "question": "Which field code allows dynamic insertion of the current file path in a Word document?",
+    "options": ["{ FILENAME }", "{ FILEPATH }", "{ DOCPROPERTY }", "{ AUTOTEXT }"],
+    "answer": 0,
+    "explanation": "The FILENAME field code inserts the current document's name and path dynamically."
+},
+{
+    "question": "What happens when you press Shift+F5 after opening a Word document?",
+    "options": ["Opens Find dialog", "Moves cursor to the last edit location", "Starts spell check", "Opens the Replace dialog"],
+    "answer": 1,
+    "explanation": "Shift+F5 toggles the cursor between the last three edited locations."
+},
+{
+    "question": "How does enabling 'Compatibility Mode' affect document behavior?",
+    "options": ["Disables all editing", "Limits features to those from earlier Word versions", "Converts document to PDF", "Enables cloud collaboration"],
+    "answer": 1,
+    "explanation": "Compatibility Mode limits features to maintain compatibility with earlier Word versions."
+}
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

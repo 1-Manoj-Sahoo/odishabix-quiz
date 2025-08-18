@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Improvement Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Sentence Improvement</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "He do not knows the answer.",
+        "options": ["He do not knows", "He does not know", "He do not know", "He doesn’t knows"],
+        "answer": 1,
+        "explanation": "'He' is singular, so 'does not know' is correct."
+    },
+    {
+        "question": "She is senior than me in service.",
+        "options": ["senior than", "senior to", "more senior than", "senior from"],
+        "answer": 1,
+        "explanation": "With 'senior', we use 'to', not 'than'."
+    },
+    {
+        "question": "Neither Ramesh or Suresh has agreed.",
+        "options": ["Neither Ramesh or Suresh", "Neither Ramesh nor Suresh", "Neither Ramesh and Suresh", "Neither Ramesh with Suresh"],
+        "answer": 1,
+        "explanation": "Correct correlative conjunction is 'neither...nor'."
+    },
+    {
+        "question": "He gave me an advice.",
+        "options": ["an advice", "a advice", "advice", "the advice"],
+        "answer": 2,
+        "explanation": "'Advice' is uncountable; no article is used."
+    },
+    {
+        "question": "Each of the students have submitted their assignments.",
+        "options": ["have submitted their", "has submitted their", "have submitted his", "has submitted his"],
+        "answer": 3,
+        "explanation": "'Each' is singular, so 'has submitted his' is correct."
+    },
+    {
+        "question": "The sceneries of Kashmir is beautiful.",
+        "options": ["The sceneries of Kashmir is", "The scenery of Kashmir are", "The scenery of Kashmir is", "The sceneries of Kashmir are"],
+        "answer": 2,
+        "explanation": "'Scenery' is uncountable; use singular verb 'is'."
+    },
+    {
+        "question": "No sooner the bell rang, the students rushed out.",
+        "options": ["No sooner the bell rang", "No sooner had the bell rang", "No sooner had the bell rung", "No sooner bell rang"],
+        "answer": 2,
+        "explanation": "'No sooner' requires past perfect — 'had rung'."
+    },
+    {
+        "question": "He has been living here since five years.",
+        "options": ["since five years", "since the five years", "for five years", "since 5th year"],
+        "answer": 2,
+        "explanation": "Use 'for + period of time'; 'since' is for point of time."
+    },
+    {
+        "question": "The principal as well as teachers are present.",
+        "options": ["are present", "is present", "were present", "are presents"],
+        "answer": 1,
+        "explanation": "'As well as' does not pluralize subject; verb follows first subject."
+    },
+    {
+        "question": "He is one of the student who always speaks truth.",
+        "options": ["student who", "students who", "student whom", "students whom"],
+        "answer": 1,
+        "explanation": "Use plural 'students' after 'one of the'."
+    },
+    {
+        "question": "The man was punished because he robbed the poor.",
+        "options": ["because he robbed", "because he had robbed", "because robbing", "because of robbed"],
+        "answer": 1,
+        "explanation": "Past perfect is required in reported cause before past tense main clause."
+    },
+    {
+        "question": "Open the television, please.",
+        "options": ["Open the television", "Switch on the television", "Open the TV", "Start the television"],
+        "answer": 1,
+        "explanation": "Correct phrase is 'Switch on the television'."
+    },
+    {
+        "question": "Hardly I had reached the station when the train left.",
+        "options": ["Hardly I had reached", "Hardly had I reached", "Hardly I reached", "Hardly I have reached"],
+        "answer": 1,
+        "explanation": "Inversion is required: 'Hardly had I reached'."
+    },
+    {
+        "question": "The two brothers hate one another.",
+        "options": ["hate one another", "hates each other", "hate each other", "hates one another"],
+        "answer": 2,
+        "explanation": "For two persons, use 'each other'."
+    },
+    {
+        "question": "He asked me that where was I going.",
+        "options": ["that where was I going", "that where I was going", "where was I going", "where I was going"],
+        "answer": 3,
+        "explanation": "Indirect questions follow statement word order: 'where I was going'."
+    },
+    {
+        "question": "The team is playing good.",
+        "options": ["is playing good", "are playing good", "is playing well", "are playing well"],
+        "answer": 2,
+        "explanation": "Use 'well' with verbs; 'good' is adjective."
+    },
+    {
+        "question": "They discussed about the issue.",
+        "options": ["discussed about", "discussed", "discussing about", "discuss about"],
+        "answer": 1,
+        "explanation": "'Discuss' does not take 'about'."
+    },
+    {
+        "question": "If I will see him, I will tell him.",
+        "options": ["If I will see him", "If I see him", "If I shall see him", "If I'll see him"],
+        "answer": 1,
+        "explanation": "First conditional uses present tense in 'if' clause."
+    },
+    {
+        "question": "I prefer tea than coffee.",
+        "options": ["prefer tea than coffee", "prefer tea over coffee", "prefer tea to coffee", "prefer tea instead of coffee"],
+        "answer": 2,
+        "explanation": "'Prefer...to', not 'prefer...than/over'."
+    },
+    {
+        "question": "She is good in English.",
+        "options": ["good in English", "good to English", "good with English", "good at English"],
+        "answer": 3,
+        "explanation": "Use 'good at' with subjects/skills."
+    },
+    {
+        "question": "Please describe me the plan.",
+        "options": ["describe me the plan", "describe the plan to me", "describe to me the plan", "describe about the plan to me"],
+        "answer": 1,
+        "explanation": "'Describe' does not take two objects without 'to'."
+    },
+    {
+        "question": "No sooner I reached than he left.",
+        "options": ["No sooner I reached", "No sooner had I reached", "No sooner did I reached", "No sooner I had reach"],
+        "answer": 1,
+        "explanation": "Correct construction: 'No sooner had I reached ... than'."
+    },
+    {
+        "question": "I am looking forward to meet you.",
+        "options": ["to meet you", "to meeting you", "for meeting you", "for to meet you"],
+        "answer": 1,
+        "explanation": "'Looking forward to' is followed by gerund: 'meeting'."
+    },
+    {
+        "question": "This book is worth to read.",
+        "options": ["worth to read", "worth of reading", "worth reading", "worth for read"],
+        "answer": 2,
+        "explanation": "'Worth' is followed by gerund; 'worth reading'."
+    },
+    {
+        "question": "I am accustomed with this work.",
+        "options": ["accustomed with", "accustomed of", "accustomed in", "accustomed to"],
+        "answer": 3,
+        "explanation": "Correct idiom: 'accustomed to'."
+    },
+    {
+        "question": "She is married with a doctor.",
+        "options": ["married with", "married at", "married by", "married to"],
+        "answer": 3,
+        "explanation": "'Married to' is the correct phrase."
+    },
+    {
+        "question": "I congratulated him for his success.",
+        "options": ["for his success", "at his success", "on his success", "about his success"],
+        "answer": 2,
+        "explanation": "Correct usage: 'congratulate on'."
+    },
+    {
+        "question": "She succeeded to solve the problem.",
+        "options": ["succeeded to solve", "succeeded for solving", "succeeded in solving", "succeeded solving"],
+        "answer": 2,
+        "explanation": "'Succeed in' + gerund is correct usage."
+    },
+    {
+        "question": "The train will leave in 5 minutes time.",
+        "options": ["in 5 minutes time", "after 5 minutes time", "in 5 minutes", "after 5 minutes"],
+        "answer": 2,
+        "explanation": "Avoid redundancy, correct phrase: 'in 5 minutes'."
+    },
+    {
+        "question": "He is taller to his brother.",
+        "options": ["taller to", "taller than", "tall than", "more taller than"],
+        "answer": 1,
+        "explanation": "Use 'taller than', not 'taller to'."
+    },
+    {
+        "question": "My cousin brother is coming today.",
+        "options": ["cousin brother", "cousin", "my cousin sibling", "my relative cousin"],
+        "answer": 1,
+        "explanation": "'Cousin' already implies relation; word 'brother' redundant."
+    },
+    {
+        "question": "He is efficient in doing this work.",
+        "options": ["efficient in", "efficient at", "efficient with", "efficient to"],
+        "answer": 1,
+        "explanation": "Correct phrase: 'efficient at'."
+    },
+    {
+        "question": "One of my best friend is a doctor.",
+        "options": ["best friend is", "best friends are", "best friends is", "best friend are"],
+        "answer": 1,
+        "explanation": "Correct: 'One of my best friends is...'"
+    },
+    {
+        "question": "An university was inaugurated here.",
+        "options": ["An university", "A university", "Some university", "That university"],
+        "answer": 1,
+        "explanation": "Use 'a' before consonant sounds; 'university' begins with 'ju:'."
+    },
+    {
+        "question": "The furniture in this room are beautiful.",
+        "options": ["are beautiful", "is beautiful", "are beautifully", "is beautifully"],
+        "answer": 1,
+        "explanation": "'Furniture' is uncountable and takes singular verb."
+    },
+    {
+        "question": "This is the most unique idea I have heard.",
+        "options": ["most unique", "unique", "very unique", "more unique"],
+        "answer": 1,
+        "explanation": "'Unique' is absolute adjective, cannot be compared."
+    },
+    {
+        "question": "She plays piano everyday.",
+        "options": ["plays piano", "plays the piano", "play piano", "play the piano"],
+        "answer": 1,
+        "explanation": "Correct usage: 'plays the piano'."
+    },
+    {
+        "question": "He asked me that why was I late.",
+        "options": ["that why was I late", "why was I late", "that why I was late", "why I was late"],
+        "answer": 3,
+        "explanation": "Indirect speech requires normal order: 'why I was late'."
+    },
+    {
+        "question": "She is junior than me.",
+        "options": ["junior than", "junior to", "more junior than", "junior from"],
+        "answer": 1,
+        "explanation": "'Junior to' is grammatical usage."
+    },
+    {
+        "question": "He prohibited me to enter the room.",
+        "options": ["prohibited me to enter", "prohibited me from entering", "prohibited from to enter", "prohibited entering"],
+        "answer": 1,
+        "explanation": "Correct phrase: 'prohibited from entering'."
+    },
+    {
+        "question": "My father gave me many informations.",
+        "options": ["many informations", "many information", "much information", "a lot of informations"],
+        "answer": 2,
+        "explanation": "'Information' is uncountable; 'much information' is correct."
+    },
+    {
+        "question": "Scarcely had I entered the room but he left.",
+        "options": ["but he left", "when he left", "then he left", "that he left"],
+        "answer": 1,
+        "explanation": "'Scarcely...when' is correct correlative."
+    },
+    {
+        "question": "He cut his pocket with a knife.",
+        "options": ["cut his pocket", "picked the pocket", "cut pocket", "pocket cutter"],
+        "answer": 1,
+        "explanation": "Correct phrase: 'picked the pocket'."
+    },
+    {
+        "question": "She has white hairs.",
+        "options": ["white hairs", "white hair", "whitish hairs", "a white hair"],
+        "answer": 1,
+        "explanation": "'Hair' is uncountable; 'white hair' is correct."
+    },
+    {
+        "question": "She resembles with her mother.",
+        "options": ["resembles with", "resembles to", "resembles of", "resembles"],
+        "answer": 3,
+        "explanation": "'Resemble' does not take preposition."
+    },
+    {
+        "question": "Supposing if it rains, the match will be canceled.",
+        "options": ["Supposing if", "If", "Supposing that", "If it supposing"],
+        "answer": 1,
+        "explanation": "Avoid double condition; either 'if' or 'supposing'."
+    },
+    {
+        "question": "He explained me the problem.",
+        "options": ["explained me the problem", "explained the problem to me", "explained problem me", "explained problem at me"],
+        "answer": 1,
+        "explanation": "'Explain' requires 'to' before indirect object."
+    },
+    {
+        "question": "He is capable to do this work.",
+        "options": ["capable to do", "capable in doing", "capable for doing", "capable of doing"],
+        "answer": 3,
+        "explanation": "Correct usage: 'capable of doing'."
+    },
+    {
+        "question": "None of the boys were late, isn't it?",
+        "options": ["isn't it", "weren't they", "wasn't it", "is it"],
+        "answer": 1,
+        "explanation": "Correct question tag: 'weren't they'."
+    },
+    {
+        "question": "She sang sweet in the concert.",
+        "options": ["sang sweet", "sang sweetly", "sang sweetness", "sang sweety"],
+        "answer": 1,
+        "explanation": "Adverb form required: 'sweetly'."
+    },
+    {
+        "question": "He works hardly these days.",
+        "options": ["works hardly", "works hard", "is hardly working", "work hardly"],
+        "answer": 1,
+        "explanation": "'Hard' means diligently; 'hardly' means barely."
+    },
+	 {
+        "question": "She denied to help me.",
+        "options": ["denied to help", "denied helping", "denied help", "denied of help"],
+        "answer": 1,
+        "explanation": "'Deny' is usually followed by a gerund: 'denied helping'."
+    },
+    {
+        "question": "I have seen him yesterday.",
+        "options": ["have seen him yesterday", "saw him yesterday", "seen him yesterday", "have saw him yesterday"],
+        "answer": 1,
+        "explanation": "Use simple past with definite time reference: 'saw him yesterday'."
+    },
+    {
+        "question": "Neither of the boys have done their homework.",
+        "options": ["have done their", "has done their", "has done his", "have done his"],
+        "answer": 2,
+        "explanation": "'Neither' is singular, use 'has'; pronoun agrees with singular."
+    },
+    {
+        "question": "He isn't enough tall to reach the shelf.",
+        "options": ["isn't enough tall", "isn't tall enough", "isn't tall so enough", "is enough tall"],
+        "answer": 1,
+        "explanation": "'Enough' comes after adjective: 'tall enough'."
+    },
+    {
+        "question": "I met John, who brother works in a bank.",
+        "options": ["who brother", "whose brother", "which brother", "whom brother"],
+        "answer": 1,
+        "explanation": "Possessive relative: 'whose brother'."
+    },
+    {
+        "question": "Ten miles are a long distance to walk.",
+        "options": ["are a long distance", "is a long distance", "were a long distance", "has a long distance"],
+        "answer": 1,
+        "explanation": "Distance is treated as singular: 'is'."
+    },
+    {
+        "question": "Would you mind to help me?",
+        "options": ["mind to help", "mind helping", "mind for help", "mind help"],
+        "answer": 1,
+        "explanation": "'Would you mind' followed by gerund: 'mind helping'."
+    },
+    {
+        "question": "Either John or his friends has gone.",
+        "options": ["has gone", "have gone", "had gone", "will gone"],
+        "answer": 1,
+        "explanation": "With 'either...or', verb agrees with closer subject: 'friends have'."
+    },
+    {
+        "question": "She is more intelligent from her sister.",
+        "options": ["more intelligent from", "most intelligent than", "intelligent with", "more intelligent than"],
+        "answer": 3,
+        "explanation": "Proper comparison: 'more intelligent than'."
+    },
+    {
+        "question": "He has not finished his work, hasn't he?",
+        "options": ["hasn't he", "has he", "doesn't he", "didn't he"],
+        "answer": 1,
+        "explanation": "'Has not' needs positive tag: 'has he?'"
+    },
+    {
+        "question": "Hardly had the game started than it began to rain.",
+        "options": ["than it began", "when it began", "then it began", "that it began"],
+        "answer": 1,
+        "explanation": "Use 'when' not 'than' after 'hardly had'."
+    },
+    {
+        "question": "Rita as well as her friends are going.",
+        "options": ["are going", "is going", "have going", "has going"],
+        "answer": 1,
+        "explanation": "Verb agrees with first subject ('Rita'), so 'is going'."
+    },
+    {
+        "question": "The crowd was shouting slogans.",
+        "options": ["was shouting slogans", "were shouting slogans", "is shouting slogans", "shouting slogans"],
+        "answer": 0,
+        "explanation": "'Crowd' is collective noun, singular or plural as per context; here singular."
+    },
+    {
+        "question": "He is junior than all other officers.",
+        "options": ["junior than", "junior to", "more junior than", "junior from"],
+        "answer": 1,
+        "explanation": "'Junior to' is correct preposition."
+    },
+    {
+        "question": "She is fond for playing chess.",
+        "options": ["fond for playing", "fond to playing", "fond in playing", "fond of playing"],
+        "answer": 3,
+        "explanation": "'Fond of' is the correct idiom."
+    },
+    {
+        "question": "This is the student whom I met yesterday.",
+        "options": ["student whom", "student who", "student which", "student whose"],
+        "answer": 1,
+        "explanation": "'Who' is used for subject, 'whom' for object; here 'whom' is correct."
+    },
+    {
+        "question": "He is one of those persons who always tries to help.",
+        "options": ["who always tries", "who always try", "whom always tries", "which always try"],
+        "answer": 1,
+        "explanation": "Plural antecedent 'persons' needs 'who always try'."
+    },
+    {
+        "question": "She has finished her work, isn't it?",
+        "options": ["isn't it", "hasn't she", "wasn't it", "isn't she"],
+        "answer": 1,
+        "explanation": "Correct question tag: 'hasn't she'."
+    },
+    {
+        "question": "If he would have called, I would have come.",
+        "options": ["If he would have called", "If he had called", "If he called", "If he has called"],
+        "answer": 1,
+        "explanation": "'If' clause uses past perfect: 'had called'."
+    },
+    {
+        "question": "Despite of the difficulties, he succeeded.",
+        "options": ["Despite of", "Despite", "Inspite", "Inspite of"],
+        "answer": 1,
+        "explanation": "'Despite' is correct; avoid 'of' after 'despite'."
+    },
+    {
+        "question": "It's high time you go home.",
+        "options": ["go home", "gone home", "went home", "going home"],
+        "answer": 2,
+        "explanation": "'High time' takes past subjunctive: 'went home'."
+    },
+    {
+        "question": "It is raining since morning.",
+        "options": ["is raining since", "has been raining since", "rained since", "was raining since"],
+        "answer": 1,
+        "explanation": "Use present perfect continuous with 'since'."
+    },
+    {
+        "question": "He is enough strong to lift the box.",
+        "options": ["enough strong", "strong enough", "so strong enough", "strongly enough"],
+        "answer": 1,
+        "explanation": "Adjective precedes 'enough': 'strong enough'."
+    },
+    {
+        "question": "Being a holiday, there will be no class.",
+        "options": ["Being a holiday", "Because it is holiday", "It is a holiday", "Holiday being"],
+        "answer": 0,
+        "explanation": "Correct use of participial phrase: 'Being a holiday'."
+    },
+    {
+        "question": "Though he is poor but he is honest.",
+        "options": ["Though he is poor but", "Though he is poor", "Although he is poor but", "Though he was poor but"],
+        "answer": 1,
+        "explanation": "Do not use 'but' with 'though'."
+    },
+    {
+        "question": "He wished he was rich.",
+        "options": ["was rich", "were rich", "is rich", "rich"],
+        "answer": 1,
+        "explanation": "Unreal wish uses 'were' with all subjects."
+    },
+    {
+        "question": "I am going to home.",
+        "options": ["to home", "home", "for home", "towards home"],
+        "answer": 1,
+        "explanation": "'Home' does not take preposition 'to'."
+    },
+    {
+        "question": "Could you give me a feedback?",
+        "options": ["a feedback", "feedback", "some feedbacks", "the feedback"],
+        "answer": 1,
+        "explanation": "'Feedback' is uncountable; no article needed."
+    },
+    {
+        "question": "She as well as her sisters sing well.",
+        "options": ["sing well", "sings well", "has sing well", "had sing well"],
+        "answer": 1,
+        "explanation": "Verb agrees with first subject; singular 'sings'."
+    },
+    {
+        "question": "The doctor gave me an advice.",
+        "options": ["an advice", "a advice", "advice", "many advices"],
+        "answer": 2,
+        "explanation": "'Advice' is uncountable; no article needed."
+    },
+    {
+        "question": "He is suffering from fever since a week.",
+        "options": ["since a week", "for a week", "since week", "for week"],
+        "answer": 1,
+        "explanation": "Use 'for' with period of time: 'for a week'."
+    },
+    {
+        "question": "The more he works, lesser he earns.",
+        "options": ["lesser he earns", "least he earns", "less he earns", "lessest he earns"],
+        "answer": 2,
+        "explanation": "Use 'less', not 'lesser', as comparative with 'the more'."
+    },
+    {
+        "question": "She is so weak that she cannot work.",
+        "options": ["so weak that", "too weak that", "weak so that", "weak enough that"],
+        "answer": 0,
+        "explanation": "Correct result construction: 'so...that'."
+    },
+    {
+        "question": "He insisted to go for a walk.",
+        "options": ["insisted to go", "insisted on going", "insisted for going", "insist on going"],
+        "answer": 1,
+        "explanation": "Correct phrase: 'insisted on going'."
+    },
+    {
+        "question": "She said me to stay at home.",
+        "options": ["said me to", "told me to", "said to me to", "told me for"],
+        "answer": 1,
+        "explanation": "'Say' does not take indirect object without 'to'; use 'told me to'."
+    },
+    {
+        "question": "She went to market to buy vegetables.",
+        "options": ["to buy vegetables", "for buying vegetables", "to buying vegetables", "for buy vegetables"],
+        "answer": 0,
+        "explanation": "Purpose: 'to buy vegetables'; infinitive shows purpose."
+    },
+    {
+        "question": "He is more richer than his friend.",
+        "options": ["more richer than", "richer than", "richest than", "rich than"],
+        "answer": 1,
+        "explanation": "Do not use double comparatives: 'richer than'."
+    },
+    {
+        "question": "He is having a computer at home.",
+        "options": ["is having a computer", "has a computer", "having computer", "have a computer"],
+        "answer": 1,
+        "explanation": "Use 'has' for possession, not 'is having'."
+    },
+    {
+        "question": "She has gone to school, isn't she?",
+        "options": ["isn't she", "hasn't she", "wasn't she", "didn't she"],
+        "answer": 1,
+        "explanation": "Correct question tag: 'hasn't she'."
+    },
+    {
+        "question": "He has finished his work, hasn't he?",
+        "options": ["hasn't he", "hasn't she", "didn't he", "doesn't he"],
+        "answer": 0,
+        "explanation": "'He' subject; correct tag is 'hasn't he'."
+    },
+    {
+        "question": "Each one of the boys have done his work.",
+        "options": ["have done his", "has done his", "has done their", "have done their"],
+        "answer": 1,
+        "explanation": "'Each one' is singular: 'has done his'."
+    },
+    {
+        "question": "The earth moves round the sun.",
+        "options": ["moves round the sun", "move around the sun", "moves around the sun", "move round the sun"],
+        "answer": 0,
+        "explanation": "'Moves round' is correct idiom; 'around' also acceptable but not needed."
+    },
+    {
+        "question": "She is elder than me.",
+        "options": ["elder than me", "elder to me", "older than me", "eldest to me"],
+        "answer": 2,
+        "explanation": "'Older than' for comparisons; 'elder' for family."
+    },
+    {
+        "question": "He seldom goes to cinema, doesn't he?",
+        "options": ["doesn't he", "does he", "did he", "didn't he"],
+        "answer": 1,
+        "explanation": "With negative adverb, positive tag: 'does he'."
+    },
+    {
+        "question": "Let us discuss about the issue.",
+        "options": ["discuss about", "discuss of", "discuss", "discuss for"],
+        "answer": 2,
+        "explanation": "'Discuss' never takes 'about' when object present."
+    },
+    {
+        "question": "He is working here for the last five years.",
+        "options": ["is working here for", "has been working here for", "was working here for", "have been working here for"],
+        "answer": 1,
+        "explanation": "Present perfect continuous for duration: 'has been working'."
+    },
+    {
+        "question": "I cannot cope up with this problem.",
+        "options": ["cope up", "cope of", "cope with", "cope on"],
+        "answer": 2,
+        "explanation": "Correct phrase: 'cope with'."
+    },
+    {
+        "question": "She is more beautiful than any girl in the class.",
+        "options": ["any girl", "any other girl", "every girl", "another girl"],
+        "answer": 1,
+        "explanation": "Use 'any other' for correct comparison."
+    },
+    {
+        "question": "He did not know to swim.",
+        "options": ["know to swim", "know swimming", "know how to swim", "knows swim"],
+        "answer": 2,
+        "explanation": "'Know how to swim' is correct idiom."
+    },
+    {
+        "question": "He is married to a doctor, isn't he?",
+        "options": ["isn't he", "isn't she", "wasn't he", "hasn't he"],
+        "answer": 0,
+        "explanation": "Correct tag for 'he'."
+    },
+    {
+        "question": "He is not coming, isn't he?",
+        "options": ["isn't he", "is he", "doesn't he", "didn't he"],
+        "answer": 1,
+        "explanation": "Negatives need positive tags: 'is he'."
+    },
+    {
+        "question": "She did not listen me.",
+        "options": ["listen me", "listen to me", "listen at me", "listen for me"],
+        "answer": 1,
+        "explanation": "Correct: 'listen to me'."
+    },
+	{
+        "question": "He behaved very badly in the party.",
+        "options": ["in the party", "at the party", "on the party", "with the party"],
+        "answer": 1,
+        "explanation": "The correct preposition with 'party' is 'at'."
+    },
+    {
+        "question": "She is good in singing.",
+        "options": ["good in singing", "good at singing", "good on singing", "good of singing"],
+        "answer": 1,
+        "explanation": "'Good at' is used for skills or activities."
+    },
+    {
+        "question": "I look forward to see you.",
+        "options": ["to see you", "to seeing you", "seeing you", "to saw you"],
+        "answer": 1,
+        "explanation": "'Look forward to' is followed by a gerund."
+    },
+    {
+        "question": "He suggested me to go home early.",
+        "options": ["suggested me to go", "suggested going", "suggested me going", "suggested me going to"],
+        "answer": 1,
+        "explanation": "'Suggest' is followed by gerund or that-clause, not object + to-infinitive."
+    },
+    {
+        "question": "Everybody must bring their books.",
+        "options": ["their books", "his book", "her book", "his or her book"],
+        "answer": 3,
+        "explanation": "Singular 'everybody' requires singular pronoun 'his or her'."
+    },
+    {
+        "question": "I have been waiting here since two hours.",
+        "options": ["since two hours", "for two hours", "since two hour", "during two hours"],
+        "answer": 1,
+        "explanation": "'Since' is used for points in time, 'for' for periods."
+    },
+    {
+        "question": "The police is investigating the case.",
+        "options": ["is investigating", "are investigating", "was investigating", "were investigating"],
+        "answer": 1,
+        "explanation": "'Police' is plural and takes plural verb."
+    },
+    {
+        "question": "She explained me the situation clearly.",
+        "options": ["explained me", "explained to me", "explained for me", "explained with me"],
+        "answer": 1,
+        "explanation": "'Explain' is followed by 'to' when referring to the person."
+    },
+    {
+        "question": "This is the most easiest way to do it.",
+        "options": ["most easiest", "easiest", "more easiest", "easy"],
+        "answer": 1,
+        "explanation": "'Easiest' is a superlative; 'most' is redundant."
+    },
+    {
+        "question": "They walked slow to catch the bus.",
+        "options": ["walked slow", "walked slowly", "walking slow", "walked slowy"],
+        "answer": 1,
+        "explanation": "Adverbs modify verbs; use 'slowly'."
+    },
+    {
+        "question": "I explained him the problem.",
+        "options": ["explained him", "explained to him", "explained for him", "explained with him"],
+        "answer": 1,
+        "explanation": "The verb 'explain' is followed by 'to' before the indirect object."
+    },
+    {
+        "question": "Neither of the answers were correct.",
+        "options": ["were correct", "was correct", "have been correct", "are correct"],
+        "answer": 1,
+        "explanation": "'Neither' is singular and takes a singular verb."
+    },
+    {
+        "question": "If he will come, I will tell you.",
+        "options": ["If he will come", "If he comes", "If he coming", "If he came"],
+        "answer": 1,
+        "explanation": "In first conditional, use present tense in 'if' clause."
+    },
+    {
+        "question": "She is good at dancing and singing.",
+        "options": ["good at dancing and singing", "good in dancing and singing", "good on dancing and singing", "good of dancing and singing"],
+        "answer": 0,
+        "explanation": "'Good at' is the correct phrase to show ability."
+    },
+    {
+        "question": "He is fond of to play cricket.",
+        "options": ["fond of to play", "fond of playing", "fond to play", "fond in playing"],
+        "answer": 1,
+        "explanation": "Use gerund after 'fond of'."
+    },
+    {
+        "question": "She got married with a doctor.",
+        "options": ["married with", "married to", "married at", "married by"],
+        "answer": 1,
+        "explanation": "'Married to' is the correct expression."
+    },
+    {
+        "question": "He passed the exam successfully, didn't he?",
+        "options": ["didn't he", "did he", "hasn't he", "has he"],
+        "answer": 0,
+        "explanation": "Positive statement takes negative question tag."
+    },
+    {
+        "question": "Everyone have their own opinion.",
+        "options": ["have", "has", "had", "having"],
+        "answer": 1,
+        "explanation": "'Everyone' is singular and takes singular verb 'has'."
+    },
+    {
+        "question": "He does not have many homeworks to do.",
+        "options": ["homeworks", "homework", "homeworkes", "home work"],
+        "answer": 1,
+        "explanation": "'Homework' is uncountable and does not have plural form."
+    },
+    {
+        "question": "The committee are divided in their opinions.",
+        "options": ["are divided", "is divided", "have divided", "has divided"],
+        "answer": 1,
+        "explanation": "'Committee' is a collective noun and usually singular."
+    },
+    {
+        "question": "She kept her promise, didn't she?",
+        "options": ["didn't she", "did she", "hasn't she", "has she"],
+        "answer": 0,
+        "explanation": "Positive statement takes negative tag question."
+    },
+    {
+        "question": "He looks forward to see you tomorrow.",
+        "options": ["to see", "to seeing", "seeing", "to saw"],
+        "answer": 1,
+        "explanation": "'Look forward to' is always followed by gerund."
+    },
+    {
+        "question": "The weather is too much cold today.",
+        "options": ["too much cold", "too cold", "very cold", "so cold"],
+        "answer": 1,
+        "explanation": "'Too' is used without 'much' before adjectives."
+    },
+    {
+        "question": "Neither Ram nor Shyam have come to the party.",
+        "options": ["have come", "has come", "had come", "was come"],
+        "answer": 1,
+        "explanation": "Verb agrees with nearest subject; singular verb 'has' required."
+    },
+    {
+        "question": "She speaks English good.",
+        "options": ["speaks English good", "speaks English well", "speaks good English", "speaks well English"],
+        "answer": 1,
+        "explanation": "'Well' is the adverb that modifies the verb."
+    },
+    {
+        "question": "I am interesting in this book.",
+        "options": ["interesting in", "interested in", "interest in", "interest at"],
+        "answer": 1,
+        "explanation": "When describing feeling, use 'interested in'."
+    },
+    {
+        "question": "He is used to get up early.",
+        "options": ["used to get", "used to getting", "uses to get", "use to get"],
+        "answer": 1,
+        "explanation": "The phrase 'used to' requires gerund when meaning accustomed to."
+    },
+    {
+        "question": "She wants learn French.",
+        "options": ["wants learn", "wants to learn", "wants learning", "want to learn"],
+        "answer": 1,
+        "explanation": "Verb 'want' is followed by infinitive form."
+    },
+    {
+        "question": "The news are very interesting.",
+        "options": ["are", "is", "was", "were"],
+        "answer": 1,
+        "explanation": "'News' is singular and takes singular verb."
+    },
+    {
+        "question": "I didn’t went to the market yesterday.",
+        "options": ["didn’t went", "didn't go", "didn't gone", "didn't going"],
+        "answer": 1,
+        "explanation": "After auxiliary 'did', use base form of verb."
+    },
+    {
+        "question": "She is a teacher and a good singer also.",
+        "options": ["and a good singer also", "and also a good singer", "also a good singer also", "and a also good singer"],
+        "answer": 1,
+        "explanation": "'Also' comes after the verb or at the beginning of the phrase."
+    },
+    {
+        "question": "John is better than any other boys in his class.",
+        "options": ["any other boys", "any other boy", "any boys", "other boys"],
+        "answer": 1,
+        "explanation": "Use singular noun with 'any other' in comparisons."
+    },
+    {
+        "question": "She cannot hardly speak English.",
+        "options": ["cannot hardly", "can hardly", "cannot", "can"],
+        "answer": 1,
+        "explanation": "'Can hardly' is correct; double negatives are incorrect."
+    },
+    {
+        "question": "This is more better than that.",
+        "options": ["more better", "better", "most better", "best"],
+        "answer": 1,
+        "explanation": "Do not use double comparative adjectives."
+    },
+    {
+        "question": "Me and my brother will come to the party.",
+        "options": ["Me and my brother", "My brother and I", "I and my brother", "Me and brother"],
+        "answer": 1,
+        "explanation": "'I' is subject pronoun and should be used here."
+    },
+    {
+        "question": "He refused for helping me.",
+        "options": ["refused for helping", "refused to help", "refused helping", "refused help"],
+        "answer": 1,
+        "explanation": "'Refuse' is followed by 'to' + infinitive."
+    },
+    {
+        "question": "Has he finished the work yet?",
+        "options": ["Has he finished the work yet?", "Did he finished the work yet?", "Has he finish the work yet?", "Have he finished the work yet?"],
+        "answer": 0,
+        "explanation": "Present perfect question uses 'Has' + past participle."
+    },
+    {
+        "question": "The teacher along with the students are happy today.",
+        "options": ["are happy", "is happy", "were happy", "have been happy"],
+        "answer": 1,
+        "explanation": "Verb agrees with main subject 'teacher' which is singular."
+    },
+    {
+        "question": "He did not do his homework nor did he study for the exam.",
+        "options": ["nor did he study", "and he did not study", "but he did study", "or he did study"],
+        "answer": 0,
+        "explanation": "'Nor' correctly follows negative clause and inverts the verb."
+    },
+    {
+        "question": "You should make the most of your situations.",
+        "options": ["situations", "situation", "situated", "situate"],
+        "answer": 1,
+        "explanation": "'Situation' should be singular in this phrase."
+    },
+    {
+        "question": "He has no money, isn't it?",
+        "options": ["isn't it", "hasn't he", "doesn't he", "is he"],
+        "answer": 3,
+        "explanation": "Correct tag for negative statement with 'has' is 'has he' or 'is he'."
+    },
+    {
+        "question": "She gave me good advices.",
+        "options": ["advices", "advice", "advises", "advised"],
+        "answer": 1,
+        "explanation": "'Advice' is uncountable and does not have plural form."
+    },
+    {
+        "question": "It is a long way from here to our village.",
+        "options": ["a long way", "long way", "long ways", "a longest way"],
+        "answer": 0,
+        "explanation": "Correct phrase is 'a long way'."
+    },
+    {
+        "question": "Despite of the rain, the match continued.",
+        "options": ["Despite of", "Despite", "In spite of", "In spite"],
+        "answer": 1,
+        "explanation": "'Despite' does not take 'of'; 'In spite of' is correct."
+    },
+    {
+        "question": "They demanded to have more time for the project.",
+        "options": ["demanded to have", "demanded having", "demanded to having", "demanded have"],
+        "answer": 0,
+        "explanation": "'Demand' is commonly followed by infinitive or clause."
+    },
+	{
+        "question": "Despite the heavy rain and strong winds, the cricket match continued without any delays, didn't it?",
+        "options": ["didn't it", "did it", "wasn't it", "was it"],
+        "answer": 0,
+        "explanation": "Positive sentence with negative tag, so the question tag is negative: 'didn't it'."
+    },
+    {
+        "question": "Neither the manager nor the employees were willing to accept the new policy imposed by the administration, were they?",
+        "options": ["were they", "was they", "did they", "were he"],
+        "answer": 0,
+        "explanation": "Verb agreement follows the nearest subject; with negative, question tag inverts the verb."
+    },
+    {
+        "question": "The company has taken several measures to improve productivity, but many employees are still unhappy with the recent changes, aren’t they?",
+        "options": ["aren’t they", "isn’t it", "have they", "didn’t they"],
+        "answer": 0,
+        "explanation": "‘Many employees’ is plural; hence, question tag uses plural."
+    },
+    {
+        "question": "Hardly had the students started writing their exams when the power supply was unexpectedly cut off by the authorities, wasn’t it?",
+        "options": ["wasn’t it", "was it", "didn’t it", "did it"],
+        "answer": 1,
+        "explanation": "'Hardly' requires inversion at the start and is followed by 'when'; question tag should be positive."
+    },
+    {
+        "question": "She is looking forward to attending the conference in New Delhi next month to present her research findings, isn’t she?",
+        "options": ["isn’t she", "is she", "doesn’t she", "does she"],
+        "answer": 0,
+        "explanation": "Positive statement needs a negative question tag."
+    },
+    {
+        "question": "If you had informed me about the meeting earlier, we could have prepared the presentation more thoroughly and avoided mistakes during the delivery.",
+        "options": ["If you had informed me", "If you informed me", "If you would inform me", "If you will inform me"],
+        "answer": 0,
+        "explanation": "Third conditional sentence about past hypothetical conditions uses past perfect."
+    },
+    {
+        "question": "Despite having all the necessary documents and permissions, the team was delayed at the airport because of unexpected security checks that took a long time.",
+        "options": ["was delayed", "were delayed", "had delayed", "have delayed"],
+        "answer": 0,
+        "explanation": "'Team' is a collective noun treated as singular here."
+    },
+    {
+        "question": "The employees, along with their supervisors, is scheduled to attend the annual training workshop starting next week in the headquarters, aren’t they?",
+        "options": ["aren’t they", "isn’t it", "aren’t it", "is it"],
+        "answer": 0,
+        "explanation": "The main subject 'employees' is plural and determines verb agreement and question tag."
+    },
+    {
+        "question": "Had the organizing committee finalized the venue earlier, it would have given all participants ample time to make their travel arrangements without any inconvenience.",
+        "options": ["Had the organizing committee finalized", "If the organizing committee would have finalized", "If had the organizing committee finalized", "Had the organizing committee finalizes"],
+        "answer": 0,
+        "explanation": "Past perfect with inversion used to express hypothetical past condition."
+    },
+    {
+        "question": "He would have completed the project on time if the necessary resources had been allocated well in advance by the management authorities.",
+        "options": ["would have completed", "would complete", "will complete", "completes"],
+        "answer": 0,
+        "explanation": "Conditional sentence type 3 uses 'would have' + past participle to show unreal past."
+    },
+    {
+        "question": "The government is supposed to announce the new economic reforms next month, which are expected to boost small and medium enterprises significantly, aren’t they?",
+        "options": ["aren’t they", "isn’t it", "aren’t it", "is it"],
+        "answer": 1,
+        "explanation": "The phrase refers to ‘reforms’ which is plural; question tag must be plural."
+    },
+    {
+        "question": "She insisted on reviewing the annual report thoroughly before presenting it to the board of directors during the upcoming meeting in the conference hall.",
+        "options": ["insisted on reviewing", "insisted in reviewing", "insisted to review", "insisted for review"],
+        "answer": 0,
+        "explanation": "The phrasal verb 'insist on' is followed by a gerund."
+    },
+    {
+        "question": "It is high time that the authorities took stringent measures to control traffic congestion in the city during peak hours to reduce pollution and inconvenience.",
+        "options": ["took", "take", "have taken", "will take"],
+        "answer": 0,
+        "explanation": "‘It is high time’ is followed by past tense verb to express urgency."
+    },
+    {
+        "question": "She has been preparing diligently for the competitive exam for the past six months and hopes to qualify with a high rank this year.",
+        "options": ["has been preparing", "have been preparing", "is preparing", "was preparing"],
+        "answer": 0,
+        "explanation": "Present perfect continuous tense for ongoing action over a duration."
+    },
+    {
+        "question": "The students were advised to complete their assignments before the deadline and attend the revision classes scheduled for the following week.",
+        "options": ["were advised to complete", "was advised to complete", "had advised to complete", "have advised to complete"],
+        "answer": 0,
+        "explanation": "Passive voice in past tense uses 'were' for plural 'students'."
+    },
+    {
+        "question": "Neither of the proposals submitted by the two companies has met the technical requirements outlined in the tender notice, so the committee is re-evaluating the options.",
+        "options": ["has met", "have met", "had met", "are meeting"],
+        "answer": 0,
+        "explanation": "'Neither' is singular, so singular verb 'has' is used."
+    },
+    {
+        "question": "The director, as well as the producers of the film, are invited to the film festival to discuss the upcoming projects and collaborations for next year.",
+        "options": ["is invited", "are invited", "was invited", "have invited"],
+        "answer": 0,
+        "explanation": "'As well as' does not change the verb number; verb agrees with the singular subject."
+    },
+    {
+        "question": "Had we received the funds on time, we would have been able to complete the infrastructure development project within the scheduled deadline without any delays.",
+        "options": ["Had we received", "If we have received", "If we would have received", "Had we receive"],
+        "answer": 0,
+        "explanation": "Inversion in third conditional: 'Had we received' shows hypothetical past."
+    },
+    {
+        "question": "By the time the manager arrived at the office, most of the employees had already left following the sudden announcement of the holiday.",
+        "options": ["had already left", "have already left", "were already leaving", "left"],
+        "answer": 0,
+        "explanation": "Past perfect tense shows completed action before another past event."
+    },
+    {
+        "question": "Since the company has introduced new policies, the overall employee satisfaction rate has improved significantly compared to the previous year’s survey results.",
+        "options": ["has improved", "have improved", "improved", "was improved"],
+        "answer": 0,
+        "explanation": "Present perfect tense used for recent changes affecting the present."
+    },
+    {
+        "question": "I wish I had studied harder for the examination because I did not perform well enough to qualify for the next round.",
+        "options": ["wish I had studied", "wish I studied", "wish I have studied", "wish I study"],
+        "answer": 0,
+        "explanation": "Expressing past regret uses 'wish' + past perfect tense."
+    },
+    {
+        "question": "The new employee, together with her team members, has contributed to improving the customer service standards at the branch office effectively.",
+        "options": ["has contributed", "have contributed", "had contributed", "was contributing"],
+        "answer": 0,
+        "explanation": "Verb agrees with singular subject despite the phrase 'together with'."
+    },
+    {
+        "question": "In case the train is delayed, the company has arranged for shuttle buses to ensure that the passengers reach the destination on time.",
+        "options": ["is delayed", "will be delayed", "was delayed", "has delayed"],
+        "answer": 1,
+        "explanation": "Use simple present in condition clause for future possibility."
+    },
+    {
+        "question": "The researcher presented the findings of the study convincingly during the international seminar held in the prestigious auditorium of the university.",
+        "options": ["presented", "presents", "was presenting", "has presented"],
+        "answer": 0,
+        "explanation": "Past simple tense for completed action in the past."
+    },
+    {
+        "question": "It is important that every employee adhere strictly to the safety guidelines while working in the factory premises to avoid accidents.",
+        "options": ["adhere", "adheres", "adhered", "adhering"],
+        "answer": 0,
+        "explanation": "Subjunctive mood uses base form of verb after expressions of importance."
+    },
+    {
+        "question": "Had the senior officials coordinated better, the project delays and cost overruns could have been prevented effectively.",
+        "options": ["Had the senior officials coordinated", "If the senior officials coordinated", "If had the senior officials coordinated", "Had senior officials coordinate"],
+        "answer": 0,
+        "explanation": "Inversion in third conditional sentence expresses unreal past condition."
+    },
+    {
+        "question": "She has been improving her communication skills by attending daily practice sessions and watching educational videos online regularly.",
+        "options": ["has been improving", "have been improving", "is improving", "was improving"],
+        "answer": 0,
+        "explanation": "Present perfect continuous tense shows ongoing recent activity."
+    },
+    {
+        "question": "The students, along with their mentors, are preparing for the upcoming national level science competition scheduled for next month.",
+        "options": ["are preparing", "is preparing", "was preparing", "have prepared"],
+        "answer": 0,
+        "explanation": "Verb agrees with plural subject 'students', despite phrase 'along with'."
+    },
+    {
+        "question": "The auditor pointed out several discrepancies in the financial statements, which need to be corrected before the annual report is submitted.",
+        "options": ["need to be corrected", "needs to be corrected", "needed to be corrected", "needing to be corrected"],
+        "answer": 0,
+        "explanation": "Relative clause subject is plural 'discrepancies'; verb agrees accordingly."
+    },
+    {
+        "question": "Had the necessary equipment been available at the site, the construction work would have progressed without interruptions or delays caused by technical issues.",
+        "options": ["Had the necessary equipment been available", "If the necessary equipment was available", "If had the necessary equipment been available", "Had necessary equipment is available"],
+        "answer": 0,
+        "explanation": "Correct inversion for third conditional sentence in past unreal condition."
+    },
+    {
+        "question": "Since the new regulations are implemented, the factory has reduced its carbon emissions significantly to comply with environmental standards.",
+        "options": ["are implemented", "were implemented", "have been implemented", "had been implemented"],
+        "answer": 2,
+        "explanation": "Present perfect passive to show recent action with continuing effect."
+    },
+    {
+        "question": "The author, who has published several bestsellers, will be attending the book launch event scheduled on Friday evening at the city library hall.",
+        "options": ["has published", "have published", "had published", "publishes"],
+        "answer": 0,
+        "explanation": "Singular subject requires singular verb in relative clause."
+    },
+    {
+        "question": "She should have informed the team about the schedule changes earlier so that they could rearrange their plans accordingly.",
+        "options": ["should have informed", "should informed", "should has informed", "should have inform"],
+        "answer": 0,
+        "explanation": "Perfect modal structure expresses past obligation or expectation."
+    },
+    {
+        "question": "Despite being tired after the long journey, the delegates actively participated in all the sessions conducted during the international conference.",
+        "options": ["Being tired", "Despite being tired", "Although being tired", "In spite tired"],
+        "answer": 1,
+        "explanation": "'Despite' is followed by gerund; 'Despite being tired' is correct."
+    },
+    {
+        "question": "The lecturer emphasized the importance of practicing grammar regularly to master the language and excel in competitive examinations effectively.",
+        "options": ["emphasized", "emphasizes", "was emphasized", "has emphasized"],
+        "answer": 0,
+        "explanation": "Simple past for a completed action in the past."
+    },
+    {
+        "question": "Had the staff members been trained properly, they would have handled the emergency situations more efficiently and reduced the damage caused.",
+        "options": ["Had the staff members been trained", "If the staff were trained", "If had the staff members been trained", "Had the staff members trained"],
+        "answer": 0,
+        "explanation": "Third conditional with inversion for unreal past scenario."
+    },
+    {
+        "question": "The company plans to expand its operations internationally by establishing new offices in major metropolitan cities over the next two years.",
+        "options": ["plans", "plan", "planned", "planning"],
+        "answer": 0,
+        "explanation": "Third person singular subject requires singular verb."
+    },
+    {
+        "question": "She enjoys reading historical novels and writing short stories in her free time, which helps her enhance creativity and language skills.",
+        "options": ["enjoys", "enjoy", "enjoyed", "enjoying"],
+        "answer": 0,
+        "explanation": "Singular subject requires singular verb 'enjoys'."
+    },
+    {
+        "question": "The team has been working hard to meet the deadline despite facing numerous technical challenges during the software development process.",
+        "options": ["has been working", "have been working", "is working", "was working"],
+        "answer": 0,
+        "explanation": "Present perfect continuous for ongoing recent action."
+    },
+    {
+        "question": "If the weather improves tomorrow, we shall proceed with the planned outdoor event as scheduled in the morning at the park grounds.",
+        "options": ["improves", "improved", "will improve", "is improving"],
+        "answer": 0,
+        "explanation": "First conditional uses present tense in if-clause."
+    },
+    {
+        "question": "The lawyer, along with his associates, is preparing the documents required for filing the case in the court next week.",
+        "options": ["is preparing", "are preparing", "was preparing", "were preparing"],
+        "answer": 0,
+        "explanation": "'Along with' does not make the subject plural; verb agrees with singular noun."
+    },
+    {
+        "question": "He asked me where I was going and whether I had completed all the required formalities for the project submission.",
+        "options": ["was going", "were going", "had gone", "goes"],
+        "answer": 0,
+        "explanation": "Indirect questions use statement order."
+    },
+	{
+        "question": "The committee members, along with the chairperson, have been discussing the proposals carefully before making any final decisions on the upcoming project allocations.",
+        "options": ["have been discussing", "has been discussing", "were discussing", "was discussing"],
+        "answer": 0,
+        "explanation": "Plural subject 'members' takes plural verb, despite 'along with' phrase."
+    },
+    {
+        "question": "Had the technical team conducted a thorough inspection before installation, the machinery would not have malfunctioned during the production process.",
+        "options": ["Had the technical team conducted", "If the technical team had conducted", "If had the technical team conducted", "Had the technical team conduct"],
+        "answer": 0,
+        "explanation": "Third conditional with inversion as correct formal structure."
+    },
+    {
+        "question": "Despite the tight schedule, the managers managed to complete all tasks on time, demonstrating excellent leadership and coordination skills.",
+        "options": ["Despite", "Although", "However", "Because"],
+        "answer": 0,
+        "explanation": "'Despite' shows contrast despite the preceding fact."
+    },
+    {
+        "question": "She was advised to revise all the chapters thoroughly before the final examination scheduled for next month to ensure a good performance.",
+        "options": ["was advised to revise", "were advised to revise", "had advised to revise", "has advised to revise"],
+        "answer": 0,
+        "explanation": "Passive voice with singular subject uses 'was'."
+    },
+    {
+        "question": "Neither the director nor the actors have arrived for the rehearsal, so the practice session has been postponed to tomorrow.",
+        "options": ["have arrived", "has arrived", "are arriving", "is arriving"],
+        "answer": 0,
+        "explanation": "Verb agrees with the nearest subject 'actors' which is plural."
+    },
+    {
+        "question": "He insisted that the report be submitted before the deadline so that the clients receive all necessary information in a timely manner.",
+        "options": ["be submitted", "is submitted", "was submitted", "has submitted"],
+        "answer": 0,
+        "explanation": "Subjunctive mood requires base verb form after verbs expressing demand or insistence."
+    },
+    {
+        "question": "The manager explained the new guidelines clearly so that all employees understand their responsibilities and avoid any confusion during the implementation phase.",
+        "options": ["understand", "understands", "understood", "will understand"],
+        "answer": 0,
+        "explanation": "Present simple is used in purpose clauses for general truths."
+    },
+    {
+        "question": "Had the IT department updated the software on time, the system failure could have been prevented during the busiest hours at the office.",
+        "options": ["Had the IT department updated", "If the IT department had updated", "If had the IT department updated", "Had the IT department update"],
+        "answer": 0,
+        "explanation": "Third conditional sentence using inversion for unreal past condition."
+    },
+    {
+        "question": "Although the weather was unfavorable, the festival went on as planned, attracting a large number of attendees from various parts of the city.",
+        "options": ["Although", "Despite", "In spite", "Because"],
+        "answer": 0,
+        "explanation": "'Although' introduces a concessive clause."
+    },
+    {
+        "question": "The new recruits have been undergoing intensive training to equip them with the required skills and knowledge to perform their duties efficiently.",
+        "options": ["have been undergoing", "has been undergoing", "had been undergoing", "will be undergoing"],
+        "answer": 0,
+        "explanation": "Present perfect continuous tense matches plural subject 'recruits'."
+    },
+    {
+        "question": "It is essential that all staff members attend the orientation program next week to familiarize themselves with the company’s policies and procedures.",
+        "options": ["attend", "attends", "attended", "attending"],
+        "answer": 0,
+        "explanation": "Subjunctive mood requires base form verb after expressions of necessity."
+    },
+    {
+        "question": "The negotiations between the two companies were successful, and they signed a contract that benefits both parties equally.",
+        "options": ["were successful", "was successful", "have been successful", "has been successful"],
+        "answer": 0,
+        "explanation": "Past simple tense appropriate for completed past event."
+    },
+    {
+        "question": "Had the conference organizers arranged better facilities, the event would have received higher praises and greater participation from international delegates.",
+        "options": ["Had the conference organizers arranged", "If the conference organizers had arranged", "If had the conference organizers arranged", "Had conference organizers arrange"],
+        "answer": 0,
+        "explanation": "Inversion in third conditional sentence structure."
+    },
+    {
+        "question": "The employees are expected to comply with the new safety measures introduced by the company to ensure a hazard-free working environment.",
+        "options": ["are expected", "is expected", "were expected", "has expected"],
+        "answer": 0,
+        "explanation": "Plural subject requires plural verb."
+    },
+    {
+        "question": "She hopes that the new software update will resolve all the bugs and improve the overall user experience significantly.",
+        "options": ["wills resolve", "will resolves", "will resolve", "resolves"],
+        "answer": 2,
+        "explanation": "Future tense auxiliary 'will' + base verb is correct."
+    },
+    {
+        "question": "Since the new manager took charge, there has been a noticeable improvement in the efficiency and productivity of the entire department.",
+        "options": ["has been", "have been", "had been", "was"],
+        "answer": 0,
+        "explanation": "Present perfect tense used for an action continuing into the present."
+    },
+    {
+        "question": "The documents, along with the supporting evidence, are submitted to the legal department for further examination and approval.",
+        "options": ["are submitted", "is submitted", "was submitted", "have been submitted"],
+        "answer": 0,
+        "explanation": "Subject 'documents' is plural; verb agrees accordingly."
+    },
+    {
+        "question": "I suggest that he attend the workshop next week to gain more insights on project management and team coordination skills.",
+        "options": ["attend", "attends", "attended", "will attend"],
+        "answer": 0,
+        "explanation": "Subjunctive form is used after verbs of suggestion or recommendation."
+    },
+    {
+        "question": "The supervisor warned the workers not to operate the machinery without proper training to prevent accidents and injuries in the workplace.",
+        "options": ["not to operate", "to not operate", "not operate", "no operate"],
+        "answer": 0,
+        "explanation": "'Warn' is followed by 'not to' + infinitive verb for prohibition."
+    },
+    {
+        "question": "Had the technicians arrived earlier, they would have resolved the issue before it affected the entire network system severely.",
+        "options": ["Had the technicians arrived", "If the technicians had arrived", "If had the technicians arrived", "Had technicians arrive"],
+        "answer": 0,
+        "explanation": "Third conditional sentence with inversion for hypothetical past."
+    },
+    {
+        "question": "The researcher will submit the final draft to the journal editor after thoroughly revising all sections and incorporating the reviewers’ comments.",
+        "options": ["will submit", "would submit", "submits", "submitted"],
+        "answer": 0,
+        "explanation": "Future tense used for a planned action."
+    },
+    {
+        "question": "Although the new policies were greeted with skepticism initially, they have gradually gained acceptance among the employees at all levels.",
+        "options": ["were greeted", "was greeted", "has been greeted", "have been greeted"],
+        "answer": 0,
+        "explanation": "Past passive form corresponds with plural 'policies'."
+    },
+    {
+        "question": "The chairman, along with other members of the board, is expected to attend the crucial meeting scheduled for next Wednesday.",
+        "options": ["is expected", "are expected", "was expected", "were expected"],
+        "answer": 0,
+        "explanation": "Verb agrees with singular noun 'chairman' despite phrase in commas."
+    },
+    {
+        "question": "He advised that the team be more cautious while handling confidential information to avoid any security breaches in the organization.",
+        "options": ["be", "is", "was", "were"],
+        "answer": 0,
+        "explanation": "Subjunctive mood with base verb form used after expressions of advice."
+    },
+    {
+        "question": "The funds allocated for the infrastructure upgrade have not been utilized effectively, resulting in delays of several key construction phases.",
+        "options": ["have not been utilized", "has not been utilized", "were not utilized", "was not utilized"],
+        "answer": 0,
+        "explanation": "Plural subject 'funds' takes plural verb."
+    },
+    {
+        "question": "If the company implements the new strategy successfully, it will likely see a significant increase in market share over the next fiscal year.",
+        "options": ["implements", "implement", "implemented", "will implement"],
+        "answer": 0,
+        "explanation": "First conditional uses present tense in the if-clause."
+    },
+    {
+        "question": "The experts recommend that employees attend the regular training workshops to keep up with the latest developments in their respective fields.",
+        "options": ["attend", "attends", "attended", "attending"],
+        "answer": 0,
+        "explanation": "Subjunctive mood after verbs of recommendation."
+    },
+    {
+        "question": "The CEO, together with the senior executives, has announced new initiatives aimed at improving sustainability and corporate social responsibility.",
+        "options": ["has announced", "have announced", "is announcing", "are announcing"],
+        "answer": 0,
+        "explanation": "The singular subject 'CEO' governs the verb."
+    },
+    {
+        "question": "She has been working tirelessly to prepare the annual report while managing several other important projects simultaneously.",
+        "options": ["has been working", "have been working", "is working", "was working"],
+        "answer": 0,
+        "explanation": "Present perfect continuous for continuous action with present relevance."
+    },
+    {
+        "question": "Had the delivery arrived earlier, the customers would have received their orders on time and expressed greater satisfaction.",
+        "options": ["Had the delivery arrived", "If the delivery had arrived", "If had the delivery arrived", "Had delivery arrives"],
+        "answer": 0,
+        "explanation": "Inversion used in third conditional sentence."
+    },
+    {
+        "question": "The staff members are preparing detailed reports and presentations to highlight the company’s achievements during the annual general meeting.",
+        "options": ["are preparing", "is preparing", "have prepared", "has prepared"],
+        "answer": 0,
+        "explanation": "Plural subject with plural verb."
+    },
+    {
+        "question": "It is crucial that all documents be submitted before the deadline to avoid any last-minute complications or delays in processing the applications.",
+        "options": ["be submitted", "is submitted", "was submitted", "are submitted"],
+        "answer": 0,
+        "explanation": "Subjunctive mood uses base form after expressions of importance."
+    },
+    {
+        "question": "The board members, as well as the CEO, are expected to review the financial statements and provide feedback during the scheduled meeting.",
+        "options": ["are expected", "is expected", "were expected", "was expected"],
+        "answer": 0,
+        "explanation": "Verb agrees with the plural subject."
+    },
+    {
+        "question": "If she had notified the authorities earlier, the necessary arrangements could have been made to ensure smooth coordination of the event.",
+        "options": ["had notified", "would notify", "had notify", "would have notified"],
+        "answer": 0,
+        "explanation": "Third conditional with past perfect for hypothetical past condition."
+    },
+    {
+        "question": "The team is brainstorming innovative ideas to improve the company’s product line and stay competitive in the rapidly evolving market.",
+        "options": ["are brainstorming", "is brainstorming", "were brainstorming", "be brainstorming"],
+        "answer": 1,
+        "explanation": "Singular subject 'team' takes singular verb."
+    },
+	 {
+        "question": "Despite the fact that the instructions were clearly provided well in advance, many candidates failed to fill out the application form accurately, resulting in their rejection by the selection committee.",
+        "options": ["failed to fill out", "fail to fill out", "fails to fill out", "was failed to fill out"],
+        "answer": 0,
+        "explanation": "Past simple is used because the sentence refers to a completed action."
+    },
+    {
+        "question": "It is compulsory for every candidate to carry a valid identity proof and admit card during the entrance examination to ensure verification at the test center.",
+        "options": ["during the entrance examination", "before the entrance examination", "about the entrance examination", "for entrance examination"],
+        "answer": 0,
+        "explanation": "'During' indicates the correct time for the requirement."
+    },
+    {
+        "question": "If any candidate is found using unfair means during the examination, his or her candidature will be immediately canceled and disciplinary action will be initiated.",
+        "options": ["is found using", "have found using", "found using", "was found using"],
+        "answer": 0,
+        "explanation": "Passive structure matches formal exam instruction language."
+    },
+    {
+        "question": "Students must ensure that all answers are written using a black or blue ink pen, as answers written in pencil may not be evaluated according to the current examination guidelines.",
+        "options": ["are written", "were written", "is written", "have written"],
+        "answer": 0,
+        "explanation": "Passive present tense to indicate instructions."
+    },
+    {
+        "question": "While submitting the answer booklet to the invigilator, students should double-check that their roll number and registration details are clearly mentioned on the front page.",
+        "options": ["mentioned", "mention", "are mentioning", "is mentioned"],
+        "answer": 0,
+        "explanation": "Passive present tense is the correct form here."
+    },
+    {
+        "question": "Applicants who do not meet the prescribed eligibility criteria will not be allowed to appear for the examination under any circumstances.",
+        "options": ["will not be allowed", "will be not allowed", "will not allowed", "will not allowing"],
+        "answer": 0,
+        "explanation": "Modal + passive structure; 'will not be allowed' is correct."
+    },
+    {
+        "question": "If the candidate misses the reporting time specified by the examination authorities, he or she may be denied entry to the test center.",
+        "options": ["misses the reporting time", "miss the reporting time", "missed the reporting time", "missing the reporting time"],
+        "answer": 0,
+        "explanation": "Present simple is used for future conditions in formal instructions."
+    },
+    {
+        "question": "The examination consists of multiple sections, and each section is allotted a fixed duration within which the candidates must complete their responses.",
+        "options": ["is allotted", "are allotted", "was allotted", "were allotted"],
+        "answer": 0,
+        "explanation": "Singular subject 'section' requires singular verb."
+    },
+    {
+        "question": "It is necessary for candidates to read each question carefully and avoid spending too much time on any single section of the paper.",
+        "options": ["avoid spending too much time", "avoids spending too much time", "should avoid spending too much time", "avoided spending too much time"],
+        "answer": 0,
+        "explanation": "Infinitive form as part of advice statement."
+    },
+    {
+        "question": "In case any discrepancy is found in the admit card, candidates should immediately contact the examination authorities to resolve the issue before the exam date.",
+        "options": ["is found in the admit card", "was found in the admit card", "have found in the admit card", "is finding in the admit card"],
+        "answer": 0,
+        "explanation": "Passive voice, present tense is correct for formal instructions."
+    },
+    {
+        "question": "No candidate will be permitted to leave the examination hall before the scheduled time, even if he or she has already completed the paper.",
+        "options": ["will be permitted", "will permitted", "can permitted", "should permitted"],
+        "answer": 0,
+        "explanation": "Modal + passive structure used for formal exam restrictions."
+    },
+    {
+        "question": "The invigilator will ensure that all candidates maintain absolute silence and refrain from engaging in any conversation with others during the test.",
+        "options": ["maintain absolute silence", "maintains absolute silence", "maintaining absolute silence", "maintained absolute silence"],
+        "answer": 0,
+        "explanation": "Bare infinitive after 'will ensure that' for instructions."
+    },
+    {
+        "question": "The answer sheet must be filled in capital letters as per the prescribed format and any corrections should be made neatly using the correction fluid allowed by the authorities.",
+        "options": ["must be filled in capital letters", "should be filled in capital letters", "must filled in capital letters", "must be fill in capital letters"],
+        "answer": 0,
+        "explanation": "Modal + passive structure is the required format here."
+    },
+    {
+        "question": "In the case of any medical emergency during the exam, the candidate must immediately inform the invigilator for suitable assistance.",
+        "options": ["must immediately inform", "should be immediately inform", "must be immediately inform", "must immediately informed"],
+        "answer": 0,
+        "explanation": "Modal + base verb is the instruction format."
+    },
+    {
+        "question": "Candidates should not use any electronic device except those specifically allowed, as use of unauthorized devices may lead to cancellation of the candidature.",
+        "options": ["may lead to cancellation", "can lead to cancellation", "may be lead to cancellation", "must lead to cancellation"],
+        "answer": 0,
+        "explanation": "Correct modal structure for possible consequence."
+    },
+    {
+        "question": "While answering the questions, it is advisable that candidates manage their time effectively and avoid leaving any questions unanswered if possible.",
+        "options": ["avoid leaving any questions unanswered", "avoids leaving any questions unanswered", "should avoids leaving any questions unanswered", "should avoid leaving any questions unanswered"],
+        "answer": 0,
+        "explanation": "Bare infinitive after 'is advisable that' shows general advice."
+    },
+    {
+        "question": "Only the candidates whose names appear in the final merit list will be called for document verification and interview at the designated center.",
+        "options": ["will be called", "will called", "will be calling", "will be calls"],
+        "answer": 0,
+        "explanation": "Modal + passive for future events in formal notifications."
+    },
+    {
+        "question": "If two or more candidates secure the same marks in the written examination, the ranking will be decided based on their date of birth, with older candidates being given preference.",
+        "options": ["will be decided", "decides", "decided", "will decide"],
+        "answer": 0,
+        "explanation": "Future passive structure fits official criteria statements."
+    },
+    {
+        "question": "Candidates are strictly prohibited from using unfair means or seeking external help during the examination, and violation of these rules will result in disqualification.",
+        "options": ["will result in disqualification", "will be resulted in disqualification", "result in disqualification", "resulted in disqualification"],
+        "answer": 0,
+        "explanation": "Future consequence expressed in present instructions."
+    },
+    {
+        "question": "The examination authorities reserve the right to modify the exam schedule or guidelines without prior notice, so candidates should regularly check the official website for updates.",
+        "options": ["reserve the right to modify", "reserves the right to modify", "reserve right for modify", "reserves the rights to modify"],
+        "answer": 0,
+        "explanation": "Plural subject 'authorities' takes plural verb; correct idiom is 'reserve the right to'."
+    },
+    {
+        "question": "Every candidate is expected to reach the test center at least thirty minutes before the commencement of the examination for mandatory checks and registration procedures.",
+        "options": ["is expected to reach", "is expects to reach", "is expect to reach", "is expecting to reach"],
+        "answer": 0,
+        "explanation": "Passive and expected formal style: 'is expected to reach'."
+    },
+    {
+        "question": "After successfully clearing the written examination and skill test, candidates must produce their original documents for verification at the time of joining.",
+        "options": ["must produce", "must produced", "must be produce", "must producing"],
+        "answer": 0,
+        "explanation": "Modal + base verb shows obligation."
+    },
+    {
+        "question": "The instructions given by the examination authorities must be followed strictly throughout the exam, and no candidate should disobey any rule at any time.",
+        "options": ["must be followed strictly", "must followed strictly", "must be strictly follow", "must strictly be followed"],
+        "answer": 0,
+        "explanation": "Modal + passive is the proper instruction format."
+    },
+    {
+        "question": "In order to secure a good rank, candidates should revise all important topics thoroughly, practice previous years’ question papers, and seek guidance from subject experts if needed.",
+        "options": ["should revise all important topics", "shall revise all important topics", "ought revise all important topics", "should revises all important topics"],
+        "answer": 0,
+        "explanation": "Modal + bare verb in instructions."
+    },
+    {
+        "question": "Candidates must not write anything on the question paper other than their roll number if required by the instructions provided.",
+        "options": ["must not write", "mustn't to write", "must not to write", "mustn't write"],
+        "answer": 0,
+        "explanation": "Modal + bare verb for prohibitions."
+    },
+    {
+        "question": "The final answer key published by the examination board will be considered for evaluation, and no objections will be entertained after its release.",
+        "options": ["will be considered for evaluation", "will considered for evaluation", "will be considers for evaluation", "will considering for evaluation"],
+        "answer": 0,
+        "explanation": "Future passive structure for result notifications."
+    },
+    {
+        "question": "If a candidate fails to submit the required documents within the stipulated period, his or her candidature may be canceled without any prior intimation.",
+        "options": ["may be canceled", "may canceled", "may be cancel", "may has been canceled"],
+        "answer": 0,
+        "explanation": "Modal + passive for possible consequences."
+    },
+    {
+        "question": "The OMR sheet should be handled with care, and candidates must not fold, tear, or scribble on it, as damaged sheets may not be evaluated.",
+        "options": ["should be handled with care", "should handled with care", "should be handle with care", "should handles with care"],
+        "answer": 0,
+        "explanation": "Modal + passive structure for formal instructions."
+    },
+    {
+        "question": "Candidates who do not follow the examination guidelines and instructions may be disqualified and barred from future examinations conducted by the commission.",
+        "options": ["may be disqualified", "may disqualified", "may disqualify", "may be disqualifies"],
+        "answer": 0,
+        "explanation": "Modal + passive is the standard consequence phrasing."
+    },
+    {
+        "question": "Candidates should ensure that their personal details on the admit card and answer sheet match exactly with what is mentioned in their identity proof.",
+        "options": ["match exactly with what is mentioned", "matches exactly with what is mentioning", "match exactly what is mentioned", "matches exactly with what is mentioned"],
+        "answer": 0,
+        "explanation": "Simple present plural verb is correct matching plural subject."
+    },
+    {
+        "question": "If a candidate finds any error or discrepancy in the question paper, he or she should immediately bring it to the notice of the invigilator for necessary action.",
+        "options": ["should immediately bring", "should brought immediately", "should immediately brought", "should be bringing immediately"],
+        "answer": 0,
+        "explanation": "Modal + bare verb for prompt instructions."
+    },
+    {
+        "question": "Candidates appearing for the competitive exams must regularly check the official website to stay updated about any changes in schedule, syllabus, or instructions.",
+        "options": ["must regularly check", "must regular check", "must regularly checks", "must regularly checked"],
+        "answer": 0,
+        "explanation": "Modal + bare verb is the correct formal usage."
+    },
+    {
+        "question": "While entering the exam hall, each candidate must present his or her admit card and identity proof for verification without fail.",
+        "options": ["must present", "present", "should presents", "must presenting"],
+        "answer": 0,
+        "explanation": "Modal obligation uses bare infinitive."
+    },
+    {
+        "question": "After the completion of the examination, candidates should wait for further instructions and leave the hall only when permitted by the invigilator.",
+        "options": ["should wait", "wait", "should waited", "should be waited"],
+        "answer": 0,
+        "explanation": "Modal + bare verb for post-exam process."
+    },
+    {
+        "question": "The commission reserves the right to cancel the candidature of any candidate found indulging in malpractice or providing false information during any stage of the selection process.",
+        "options": ["reserves the right to cancel", "reserve the right to cancel", "reserves rights to cancel", "reserves the right for cancel"],
+        "answer": 0,
+        "explanation": "Singular subject 'commission' takes singular verb."
+    },
+    {
+        "question": "Candidates are advised to bring all the required stationery items, such as pens, pencils, erasers, and rulers, since borrowing during the exam is strictly prohibited.",
+        "options": ["are advised to bring", "are advising to bring", "is advised to bring", "are advised bring"],
+        "answer": 0,
+        "explanation": "Passive voice for formal instructions."
+    },
+    {
+        "question": "If a candidate comes late to the examination center, he or she may be denied entry and no request for re-examination shall be entertained.",
+        "options": ["may be denied entry", "may denied entry", "may denying entry", "may be deny entry"],
+        "answer": 0,
+        "explanation": "Passive structure for consequences."
+    },
+    {
+        "question": "Candidates must submit their queries or grievances regarding the examination only through the official communication channels specified by the board.",
+        "options": ["must submit", "must be submit", "must submitted", "must submits"],
+        "answer": 0,
+        "explanation": "Modal + bare verb is correct for obligations."
+    },
+    {
+        "question": "The selection of candidates in competitive exams is based on merit, reservation policies, and performance in subsequent interview or skill test rounds.",
+        "options": ["is based on", "are based on", "was based on", "have been based on"],
+        "answer": 0,
+        "explanation": "Singular subject 'selection' takes singular verb."
+    },
+    {
+        "question": "Candidates should refrain from discussing any aspect of the question paper with fellow students in the exam hall to maintain the integrity of the examination process.",
+        "options": ["should refrain from discussing", "should refrain to discuss", "should be refrain from discussing", "should refrains from discussing"],
+        "answer": 0,
+        "explanation": "Correct expression uses 'refrain from' + gerund."
+    },
+    {
+        "question": "All instructions issued by the examination committee must be followed strictly by candidates throughout the duration of the test.",
+        "options": ["must be followed strictly", "must strictly be followed", "must followed strictly", "must be strictly follow"],
+        "answer": 0,
+        "explanation": "Passive construction with modal is correct for instructions."
+    },
+    {
+        "question": "In the event of any technical glitch during the online examination, candidates should immediately report the issue to the examination supervisor for prompt resolution.",
+        "options": ["should immediately report", "should report immediately", "should immediately reporting", "should reports immediately"],
+        "answer": 0,
+        "explanation": "Modal + bare verb properly expresses action to take."
+    },
+    {
+        "question": "Candidates must sign the attendance sheet and answer booklet as per the instructions given by the invigilator during the examination.",
+        "options": ["must sign", "must signed", "must be signed", "must signing"],
+        "answer": 0,
+        "explanation": "Modal + bare verb is used for formal requirements."
+    },
+	 {
+        "question": "He hardly had any money left after paying all his bills, did he?",
+        "options": ["did he", "didn't he", "does he", "doesn't he"],
+        "answer": 0,
+        "explanation": "Negative adverb 'hardly' requires a positive question tag."
+    },
+    {
+        "question": "Neither the questions nor the instructions provided in the exam were difficult to understand for the candidates.",
+        "options": ["were difficult", "was difficult", "is difficult", "has been difficult"],
+        "answer": 0,
+        "explanation": "Plural subject 'questions' closest to the verb sets its form."
+    },
+    {
+        "question": "She, as well as her friends, was planning to visit the museum during the summer holidays.",
+        "options": ["was planning", "were planning", "is planning", "planning"],
+        "answer": 0,
+        "explanation": "Verb agrees with the first subject 'She', not with 'friends'."
+    },
+    {
+        "question": "If Rohan had known about the change in exam date, he would not have missed the test.",
+        "options": ["had known", "has known", "knew", "known"],
+        "answer": 0,
+        "explanation": "Third conditional: use past perfect for the if-clause."
+    },
+    {
+        "question": "Despite repeated reminders, many students have not submitted their assignments yet.",
+        "options": ["have not submitted", "has not submitted", "were not submitted", "was not submitted"],
+        "answer": 0,
+        "explanation": "Plural subject 'students' requires plural present perfect 'have'."
+    },
+    {
+        "question": "She prefers coffee to tea, doesn't she?",
+        "options": ["doesn't she", "does she", "isn't she", "is she"],
+        "answer": 0,
+        "explanation": "Affirmative sentence 'prefers' takes negative question tag."
+    },
+    {
+        "question": "There are fewer opportunities for graduates now than there were a decade ago.",
+        "options": ["fewer opportunities", "less opportunities", "fewest opportunities", "lesser opportunities"],
+        "answer": 0,
+        "explanation": "Use 'fewer' with countable nouns like 'opportunities'."
+    },
+    {
+        "question": "He denied having stolen the important documents from the office.",
+        "options": ["denied having stolen", "denied to have stolen", "denied to steal", "denied stole"],
+        "answer": 0,
+        "explanation": "'Denied' is followed by gerund or perfect participle."
+    },
+    {
+        "question": "The principal, along with the teachers, addresses the students every morning during assembly.",
+        "options": ["addresses", "address", "addressed", "addressing"],
+        "answer": 0,
+        "explanation": "Singular verb agrees with principal, the main subject."
+    },
+    {
+        "question": "She is not only talented but also hardworking, isn't she?",
+        "options": ["isn't she", "is she", "hasn't she", "has she"],
+        "answer": 0,
+        "explanation": "Negative sentence requires negative question tag."
+    },
+    {
+        "question": "No sooner had I reached home than it started raining heavily.",
+        "options": ["No sooner had I reached home", "No sooner I reached home", "No sooner I have reached home", "No sooner did I reached home"],
+        "answer": 0,
+        "explanation": "Correct correlation: 'No sooner had...than...' with inversion."
+    },
+    {
+        "question": "Each of the candidates has submitted his or her response sheet for evaluation.",
+        "options": ["has submitted", "have submitted", "is submitted", "were submitted"],
+        "answer": 0,
+        "explanation": "Each—singular subject, use singular verb 'has'."
+    },
+    {
+        "question": "Rarely do students get a second chance to improve their examination results.",
+        "options": ["do students get", "students get", "does students get", "get students"],
+        "answer": 0,
+        "explanation": "Inversion required after negative adverb at the beginning."
+    },
+    {
+        "question": "If she studies harder, she will easily clear the SSC exam.",
+        "options": ["studies", "study", "studied", "studying"],
+        "answer": 0,
+        "explanation": "First conditional, use present tense in 'if' clause."
+    },
+    {
+        "question": "No other student in the class is as intelligent as Radha.",
+        "options": ["is as intelligent as Radha", "is so intelligent as Radha", "are as intelligent as Radha", "was as intelligent as Radha"],
+        "answer": 0,
+        "explanation": "Correct comparative positive degree structure."
+    },
+    {
+        "question": "The board has announced that candidates who pass the written exam will only qualify for the interview round.",
+        "options": ["will only qualify", "only will qualify", "will qualify only", "will be only qualify"],
+        "answer": 0,
+        "explanation": "Placement of 'only' is correct when referring to the verb."
+    },
+    {
+        "question": "Seldom have so many candidates performed so well in the history of this examination.",
+        "options": ["Seldom have so many candidates performed", "Seldom so many candidates have performed", "Seldom candidates have performed", "Seldom have performed so many candidates"],
+        "answer": 0,
+        "explanation": "Inversion after seldom at the start is required."
+    },
+    {
+        "question": "He not only won the scholarship but also achieved the highest marks in his class.",
+        "options": ["not only won...but also achieved", "not only win...but also achieved", "not only won...but also achieve", "not only wins...but also achieves"],
+        "answer": 0,
+        "explanation": "'Not only...but also' should maintain parallel structure, both verbs in same tense."
+    },
+    {
+        "question": "Having completed the assigned tasks, she decided to study for her competitive exams.",
+        "options": ["Having completed", "Completing", "Been completed", "Having been completed"],
+        "answer": 0,
+        "explanation": "Perfect participle indicates completed action before another."
+    },
+    {
+        "question": "He is senior to all the other officers in the department.",
+        "options": ["senior to", "seniors to", "senior than", "senior from"],
+        "answer": 0,
+        "explanation": "'Senior to' is correct comparative structure."
+    },
+    {
+        "question": "Scarcely had the test begun when the students started writing their answers.",
+        "options": ["Scarcely had the test begun", "Scarcely the test had begun", "Scarcely had begun the test", "Scarcely the test begun"],
+        "answer": 0,
+        "explanation": "Inversion after 'scarcely' at the start."
+    },
+    {
+        "question": "He is accustomed to rising early every morning.",
+        "options": ["accustomed to", "accustomed with", "accustomed at", "accustomed for"],
+        "answer": 0,
+        "explanation": "Correct idiom: 'accustomed to'."
+    },
+    {
+        "question": "She was prevented from entering the examination hall due to late arrival.",
+        "options": ["prevented from entering", "prevented to entering", "prevented for entering", "prevented by entering"],
+        "answer": 0,
+        "explanation": "'Prevented from' is correct usage."
+    },
+    {
+        "question": "Either the teacher or the students have misplaced the answer sheets.",
+        "options": ["have misplaced", "has misplaced", "was misplaced", "were misplaced"],
+        "answer": 0,
+        "explanation": "Verb agrees with closer subject, 'students'."
+    },
+    {
+        "question": "He objected to my proposal of changing the examination timings.",
+        "options": ["objected to my proposal", "objected at my proposal", "objected on my proposal", "objected for my proposal"],
+        "answer": 0,
+        "explanation": "Correct preposition: 'object to'."
+    },
+    {
+        "question": "She is capable of handling complex problems during computer-based tests.",
+        "options": ["capable of handling", "capable for handling", "capable to handle", "capable in handling"],
+        "answer": 0,
+        "explanation": "'Capable of' is the proper phrase."
+    },
+    {
+        "question": "He was congratulated on his success in SSC CGL by his friends.",
+        "options": ["congratulated on his success", "congratulated for his success", "congratulated at his success", "congratulated to his success"],
+        "answer": 0,
+        "explanation": "Correct expression: 'congratulated on'."
+    },
+    {
+        "question": "I look forward to meeting you at the OSSC examination center.",
+        "options": ["meeting you", "meet you", "to meet you", "meeting with you"],
+        "answer": 0,
+        "explanation": "'Look forward to' is followed by gerund."
+    },
+    {
+        "question": "The instructions given by the examiner must be followed precisely to avoid disqualification.",
+        "options": ["must be followed precisely", "must precisely be followed", "must followed precisely", "must be precisely follow"],
+        "answer": 0,
+        "explanation": "Modal + passive in formal instructions."
+    },
+    {
+        "question": "Applicants should fill in all the required details accurately while filling out the application form.",
+        "options": ["fill in all the required details accurately", "fill up all the required details accurately", "fill all the required details accurately", "fills in all the required details accurately"],
+        "answer": 0,
+        "explanation": "'Fill in' is the correct phrasal verb for forms."
+    },
+    {
+        "question": "He is good at solving reasoning puzzles often asked in competitive examinations.",
+        "options": ["good at solving", "good in solving", "good to solve", "good of solving"],
+        "answer": 0,
+        "explanation": "'Good at' with abilities/skills."
+    },
+    {
+        "question": "The board has decided not to entertain any requests for revaluation after the publication of final exam results.",
+        "options": ["not to entertain", "cannot entertain", "do not entertain", "does not entertain"],
+        "answer": 0,
+        "explanation": "Negative infinitive 'not to entertain' after 'decided'."
+    },
+    {
+        "question": "If you practice regularly, your chances of qualifying exams will increase considerably.",
+        "options": ["practice regularly", "practices regularly", "practiced regularly", "practicing regularly"],
+        "answer": 0,
+        "explanation": "Simple present in first conditional."
+    },
+    {
+        "question": "My cousin gave me good advice regarding preparation for government exams.",
+        "options": ["good advice", "good advices", "good advise", "good advising"],
+        "answer": 0,
+        "explanation": "'Advice' is uncountable."
+    },
+    {
+        "question": "Students must not write anything on the question paper except their roll number if permitted.",
+        "options": ["must not write", "must not to write", "should not write", "mustn't write"],
+        "answer": 0,
+        "explanation": "Modal + bare verb for prohibition."
+    },
+    {
+        "question": "The invigilator ensured that no student left the hall until the exam was over.",
+        "options": ["left the hall until", "left the hall till", "leave the hall until", "left the hall than"],
+        "answer": 0,
+        "explanation": "'Until' is correct time expression."
+    },
+    {
+        "question": "If a candidate does not bring the admit card, he or she will not be allowed to appear for the test.",
+        "options": ["will not be allowed", "will not allowed", "will not allow", "will not be allowing"],
+        "answer": 0,
+        "explanation": "Modal + passive is correct for instructions."
+    },
+    {
+        "question": "He succeeded in clearing all sections of the OPSC ASO exam with high scores.",
+        "options": ["succeeded in clearing", "succeeded for clearing", "succeeded to clear", "succeeded on clearing"],
+        "answer": 0,
+        "explanation": "Correct verb-preposition: 'succeeded in'."
+    },
+	  {
+        "question": "Neither the students nor the teacher _____ aware of the schedule change announced yesterday.",
+        "options": ["is", "are", "were", "be"],
+        "answer": 0,
+        "explanation": "Verb agrees with nearest subject, here 'teacher' which is singular."
+    },
+    {
+        "question": "She _____ to the office every day, despite the heavy rain yesterday.",
+        "options": ["go", "goes", "went", "going"],
+        "answer": 2,
+        "explanation": "Past tense 'went' is used for completed actions in the past."
+    },
+    {
+        "question": "If he _____ earlier, he would have completed the assignment on time.",
+        "options": ["comes", "came", "had come", "will come"],
+        "answer": 2,
+        "explanation": "Third conditional uses past perfect in 'if' clause for unreal past."
+    },
+    {
+        "question": "The teacher advised the students _____ more attention to grammar rules.",
+        "options": ["pay", "to pay", "paying", "paid"],
+        "answer": 1,
+        "explanation": "'Advise' is followed by infinitive 'to pay' in affirmative sentences."
+    },
+    {
+        "question": "He has been absent from the classes _____ last Monday.",
+        "options": ["for", "since", "from", "by"],
+        "answer": 1,
+        "explanation": "'Since' is used with a point of time."
+    },
+    {
+        "question": "They are looking forward _____ the results of the competitive exam next week.",
+        "options": ["to announce", "to announcing", "to be announced", "to announce"],
+        "answer": 1,
+        "explanation": "'Look forward to' is followed by gerund 'announcing.'"
+    },
+    {
+        "question": "The report submitted yesterday by Ramesh and his colleagues _____ approved by the committee.",
+        "options": ["has", "have", "was", "were"],
+        "answer": 1,
+        "explanation": "Plural subject 'Ramesh and his colleagues' requires plural verb."
+    },
+    {
+        "question": "It is important that every candidate _____ the exam instructions carefully.",
+        "options": ["read", "reads", "reading", "has read"],
+        "answer": 0,
+        "explanation": "Subjunctive mood uses base form 'read' after expressions of importance."
+    },
+    {
+        "question": "She sings _____ than anyone else in the choir.",
+        "options": ["better", "best", "more better", "more best"],
+        "answer": 0,
+        "explanation": "'Better' is the correct comparative form."
+    },
+    {
+        "question": "The candidates were allowed to leave the examination hall _____ the official announcement.",
+        "options": ["after", "before", "until", "unless"],
+        "answer": 0,
+        "explanation": "'After' indicates a sequence of events."
+    },
+    {
+        "question": "Hardly _____ the exam begun when the power cut off unexpectedly.",
+        "options": ["had", "has", "have", "was"],
+        "answer": 0,
+        "explanation": "With 'hardly', past perfect 'had' is used for inversion."
+    },
+    {
+        "question": "Each participant _____ responsible for submitting their own answer sheet.",
+        "options": ["is", "are", "were", "be"],
+        "answer": 0,
+        "explanation": "'Each' is singular and takes a singular verb."
+    },
+    {
+        "question": "She _____ to the principal regarding the errors found in her exam paper.",
+        "options": ["has complained", "have complained", "had complained", "complained"],
+        "answer": 0,
+        "explanation": "Singular subject 'she' requires 'has'."
+    },
+    {
+        "question": "By the time the results were announced, most candidates _____ submitted their documents for verification.",
+        "options": ["had", "have", "has", "was"],
+        "answer": 0,
+        "explanation": "Past perfect 'had' shows an action completed before another past event."
+    },
+    {
+        "question": "Both the questions and the instructions _____ clear and easy to understand.",
+        "options": ["was", "were", "is", "are"],
+        "answer": 1,
+        "explanation": "Compound subject joined by 'and' takes plural verb."
+    },
+    {
+        "question": "If you _____ the sample papers regularly, your score will improve significantly.",
+        "options": ["practice", "practiced", "practices", "practicing"],
+        "answer": 0,
+        "explanation": "First conditional uses present tense after 'if'."
+    },
+    {
+        "question": "He is better prepared for the exam than he was _____ last year.",
+        "options": ["before", "earlier", "than", "so"],
+        "answer": 0,
+        "explanation": "'Better than before' is the correct comparative phrase."
+    },
+    {
+        "question": "The number of candidates appearing for the exam _____ increased significantly this year.",
+        "options": ["has", "have", "were", "are"],
+        "answer": 0,
+        "explanation": "'Number' is singular, takes singular verb."
+    },
+    {
+        "question": "She works hard, _____ her efforts have not yet been recognized by the management.",
+        "options": ["but", "and", "so", "or"],
+        "answer": 0,
+        "explanation": "'But' is used to show contrast."
+    },
+    {
+        "question": "No sooner _____ the announcement made than the students began to prepare for the exam.",
+        "options": ["was", "were", "had", "has"],
+        "answer": 2,
+        "explanation": "'No sooner' requires past perfect tense and inversion."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

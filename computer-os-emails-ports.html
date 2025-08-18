@@ -1,0 +1,2423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS & Emails & Port Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">OS & Emails & Port</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+	 {
+        "question": "What does OS stand for?",
+        "options": ["Operating System", "Open Software", "Online Service", "Optical Storage"],
+        "answer": 0,
+        "explanation": "OS stands for Operating System, which manages computer hardware and software."
+    },
+    {
+        "question": "Which folder stores received emails?",
+        "options": ["Inbox", "Sent", "Drafts", "Trash"],
+        "answer": 0,
+        "explanation": "The Inbox folder contains all incoming emails."
+    },
+    {
+        "question": "Which operating system is made by Microsoft?",
+        "options": ["Windows", "Linux", "macOS", "Android"],
+        "answer": 0,
+        "explanation": "Windows is the operating system developed by Microsoft."
+    },
+    {
+        "question": "In email, what does CC stand for?",
+        "options": ["Carbon Copy", "Central Code", "Common Contact", "Critical Copy"],
+        "answer": 0,
+        "explanation": "CC means Carbon Copy, used to send a copy of an email to additional recipients."
+    },
+    {
+        "question": "Which key opens the Start Menu in Windows?",
+        "options": ["Windows key", "Shift", "Ctrl", "Alt"],
+        "answer": 0,
+        "explanation": "The Windows key opens the Start Menu."
+    },
+    {
+        "question": "What is the function of the Recycle Bin in Windows?",
+        "options": ["Temporarily stores deleted files", "Runs applications", "Manages printers", "Stores passwords"],
+        "answer": 0,
+        "explanation": "Recycle Bin holds deleted files until permanently removed."
+    },
+    {
+        "question": "Which email field hides recipients from others?",
+        "options": ["Bcc", "To", "Cc", "Subject"],
+        "answer": 0,
+        "explanation": "Bcc hides email addresses from other recipients."
+    },
+    {
+        "question": "Which operating system is used on Apple iPhones?",
+        "options": ["iOS", "Windows", "Android", "Linux"],
+        "answer": 0,
+        "explanation": "iOS is Apple's mobile operating system."
+    },
+    {
+        "question": "Which button refreshes a webmail inbox?",
+        "options": ["Refresh icon", "Compose button", "Reply button", "Delete button"],
+        "answer": 0,
+        "explanation": "Clicking the refresh icon loads new messages."
+    },
+    {
+        "question": "What does the 'To' field in an email indicate?",
+        "options": ["Primary recipient", "Secondary recipient", "Hidden recipient", "File name"],
+        "answer": 0,
+        "explanation": "The 'To' field contains the email addresses of primary recipients."
+    },
+    {
+        "question": "Which OS feature allows multiple programs to run?",
+        "options": ["Multitasking", "Formatting", "Defragmentation", "Updating"],
+        "answer": 0,
+        "explanation": "Multitasking allows several applications to work at once."
+    },
+    {
+        "question": "Which protocol is used to send emails?",
+        "options": ["SMTP", "IMAP", "POP3", "FTP"],
+        "answer": 0,
+        "explanation": "SMTP is used for sending outgoing emails."
+    },
+    {
+        "question": "Where do deleted emails generally go first?",
+        "options": ["Trash/Deleted Items", "Inbox", "Drafts", "Spam"],
+        "answer": 0,
+        "explanation": "Deleted emails move to Trash or Deleted Items before permanent removal."
+    },
+    {
+        "question": "What is the default file system in modern Windows?",
+        "options": ["NTFS", "FAT32", "ext4", "APFS"],
+        "answer": 0,
+        "explanation": "NTFS is the default file system for modern Windows."
+    },
+    {
+        "question": "Which email service is provided by Google?",
+        "options": ["Gmail", "Yahoo Mail", "Outlook", "ProtonMail"],
+        "answer": 0,
+        "explanation": "Gmail is Google's email service."
+    },
+    {
+        "question": "What is the use of the 'Send' button in email?",
+        "options": ["Sends the composed message", "Opens inbox", "Deletes message", "Saves as draft"],
+        "answer": 0,
+        "explanation": "Send dispatches your message to the recipients."
+    },
+    {
+        "question": "Which shortcut opens File Explorer in Windows?",
+        "options": ["Windows + E", "Ctrl + E", "Alt + E", "Shift + E"],
+        "answer": 0,
+        "explanation": "Press Windows key + E to open the File Explorer."
+    },
+    {
+        "question": "Which OS is free and open source?",
+        "options": ["Linux", "Windows", "macOS", "iOS"],
+        "answer": 0,
+        "explanation": "Linux is free, open-source, and community-developed."
+    },
+    {
+        "question": "What is stored in the 'Sent Items' folder?",
+        "options": ["Copies of sent emails", "Draft emails", "Spam emails", "Received emails"],
+        "answer": 0,
+        "explanation": "Sent Items keeps copies of all messages you've sent."
+    },
+    {
+        "question": "What is a 'Username' in an email address?",
+        "options": ["The part before '@'", "The part after '@'", "The domain name", "The password"],
+        "answer": 0,
+        "explanation": "The username comes before the '@' symbol."
+    },
+    {
+        "question": "Which button starts a new email message?",
+        "options": ["Compose", "Reply", "Forward", "Delete"],
+        "answer": 0,
+        "explanation": "Compose starts writing a new email."
+    },
+    {
+        "question": "What is the function of Sleep mode in Windows?",
+        "options": ["Saves current session to memory and reduces power use", "Shuts down PC", "Restarts PC", "Deletes temporary files"],
+        "answer": 0,
+        "explanation": "Sleep mode pauses work and saves it in memory."
+    },
+    {
+        "question": "What does GUI stand for?",
+        "options": ["Graphical User Interface", "General Utility Interface", "Graphical Unified Input", "Global User Integration"],
+        "answer": 0,
+        "explanation": "GUI enables interaction through visual elements like icons and menus."
+    },
+    {
+        "question": "Which key combination is used to copy selected text?",
+        "options": ["Ctrl + C", "Ctrl + V", "Ctrl + X", "Ctrl + Z"],
+        "answer": 0,
+        "explanation": "Ctrl+C copies the selected text to the clipboard."
+    },
+    {
+        "question": "What is the primary function of spam filters?",
+        "options": ["Block unwanted emails", "Send newsletters", "Backup emails", "Encrypt attachments"],
+        "answer": 0,
+        "explanation": "Spam filters detect and block unwanted emails."
+    },
+    {
+        "question": "Which OS comes pre-installed on most Mac computers?",
+        "options": ["macOS", "Windows", "Linux", "ChromeOS"],
+        "answer": 0,
+        "explanation": "Apple's macOS is pre-installed on Mac computers."
+    },
+    {
+        "question": "In email, what is an attachment?",
+        "options": ["A file sent along with the message", "The sender's name", "A signature", "Spam"],
+        "answer": 0,
+        "explanation": "Attachments are files included inside the email."
+    },
+    {
+        "question": "Which protocol retrieves email messages and keeps them on the server?",
+        "options": ["IMAP", "POP3", "SMTP", "FTP"],
+        "answer": 0,
+        "explanation": "IMAP retrieves and syncs emails while keeping them stored on the server."
+    },
+    {
+        "question": "What is the full form of Bcc in email?",
+        "options": ["Blind Carbon Copy", "Basic Copy", "Backup Carbon Copy", "Background Copy"],
+        "answer": 0,
+        "explanation": "Bcc hides recipients from each other."
+    },
+    {
+        "question": "Which OS menu provides quick access to installed programs?",
+        "options": ["Start Menu", "Control Panel", "Recycle Bin", "Taskbar"],
+        "answer": 0,
+        "explanation": "The Start Menu displays installed programs for easy access."
+    },
+    {
+        "question": "What does 'Reply' in email do?",
+        "options": ["Respond to the sender", "Send to all recipients", "Forward message", "Delete message"],
+        "answer": 0,
+        "explanation": "Reply sends your response to only the original sender."
+    },
+    {
+        "question": "Which shortcut is used to paste copied text?",
+        "options": ["Ctrl + V", "Ctrl + C", "Ctrl + X", "Ctrl + Z"],
+        "answer": 0,
+        "explanation": "Ctrl+V pastes the last copied/cut item."
+    },
+    {
+        "question": "Which application is an example of an email client?",
+        "options": ["Microsoft Outlook", "MS Paint", "Calculator", "Notepad"],
+        "answer": 0,
+        "explanation": "Microsoft Outlook is used to send, receive, and manage emails."
+    },
+    {
+        "question": "What is the name of the row of icons at the bottom of macOS by default?",
+        "options": ["Dock", "Taskbar", "Toolbar", "Ribbon"],
+        "answer": 0,
+        "explanation": "The Dock in macOS provides quick access to apps and folders."
+    },
+    {
+        "question": "What does the Undo command do?",
+        "options": ["Reverses the last action", "Deletes all files", "Reopens closed files", "Saves document"],
+        "answer": 0,
+        "explanation": "Undo reverts your last change to the file or document."
+    },
+    {
+        "question": "Which email folder stores promotional and marketing emails in Gmail?",
+        "options": ["Promotions", "Primary", "Social", "Spam"],
+        "answer": 0,
+        "explanation": "Gmail automatically categorizes such emails into the Promotions tab."
+    },
+    {
+        "question": "In Windows, which program manages file viewing and navigation?",
+        "options": ["File Explorer", "Task Manager", "Device Manager", "Notepad"],
+        "answer": 0,
+        "explanation": "File Explorer lets users access directories and files."
+    },
+    {
+        "question": "Which mobile operating system is most widely used worldwide?",
+        "options": ["Android", "iOS", "Windows Mobile", "Symbian"],
+        "answer": 0,
+        "explanation": "Android has the largest global mobile OS market share."
+    },
+    {
+        "question": "What is the main function of the OS kernel?",
+        "options": ["Manage core system resources", "Design application icons", "Create documents", "Send emails"],
+        "answer": 0,
+        "explanation": "The kernel controls CPU, memory, and device operations."
+    },
+    {
+        "question": "Which button is clicked to send a reply to all recipients in an email?",
+        "options": ["Reply All", "Reply", "Forward", "Compose"],
+        "answer": 0,
+        "explanation": "Reply All sends your reply to everyone who received the original email."
+    },
+    {
+        "question": "What is the benefit of using cloud-based email?",
+        "options": ["Access from any device with internet", "Only works offline", "Uses floppy disk storage", "No login needed"],
+        "answer": 0,
+        "explanation": "Cloud email is accessible from any internet-enabled device."
+    },
+    {
+        "question": "Which OS function allocates CPU time to processes?",
+        "options": ["Scheduling", "Formatting", "Clustering", "Debugging"],
+        "answer": 0,
+        "explanation": "Scheduling decides which process runs on the CPU and for how long."
+    },
+    {
+        "question": "Where are unsent draft messages stored?",
+        "options": ["Drafts folder", "Inbox", "Sent", "Spam"],
+        "answer": 0,
+        "explanation": "Drafts folder holds unfinished or unsent messages."
+    },
+    {
+        "question": "What does Ctrl + X do?",
+        "options": ["Cuts selected item", "Copies text", "Pastes text", "Deletes file permanently"],
+        "answer": 0,
+        "explanation": "Ctrl+X removes the selection and places it on the clipboard."
+    },
+    {
+        "question": "Which button in email forwards the message to new recipients?",
+        "options": ["Forward", "Reply", "Compose", "Delete"],
+        "answer": 0,
+        "explanation": "Forward sends a received email to someone else."
+    },
+	{
+        "question": "Which program checks emails on the server and downloads them to your device?",
+        "options": ["Email client", "Web browser", "Antivirus", "Task Manager"],
+        "answer": 0,
+        "explanation": "An email client like Outlook or Thunderbird retrieves and manages your emails."
+    },
+    {
+        "question": "In Windows, which icon lets you quickly adjust the system volume?",
+        "options": ["Speaker icon", "Battery icon", "Clock", "Search"],
+        "answer": 0,
+        "explanation": "The speaker icon in the system tray allows you to change volume settings."
+    },
+    {
+        "question": "What is stored in the OS 'Clipboard'?",
+        "options": ["Copied or cut items", "System logs", "Temporary files", "Application settings"],
+        "answer": 0,
+        "explanation": "Clipboard temporarily stores data that you copy or cut for pasting."
+    },
+    {
+        "question": "In an email, what is the purpose of the 'Subject' line?",
+        "options": ["Summarizes the content of the email", "Stores attachments", "Indicates sender", "Marks importance"],
+        "answer": 0,
+        "explanation": "The subject line tells the recipient the main topic of the email."
+    },
+    {
+        "question": "Which folder permanently deletes messages when emptied?",
+        "options": ["Trash/Deleted Items", "Inbox", "Spam", "Drafts"],
+        "answer": 0,
+        "explanation": "Messages in Trash are permanently removed when the folder is emptied."
+    },
+    {
+        "question": "What does Ctrl + P generally do in most applications?",
+        "options": ["Opens print dialog", "Opens a new file", "Copies content", "Closes program"],
+        "answer": 0,
+        "explanation": "Ctrl+P opens the print dialog to print the current document."
+    },
+    {
+        "question": "Which OS is developed by Google for smartphones?",
+        "options": ["Android", "iOS", "Windows Mobile", "Symbian"],
+        "answer": 0,
+        "explanation": "Android is Google’s mobile operating system."
+    },
+    {
+        "question": "What is the main function of a 'Reply' button in an email?",
+        "options": ["Send a response to the sender", "Send to all contacts", "Forward to another person", "Delete the email"],
+        "answer": 0,
+        "explanation": "Reply sends your message only to the original sender."
+    },
+    {
+        "question": "In Windows, which area shows time and quick access icons?",
+        "options": ["Taskbar system tray", "Desktop", "File Explorer", "Control Panel"],
+        "answer": 0,
+        "explanation": "The system tray on the taskbar displays the clock, volume, and other quick tools."
+    },
+    {
+        "question": "Which protocol downloads emails but removes them from the server by default?",
+        "options": ["POP3", "IMAP", "SMTP", "MIME"],
+        "answer": 0,
+        "explanation": "POP3 downloads emails and usually deletes them from the server afterward."
+    },
+    {
+        "question": "What is the function of the 'Compose' button in email?",
+        "options": ["Starts creating a new email", "Opens inbox", "Deletes selected email", "Archives email"],
+        "answer": 0,
+        "explanation": "Compose opens a blank email form to write a new message."
+    },
+    {
+        "question": "Which key combination is used to select all content?",
+        "options": ["Ctrl + A", "Ctrl + C", "Ctrl + V", "Ctrl + S"],
+        "answer": 0,
+        "explanation": "Ctrl+A highlights or selects all content in a window or document."
+    },
+    {
+        "question": "Which program is an example of a communication tool?",
+        "options": ["Zoom", "Paint", "Notepad", "Calculator"],
+        "answer": 0,
+        "explanation": "Zoom allows video and audio communication over the internet."
+    },
+    {
+        "question": "In OS, what is 'Login' used for?",
+        "options": ["Accessing the computer with a user account", "Sending an email", "Browsing websites", "Closing a program"],
+        "answer": 0,
+        "explanation": "Login verifies user credentials to grant access to the system."
+    },
+    {
+        "question": "What does the 'Send' button do in chat apps?",
+        "options": ["Sends your typed message", "Opens file explorer", "Downloads updates", "Opens settings"],
+        "answer": 0,
+        "explanation": "Send dispatches your message to the chat recipient."
+    },
+    {
+        "question": "Which file name extension is common for email backup in Outlook?",
+        "options": [".pst", ".jpg", ".docx", ".xls"],
+        "answer": 0,
+        "explanation": ".pst files store Outlook emails, contacts, and calendar data."
+    },
+    {
+        "question": "Which component of Windows displays minimized applications?",
+        "options": ["Taskbar", "Start Menu", "Recycle Bin", "Toolbar"],
+        "answer": 0,
+        "explanation": "The taskbar shows open and minimized programs for easy switching."
+    },
+    {
+        "question": "Which type of OS is designed for mobile phones?",
+        "options": ["Mobile OS", "Network OS", "Batch OS", "Embedded OS"],
+        "answer": 0,
+        "explanation": "Mobile OS like Android and iOS are optimized for smartphones."
+    },
+    {
+        "question": "What is the function of the Zoom 'Mute' button?",
+        "options": ["Turns off your microphone", "Ends meeting", "Switches off camera", "Logs you out"],
+        "answer": 0,
+        "explanation": "Mute stops audio transmission from your microphone."
+    },
+    {
+        "question": "Which email folder stores messages marked as unwanted?",
+        "options": ["Spam", "Inbox", "Trash", "Drafts"],
+        "answer": 0,
+        "explanation": "Spam folder holds suspected unwanted emails."
+    },
+    {
+        "question": "What does Ctrl + S do?",
+        "options": ["Saves the current document", "Starts a new file", "Searches text", "Shuts down computer"],
+        "answer": 0,
+        "explanation": "Ctrl+S saves changes to the current document or file."
+    },
+    {
+        "question": "Which icon represents deleted files in Windows?",
+        "options": ["Recycle Bin", "My Computer", "Control Panel", "Network"],
+        "answer": 0,
+        "explanation": "Recycle Bin stores deleted files for recovery or permanent deletion."
+    },
+    {
+        "question": "What does the OS 'Search' function allow you to do?",
+        "options": ["Find files, apps, or settings", "Shut down computer", "Install updates", "Increase volume"],
+        "answer": 0,
+        "explanation": "Search helps quickly locate files, applications, or settings."
+    },
+    {
+        "question": "Which device is needed to connect to the internet via telephone lines?",
+        "options": ["Modem", "Switch", "Printer", "Scanner"],
+        "answer": 0,
+        "explanation": "A modem converts digital computer signals into signals suitable for phone lines."
+    },
+    {
+        "question": "What does Ctrl + Z do?",
+        "options": ["Undo last action", "Redo", "Zoom out", "Exit"],
+        "answer": 0,
+        "explanation": "Ctrl+Z undoes the last performed action."
+    },
+    {
+        "question": "Which menu in Windows lets you access installed programs quickly?",
+        "options": ["Start Menu", "Recycle Bin", "File Explorer", "Notification Area"],
+        "answer": 0,
+        "explanation": "Start Menu provides access to installed programs."
+    },
+    {
+        "question": "In emails, which option sends your reply to all recipients?",
+        "options": ["Reply All", "Reply", "Forward", "Compose"],
+        "answer": 0,
+        "explanation": "Reply All sends your response to everyone addressed in the original email."
+    },
+    {
+        "question": "Which OS is pre-installed on most Android smartphones?",
+        "options": ["Android", "iOS", "Windows", "KaiOS"],
+        "answer": 0,
+        "explanation": "Android OS comes pre-installed on most non‑Apple smartphones."
+    },
+    {
+        "question": "What does 'BCC' mean in email?",
+        "options": ["Blind Carbon Copy", "Backup Copy", "Best Client Copy", "Basic Copy"],
+        "answer": 0,
+        "explanation": "BCC hides recipients from each other."
+    },
+    {
+        "question": "Which toolbar provides shortcuts to frequently used commands in Windows apps?",
+        "options": ["Quick Access Toolbar", "Status Bar", "Sidebar", "Menu Bar"],
+        "answer": 0,
+        "explanation": "Quick Access Toolbar holds icons for common commands."
+    },
+    {
+        "question": "In Gmail, what does 'Archive' do?",
+        "options": ["Removes from inbox but keeps in All Mail", "Deletes email", "Marks as spam", "Forwards email"],
+        "answer": 0,
+        "explanation": "Archive hides the email from inbox but preserves it in All Mail."
+    },
+    {
+        "question": "What is the part after '@' in an email address called?",
+        "options": ["Domain name", "Username", "Inbox", "Provider ID"],
+        "answer": 0,
+        "explanation": "The domain name is the part following the '@' symbol."
+    },
+    {
+        "question": "What does Ctrl + C do?",
+        "options": ["Copies selected text or file", "Cuts text", "Pastes text", "Selects all"],
+        "answer": 0,
+        "explanation": "Ctrl+C copies the selected content to the clipboard."
+    },
+    {
+        "question": "Which Windows tool shows running programs and allows ending them?",
+        "options": ["Task Manager", "File Explorer", "Control Panel", "Event Viewer"],
+        "answer": 0,
+        "explanation": "Task Manager displays active processes and lets you stop them."
+    },
+    {
+        "question": "Which OS uses the Finder application for file management?",
+        "options": ["macOS", "Windows", "Linux", "Android"],
+        "answer": 0,
+        "explanation": "Finder is the file management app in macOS."
+    },
+    {
+        "question": "Which email button creates a copy of a received email to send to another person?",
+        "options": ["Forward", "Reply", "Compose", "Delete"],
+        "answer": 0,
+        "explanation": "Forward sends the same message to another recipient."
+    },
+    {
+        "question": "What does Ctrl + X do?",
+        "options": ["Cuts the selected item", "Copies text", "Pastes text", "Selects all"],
+        "answer": 0,
+        "explanation": "Ctrl+X removes selected content and places it on the clipboard."
+    },
+    {
+        "question": "Which control in video calls disables your camera?",
+        "options": ["Camera icon", "Microphone icon", "End Call", "Share Screen"],
+        "answer": 0,
+        "explanation": "Clicking the camera icon turns off your video feed."
+    },
+    {
+        "question": "What is the name for junk or unsolicited email?",
+        "options": ["Spam", "Draft", "Forward", "Bcc"],
+        "answer": 0,
+        "explanation": "Spam refers to unwanted or irrelevant emails."
+    },
+    {
+        "question": "In Windows, where are system settings mainly managed?",
+        "options": ["Control Panel / Settings", "Recycle Bin", "File Explorer", "Task Scheduler"],
+        "answer": 0,
+        "explanation": "Control Panel and Settings app contain key system configuration tools."
+    },
+    {
+        "question": "Which OS is popular for desktop gaming?",
+        "options": ["Windows", "Linux", "macOS", "ChromeOS"],
+        "answer": 0,
+        "explanation": "Windows supports a vast majority of PC games and gaming hardware."
+    },
+    {
+        "question": "What is the 'Inbox' used for in email?",
+        "options": ["Store received messages", "Hold sent mail copies", "Store deleted mail", "Archive old messages"],
+        "answer": 0,
+        "explanation": "Inbox stores newly received messages."
+    },
+	{
+        "question": "Which operating system is developed by Apple for Mac computers?",
+        "options": ["macOS", "Windows", "Linux", "ChromeOS"],
+        "answer": 0,
+        "explanation": "macOS is Apple’s official operating system for Mac computers."
+    },
+    {
+        "question": "Which email folder stores a copy of messages you have sent?",
+        "options": ["Sent Items", "Inbox", "Spam", "Drafts"],
+        "answer": 0,
+        "explanation": "Sent Items keeps copies of all successfully sent messages."
+    },
+    {
+        "question": "In Windows, which shortcut key locks the computer?",
+        "options": ["Windows + L", "Ctrl + L", "Alt + L", "Shift + L"],
+        "answer": 0,
+        "explanation": "Windows + L locks the screen immediately."
+    },
+    {
+        "question": "What is the main function of the 'Spam' folder in email?",
+        "options": ["Store unwanted emails", "Store deleted files", "Store drafts", "Store backups"],
+        "answer": 0,
+        "explanation": "Spam folder automatically collects junk or suspicious emails."
+    },
+    {
+        "question": "Which OS is most popular for web servers?",
+        "options": ["Linux", "Windows", "iOS", "Android"],
+        "answer": 0,
+        "explanation": "Linux is widely used for running web servers due to security and stability."
+    },
+    {
+        "question": "What does the 'Forward' button do in email?",
+        "options": ["Send a received email to another recipient", "Reply to all", "Delete message", "Open attachment"],
+        "answer": 0,
+        "explanation": "Forward creates a copy of an email and sends it to new recipients."
+    },
+    {
+        "question": "Which key is used to refresh a page or email inbox?",
+        "options": ["F5", "F1", "F11", "F9"],
+        "answer": 0,
+        "explanation": "Pressing F5 refreshes the display to show the latest data."
+    },
+    {
+        "question": "What is an 'Attachment' in email?",
+        "options": ["A file sent with the email", "Sender’s name", "CC field", "Spam email"],
+        "answer": 0,
+        "explanation": "Attachment is any file included with an email."
+    },
+    {
+        "question": "Which operating system is open source?",
+        "options": ["Linux", "Windows", "macOS", "iOS"],
+        "answer": 0,
+        "explanation": "Linux source code is open and free to modify."
+    },
+    {
+        "question": "Which email field is for the primary recipient?",
+        "options": ["To", "Cc", "Bcc", "Subject"],
+        "answer": 0,
+        "explanation": "'To' field contains the primary recipient’s email address."
+    },
+    {
+        "question": "What does Ctrl + V do?",
+        "options": ["Pastes copied content", "Cuts text", "Copies text", "Saves document"],
+        "answer": 0,
+        "explanation": "Ctrl + V pastes the last copied or cut item."
+    },
+    {
+        "question": "Which OS is pre-installed on most laptops and desktops sold by HP, Dell, and Lenovo?",
+        "options": ["Windows", "Linux", "ChromeOS", "Android"],
+        "answer": 0,
+        "explanation": "Most personal computers come with Microsoft Windows pre-installed."
+    },
+    {
+        "question": "In email, which option sends your reply only to the sender?",
+        "options": ["Reply", "Reply All", "Forward", "Draft"],
+        "answer": 0,
+        "explanation": "Reply sends your message just to the original sender."
+    },
+    {
+        "question": "What is the function of the 'Compose' button in Gmail?",
+        "options": ["Create a new email", "Delete current email", "Refresh inbox", "Check spam"],
+        "answer": 0,
+        "explanation": "'Compose' is used to start writing a new email."
+    },
+    {
+        "question": "Which OS function manages storage devices and files?",
+        "options": ["File Management", "Process Scheduling", "User Accounts", "Clipboard"],
+        "answer": 0,
+        "explanation": "File management controls how files are stored, retrieved, and organized."
+    },
+    {
+        "question": "What does the term 'Inbox' mean in email?",
+        "options": ["Folder for received messages", "Folder for sent messages", "Deleted emails", "Draft storage"],
+        "answer": 0,
+        "explanation": "Inbox is the default location for new incoming emails."
+    },
+    {
+        "question": "Which shortcut cuts selected text or file?",
+        "options": ["Ctrl + X", "Ctrl + C", "Ctrl + V", "Ctrl + A"],
+        "answer": 0,
+        "explanation": "Ctrl + X cuts the selected item to move elsewhere."
+    },
+    {
+        "question": "What is the role of an operating system?",
+        "options": ["Manage computer hardware and software", "Send emails", "Design websites", "Edit videos"],
+        "answer": 0,
+        "explanation": "An OS controls computer hardware and software resources."
+    },
+    {
+        "question": "What does the 'Trash' folder in email do?",
+        "options": ["Stores deleted emails until permanent removal", "Stores spam", "Stores sent mail", "Stores drafts"],
+        "answer": 0,
+        "explanation": "Trash holds deleted messages temporarily."
+    },
+    {
+        "question": "Which OS is used in iPads?",
+        "options": ["iPadOS", "Android", "Windows", "Linux"],
+        "answer": 0,
+        "explanation": "iPadOS is Apple’s tablet operating system."
+    },
+    {
+        "question": "What is the role of the 'Send' button?",
+        "options": ["Send the current email to recipients", "Save draft", "Delete draft", "Reply automatically"],
+        "answer": 0,
+        "explanation": "Send delivers your composed email to the recipient."
+    },
+    {
+        "question": "What does Ctrl + A do?",
+        "options": ["Select all content", "Copy text", "Paste text", "Cut text"],
+        "answer": 0,
+        "explanation": "Ctrl + A selects all the text or items in a window."
+    },
+    {
+        "question": "Which OS uses the Start Menu?",
+        "options": ["Windows", "macOS", "Android", "Linux Mint"],
+        "answer": 0,
+        "explanation": "The Start Menu is a trademark UI feature of Windows."
+    },
+    {
+        "question": "In email, what does 'Bcc' do?",
+        "options": ["Send copy to hidden recipients", "Send copy to all visible recipients", "Delete mail", "Forward message"],
+        "answer": 0,
+        "explanation": "Bcc sends copy without displaying addresses to others."
+    },
+    {
+        "question": "Which app is used for video meetings?",
+        "options": ["Zoom", "Photos", "Paint", "WordPad"],
+        "answer": 0,
+        "explanation": "Zoom is widely used for virtual video conferencing."
+    },
+    {
+        "question": "What does Ctrl + C do?",
+        "options": ["Copy selected content", "Paste content", "Cut content", "Undo action"],
+        "answer": 0,
+        "explanation": "Ctrl + C copies the selected text or file."
+    },
+    {
+        "question": "Which folder stores emails with suspicious content?",
+        "options": ["Spam", "Inbox", "Trash", "Drafts"],
+        "answer": 0,
+        "explanation": "Spam folder automatically stores suspicious messages."
+    },
+    {
+        "question": "Which OS is most common on smartphones worldwide?",
+        "options": ["Android", "iOS", "Windows Mobile", "KaiOS"],
+        "answer": 0,
+        "explanation": "Android dominates the global smartphone OS market."
+    },
+    {
+        "question": "What is the function of 'Reply All'?",
+        "options": ["Respond to every recipient of the email", "Reply only to sender", "Forward email", "Delete email"],
+        "answer": 0,
+        "explanation": "Reply All sends your reply to all listed addresses."
+    },
+    {
+        "question": "What does the OS feature 'Search' do?",
+        "options": ["Find files, apps, or information", "Delete files", "Backup files", "Install hardware"],
+        "answer": 0,
+        "explanation": "Search helps you quickly locate files and programs."
+    },
+    {
+        "question": "Which OS function ensures programs do not access unauthorized memory?",
+        "options": ["Memory Protection", "File Compression", "Encryption", "Virtualization"],
+        "answer": 0,
+        "explanation": "Memory protection prevents interference between processes."
+    },
+    {
+        "question": "What is the common domain name for Microsoft email accounts?",
+        "options": ["@outlook.com", "@gmail.com", "@yahoo.com", "@icloud.com"],
+        "answer": 0,
+        "explanation": "Outlook.com is Microsoft’s popular email service."
+    },
+    {
+        "question": "Which shortcut is used to save a document?",
+        "options": ["Ctrl + S", "Ctrl + P", "Ctrl + N", "Ctrl + O"],
+        "answer": 0,
+        "explanation": "Ctrl + S saves the current file."
+    },
+    {
+        "question": "Which OS is designed for Google's Chromebook laptops?",
+        "options": ["ChromeOS", "Windows", "Linux", "macOS"],
+        "answer": 0,
+        "explanation": "ChromeOS is a lightweight OS developed by Google for Chromebooks."
+    },
+    {
+        "question": "Which option in email sends a received message to someone not in the original list?",
+        "options": ["Forward", "Reply", "Compose", "Reply All"],
+        "answer": 0,
+        "explanation": "Forward sends your received message to new recipients."
+    },
+    {
+        "question": "What is the purpose of the OS 'Update' feature?",
+        "options": ["Improve security and add features", "Delete old files", "Increase screen brightness", "Rename files"],
+        "answer": 0,
+        "explanation": "Updates add new features and security patches."
+    },
+    {
+        "question": "Which email field contains additional recipients visible to all?",
+        "options": ["Cc", "Bcc", "To", "Subject"],
+        "answer": 0,
+        "explanation": "Cc adds recipients who will receive a copy and whose addresses are visible to all."
+    },
+    {
+        "question": "Which OS function controls connected printers and displays?",
+        "options": ["Device Management", "File Management", "Security", "User Accounts"],
+        "answer": 0,
+        "explanation": "Device Management handles input/output devices."
+    },
+    {
+        "question": "Which OS icon represents a location for storing and organizing files?",
+        "options": ["Folder", "Recycle Bin", "Taskbar", "Control Panel"],
+        "answer": 0,
+        "explanation": "A folder is a digital container for files."
+    },
+    {
+        "question": "In email, what is a 'Draft'?",
+        "options": ["Unsent saved message", "Spam email", "Received email", "Deleted email"],
+        "answer": 0,
+        "explanation": "A draft is a saved email that has not been sent yet."
+    },
+    {
+        "question": "Which OS commonly uses the 'Dock' interface?",
+        "options": ["macOS", "Windows", "Linux", "ChromeOS"],
+        "answer": 0,
+        "explanation": "macOS uses a Dock to give quick access to apps."
+    },
+    {
+        "question": "What does Ctrl + N do in most email clients?",
+        "options": ["Opens a new message window", "Saves email", "Opens inbox", "Deletes message"],
+        "answer": 0,
+        "explanation": "Ctrl+N starts composing a new email."
+    },
+    {
+        "question": "Which OS uses 'Finder' for browsing files?",
+        "options": ["macOS", "Windows", "Linux", "Android"],
+        "answer": 0,
+        "explanation": "Finder is the default file manager in macOS."
+    },
+    {
+        "question": "Which protocol is used to receive emails and sync them across devices?",
+        "options": ["IMAP", "SMTP", "POP3", "FTP"],
+        "answer": 0,
+        "explanation": "IMAP syncs emails between the device and the mail server."
+    },
+	{
+        "question": "What is the default port number used by the HTTP protocol?",
+        "options": ["80", "21", "443", "25"],
+        "answer": 0,
+        "explanation": "HTTP uses port 80 as the default port for web traffic."
+    },
+    {
+        "question": "Which port number is used by HTTPS for secure communication?",
+        "options": ["80", "443", "21", "110"],
+        "answer": 1,
+        "explanation": "HTTPS uses port 443 to provide encrypted web communication."
+    },
+    {
+        "question": "SMTP, the protocol used to send emails, uses which default port number?",
+        "options": ["110", "25", "587", "143"],
+        "answer": 1,
+        "explanation": "SMTP commonly uses port 25 for sending emails across networks."
+    },
+    {
+        "question": "Which port does the POP3 protocol use for retrieving emails?",
+        "options": ["110", "25", "587", "80"],
+        "answer": 0,
+        "explanation": "POP3 uses port 110 by default to retrieve emails from servers."
+    },
+    {
+        "question": "For secure email retrieval using IMAP over SSL/TLS, what is the default port number?",
+        "options": ["143", "993", "110", "465"],
+        "answer": 1,
+        "explanation": "Secure IMAP (IMAPS) operates on port 993."
+    },
+    {
+        "question": "Which port number is used by FTP for control commands?",
+        "options": ["21", "20", "22", "23"],
+        "answer": 0,
+        "explanation": "FTP uses port 21 for control and negotiation commands."
+    },
+    {
+        "question": "The SSH protocol, used for secure remote login, uses which port number by default?",
+        "options": ["21", "22", "23", "25"],
+        "answer": 1,
+        "explanation": "SSH operates on port 22 to provide encrypted remote connections."
+    },
+    {
+        "question": "What is the default port number for the DNS services?",
+        "options": ["53", "80", "25", "110"],
+        "answer": 0,
+        "explanation": "DNS uses port 53 for domain name resolution."
+    },
+    {
+        "question": "Which port number does the Telnet protocol use by default?",
+        "options": ["23", "22", "21", "80"],
+        "answer": 0,
+        "explanation": "Telnet uses port 23 for remote terminal connections."
+    },
+    {
+        "question": "Which port does SFTP (SSH File Transfer Protocol) typically use?",
+        "options": ["22", "21", "443", "80"],
+        "answer": 0,
+        "explanation": "SFTP operates over SSH on port 22."
+    },
+    {
+        "question": "Which port does IMAP typically use for unencrypted email retrieval?",
+        "options": ["993", "110", "143", "25"],
+        "answer": 2,
+        "explanation": "IMAP uses port 143 for standard unencrypted email retrieval."
+    },
+    {
+        "question": "What is the default port used for secure SMTP over SSL?",
+        "options": ["465", "25", "587", "110"],
+        "answer": 0,
+        "explanation": "SMTP over SSL (SMTPS) commonly uses port 465."
+    },
+    {
+        "question": "For email submission with TLS encryption, which port is commonly used?",
+        "options": ["25", "465", "587", "110"],
+        "answer": 2,
+        "explanation": "Port 587 is used for submitting emails securely with TLS."
+    },
+	{
+        "question": "Which port number is used for HTTP Alternate service?",
+        "options": ["8080", "443", "8443", "25"],
+        "answer": 0,
+        "explanation": "Port 8080 is an alternative to port 80 for HTTP traffic, often used by proxy servers or for testing."
+    },
+    {
+        "question": "What is the default port used by the LDAP protocol?",
+        "options": ["389", "443", "3269", "636"],
+        "answer": 0,
+        "explanation": "LDAP (Lightweight Directory Access Protocol) uses port 389 for standard, unencrypted communication."
+    },
+    {
+        "question": "Which default port does HTTPS use over an alternate secure connection?",
+        "options": ["8443", "80", "21", "23"],
+        "answer": 0,
+        "explanation": "Port 8443 is often used as an alternative HTTPS port for secure web services when 443 is unavailable."
+    },
+    {
+        "question": "Which port number is used by SNMP for network management?",
+        "options": ["161", "162", "123", "110"],
+        "answer": 0,
+        "explanation": "SNMP uses port 161 for sending management requests to network devices."
+    },
+    {
+        "question": "The NTP service, used to synchronize clocks, runs on which port?",
+        "options": ["123", "110", "443", "587"],
+        "answer": 0,
+        "explanation": "NTP (Network Time Protocol) operates on UDP port 123."
+    },
+    {
+        "question": "Which port does the secure POP3 (POP3S) protocol use?",
+        "options": ["995", "143", "110", "465"],
+        "answer": 0,
+        "explanation": "Port 995 is used for POP3 over SSL/TLS for secure email retrieval."
+    },
+    {
+        "question": "For secure web traffic through a proxy, which port is often used?",
+        "options": ["3128", "8080", "443", "110"],
+        "answer": 0,
+        "explanation": "Port 3128 is a common default HTTP proxy port, also used for HTTPS proxying."
+    },
+    {
+        "question": "Which port number is used by the SMTPS protocol for encrypted email sending?",
+        "options": ["465", "587", "25", "110"],
+        "answer": 0,
+        "explanation": "SMTPS typically uses port 465 to send emails over SSL encryption."
+    },
+    {
+        "question": "Which port does MySQL database server listen on by default?",
+        "options": ["3306", "1433", "1521", "8080"],
+        "answer": 0,
+        "explanation": "Port 3306 is the default TCP port for MySQL database connections."
+    },
+    {
+        "question": "What port does Microsoft SQL Server use by default?",
+        "options": ["1433", "3306", "1521", "8080"],
+        "answer": 0,
+        "explanation": "SQL Server listens on TCP port 1433 by default."
+    },
+    {
+        "question": "Which port number is used by HTTPS for QUIC protocol instead of TCP?",
+        "options": ["443", "80", "8080", "8443"],
+        "answer": 0,
+        "explanation": "Even with QUIC (UDP-based), HTTPS still uses port 443."
+    },
+    {
+        "question": "Which SMTP port is recommended for email submission in modern clients?",
+        "options": ["587", "465", "110", "143"],
+        "answer": 0,
+        "explanation": "Port 587 is recommended for sending mails securely with STARTTLS in modern configurations."
+    },
+    {
+        "question": "Which port is used by the IMAPS protocol?",
+        "options": ["993", "143", "587", "465"],
+        "answer": 0,
+        "explanation": "IMAPS (IMAP Secure) uses TCP port 993 for encrypted email retrieval."
+    },
+    {
+        "question": "Which port number is commonly used by SSH for secure tunneling?",
+        "options": ["22", "23", "21", "25"],
+        "answer": 0,
+        "explanation": "SSH and its tunneling feature operate via port 22."
+    },
+    {
+        "question": "Which port is used by HTTPS proxies for secure connections?",
+        "options": ["8443", "8080", "443", "3128"],
+        "answer": 0,
+        "explanation": "Many secure proxy servers listen on port 8443 for HTTPS connections."
+    },
+	{
+        "question": "Which of the following is NOT an operating system?",
+        "options": ["Windows", "Linux", "Oracle", "macOS"],
+        "answer": 2,
+        "explanation": "Oracle is a database software, not an operating system."
+    },
+    {
+        "question": "What is the main function of an operating system?",
+        "options": ["Manage hardware", "Create documents", "Send emails", "Develop software"],
+        "answer": 0,
+        "explanation": "Operating systems manage hardware resources and provide services to applications."
+    },
+    {
+        "question": "Which command is used to view all running processes in Unix/Linux?",
+        "options": ["ps", "dir", "tasklist", "ls"],
+        "answer": 0,
+        "explanation": "'ps' lists currently running processes in Unix/Linux systems."
+    },
+    {
+        "question": "In an operating system, what is a 'kernel'?",
+        "options": ["Central component managing system resources", "User interface", "Software application", "Network protocol"],
+        "answer": 0,
+        "explanation": "The kernel manages core operations like CPU, memory, and device management."
+    },
+    {
+        "question": "What does SMTP stand for?",
+        "options": ["Simple Mail Transfer Protocol", "Secure Mail Transfer Protocol", "Simple Message Transfer Protocol", "Standard Mail Text Protocol"],
+        "answer": 0,
+        "explanation": "SMTP is used for sending emails across networks."
+    },
+    {
+        "question": "Which protocol is used to retrieve emails from a mail server in a read-only mode?",
+        "options": ["IMAP", "POP3", "SMTP", "FTP"],
+        "answer": 0,
+        "explanation": "IMAP lets users read emails while keeping them on the server."
+    },
+    {
+        "question": "What is an email 'CC' field used for?",
+        "options": ["Send copy to recipients besides the main address", "Send encrypted messages", "Attach files", "Block spam"],
+        "answer": 0,
+        "explanation": "CC stands for 'Carbon Copy'; it sends a copy of a message to additional recipients."
+    },
+    {
+        "question": "Which operating system is open source?",
+        "options": ["Linux", "Windows", "macOS", "iOS"],
+        "answer": 0,
+        "explanation": "Linux is a widely used open-source operating system."
+    },
+    {
+        "question": "What is the purpose of virtual memory in an operating system?",
+        "options": ["Extend RAM using disk storage", "Store emails", "Control network security", "Compress files"],
+        "answer": 0,
+        "explanation": "Virtual memory uses disk space to simulate additional RAM."
+    },
+    {
+        "question": "Which of these is a real-time operating system?",
+        "options": ["RTOS", "Windows 10", "macOS", "Linux Ubuntu"],
+        "answer": 0,
+        "explanation": "RTOS provides deterministic response times for critical applications."
+    },
+    {
+        "question": "The taskbar in Windows OS is an example of a:",
+        "options": ["Graphical user interface element", "Kernel module", "File system", "Network protocol"],
+        "answer": 0,
+        "explanation": "The taskbar is part of the graphical user interface for user interaction."
+    },
+    {
+        "question": "What is a packet in the context of email communication?",
+        "options": ["Small unit of data sent over a network", "An attachment", "An email contact", "A mail server"],
+        "answer": 0,
+        "explanation": "Data is divided into packets for transmission over networks."
+    },
+    {
+        "question": "Which of these commands is used to delete a file in Unix/Linux?",
+        "options": ["rm", "del", "erase", "delete"],
+        "answer": 0,
+        "explanation": "'rm' is the Unix/Linux command to remove/delete files."
+    },
+    {
+        "question": "Which email service protocol supports folder synchronization?",
+        "options": ["IMAP", "POP3", "SMTP", "FTP"],
+        "answer": 0,
+        "explanation": "IMAP allows syncing mail folders between client and server."
+    },
+    {
+        "question": "What does OS stand for?",
+        "options": ["Operating System", "Open Source", "Online Server", "Optical Storage"],
+        "answer": 0,
+        "explanation": "OS stands for Operating System."
+    },
+    {
+        "question": "Which of the following is a component of the operating system that manages files?",
+        "options": ["File system", "Firewall", "Scheduler", "DNS"],
+        "answer": 0,
+        "explanation": "File systems organize and control how data is stored and retrieved."
+    },
+    {
+        "question": "Which email protocol uses port 25 for sending messages?",
+        "options": ["SMTP", "IMAP", "POP3", "FTP"],
+        "answer": 0,
+        "explanation": "SMTP uses port 25 by default for mail transfer."
+    },
+    {
+        "question": "What is a process in an operating system?",
+        "options": ["An executing program", "A file", "An input device", "A software update"],
+        "answer": 0,
+        "explanation": "A process represents a program in execution."
+    },
+    {
+        "question": "Which of the following is NOT a communication tool?",
+        "options": ["Slack", "Outlook", "Photoshop", "Zoom"],
+        "answer": 2,
+        "explanation": "Photoshop is an image editing software, not a communication tool."
+    },
+    {
+        "question": "How does an operating system manage multitasking?",
+        "options": ["By scheduling CPU time among processes", "By deleting unused files", "By encrypting data", "By updating software"],
+        "answer": 0,
+        "explanation": "Operating systems use task scheduling to allow multiple processes to run."
+    },
+    {
+        "question": "What is the role of an email client?",
+        "options": ["To send, receive, and organize emails", "To secure networks", "To develop software", "To browse the internet"],
+        "answer": 0,
+        "explanation": "Email clients provide a user interface for managing emails."
+    },
+    {
+        "question": "Which of these is NOT an operating system?",
+        "options": ["Ubuntu", "Android", "Mozilla", "iOS"],
+        "answer": 2,
+        "explanation": "Mozilla is a browser, not an operating system."
+    },
+    {
+        "question": "Which command is used to view your current directory in Windows Command Prompt?",
+        "options": ["cd", "dir", "ls", "pwd"],
+        "answer": 1,
+        "explanation": "'dir' lists files in the current directory in Windows."
+    },
+    {
+        "question": "Which protocol is used to receive email from a mail server to a mail client?",
+        "options": ["POP3", "SMTP", "FTP", "HTTP"],
+        "answer": 0,
+        "explanation": "POP3 downloads emails from the server to the client."
+    },
+    {
+        "question": "Which operating system is widely used for smartphones?",
+        "options": ["Android", "Windows Server", "Unix", "Red Hat Linux"],
+        "answer": 0,
+        "explanation": "Android is a popular mobile operating system."
+    },
+    {
+        "question": "What type of email address ends with '@gmail.com'?",
+        "options": ["Google email address", "Corporate email", "Spam email", "Temporary email"],
+        "answer": 0,
+        "explanation": "Gmail addresses are provided by Google for email communication."
+    },
+    {
+        "question": "Which of the following is a command-line operating system?",
+        "options": ["MS-DOS", "Windows 10", "MacOS", "Ubuntu"],
+        "answer": 0,
+        "explanation": "MS-DOS is a command-line operating system."
+    },
+    {
+        "question": "What type of OS allows multiple users to run programs at the same time?",
+        "options": ["Multitasking OS", "Single-task OS", "Real-time OS", "Batch OS"],
+        "answer": 0,
+        "explanation": "Multitasking OS supports multiple users and simultaneous processes."
+    },
+    {
+        "question": "Which of the following is an example of an email communication tool?",
+        "options": ["Microsoft Outlook", "Adobe Reader", "Photoshop", "Excel"],
+        "answer": 0,
+        "explanation": "Microsoft Outlook is widely used for email and calendar management."
+    },
+    {
+        "question": "In operating systems, what does 'paging' refer to?",
+        "options": ["Memory management technique", "Process scheduling", "File sharing", "Error handling"],
+        "answer": 0,
+        "explanation": "Paging divides memory into blocks for virtual memory management."
+    },
+    {
+        "question": "Which part of an email contains the actual content or message?",
+        "options": ["Body", "Subject", "Header", "Footer"],
+        "answer": 0,
+        "explanation": "The email body contains the main message."
+    },
+    {
+        "question": "Which OS is known for its use in servers and supercomputers?",
+        "options": ["Linux", "Windows 7", "iOS", "Android"],
+        "answer": 0,
+        "explanation": "Linux is popular in server and high-performance computing environments."
+    },
+    {
+        "question": "What is a file system in an operating system?",
+        "options": ["Method for storing and organizing files", "Hardware component", "Software application", "Network protocol"],
+        "answer": 0,
+        "explanation": "File systems determine how data is stored and accessed on storage devices."
+    },
+    {
+        "question": "What does an email 'BCC' field mean?",
+        "options": ["Blind Carbon Copy", "Blocked Carbon Copy", "Broad Carbon Copy", "Basic Carbon Copy"],
+        "answer": 0,
+        "explanation": "BCC allows sending copies without recipients knowing about others."
+    },
+    {
+        "question": "Which OS is developed and maintained by Apple Inc.?",
+        "options": ["macOS", "Ubuntu", "Windows", "Android"],
+        "answer": 0,
+        "explanation": "macOS is Apple's operating system for Mac computers."
+    },
+    {
+        "question": "What is the main purpose of the shell in an operating system?",
+        "options": ["Interface between user and OS", "Manage hardware", "Edit files", "Install drivers"],
+        "answer": 0,
+        "explanation": "The shell allows users to interact with the operating system commands."
+    },
+    {
+        "question": "What is the key benefit of using IMAP over POP3?",
+        "options": ["Emails stay on server and can be synced", "Emails are downloaded and deleted", "No authentication needed", "Supports attachments"],
+        "answer": 0,
+        "explanation": "IMAP allows users to access and manage emails stored on the server."
+    },
+    {
+        "question": "Which process in an OS scheduler decides which task to run next?",
+        "options": ["CPU scheduling", "Memory allocation", "File management", "Input/output control"],
+        "answer": 0,
+        "explanation": "CPU scheduling allocates processor time amongst tasks."
+    },
+    {
+        "question": "Which of these is a common protocol used for instant messaging?",
+        "options": ["XMPP", "HTTP", "SMTP", "FTP"],
+        "answer": 0,
+        "explanation": "XMPP is used by many instant messaging applications."
+    },
+    {
+        "question": "Which is the file extension commonly used for email backup files?",
+        "options": [".pst", ".docx", ".xlsx", ".jpg"],
+        "answer": 0,
+        "explanation": ".pst files are used by Outlook for email backups."
+    },
+    {
+        "question": "Which OS supports the NTFS file system?",
+        "options": ["Windows", "Linux", "macOS", "Android"],
+        "answer": 0,
+        "explanation": "NTFS (New Technology File System) is used by Windows."
+    },
+    {
+        "question": "How is process synchronization achieved in OS?",
+        "options": ["Using semaphores or mutexes", "Changing file permissions", "Modifying system files", "Running multiple apps simultaneously"],
+        "answer": 0,
+        "explanation": "Semaphores and mutexes coordinate access to shared resources."
+    },
+    {
+        "question": "Which email communication tool allows video conferencing?",
+        "options": ["Microsoft Teams", "Notepad", "Photoshop", "Excel"],
+        "answer": 0,
+        "explanation": "Microsoft Teams includes chat, email integration, and video calls."
+    },
+	 {
+        "question": "Which type of operating system allows multiple users to access a single system with each having their own terminal?",
+        "options": ["Multi-user OS", "Single-user OS", "Real-time OS", "Embedded OS"],
+        "answer": 0,
+        "explanation": "A multi-user OS enables multiple users to work on the same system simultaneously."
+    },
+    {
+        "question": "What does 'Task Manager' in Windows allow you to do?",
+        "options": ["View running processes", "Install software", "Format hard drive", "Access BIOS"],
+        "answer": 0,
+        "explanation": "Task Manager helps monitor running applications, processes, and system performance."
+    },
+    {
+        "question": "Which scheduling algorithm gives each process a fixed time slice in a cyclic order?",
+        "options": ["Round Robin", "First Come First Serve", "Shortest Job First", "Priority Scheduling"],
+        "answer": 0,
+        "explanation": "Round Robin scheduling assigns a fixed CPU time to each process in turn."
+    },
+    {
+        "question": "In email, what does the term 'attachment' refer to?",
+        "options": ["A file sent along with an email", "A copied recipient", "Digital signature", "Email header"],
+        "answer": 0,
+        "explanation": "An email attachment is a file sent along with the main email message."
+    },
+    {
+        "question": "Which OS feature allows a system to continue operating even if a part of it fails?",
+        "options": ["Fault tolerance", "Virtualization", "Paging", "Caching"],
+        "answer": 0,
+        "explanation": "Fault tolerance ensures the system remains operational when some components fail."
+    },
+    {
+        "question": "Which protocol is most suited for sending large files via email?",
+        "options": ["MIME", "SMTP", "POP3", "IMAP"],
+        "answer": 0,
+        "explanation": "MIME extends email format to support text and non-text attachments like images and files."
+    },
+    {
+        "question": "In Linux, which command is used to change file permissions?",
+        "options": ["chmod", "chperm", "perms", "setperm"],
+        "answer": 0,
+        "explanation": "'chmod' is used to set or modify file permissions."
+    },
+    {
+        "question": "An advantage of cloud-based email services like Gmail is:",
+        "options": ["Access from any device with internet", "Works without internet", "More dependent on local storage", "Self-hosted"],
+        "answer": 0,
+        "explanation": "Cloud-based email can be accessed from any internet-connected device."
+    },
+    {
+        "question": "In operating systems, spooling is used mainly for:",
+        "options": ["Managing print jobs", "Managing CPU scheduling", "Virtual memory", "Process synchronization"],
+        "answer": 0,
+        "explanation": "Spooling queues print jobs in temporary storage before sending to the printer."
+    },
+    {
+        "question": "What does Cc in email mean?",
+        "options": ["Carbon Copy", "Central Copy", "Current Client", "Common Copy"],
+        "answer": 0,
+        "explanation": "Cc sends a copy of the email to secondary recipients."
+    },
+    {
+        "question": "Which operating system is proprietary?",
+        "options": ["Windows", "Linux", "FreeBSD", "Ubuntu"],
+        "answer": 0,
+        "explanation": "Windows is owned and licensed by Microsoft."
+    },
+    {
+        "question": "Which component of OS decides which process will run in the CPU?",
+        "options": ["Scheduler", "Loader", "Compiler", "Assembler"],
+        "answer": 0,
+        "explanation": "The scheduler allocates CPU time to processes."
+    },
+    {
+        "question": "Which email field hides recipients from each other?",
+        "options": ["Bcc", "To", "Cc", "Subject"],
+        "answer": 0,
+        "explanation": "The Bcc (Blind Carbon Copy) field conceals recipient addresses."
+    },
+    {
+        "question": "In Windows, what is the default file system used on modern hard drives?",
+        "options": ["NTFS", "FAT32", "ext3", "HFS+"],
+        "answer": 0,
+        "explanation": "NTFS (New Technology File System) is the default in modern Windows versions."
+    },
+    {
+        "question": "Which protocol is used to send email from a client to a mail server?",
+        "options": ["SMTP", "IMAP", "POP3", "FTP"],
+        "answer": 0,
+        "explanation": "SMTP is the standard protocol for sending outgoing emails."
+    },
+    {
+        "question": "What is a GUI in operating system terminology?",
+        "options": ["Graphical User Interface", "General User Internet", "Guided User Interaction", "Global Utility Integration"],
+        "answer": 0,
+        "explanation": "GUI allows interaction with the OS through graphical elements like icons and menus."
+    },
+    {
+        "question": "Which of these is not an email protocol?",
+        "options": ["SMTP", "POP3", "FTP", "IMAP"],
+        "answer": 2,
+        "explanation": "FTP transfers files, not emails."
+    },
+    {
+        "question": "In operating systems, what is a deadlock?",
+        "options": ["A situation where processes wait indefinitely for resources", "A secure login method", "A process that completed successfully", "Memory overload"],
+        "answer": 0,
+        "explanation": "Deadlock occurs when processes hold resources while waiting for others, causing a freeze."
+    },
+    {
+        "question": "What is the main purpose of MS Outlook?",
+        "options": ["Manage emails, calendars, and contacts", "Edit documents", "Edit images", "Play music"],
+        "answer": 0,
+        "explanation": "MS Outlook is used for email management, scheduling, and contact management."
+    },
+    {
+        "question": "Which operating system uses the HFS+ file system?",
+        "options": ["macOS", "Windows", "Linux", "ChromeOS"],
+        "answer": 0,
+        "explanation": "HFS+ is used by older versions of macOS for file storage."
+    },
+    {
+        "question": "Which email security feature verifies the sender’s identity?",
+        "options": ["Digital signature", "Attachment", "Cc", "Bcc"],
+        "answer": 0,
+        "explanation": "Digital signatures validate the authenticity of the sender."
+    },
+    {
+        "question": "What is the function of 'chmod 755' in Linux?",
+        "options": ["Gives read/execute to everyone, write to owner", "Gives full access to everyone", "Removes execute rights", "Read-only access"],
+        "answer": 0,
+        "explanation": "chmod 755 allows rwx for owner, rx for group and others."
+    },
+    {
+        "question": "What’s the default port for IMAP?",
+        "options": ["143", "110", "25", "443"],
+        "answer": 0,
+        "explanation": "IMAP uses port 143 for standard connections."
+    },
+    {
+        "question": "Which OS is known for Android’s base kernel?",
+        "options": ["Linux", "Windows", "Unix", "DOS"],
+        "answer": 0,
+        "explanation": "Android uses a modified Linux kernel."
+    },
+    {
+        "question": "In operating systems, what is a 'context switch'?",
+        "options": ["Switching CPU from one process to another", "Changing from GUI to CLI", "Reinstalling the OS", "Restarting the CPU"],
+        "answer": 0,
+        "explanation": "Context switch saves the state of one process and loads another."
+    },
+    {
+        "question": "Which shortcut key refreshes your email inbox in most clients?",
+        "options": ["F5", "Ctrl+S", "Ctrl+R", "Alt+F5"],
+        "answer": 0,
+        "explanation": "F5 is commonly used to refresh and sync mailbox."
+    },
+    {
+        "question": "Which communication tool is primarily used for team collaboration, chat, and file sharing?",
+        "options": ["Slack", "VLC", "Photoshop", "WordPad"],
+        "answer": 0,
+        "explanation": "Slack is a popular team collaboration platform."
+    },
+    {
+        "question": "What is 'BIOS' in computing?",
+        "options": ["Basic Input Output System", "Binary Integrated Operating Software", "Basic Internal Operating Setup", "Basic Input Operating Service"],
+        "answer": 0,
+        "explanation": "BIOS initializes hardware during the booting process."
+    },
+    {
+        "question": "Which email attachment type can be dangerous?",
+        "options": [".exe", ".txt", ".jpg", ".pdf"],
+        "answer": 0,
+        "explanation": ".exe files may contain executable malware."
+    },
+    {
+        "question": "Which Linux command lists directory contents?",
+        "options": ["ls", "dir", "cd", "pwd"],
+        "answer": 0,
+        "explanation": "'ls' lists files and directories in Linux."
+    },
+    {
+        "question": "What is the term for the program that manages email sending and receiving?",
+        "options": ["Mail client", "Mail server", "Web browser", "ISP"],
+        "answer": 0,
+        "explanation": "A mail client manages sending, receiving, and organizing emails."
+    },
+    {
+        "question": "Which OS feature allows executing multiple parts of a program simultaneously?",
+        "options": ["Multithreading", "Multiprocessing", "Scheduling", "Virtualization"],
+        "answer": 0,
+        "explanation": "Multithreading enables concurrent execution of process parts."
+    },
+    {
+        "question": "In email jargon, spam refers to:",
+        "options": ["Unsolicited or junk email", "Secure email", "Encrypted message", "Group message"],
+        "answer": 0,
+        "explanation": "Spam is unsolicited mass email."
+    },
+    {
+        "question": "Which OS introduced the Start Menu?",
+        "options": ["Windows 95", "Windows XP", "Windows NT", "Windows 3.1"],
+        "answer": 0,
+        "explanation": "Windows 95 was the first to include the Start Menu."
+    },
+    {
+        "question": "Which option is NOT an example of an instant messaging tool?",
+        "options": ["WhatsApp", "Skype", "Telegram", "Notepad"],
+        "answer": 3,
+        "explanation": "Notepad is a text editor, not a communication tool."
+    },
+    {
+        "question": "What is the maximum filename length in modern Windows OS?",
+        "options": ["255 characters", "128 characters", "64 characters", "512 characters"],
+        "answer": 0,
+        "explanation": "Modern Windows supports up to 255 characters in a filename."
+    },
+    {
+        "question": "Which command in Linux displays the present working directory?",
+        "options": ["pwd", "dir", "cd", "ls"],
+        "answer": 0,
+        "explanation": "'pwd' shows the current directory path."
+    },
+    {
+        "question": "In email systems, what does 'Draft' mean?",
+        "options": ["Unsent saved message", "Deleted message", "Read message", "Forwarded message"],
+        "answer": 0,
+        "explanation": "Drafts are saved messages not yet sent."
+    },
+    {
+        "question": "Which OS is exclusive to Apple mobile devices?",
+        "options": ["iOS", "Android", "Windows Mobile", "Symbian"],
+        "answer": 0,
+        "explanation": "iOS runs only on Apple iPhones and iPads."
+    },
+    {
+        "question": "Which email protocol allows offline access to previously downloaded messages?",
+        "options": ["POP3", "IMAP", "SMTP", "HTTP"],
+        "answer": 0,
+        "explanation": "POP3 downloads and stores messages locally, enabling offline access."
+    },
+    {
+        "question": "In Windows, which shortcut opens File Explorer?",
+        "options": ["Windows + E", "Ctrl + E", "Alt + E", "Shift + E"],
+        "answer": 0,
+        "explanation": "Windows key + E opens File Explorer."
+    },
+    {
+        "question": "Which software is often pre-installed in Android devices for emailing?",
+        "options": ["Gmail", "Outlook", "Thunderbird", "ProtonMail"],
+        "answer": 0,
+        "explanation": "Gmail is typically pre-installed on Android devices."
+    },
+    {
+        "question": "Which feature in OS ensures only authorized users can access files?",
+        "options": ["File permissions", "Disk scheduling", "File compression", "Virtual memory"],
+        "answer": 0,
+        "explanation": "File permissions control access to data."
+    },
+    {
+        "question": "Which tool is primarily meant for video meetings?",
+        "options": ["Zoom", "Paint", "Notepad", "Calculator"],
+        "answer": 0,
+        "explanation": "Zoom is designed for online video conferencing."
+    },
+	 {
+        "question": "In operating systems, what does 'booting' mean?",
+        "options": ["Starting the computer and loading the OS", "Installing new software", "Shutting down the computer", "Restarting a program"],
+        "answer": 0,
+        "explanation": "Booting is the process of starting up the computer and loading the operating system."
+    },
+    {
+        "question": "Which email folder typically stores messages automatically marked as suspicious?",
+        "options": ["Spam", "Inbox", "Sent Items", "Drafts"],
+        "answer": 0,
+        "explanation": "Spam folder stores unsolicited or junk emails automatically filtered by the email service."
+    },
+    {
+        "question": "Which OS feature allows multiple applications to run seemingly at the same time?",
+        "options": ["Multitasking", "Single-tasking", "Batch processing", "Fragmentation"],
+        "answer": 0,
+        "explanation": "Multitasking enables running multiple applications concurrently."
+    },
+    {
+        "question": "In email composition, what does the 'Subject' field indicate?",
+        "options": ["Topic of the email", "Sender's address", "Attachment name", "Email priority"],
+        "answer": 0,
+        "explanation": "The subject field contains the topic or brief description of the email content."
+    },
+    {
+        "question": "Which command in Windows Command Prompt changes the current directory?",
+        "options": ["cd", "dir", "ls", "pwd"],
+        "answer": 0,
+        "explanation": "'cd' stands for 'change directory' and is used to navigate between folders."
+    },
+    {
+        "question": "Which protocol supports sending email and also encrypts it for security?",
+        "options": ["SMTPS", "POP3", "HTTP", "FTP"],
+        "answer": 0,
+        "explanation": "SMTPS is SMTP over SSL/TLS for sending encrypted emails."
+    },
+    {
+        "question": "What is the function of the clipboard in an OS?",
+        "options": ["Temporarily store copied or cut data", "Manage printer jobs", "Organize emails", "Store OS logs"],
+        "answer": 0,
+        "explanation": "The clipboard temporarily holds copied or cut items for pasting elsewhere."
+    },
+    {
+        "question": "In which OS is the 'Activity Monitor' used to view processes?",
+        "options": ["macOS", "Windows", "Linux", "Unix"],
+        "answer": 0,
+        "explanation": "Activity Monitor is macOS's built-in tool to view active processes and system usage."
+    },
+    {
+        "question": "What does 'thread' mean in CPU scheduling?",
+        "options": ["Smallest unit of execution", "A background service", "An email chain", "A driver program"],
+        "answer": 0,
+        "explanation": "A thread is the smallest sequence of programmed instructions that can be managed by a scheduler."
+    },
+    {
+        "question": "Which security measure in email ensures the message content is readable only by the intended recipient?",
+        "options": ["Encryption", "Attachment", "Bcc", "Signature"],
+        "answer": 0,
+        "explanation": "Encryption converts the email content into unreadable form for unauthorized people."
+    },
+    {
+        "question": "Which OS feature reclaims unused memory space from terminated programs?",
+        "options": ["Garbage Collection", "Paging", "Swapping", "Defragmentation"],
+        "answer": 0,
+        "explanation": "Garbage collection automatically recovers memory no longer in use."
+    },
+    {
+        "question": "In email, which field hides the recipients from one another?",
+        "options": ["Bcc", "Cc", "To", "Subject"],
+        "answer": 0,
+        "explanation": "The Bcc (Blind Carbon Copy) field conceals recipients from each other."
+    },
+    {
+        "question": "What is the full form of MIME in email systems?",
+        "options": ["Multipurpose Internet Mail Extensions", "Mail Internet Message Exchange", "Multiple Inter Mail Encoding", "Main Internet Mail Exchange"],
+        "answer": 0,
+        "explanation": "MIME extends email format to support text in character sets and attachments."
+    },
+    {
+        "question": "Which OS function involves allocating space on the disk for storing files?",
+        "options": ["File Management", "Memory Management", "Process Scheduling", "Input/Output Control"],
+        "answer": 0,
+        "explanation": "File management includes allocating disk space and managing directories."
+    },
+    {
+        "question": "In Linux, which command is used to create an empty file?",
+        "options": ["touch", "mkfile", "new", "create"],
+        "answer": 0,
+        "explanation": "'touch' creates an empty file or updates the timestamp of an existing file."
+    },
+    {
+        "question": "Which Microsoft product is an email client in the MS Office suite?",
+        "options": ["Outlook", "Word", "Excel", "Access"],
+        "answer": 0,
+        "explanation": "Outlook is the email client included in Microsoft Office."
+    },
+    {
+        "question": "In operating systems, what is the 'swap space' used for?",
+        "options": ["Extending physical memory using disk space", "Storing emails", "Backing up files", "Internet caching"],
+        "answer": 0,
+        "explanation": "Swap space extends RAM onto the hard disk for virtual memory."
+    },
+    {
+        "question": "What is phishing in the context of emails?",
+        "options": ["Fraudulent attempts to obtain sensitive information", "Sending bulk emails to promote products", "Encrypting emails", "Spam filtering"],
+        "answer": 0,
+        "explanation": "Phishing scams try to trick users into revealing personal info."
+    },
+    {
+        "question": "What is the standard port number for secure IMAP (IMAPS)?",
+        "options": ["993", "143", "110", "995"],
+        "answer": 0,
+        "explanation": "IMAPS uses port 993 for encrypted email retrieval."
+    },
+    {
+        "question": "The command 'ls -l' in Linux is used to:",
+        "options": ["List directory contents with detailed info", "Change current directory", "List only hidden files", "Delete files"],
+        "answer": 0,
+        "explanation": "'ls -l' lists files and directories in long format with detailed info."
+    },
+    {
+        "question": "Which OS is open source and widely used in servers?",
+        "options": ["Linux", "Windows", "macOS", "iOS"],
+        "answer": 0,
+        "explanation": "Linux is an open-source OS commonly used for server environments."
+    },
+    {
+        "question": "Which email protocol should be used if you want to keep emails on the server?",
+        "options": ["IMAP", "POP3", "SMTP", "FTP"],
+        "answer": 0,
+        "explanation": "IMAP keeps emails on the server and syncs across devices."
+    },
+    {
+        "question": "In Windows, which key opens the Start Menu?",
+        "options": ["Windows key", "Ctrl", "Alt", "Shift"],
+        "answer": 0,
+        "explanation": "Pressing the Windows key opens the Start Menu."
+    },
+    {
+        "question": "Which email header item indicates who sent the message?",
+        "options": ["From", "To", "Subject", "Date"],
+        "answer": 0,
+        "explanation": "The 'From' field contains the sender's email address."
+    },
+    {
+        "question": "What is a 'daemon' in Unix/Linux systems?",
+        "options": ["Background process", "Hardware driver", "Email", "User account"],
+        "answer": 0,
+        "explanation": "A daemon is a process that runs in the background to handle tasks or services."
+    },
+    {
+        "question": "In operating systems, fragmentation refers to:",
+        "options": ["Scattering of file parts across storage", "Collecting garbage", "Running multiple apps", "Network delay"],
+        "answer": 0,
+        "explanation": "Fragmentation happens when files are stored in non-contiguous locations on disk."
+    },
+    {
+        "question": "Which communication platform integrates chat, meetings, and file sharing?",
+        "options": ["Microsoft Teams", "Photoshop", "VLC", "Notepad++"],
+        "answer": 0,
+        "explanation": "Microsoft Teams combines chat, video calls, and collaborative file sharing."
+    },
+    {
+        "question": "In Linux, which command is used to remove a directory?",
+        "options": ["rmdir", "rmfile", "deletedir", "dirrm"],
+        "answer": 0,
+        "explanation": "'rmdir' deletes an empty directory in Linux."
+    },
+    {
+        "question": "What is the default port for POP3?",
+        "options": ["110", "143", "25", "993"],
+        "answer": 0,
+        "explanation": "POP3 listens on port 110 for incoming email retrieval."
+    },
+    {
+        "question": "Which OS component manages CPU, memory, and device access?",
+        "options": ["Kernel", "GUI", "Shell", "File manager"],
+        "answer": 0,
+        "explanation": "The kernel is the OS core managing hardware resources."
+    },
+    {
+        "question": "What is an advantage of command-line interfaces over GUIs?",
+        "options": ["Faster for experienced users", "Uses more memory", "Requires less typing", "More visually appealing"],
+        "answer": 0,
+        "explanation": "CLI can be faster for advanced users due to direct command execution."
+    },
+    {
+        "question": "Which part of an email contains meta-information like sender, recipient, and timestamps?",
+        "options": ["Header", "Body", "Footer", "Attachment"],
+        "answer": 0,
+        "explanation": "The header stores details about sender, recipient, and routing."
+    },
+    {
+        "question": "What is the primary function of anti-spam filters?",
+        "options": ["Identify and filter unsolicited emails", "Encrypt messages", "Block attachments", "Sync email folders"],
+        "answer": 0,
+        "explanation": "Anti-spam filters detect and block junk emails."
+    },
+    {
+        "question": "In Linux, which command displays the manual pages for commands?",
+        "options": ["man", "help", "doc", "info"],
+        "answer": 0,
+        "explanation": "'man' shows the manual pages for specified commands."
+    },
+    {
+        "question": "Which OS feature protects memory used by one process from being accessed by another?",
+        "options": ["Memory protection", "Virtualization", "Swapping", "Scheduling"],
+        "answer": 0,
+        "explanation": "Memory protection ensures one process cannot interfere with another's memory space."
+    },
+    {
+        "question": "Which communication tool allows sending messages that disappear after they are read?",
+        "options": ["Snapchat", "Microsoft Word", "Excel", "Zoom"],
+        "answer": 0,
+        "explanation": "Snapchat offers self-destructing messages."
+    },
+    {
+        "question": "Which OS concept ensures multiple processes can share the CPU efficiently?",
+        "options": ["Time-sharing", "Single-tasking", "Fragmentation", "Caching"],
+        "answer": 0,
+        "explanation": "Time-sharing divides CPU time among multiple processes."
+    },
+    {
+        "question": "What is the primary purpose of the 'Trash' or 'Recycle Bin' in an OS?",
+        "options": ["Store deleted files temporarily", "Increase storage space", "Store system logs", "Backup important files"],
+        "answer": 0,
+        "explanation": "Recycle Bin holds deleted files until permantently removed."
+    },
+    {
+        "question": "Which protocol is used for real-time text-based chat over the internet?",
+        "options": ["IRC", "SMTP", "FTP", "SNMP"],
+        "answer": 0,
+        "explanation": "Internet Relay Chat (IRC) is used for real-time text communication."
+    },
+    {
+        "question": "Which command in Windows displays all files, including hidden ones?",
+        "options": ["dir /a", "ls -a", "show files", "hiddenview"],
+        "answer": 0,
+        "explanation": "'dir /a' lists all files and folders including hidden ones in Windows."
+    },
+    {
+        "question": "Which type of operating system is used in embedded devices?",
+        "options": ["Embedded OS", "Multi-user OS", "Real-time OS", "Network OS"],
+        "answer": 0,
+        "explanation": "Embedded OS is designed for dedicated devices like appliances or cars."
+    },
+    {
+        "question": "In an email, what does the 'To' field indicate?",
+        "options": ["Primary recipient", "Secondary recipient", "Hidden recipient", "Attachment name"],
+        "answer": 0,
+        "explanation": "The 'To' field contains the primary recipient's email address."
+    },
+    {
+        "question": "Which Linux command is used to move files?",
+        "options": ["mv", "cp", "rm", "movefile"],
+        "answer": 0,
+        "explanation": "'mv' moves or renames files and directories in Linux."
+    },
+	 {
+        "question": "Which operating system feature is responsible for managing programs that run in the background?",
+        "options": ["Process Management", "File Management", "Device Management", "User Interface"],
+        "answer": 0,
+        "explanation": "Process management controls execution of programs including those in the background."
+    },
+    {
+        "question": "In email configuration, which record type in DNS specifies the mail server for a domain?",
+        "options": ["MX record", "A record", "CNAME record", "TXT record"],
+        "answer": 0,
+        "explanation": "MX (Mail Exchange) records specify the servers handling a domain's email."
+    },
+    {
+        "question": "Which Linux command is used to display active network connections and listening ports?",
+        "options": ["netstat", "top", "ps", "ping"],
+        "answer": 0,
+        "explanation": "'netstat' provides details of active connections, ports, and network statistics."
+    },
+    {
+        "question": "What does POP3 do after downloading emails from the server by default?",
+        "options": ["Deletes them from the server", "Keeps them on the server", "Encrypts them", "Marks them as spam"],
+        "answer": 0,
+        "explanation": "By default, POP3 downloads messages and removes them from the server."
+    },
+    {
+        "question": "Which OS scheduling type favors jobs that require less CPU time?",
+        "options": ["Shortest Job First", "First Come First Serve", "Round Robin", "Priority Scheduling"],
+        "answer": 0,
+        "explanation": "SJF scheduling selects jobs with the shortest CPU burst time first."
+    },
+    {
+        "question": "What is the main function of an email client?",
+        "options": ["Send, receive and organize emails", "Run multimedia files", "Monitor CPU tasks", "Install drivers"],
+        "answer": 0,
+        "explanation": "Email clients manage the sending, receiving, and organization of emails."
+    },
+    {
+        "question": "Which key combination is commonly used to refresh most email inboxes?",
+        "options": ["F5", "Ctrl+R", "Alt+F5", "Shift+F5"],
+        "answer": 0,
+        "explanation": "Pressing F5 refreshes and syncs the inbox in many email applications."
+    },
+    {
+        "question": "Which OS component is responsible for CPU scheduling?",
+        "options": ["Kernel", "Shell", "File System", "Device Driver"],
+        "answer": 0,
+        "explanation": "The kernel handles CPU scheduling along with other core OS functions."
+    },
+    {
+        "question": "In email, which field is used to send a copy of the message to other recipients without showing the main recipients?",
+        "options": ["Bcc", "To", "Cc", "Reply-To"],
+        "answer": 0,
+        "explanation": "Bcc (Blind Carbon Copy) hides addresses from the main recipients."
+    },
+    {
+        "question": "Which protocol is widely used for sending instant messages in chat applications?",
+        "options": ["XMPP", "SMTP", "FTP", "IMAP"],
+        "answer": 0,
+        "explanation": "XMPP is an open protocol commonly used for instant messaging."
+    },
+    {
+        "question": "What is the purpose of a task scheduler in an OS?",
+        "options": ["Automate the execution of programs at specific times", "Display files", "Connect to a network", "Encrypt data"],
+        "answer": 0,
+        "explanation": "Task schedulers allow users to run applications automatically at pre-set times."
+    },
+    {
+        "question": "Which operating system uses the ext4 file system by default?",
+        "options": ["Linux", "Windows", "macOS", "DOS"],
+        "answer": 0,
+        "explanation": "ext4 is the default file system for many Linux distributions."
+    },
+    {
+        "question": "In an email address, what does the part after '@' represent?",
+        "options": ["Domain name", "Username", "Protocol", "Display name"],
+        "answer": 0,
+        "explanation": "The part after '@' specifies the domain hosting the email service."
+    },
+    {
+        "question": "Which OS concept allows for dividing the CPU cores among multiple programs?",
+        "options": ["Multicore processing", "Fragmentation", "Virtualization", "Caching"],
+        "answer": 0,
+        "explanation": "Multicore processing improves parallel execution of programs."
+    },
+    {
+        "question": "Which email security standard helps prevent email spoofing?",
+        "options": ["SPF", "POP3", "IMAP", "SMTP"],
+        "answer": 0,
+        "explanation": "SPF (Sender Policy Framework) helps validate sending servers."
+    },
+    {
+        "question": "Which OS feature ensures that processes do not interfere with each other's memory space?",
+        "options": ["Memory Protection", "CPU Scheduling", "Disk Management", "Paging"],
+        "answer": 0,
+        "explanation": "Memory protection isolates processes to prevent unauthorized access."
+    },
+    {
+        "question": "In Linux, which command shows the currently logged-in users?",
+        "options": ["who", "users", "w", "All of these"],
+        "answer": 3,
+        "explanation": "'who', 'users', and 'w' can all show logged-in users in different formats."
+    },
+    {
+        "question": "What does the 'Cc' field stand for in email?",
+        "options": ["Carbon Copy", "Central Contact", "Custom Contact", "Certified Copy"],
+        "answer": 0,
+        "explanation": "Carbon Copy sends a copy of the email to additional recipients visibly."
+    },
+    {
+        "question": "Which communication platform is widely used for workplace instant messaging?",
+        "options": ["Slack", "GIMP", "VLC", "Excel"],
+        "answer": 0,
+        "explanation": "Slack is a team communication tool for chat, collaboration, and notifications."
+    },
+    {
+        "question": "Which Windows tool helps monitor CPU, memory, and disk usage?",
+        "options": ["Task Manager", "Device Manager", "Control Panel", "File Explorer"],
+        "answer": 0,
+        "explanation": "Task Manager displays resource usage and running processes."
+    },
+    {
+        "question": "Which OS kernel type runs essential services in both user and kernel space for efficiency?",
+        "options": ["Monolithic Kernel", "Microkernel", "Hybrid Kernel", "Nano Kernel"],
+        "answer": 2,
+        "explanation": "Hybrid kernels combine elements of both monolithic and microkernel designs."
+    },
+    {
+        "question": "Which email folder stores sent messages?",
+        "options": ["Sent Items", "Inbox", "Drafts", "Outbox"],
+        "answer": 0,
+        "explanation": "Sent Items keeps a copy of successfully sent emails."
+    },
+    {
+        "question": "In Linux, which command is used to display CPU and memory usage in real time?",
+        "options": ["top", "ls", "ps", "df"],
+        "answer": 0,
+        "explanation": "'top' updates resource usage data dynamically."
+    },
+    {
+        "question": "Which file system is used by macOS?",
+        "options": ["APFS", "NTFS", "ext4", "FAT32"],
+        "answer": 0,
+        "explanation": "APFS (Apple File System) is the default for modern versions of macOS."
+    },
+    {
+        "question": "What is 'Two-Factor Authentication' in email services?",
+        "options": ["Extra layer of security using two verification steps", "Double email accounts", "Two email providers", "Dual message format"],
+        "answer": 0,
+        "explanation": "Two-Factor Authentication requires two forms of verification for account access."
+    },
+    {
+        "question": "Which OS function moves data between RAM and disk storage to free up memory?",
+        "options": ["Swapping", "Virtualization", "Spooling", "Caching"],
+        "answer": 0,
+        "explanation": "Swapping temporarily moves processes to disk to free RAM."
+    },
+    {
+        "question": "In email, what is the 'Reply All' function used for?",
+        "options": ["Respond to all recipients of the original message", "Respond only to sender", "Forward message", "Send a new message"],
+        "answer": 0,
+        "explanation": "'Reply All' sends the response to all original recipients including CCs."
+    },
+    {
+        "question": "Which OS feature quickly restores the last saved state after a shutdown?",
+        "options": ["Hibernate", "Sleep", "Fast Boot", "Standby"],
+        "answer": 0,
+        "explanation": "Hibernate saves all open sessions to disk and restores them on restart."
+    },
+    {
+        "question": "Which of these is a web-based email service?",
+        "options": ["Gmail", "Thunderbird", "Outlook Desktop", "Mutt"],
+        "answer": 0,
+        "explanation": "Gmail is accessed via the web and is hosted by Google."
+    },
+    {
+        "question": "In Linux, which command is used to copy files?",
+        "options": ["cp", "mv", "copy", "dup"],
+        "answer": 0,
+        "explanation": "'cp' is the copy command in Linux."
+    },
+    {
+        "question": "Which mail protocol uses port 995 for secure retrieval?",
+        "options": ["POP3S", "IMAP", "SMTP", "HTTP"],
+        "answer": 0,
+        "explanation": "Secure POP3 (POP3S) uses port 995."
+    },
+    {
+        "question": "Which OS provides the 'Finder' file management interface?",
+        "options": ["macOS", "Windows", "Linux", "ChromeOS"],
+        "answer": 0,
+        "explanation": "Finder is the default file management tool in macOS."
+    },
+    {
+        "question": "Which email option automatically appends a predefined text at the end of emails?",
+        "options": ["Signature", "Footer", "Attachment", "Header"],
+        "answer": 0,
+        "explanation": "Signatures add consistent closing information to emails."
+    },
+    {
+        "question": "What does the 'uname -a' command in Linux do?",
+        "options": ["Displays system information", "Shows disk usage", "Lists users", "Ends sessions"],
+        "answer": 0,
+        "explanation": "'uname -a' shows detailed system and kernel information."
+    },
+    {
+        "question": "Which OS interface type uses typed commands instead of graphics?",
+        "options": ["CLI", "GUI", "TUI", "VUI"],
+        "answer": 0,
+        "explanation": "Command Line Interface (CLI) uses text-based input commands."
+    },
+    {
+        "question": "Which mail transfer protocol is used exclusively for sending messages?",
+        "options": ["SMTP", "POP3", "IMAP", "MIME"],
+        "answer": 0,
+        "explanation": "SMTP is used to send emails to servers."
+    },
+    {
+        "question": "In Windows OS, what is the default extension for batch files?",
+        "options": [".bat", ".exe", ".cmd", ".txt"],
+        "answer": 0,
+        "explanation": "Batch files have a .bat extension."
+    },
+    {
+        "question": "Which OS component checks device requests and sends back responses?",
+        "options": ["Device Driver", "Kernel", "API", "Scheduler"],
+        "answer": 0,
+        "explanation": "Device drivers communicate between OS and hardware."
+    },
+    {
+        "question": "What does the 'Archive' feature in email do?",
+        "options": ["Removes from inbox but keeps in storage", "Deletes email permanently", "Marks as spam", "Sends to trash"],
+        "answer": 0,
+        "explanation": "Archiving removes an email from the inbox without deleting it."
+    },
+    {
+        "question": "Which Windows feature allows restoring system files to an earlier state?",
+        "options": ["System Restore", "Task Manager", "File Explorer", "Safe Mode"],
+        "answer": 0,
+        "explanation": "System Restore rolls back system files to previous configurations."
+    },
+    {
+        "question": "Which OS is mainly used for Apple's iPhones and iPads?",
+        "options": ["iOS", "macOS", "Android", "Windows Mobile"],
+        "answer": 0,
+        "explanation": "iOS is Apple's mobile operating system."
+    },
+    {
+        "question": "What is 'Latency' in email communication?",
+        "options": ["Delay between sending and receiving", "Attachment size", "Spam filtering time", "Connection speed"],
+        "answer": 0,
+        "explanation": "Latency is the time taken for an email to travel from sender to recipient."
+    },
+	 {
+        "question": "Which type of OS schedule jobs at regular intervals with minimal user interaction?",
+        "options": ["Batch OS", "Real-time OS", "Time-sharing OS", "Distributed OS"],
+        "answer": 0,
+        "explanation": "Batch OS processes tasks in batches with little to no user involvement."
+    },
+    {
+        "question": "In email security, what does DKIM stand for?",
+        "options": ["DomainKeys Identified Mail", "Domain Key Internet Messaging", "Data Key Internet Mail", "DomainKeys Internet Mail"],
+        "answer": 0,
+        "explanation": "DKIM is an email authentication method to detect forged sender addresses."
+    },
+    {
+        "question": "Which OS file system supports file permissions, large files, and journaling?",
+        "options": ["NTFS", "FAT32", "ext2", "HFS"],
+        "answer": 0,
+        "explanation": "NTFS offers advanced features like permissions and journaling."
+    },
+    {
+        "question": "What is the common port for HTTPS webmail services?",
+        "options": ["443", "80", "25", "110"],
+        "answer": 0,
+        "explanation": "Port 443 with SSL/TLS is used for secure HTTP connections."
+    },
+    {
+        "question": "In Linux, what does 'df -h' show?",
+        "options": ["Disk space usage in human-readable form", "Directory files", "Download files", "Delete files"],
+        "answer": 0,
+        "explanation": "'df -h' reports filesystem disk space usage in an easily readable format."
+    },
+    {
+        "question": "Which communication tool is designed mainly for workplace video conferencing?",
+        "options": ["Zoom", "Slack", "Photoshop", "Notepad"],
+        "answer": 0,
+        "explanation": "Zoom is widely used for virtual meetings and webinars."
+    },
+    {
+        "question": "What is 'Firmware'?",
+        "options": ["Software permanently stored in hardware", "Temporary software", "Operating System", "Application program"],
+        "answer": 0,
+        "explanation": "Firmware is software embedded into hardware devices."
+    },
+    {
+        "question": "In email systems, which folder stores unsent messages prepared by the user?",
+        "options": ["Drafts", "Inbox", "Outbox", "Spam"],
+        "answer": 0,
+        "explanation": "Drafts folder holds messages saved but not sent."
+    },
+    {
+        "question": "Which OS scheduling algorithm always chooses the process with the highest priority?",
+        "options": ["Priority Scheduling", "FIFO", "Round Robin", "SJF"],
+        "answer": 0,
+        "explanation": "Priority scheduling selects the process with the highest priority number."
+    },
+    {
+        "question": "Which tool is commonly used to manage incoming spam emails?",
+        "options": ["Spam filter", "File manager", "Task scheduler", "Kernel"],
+        "answer": 0,
+        "explanation": "Spam filters automatically move junk emails to a spam folder."
+    },
+    {
+        "question": "In operating systems, the term 'throughput' refers to:",
+        "options": ["Number of processes completed per unit of time", "Speed of RAM", "Delay between input and output", "Storage capacity"],
+        "answer": 0,
+        "explanation": "Throughput measures system productivity in processing tasks."
+    },
+    {
+        "question": "What is phishing primarily aimed at?",
+        "options": ["Stealing sensitive information", "Sending large emails", "Encrypting personal data", "Improving email deliverability"],
+        "answer": 0,
+        "explanation": "Phishing tricks users into revealing confidential information."
+    },
+    {
+        "question": "In Windows OS, which command opens the Run dialog box?",
+        "options": ["Windows + R", "Ctrl + R", "Alt + R", "Shift + R"],
+        "answer": 0,
+        "explanation": "Windows + R opens the Run utility to execute commands quickly."
+    },
+    {
+        "question": "Which OS feature keeps track of each file's physical location on the disk?",
+        "options": ["File Allocation Table", "Boot Loader", "Process Scheduler", "Virtual Memory"],
+        "answer": 0,
+        "explanation": "FAT or similar tables map files to physical disk sectors."
+    },
+    {
+        "question": "In email, what does 'Forward' do?",
+        "options": ["Sends a received email to another recipient", "Replies to sender", "Deletes message", "Marks message as read"],
+        "answer": 0,
+        "explanation": "Forward resends the message to new recipients."
+    },
+    {
+        "question": "Which OS term refers to breaking down memory into equal-sized blocks?",
+        "options": ["Paging", "Segmentation", "Swapping", "Fragmentation"],
+        "answer": 0,
+        "explanation": "Paging divides memory into fixed-size blocks called pages."
+    },
+    {
+        "question": "What is the default port for secure SMTP (SMTPS)?",
+        "options": ["465", "25", "143", "993"],
+        "answer": 0,
+        "explanation": "SMTPS uses port 465 for encrypted mail transmission."
+    },
+    {
+        "question": "In Linux, which command is used to display system uptime?",
+        "options": ["uptime", "top", "who", "ps"],
+        "answer": 0,
+        "explanation": "'uptime' gives the time since system boot."
+    },
+    {
+        "question": "Which application is NOT a communication tool?",
+        "options": ["Microsoft Word", "Skype", "Slack", "Zoom"],
+        "answer": 0,
+        "explanation": "Microsoft Word is a word processor, not a communication platform."
+    },
+    {
+        "question": "What is the role of SMTP in email transmission?",
+        "options": ["Sending outgoing emails", "Receiving emails", "Encrypting attachments", "Storing old emails"],
+        "answer": 0,
+        "explanation": "SMTP sends outgoing messages from a client to the mail server."
+    },
+    {
+        "question": "Which OS command lists files in a directory in Windows?",
+        "options": ["dir", "ls", "list", "show"],
+        "answer": 0,
+        "explanation": "'dir' displays a list of files and folders in the current directory."
+    },
+    {
+        "question": "In email marketing, what does 'open rate' measure?",
+        "options": ["Percentage of opened emails", "Number of sent emails", "Reply speed", "Server uptime"],
+        "answer": 0,
+        "explanation": "Open rate is the ratio of opened emails to total emails delivered."
+    },
+    {
+        "question": "Which operating system is used for network devices like routers?",
+        "options": ["Embedded OS", "Batch OS", "Time-sharing OS", "Cloud OS"],
+        "answer": 0,
+        "explanation": "Embedded OS is installed in hardware for dedicated functions like routing."
+    },
+    {
+        "question": "Which part of an OS communicates directly with hardware?",
+        "options": ["Kernel", "Shell", "File System", "User Interface"],
+        "answer": 0,
+        "explanation": "The kernel handles direct communication with hardware through drivers."
+    },
+    {
+        "question": "In communication tools, what is 'screen sharing'?",
+        "options": ["Sharing the visual display of one's screen with others", "Sharing login information", "Upgrading screen resolution", "Sharing video files only"],
+        "answer": 0,
+        "explanation": "Screen sharing broadcasts your device's screen view to other participants."
+    },
+    {
+        "question": "What is the usual port for standard POP3 email retrieval?",
+        "options": ["110", "25", "443", "80"],
+        "answer": 0,
+        "explanation": "Port 110 is the default for POP3 retrieving mails from the server."
+    },
+    {
+        "question": "Which OS tool checks and repairs file system errors in Windows?",
+        "options": ["chkdsk", "defrag", "diskpart", "sfc"],
+        "answer": 0,
+        "explanation": "'chkdsk' scans and fixes issues in the file system."
+    },
+    {
+        "question": "In UNIX, what does the 'grep' command do?",
+        "options": ["Search text using patterns", "Copy files", "Remove files", "Display processes"],
+        "answer": 0,
+        "explanation": "'grep' finds strings or patterns within files."
+    },
+    {
+        "question": "Which OS scheduling algorithm runs the process that has been waiting the longest?",
+        "options": ["FCFS", "SJF", "Round Robin", "Priority Scheduling"],
+        "answer": 0,
+        "explanation": "First Come First Serve selects the oldest process in the queue."
+    },
+    {
+        "question": "What does the 'Trash' or 'Deleted Items' folder in email store?",
+        "options": ["Deleted messages until permanently removed", "Spam emails", "Draft messages", "Sent messages"],
+        "answer": 0,
+        "explanation": "Trash stores deleted emails temporarily."
+    },
+    {
+        "question": "Which command in Linux is used to view the first few lines of a file?",
+        "options": ["head", "top", "more", "less"],
+        "answer": 0,
+        "explanation": "'head' shows the first lines of a specified file."
+    },
+    {
+        "question": "What does SSL do for webmail communication?",
+        "options": ["Encrypts the data channel", "Stores backups", "Filters spam", "Optimizes attachments"],
+        "answer": 0,
+        "explanation": "SSL secures communication by encrypting transmitted data."
+    },
+    {
+        "question": "Which OS type is designed for time-critical applications?",
+        "options": ["Real-time OS", "Batch OS", "Single-tasking OS", "Network OS"],
+        "answer": 0,
+        "explanation": "RTOS operates with strict timing constraints."
+    },
+    {
+        "question": "The CTRL+N shortcut in most email clients is used to:",
+        "options": ["Compose a new message", "Open inbox", "Send message", "Forward email"],
+        "answer": 0,
+        "explanation": "Ctrl+N opens a new message composition window."
+    },
+    {
+        "question": "Which UNIX command is used to change file ownership?",
+        "options": ["chown", "chmod", "passwd", "changefile"],
+        "answer": 0,
+        "explanation": "'chown' modifies the file ownership details."
+    },
+    {
+        "question": "In OS-level virtualization, what is being created?",
+        "options": ["Virtual machines", "Cloud emails", "Large files", "Backup folders"],
+        "answer": 0,
+        "explanation": "Virtualization creates simulated computing environments."
+    },
+    {
+        "question": "Which tab in MS Outlook is used to set up automatic replies?",
+        "options": ["File", "Send/Receive", "View", "Home"],
+        "answer": 0,
+        "explanation": "File tab includes the Automatic Replies option."
+    },
+    {
+        "question": "What does the Linux 'cat' command do?",
+        "options": ["Concatenate and display file contents", "Copy files", "Delete files", "Clear terminal"],
+        "answer": 0,
+        "explanation": "'cat' outputs contents of file(s) to the terminal."
+    },
+    {
+        "question": "Which OS is specially designed for low-power embedded devices like smartwatches?",
+        "options": ["Wear OS", "Windows", "macOS", "Linux Mint"],
+        "answer": 0,
+        "explanation": "Wear OS is optimized for wearable devices."
+    },
+    {
+        "question": "In Gmail, which feature automatically groups related messages together?",
+        "options": ["Conversation View", "Labels", "Filters", "Archiving"],
+        "answer": 0,
+        "explanation": "Conversation View stacks related messages in a single thread."
+    },
+    {
+        "question": "Which process in OS ensures that multiple I/O operations can overlap in execution?",
+        "options": ["Spooling", "Paging", "Segmentation", "Fragmentation"],
+        "answer": 0,
+        "explanation": "Spooling allows overlap by queuing I/O operations."
+    }
+	
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

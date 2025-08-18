@@ -1,0 +1,2951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internet And Networking History Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Internet And Networking</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+	{
+        "question": "In networking, what does LAN stand for?",
+        "options": ["Local Area Network", "Large Access Node", "Logical Address Network", "Long Access Network"],
+        "answer": 0,
+        "explanation": "LAN refers to a Local Area Network, which covers a small area like a home or office."
+    },
+    {
+        "question": "What does Wi-Fi allow you to do?",
+        "options": ["Connect to a network wirelessly", "Only transfer files via cable", "Print documents", "Encrypt emails"],
+        "answer": 0,
+        "explanation": "Wi-Fi enables devices to connect to a network without physical cables."
+    },
+    {
+        "question": "Which hardware device is needed to connect to the Internet through an ISP?",
+        "options": ["Modem", "Router", "Switch", "Hub"],
+        "answer": 0,
+        "explanation": "A modem connects to your ISP and converts signals between your device and the provider."
+    },
+    {
+        "question": "What does IP in IP address stand for?",
+        "options": ["Internet Protocol", "Internal Process", "Integrated Packet", "Internet Program"],
+        "answer": 0,
+        "explanation": "IP stands for Internet Protocol, which defines how data is sent across networks."
+    },
+    {
+        "question": "Which port is used by default for web browsing using HTTP?",
+        "options": ["80", "21", "25", "110"],
+        "answer": 0,
+        "explanation": "HTTP protocol uses port 80 by default."
+    },
+    {
+        "question": "What is the function of DNS in networking?",
+        "options": ["Translates domain names to IP addresses", "Assigns IP addresses", "Sends email", "Encrypts data"],
+        "answer": 0,
+        "explanation": "DNS converts user-friendly domain names into numerical IP addresses."
+    },
+    {
+        "question": "Which device connects multiple computers in a LAN and sends data to the intended device only?",
+        "options": ["Switch", "Hub", "Router", "Modem"],
+        "answer": 0,
+        "explanation": "A switch forwards data only to the specific device it’s intended for."
+    },
+    {
+        "question": "What is the default port for HTTPS?",
+        "options": ["443", "80", "25", "110"],
+        "answer": 0,
+        "explanation": "HTTPS uses port 443 for secure web communication."
+    },
+    {
+        "question": "Which command is used to check if a website is reachable?",
+        "options": ["ping", "copy", "dir", "run"],
+        "answer": 0,
+        "explanation": "The 'ping' command tests the reachability of a host or website."
+    },
+    {
+        "question": "What does MAC address stand for?",
+        "options": ["Media Access Control", "Machine Access Code", "Memory Access Channel", "Main Address Code"],
+        "answer": 0,
+        "explanation": "MAC stands for Media Access Control address, a unique hardware ID for networking devices."
+    },
+    {
+        "question": "Which network type covers the largest area?",
+        "options": ["WAN", "LAN", "MAN", "PAN"],
+        "answer": 0,
+        "explanation": "A Wide Area Network (WAN) covers the largest area, often worldwide like the Internet."
+    },
+    {
+        "question": "What is the loopback IP address in IPv4?",
+        "options": ["127.0.0.1", "192.168.1.1", "0.0.0.0", "255.255.255.255"],
+        "answer": 0,
+        "explanation": "127.0.0.1 is the loopback address used to test networking on the local machine."
+    },
+    {
+        "question": "Which device provides Wi-Fi signal in a home network?",
+        "options": ["Access Point", "Switch", "Hub", "Firewall"],
+        "answer": 0,
+        "explanation": "An access point (often part of a router) provides wireless connectivity."
+    },
+    {
+        "question": "What does ISP stand for?",
+        "options": ["Internet Service Provider", "Internal Service Program", "Internet Server Protocol", "International Service Provider"],
+        "answer": 0,
+        "explanation": "ISP stands for Internet Service Provider, the company that provides internet access."
+    },
+    {
+        "question": "Which cable type is commonly used for wired Ethernet connections?",
+        "options": ["Twisted pair", "Coaxial", "Fiber optic", "Parallel"],
+        "answer": 0,
+        "explanation": "Twisted pair (e.g., Cat5, Cat6) cables are commonly used for Ethernet."
+    },
+    {
+        "question": "What is the function of the 'ipconfig' command in Windows?",
+        "options": ["Displays IP configuration", "Installs software", "Runs updates", "Deletes files"],
+        "answer": 0,
+        "explanation": "'ipconfig' shows the computer's IP configuration settings."
+    },
+    {
+        "question": "Which network topology has all devices connected to a central device?",
+        "options": ["Star", "Ring", "Bus", "Mesh"],
+        "answer": 0,
+        "explanation": "In star topology, all devices connect to a central switch or hub."
+    },
+    {
+        "question": "What is the unit of measurement for network speed?",
+        "options": ["bps", "Hz", "Watts", "Bytes only"],
+        "answer": 0,
+        "explanation": "Network speeds are measured in bits per second (bps)."
+    },
+    {
+        "question": "Which protocol is used to send emails?",
+        "options": ["SMTP", "FTP", "HTTP", "IMAP"],
+        "answer": 0,
+        "explanation": "SMTP (Simple Mail Transfer Protocol) is used for sending emails."
+    },
+    {
+        "question": "Which port is used by FTP by default?",
+        "options": ["21", "80", "25", "110"],
+        "answer": 0,
+        "explanation": "FTP (File Transfer Protocol) uses port 21 for command control."
+    },
+    {
+        "question": "Which is an example of a web browser?",
+        "options": ["Google Chrome", "Microsoft Word", "Adobe Reader", "Paint"],
+        "answer": 0,
+        "explanation": "Google Chrome is a widely used web browser."
+    },
+    {
+        "question": "Which device assigns IP addresses automatically on a network?",
+        "options": ["DHCP server", "DNS server", "Switch", "Firewall"],
+        "answer": 0,
+        "explanation": "A DHCP server automatically assigns IP addresses to devices."
+    },
+    {
+        "question": "Which is the default private IP range for Class C?",
+        "options": ["192.168.0.0 to 192.168.255.255", "172.16.0.0 to 172.31.255.255", "10.0.0.0 to 10.255.255.255", "224.0.0.0 to 239.255.255.255"],
+        "answer": 0,
+        "explanation": "192.168.x.x is the Class C private IP address range."
+    },
+    {
+        "question": "What is the main function of a firewall?",
+        "options": ["Block unauthorized access", "Increase Wi-Fi speed", "Assign IP addresses", "Store files"],
+        "answer": 0,
+        "explanation": "Firewalls filter traffic to block unauthorized access to a network."
+    },
+    {
+        "question": "Which networking term refers to the number of data bits transferred in one second?",
+        "options": ["Bandwidth", "Latency", "Jitter", "Ping"],
+        "answer": 0,
+        "explanation": "Bandwidth measures the capacity of a network link in bits per second."
+    },
+    {
+        "question": "Which protocol is used for secure web browsing?",
+        "options": ["HTTPS", "HTTP", "FTP", "SMTP"],
+        "answer": 0,
+        "explanation": "HTTPS encrypts data for secure browsing using SSL/TLS."
+    },
+    {
+        "question": "Which device forwards data packets between computer networks?",
+        "options": ["Router", "Switch", "Hub", "Access Point"],
+        "answer": 0,
+        "explanation": "Routers forward packets between different networks."
+    },
+    {
+        "question": "What does URL stand for?",
+        "options": ["Uniform Resource Locator", "Uniform Request Link", "Universal Routing Locator", "Uniform Resource Link"],
+        "answer": 0,
+        "explanation": "A URL specifies the address of a resource on the Internet."
+    },
+    {
+        "question": "Which type of IP address is temporary and changes over time?",
+        "options": ["Dynamic", "Static", "Private", "Loopback"],
+        "answer": 0,
+        "explanation": "Dynamic IP addresses are assigned by DHCP and may change over time."
+    },
+    {
+        "question": "Which frequency is standard for most Bluetooth connections?",
+        "options": ["2.4 GHz", "5 GHz", "900 MHz", "1 GHz"],
+        "answer": 0,
+        "explanation": "Bluetooth operates in the unlicensed 2.4 GHz frequency band."
+    },
+    {
+        "question": "Which email protocol downloads messages and removes them from the server?",
+        "options": ["POP3", "IMAP", "SMTP", "HTTPS"],
+        "answer": 0,
+        "explanation": "POP3 downloads messages to the device and often deletes from the server."
+    },
+    {
+        "question": "Which type of network is the Internet?",
+        "options": ["WAN", "LAN", "MAN", "PAN"],
+        "answer": 0,
+        "explanation": "The Internet is the largest example of a Wide Area Network."
+    },
+    {
+        "question": "Which layer of the OSI model is responsible for logical addressing?",
+        "options": ["Network Layer", "Data Link Layer", "Transport Layer", "Physical Layer"],
+        "answer": 0,
+        "explanation": "The Network Layer handles logical IP addressing and routing."
+    },
+    {
+        "question": "What is the maximum length of a standard Ethernet cable segment?",
+        "options": ["100 meters", "50 meters", "200 meters", "500 meters"],
+        "answer": 0,
+        "explanation": "Twisted pair Ethernet cables support up to 100 meters per segment."
+    },
+    {
+        "question": "Which IP version uses 128-bit addresses?",
+        "options": ["IPv6", "IPv4", "IPX", "IPv5"],
+        "answer": 0,
+        "explanation": "IPv6 has 128-bit addresses for a much larger address space."
+    },
+    {
+        "question": "Which part of an IP address identifies the specific device on the network?",
+        "options": ["Host portion", "Network portion", "Subnet mask", "Gateway"],
+        "answer": 0,
+        "explanation": "The host portion identifies a specific device within the network."
+    },
+    {
+        "question": "What is the private IP range starting with 10?",
+        "options": ["10.0.0.0 to 10.255.255.255", "192.168.0.0 to 192.168.255.255", "172.16.0.0 to 172.31.255.255", "224.0.0.0 to 239.255.255.255"],
+        "answer": 0,
+        "explanation": "10.0.0.0/8 is a reserved private IP range."
+    },
+    {
+        "question": "Which has higher maximum speed, Wi-Fi or Ethernet?",
+        "options": ["Ethernet", "Wi-Fi", "Both same", "Depends on the ISP only"],
+        "answer": 0,
+        "explanation": "Ethernet often supports higher and more stable speeds than Wi-Fi."
+    },
+    {
+        "question": "Which command shows all saved wireless network profiles in Windows?",
+        "options": ["netsh wlan show profiles", "ipconfig", "ping", "tracert"],
+        "answer": 0,
+        "explanation": "'netsh wlan show profiles' lists all saved Wi-Fi profiles on the system."
+    },
+    {
+        "question": "Which type of transmission sends data to one specific device?",
+        "options": ["Unicast", "Broadcast", "Multicast", "Anycast"],
+        "answer": 0,
+        "explanation": "Unicast transmission is one-to-one communication."
+    },
+    {
+        "question": "Which application layer protocol is used for transferring files?",
+        "options": ["FTP", "SMTP", "HTTP", "IMAP"],
+        "answer": 0,
+        "explanation": "FTP is the File Transfer Protocol for moving files across a network."
+    },
+    {
+        "question": "Which port is default for sending emails via SMTP?",
+        "options": ["25", "110", "80", "21"],
+        "answer": 0,
+        "explanation": "SMTP commonly uses port 25 for sending mail."
+    },
+    {
+        "question": "Which network term describes the time delay in sending data?",
+        "options": ["Latency", "Bandwidth", "Jitter", "Throughput"],
+        "answer": 0,
+        "explanation": "Latency is the time taken for data to travel from source to destination."
+    },
+    {
+        "question": "Which is the most common type of network cable used today?",
+        "options": ["Ethernet twisted pair", "Coaxial", "Fiber optic", "Parallel"],
+        "answer": 0,
+        "explanation": "Ethernet twisted pair cables (Cat5, Cat6) are the most common."
+    },
+	 {
+        "question": "What does HTTP stand for?",
+        "options": ["HyperText Transfer Protocol", "High Transfer Text Protocol", "Hyperlink Transfer Protocol", "HyperText Transmission Process"],
+        "answer": 0,
+        "explanation": "HTTP stands for HyperText Transfer Protocol, used for communication on the web."
+    },
+    {
+        "question": "Which port is the default for HTTPS?",
+        "options": ["443", "80", "21", "110"],
+        "answer": 0,
+        "explanation": "HTTPS uses port 443 for secure communication."
+    },
+    {
+        "question": "What is the purpose of a router?",
+        "options": ["Connect networks and route data", "Transmit Wi-Fi only", "Store network files", "Display webpages"],
+        "answer": 0,
+        "explanation": "Routers connect networks and forward data between them."
+    },
+    {
+        "question": "Which device connects multiple devices within the same local area network?",
+        "options": ["Switch", "Router", "Modem", "Firewall"],
+        "answer": 0,
+        "explanation": "A switch connects devices within the same network to communicate with each other."
+    },
+    {
+        "question": "What is the primary purpose of DNS?",
+        "options": ["Translate domain names to IP addresses", "Assign IP addresses", "Route data between servers", "Measure bandwidth"],
+        "answer": 0,
+        "explanation": "DNS translates user-friendly domain names into numerical IP addresses."
+    },
+    {
+        "question": "Which command is used to see the IP configuration in Windows?",
+        "options": ["ipconfig", "ping", "netstat", "nslookup"],
+        "answer": 0,
+        "explanation": "'ipconfig' displays IP address and network settings."
+    },
+	  {
+        "question": "What does TCP stand for?",
+        "options": ["Transmission Control Protocol", "Transfer Communication Process", "Text Control Protocol", "Transmission Connection Path"],
+        "answer": 0,
+        "explanation": "TCP stands for Transmission Control Protocol, which enables reliable data transmission over networks."
+    },
+    {
+        "question": "Which device is used to extend the range of a wireless network?",
+        "options": ["Range Extender", "Modem", "Switch", "Firewall"],
+        "answer": 0,
+        "explanation": "A range extender rebroadcasts Wi-Fi signals to cover a larger area."
+    },
+    {
+        "question": "Which protocol is used for secure web browsing?",
+        "options": ["HTTPS", "HTTP", "FTP", "SMTP"],
+        "answer": 0,
+        "explanation": "HTTPS ensures secure communication by encrypting data between browser and server."
+    },
+    {
+        "question": "Which IP address class is commonly used in large organizations?",
+        "options": ["Class A", "Class B", "Class C", "Class D"],
+        "answer": 0,
+        "explanation": "Class A addresses provide many host addresses suitable for large networks."
+    },
+    {
+        "question": "What is the purpose of DHCP in a network?",
+        "options": ["Automatic IP address assignment", "Domain translation", "Email transfer", "File encryption"],
+        "answer": 0,
+        "explanation": "DHCP dynamically assigns IP addresses and settings to devices."
+    },
+    {
+        "question": "Which type of IP address does not change over time?",
+        "options": ["Static IP", "Dynamic IP", "Private IP", "Loopback IP"],
+        "answer": 0,
+        "explanation": "Static IP addresses remain fixed unless manually changed."
+    },
+    {
+        "question": "What is the default port number for SMTP?",
+        "options": ["25", "80", "110", "21"],
+        "answer": 0,
+        "explanation": "SMTP uses port 25 for sending email messages."
+    },
+    {
+        "question": "What does the term 'bandwidth' refer to?",
+        "options": ["Maximum data transfer rate", "Delay in data transfer", "Error rate", "IP address size"],
+        "answer": 0,
+        "explanation": "Bandwidth is the maximum amount of data transferable in a given time."
+    },
+    {
+        "question": "Which tool can show the route packets take to a destination?",
+        "options": ["tracert/traceroute", "ping", "ipconfig", "nslookup"],
+        "answer": 0,
+        "explanation": "'tracert' (Windows) or 'traceroute' (Linux/Mac) displays the path packets travel."
+    },
+    {
+        "question": "Which protocol is used to retrieve emails from a server while keeping them on the server?",
+        "options": ["IMAP", "POP3", "SMTP", "HTTP"],
+        "answer": 0,
+        "explanation": "IMAP allows you to read and manage emails stored on the server."
+    },
+    {
+        "question": "Which network type connects devices in close proximity, like wearables and smartphones?",
+        "options": ["PAN", "LAN", "MAN", "WAN"],
+        "answer": 0,
+        "explanation": "A Personal Area Network (PAN) connects close-range devices often via Bluetooth."
+    },
+    {
+        "question": "Which number represents the local loopback in IPv6?",
+        "options": ["::1", "127.0.0.1", "::", "fe80::1"],
+        "answer": 0,
+        "explanation": "In IPv6, ::1 is the loopback address."
+    },
+    {
+        "question": "Which cable type transmits data using light signals?",
+        "options": ["Fiber optic", "Twisted pair", "Coaxial", "Parallel"],
+        "answer": 0,
+        "explanation": "Fiber optic cables use light signals for high-speed data transmission."
+    },
+    {
+        "question": "Which port is used by default for FTP control commands?",
+        "options": ["21", "20", "22", "23"],
+        "answer": 0,
+        "explanation": "FTP uses port 21 for control commands and port 20 for data transfer."
+    },
+    {
+        "question": "Which Wi-Fi frequency band generally offers a longer range?",
+        "options": ["2.4 GHz", "5 GHz", "60 GHz", "900 MHz"],
+        "answer": 0,
+        "explanation": "2.4 GHz travels further than 5 GHz but at lower maximum speeds."
+    },
+    {
+        "question": "What does VPN stand for?",
+        "options": ["Virtual Private Network", "Virtual Protocol Node", "Variable Public Network", "Verified Protected Network"],
+        "answer": 0,
+        "explanation": "A VPN creates a secure, encrypted connection over an unsecured network."
+    },
+    {
+        "question": "Which part of an email address comes before the '@' sign?",
+        "options": ["Username", "Domain name", "Server name", "Protocol name"],
+        "answer": 0,
+        "explanation": "The part before '@' is the user or mailbox name."
+    },
+    {
+        "question": "Which is the common local IP range for home routers?",
+        "options": ["192.168.x.x", "8.8.x.x", "172.0.x.x", "127.0.x.x"],
+        "answer": 0,
+        "explanation": "192.168.x.x is a private IP range for local home/office networks."
+    },
+    {
+        "question": "Which command shows all current connections and listening ports in Windows?",
+        "options": ["netstat", "ping", "ipconfig", "tracert"],
+        "answer": 0,
+        "explanation": "'netstat' displays active network connections and ports."
+    },
+    {
+        "question": "Which frequency band is mostly used for modern dual-band Wi-Fi routers?",
+        "options": ["2.4 GHz and 5 GHz", "2.4 GHz only", "5 GHz only", "60 GHz"],
+        "answer": 0,
+        "explanation": "Most modern routers support both 2.4 GHz and 5 GHz bands."
+    },
+    {
+        "question": "Which device provides both modem and Wi-Fi router functions together?",
+        "options": ["Modem-router combo", "Switch", "Hub", "Access point"],
+        "answer": 0,
+        "explanation": "Modem-router combos integrate internet access and routing/wireless features."
+    },
+    {
+        "question": "Which command helps to find the IP address of a domain name?",
+        "options": ["nslookup", "ping", "route", "ftp"],
+        "answer": 0,
+        "explanation": "'nslookup' queries DNS servers to resolve a domain name to an IP."
+    },
+    {
+        "question": "Which Wi-Fi standard introduced gigabit speeds over the 5 GHz band?",
+        "options": ["802.11ac", "802.11b", "802.11g", "802.11a"],
+        "answer": 0,
+        "explanation": "802.11ac supports gigabit speeds primarily over the 5 GHz band."
+    },
+    {
+        "question": "Which protocol uses port 53 for its operations?",
+        "options": ["DNS", "DHCP", "IMAP", "SMTP"],
+        "answer": 0,
+        "explanation": "DNS typically operates over port 53."
+    },
+    {
+        "question": "Which layer of the OSI model handles physical connectivity?",
+        "options": ["Physical Layer", "Data Link Layer", "Network Layer", "Transport Layer"],
+        "answer": 0,
+        "explanation": "The Physical Layer handles cables, connectors, and transmission mediums."
+    },
+    {
+        "question": "Which type of IP address is used inside a private network and not routable on the Internet?",
+        "options": ["Private IP", "Public IP", "Static IP", "Dynamic IP"],
+        "answer": 0,
+        "explanation": "Private IP addresses work within local networks and aren't directly reachable from the internet."
+    },
+    {
+        "question": "Which is an example of a search engine?",
+        "options": ["Google", "Microsoft Office", "Adobe Photoshop", "Mozilla Firefox"],
+        "answer": 0,
+        "explanation": "Google is a search engine used to find information on the internet."
+    },
+    {
+        "question": "Which command is used to display the routing table in Windows?",
+        "options": ["route print", "ipconfig", "ping", "tracert"],
+        "answer": 0,
+        "explanation": "'route print' displays the local IP routing table."
+    },
+    {
+        "question": "Which common Wi-Fi security method uses a pre-shared key?",
+        "options": ["WPA2-PSK", "WEP", "Open", "MAC filtering"],
+        "answer": 0,
+        "explanation": "WPA2-PSK secures Wi-Fi with a shared password among users."
+    },
+    {
+        "question": "Which layer of the OSI model is responsible for error detection and correction?",
+        "options": ["Data Link Layer", "Network Layer", "Session Layer", "Application Layer"],
+        "answer": 0,
+        "explanation": "The Data Link Layer handles error detection and, if necessary, correction."
+    },
+    {
+        "question": "Which port number is commonly used for secure SSH connections?",
+        "options": ["22", "23", "80", "443"],
+        "answer": 0,
+        "explanation": "SSH uses port 22 by default for secure remote access."
+    },
+    {
+        "question": "Which type of website address begins with 'https://'?",
+        "options": ["Secure website", "Unsecure website", "Localhost", "FTP site"],
+        "answer": 0,
+        "explanation": "'https://' indicates a secure site using SSL/TLS encryption."
+    },
+    {
+        "question": "Which tool is used to analyze network packets?",
+        "options": ["Wireshark", "ipconfig", "netstat", "ping"],
+        "answer": 0,
+        "explanation": "Wireshark captures and analyzes packets for troubleshooting."
+    },
+    {
+        "question": "Which component is necessary for wireless devices to communicate on a network?",
+        "options": ["Wireless network adapter", "Ethernet hub", "Printer", "Firewall"],
+        "answer": 0,
+        "explanation": "A wireless network adapter allows devices to connect via Wi-Fi."
+    },
+    {
+        "question": "Which protocol is used to remotely log in and manage a switch securely?",
+        "options": ["SSH", "Telnet", "HTTP", "FTP"],
+        "answer": 0,
+        "explanation": "SSH provides secure login for managing network devices."
+    },
+    {
+        "question": "Which cable type is least susceptible to signal interference?",
+        "options": ["Fiber optic", "Coaxial", "Twisted pair", "Parallel cable"],
+        "answer": 0,
+        "explanation": "Fiber optic cables are immune to electromagnetic interference."
+    },
+    {
+        "question": "Which command can show the MAC address of your computer in Windows?",
+        "options": ["ipconfig /all", "ping", "netstat", "tracert"],
+        "answer": 0,
+        "explanation": "'ipconfig /all' lists all network adapter details including MAC address."
+    },
+    {
+        "question": "Which device boosts a network signal to extend range?",
+        "options": ["Repeater", "Switch", "Modem", "Gateway"],
+        "answer": 0,
+        "explanation": "A repeater regenerates and amplifies network signals."
+    },
+    {
+        "question": "Which network category does Bluetooth fall under?",
+        "options": ["PAN", "LAN", "WAN", "MAN"],
+        "answer": 0,
+        "explanation": "Bluetooth is a Personal Area Network technology."
+    },
+    {
+        "question": "Which TCP/IP layer corresponds to the OSI Network Layer?",
+        "options": ["Internet Layer", "Application Layer", "Network Access Layer", "Transport Layer"],
+        "answer": 0,
+        "explanation": "The TCP/IP Internet Layer handles packet routing and IP addressing."
+    },
+    {
+        "question": "What does SMTP stand for?",
+        "options": ["Simple Mail Transfer Protocol", "Secure Mail Transfer Protocol", "Simple Mail Transmission Process", "Server Mail Transfer Protocol"],
+        "answer": 0,
+        "explanation": "SMTP is the standard protocol for sending emails."
+    },
+    {
+        "question": "Which device is used to concentrate network connections from multiple devices into one point?",
+        "options": ["Hub", "Switch", "Router", "Firewall"],
+        "answer": 0,
+        "explanation": "A hub connects multiple devices in the same network segment."
+    },
+    {
+        "question": "What does the acronym HTML stand for?",
+        "options": ["HyperText Markup Language", "High Transfer Markup Language", "Hyper Tool Mark Language", "Hyper Transfer Machine Language"],
+        "answer": 0,
+        "explanation": "HTML is HyperText Markup Language, used to structure content on the web."
+    },
+    {
+        "question": "Which port is default for secure HTTPS communication?",
+        "options": ["443", "80", "22", "110"],
+        "answer": 0,
+        "explanation": "HTTPS uses port 443 with SSL/TLS for secure web traffic."
+    },
+    {
+        "question": "Which protocol is used to control and manage email retrieval?",
+        "options": ["IMAP", "SMTP", "FTP", "SSH"],
+        "answer": 0,
+        "explanation": "IMAP (Internet Message Access Protocol) manages messages on the mail server."
+    },
+    {
+        "question": "Which type of network connects computers in the same building?",
+        "options": ["LAN", "WAN", "PAN", "SAN"],
+        "answer": 0,
+        "explanation": "A Local Area Network (LAN) connects devices within a building or small area."
+    },
+	{
+        "question": "If your computer shows an IP address starting with 169.254, what does it mean?",
+        "options": ["Automatic Private IP Addressing due to DHCP failure", "Manual static IP assigned", "Public IP has been allocated", "IP address of router"],
+        "answer": 0,
+        "explanation": "169.254.x.x is an APIPA address assigned when DHCP server is unreachable."
+    },
+    {
+        "question": "Which layer of the OSI model is responsible for converting data bits into electrical signals?",
+        "options": ["Physical Layer", "Data Link Layer", "Network Layer", "Transport Layer"],
+        "answer": 0,
+        "explanation": "The Physical Layer transmits raw bits over physical media as signals."
+    },
+    {
+        "question": "Which IP address class allows for the greatest number of networks but fewer hosts per network?",
+        "options": ["Class C", "Class A", "Class B", "Class D"],
+        "answer": 0,
+        "explanation": "Class C has many networks but supports fewer hosts per network."
+    },
+    {
+        "question": "What will happen if two devices in the same network have the same IP address?",
+        "options": ["IP address conflict leading to network issues", "Automatic resolution by DHCP", "Data is routed properly", "Nothing significant"],
+        "answer": 0,
+        "explanation": "Duplicate IPs cause conflicts and communication errors on the network."
+    },
+    {
+        "question": "What does the TTL (Time to Live) field in an IP packet prevent?",
+        "options": ["Packets circulating indefinitely in the network", "The packet from being delivered", "Data corruption", "Packet encryption"],
+        "answer": 0,
+        "explanation": "TTL limits how many hops a packet can make to avoid infinite loops."
+    },
+    {
+        "question": "Which protocol is often confused with HTTP because of similar acronym but is actually related to emails?",
+        "options": ["SMTP", "FTP", "SNMP", "DHCP"],
+        "answer": 0,
+        "explanation": "SMTP (Simple Mail Transfer Protocol) is for sending emails, not web pages."
+    },
+    {
+        "question": "Which device is mistakenly called a 'hub' but actually sends data intelligently only to the correct recipient?",
+        "options": ["Switch", "Router", "Repeater", "Firewall"],
+        "answer": 0,
+        "explanation": "Switches forward data only to the intended device unlike hubs."
+    },
+    {
+        "question": "When you type a URL in the browser, which of these happens first?",
+        "options": ["DNS lookup to get IP address", "HTTP establishes a connection", "Browser caches the page", "The webserver processes the request"],
+        "answer": 0,
+        "explanation": "DNS lookup happens first to resolve domain name into an IP before connection."
+    },
+    {
+        "question": "Which tool sends an ICMP echo request to diagnose network connectivity?",
+        "options": ["ping", "tracert", "nslookup", "ipconfig"],
+        "answer": 0,
+        "explanation": "Ping sends ICMP echo requests and waits for replies to test reachability."
+    },
+    {
+        "question": "What is the main reason why IPv6 was developed?",
+        "options": ["To overcome IPv4 address exhaustion", "To speed up Internet browsing", "To replace HTTP", "To encrypt data automatically"],
+        "answer": 0,
+        "explanation": "IPv6 provides a vastly larger address space than IPv4 to handle address exhaustion."
+    },
+    {
+        "question": "What does an HTTP status code starting with 4XX indicate?",
+        "options": ["Client error", "Server error", "Successful response", "Redirection"],
+        "answer": 0,
+        "explanation": "4XX codes mean errors on the client side, like '404 Not Found'."
+    },
+    {
+        "question": "Which of these is not a physical network topologies?",
+        "options": ["TCP/IP", "Star", "Ring", "Bus"],
+        "answer": 0,
+        "explanation": "TCP/IP is a protocol suite, not a network topology."
+    },
+    {
+        "question": "Which of the following IP addresses is valid and reserved for loopback testing?",
+        "options": ["127.0.0.1", "0.0.0.0", "192.168.1.1", "255.255.255.0"],
+        "answer": 0,
+        "explanation": "127.0.0.1 is the standard loopback address for testing local network interface."
+    },
+    {
+        "question": "What is the function of the DNS MX record?",
+        "options": ["Specifies which mail server handles emails for a domain", "Maps domain to IP address", "Redirects web traffic", "Manages DNS security settings"],
+        "answer": 0,
+        "explanation": "MX records designate the mail servers responsible for email routing of a domain."
+    },
+    {
+        "question": "In IPv4, how many usable host addresses are there in a /30 subnet?",
+        "options": ["2", "4", "6", "8"],
+        "answer": 0,
+        "explanation": "/30 provides 4 addresses but 2 are reserved (network and broadcast), leaving 2 hosts."
+    },
+    {
+        "question": "What does SSL/TLS provide in Internet communication?",
+        "options": ["Encryption and secure data transfer", "Only IP addressing", "Routing functionality", "Data compression"],
+        "answer": 0,
+        "explanation": "SSL/TLS encrypts data for secure communications over the network."
+    },
+    {
+        "question": "Which IPv6 notation represents a compressed address?",
+        "options": ["::1", "192.168.1.1", "1234:5678:9ABC:DEF0:1234:5678:9ABC:DEF0", "255.255.255.255"],
+        "answer": 0,
+        "explanation": "::1 is the compressed representation of the IPv6 loopback address."
+    },
+    {
+        "question": "What is a common cause of packet loss in a network?",
+        "options": ["Network congestion", "IP address change", "MAC address conflict", "Static IP"],
+        "answer": 0,
+        "explanation": "Network congestion causing buffer overflow often leads to packet loss."
+    },
+    {
+        "question": "Which protocol does the command 'tracert' use by default on Windows?",
+        "options": ["ICMP", "TCP", "UDP", "FTP"],
+        "answer": 0,
+        "explanation": "tracert uses ICMP Echo requests to determine the path to a host."
+    },
+    {
+        "question": "What does FTP stand for?",
+        "options": ["File Transfer Protocol", "Fast Transfer Process", "File Text Protocol", "First Transfer Protocol"],
+        "answer": 0,
+        "explanation": "FTP stands for File Transfer Protocol, used for transferring files over networks."
+    },
+    {
+        "question": "What is the loopback address used for testing in IPv4?",
+        "options": ["127.0.0.1", "192.168.1.1", "0.0.0.0", "255.255.255.255"],
+        "answer": 0,
+        "explanation": "127.0.0.1 is the loopback address used for testing network interfaces."
+    },
+    {
+        "question": "Which protocol is used for sending emails?",
+        "options": ["SMTP", "POP3", "IMAP", "FTP"],
+        "answer": 0,
+        "explanation": "SMTP is used to send emails from clients to servers."
+    },
+    {
+        "question": "Which wireless standard is known as Wi-Fi?",
+        "options": ["802.11", "802.3", "802.5", "802.16"],
+        "answer": 0,
+        "explanation": "The IEEE 802.11 standard defines Wi-Fi wireless networks."
+    },
+    {
+        "question": "Which port does HTTP use by default?",
+        "options": ["80", "25", "110", "443"],
+        "answer": 0,
+        "explanation": "HTTP uses port 80 for web traffic."
+    },
+    {
+        "question": "Which device provides wireless access to a network?",
+        "options": ["Access Point", "Switch", "Hub", "Firewall"],
+        "answer": 0,
+        "explanation": "An Access Point provides wireless connectivity to network devices."
+    },
+    {
+        "question": "What is the function of a modem?",
+        "options": ["Convert digital signals to analog and vice versa", "Assign IP addresses", "Filter spam", "Store webpages"],
+        "answer": 0,
+        "explanation": "A modem modulates and demodulates signals for internet transmission."
+    },
+    {
+        "question": "Which address type is unique to each network device?",
+        "options": ["MAC address", "IP address", "Loopback address", "Public address"],
+        "answer": 0,
+        "explanation": "A MAC address is a hardware identifier unique to each network device."
+    },
+    {
+        "question": "Which protocol is used for secure remote login?",
+        "options": ["SSH", "Telnet", "FTP", "SMTP"],
+        "answer": 0,
+        "explanation": "SSH provides secure, encrypted remote login to devices."
+    },
+    {
+        "question": "Which term refers to the speed at which data travels over a network?",
+        "options": ["Bandwidth", "Latency", "Jitter", "Throughput"],
+        "answer": 0,
+        "explanation": "Bandwidth is the capacity for data transfer over a network link."
+    },
+    {
+        "question": "What does IMAP allow you to do with emails?",
+        "options": ["Access emails while keeping them on the server", "Download and delete emails from the server", "Send emails", "Encrypt emails"],
+        "answer": 0,
+        "explanation": "IMAP lets users manage and read emails stored on the server."
+    },
+    {
+        "question": "Which type of IP address changes when reconnecting to the network?",
+        "options": ["Dynamic IP", "Static IP", "Public IP", "Private IP"],
+        "answer": 0,
+        "explanation": "Dynamic IP addresses are assigned temporarily by DHCP."
+    },
+    {
+        "question": "Which network covers the largest geographic area?",
+        "options": ["WAN", "LAN", "MAN", "PAN"],
+        "answer": 0,
+        "explanation": "A WAN (Wide Area Network) covers large areas, like the internet."
+    },
+    {
+        "question": "Which frequency band is used by Bluetooth?",
+        "options": ["2.4 GHz", "5 GHz", "900 MHz", "60 GHz"],
+        "answer": 0,
+        "explanation": "Bluetooth operates in the 2.4 GHz ISM band."
+    },
+    {
+        "question": "Which port is used by POP3 by default?",
+        "options": ["110", "25", "143", "443"],
+        "answer": 0,
+        "explanation": "POP3 uses port 110 for retrieving email from a server."
+    },
+    {
+        "question": "Which protocol is used to translate domain names to IP addresses?",
+        "options": ["DNS", "DHCP", "SMTP", "FTP"],
+        "answer": 0,
+        "explanation": "DNS handles the translation of domain names into IP addresses."
+    },
+    {
+        "question": "What does VPN stand for?",
+        "options": ["Virtual Private Network", "Virtual Public Node", "Variable Protocol Network", "Verified Private Network"],
+        "answer": 0,
+        "explanation": "A VPN creates a secure connection over a public network."
+    },
+    {
+        "question": "Which command in Windows renews the IP address from DHCP?",
+        "options": ["ipconfig /renew", "ping", "tracert", "netstat"],
+        "answer": 0,
+        "explanation": "'ipconfig /renew' requests a new IP address from the DHCP server."
+    },
+    {
+        "question": "Which part of an IP address identifies the network?",
+        "options": ["Network portion", "Host portion", "Gateway", "Subnet mask"],
+        "answer": 0,
+        "explanation": "The network portion specifies which network the address belongs to."
+    },
+    {
+        "question": "Which email protocol downloads messages and deletes them from the server?",
+        "options": ["POP3", "IMAP", "SMTP", "HTTPS"],
+        "answer": 0,
+        "explanation": "POP3 downloads emails locally and usually removes them from the server."
+    },
+    {
+        "question": "Which device is both a modem and a router combined?",
+        "options": ["Modem-router combo", "Switch", "Hub", "Access Point"],
+        "answer": 0,
+        "explanation": "A modem-router combo provides both internet access and routing functions."
+    },
+    {
+        "question": "Which protocol is used for file transfers without encryption?",
+        "options": ["FTP", "SFTP", "FTPS", "HTTPS"],
+        "answer": 0,
+        "explanation": "FTP transfers files in plain text and is not secure by default."
+    },
+    {
+        "question": "Which is the most common IP address class for small home networks?",
+        "options": ["Class C", "Class A", "Class B", "Class D"],
+        "answer": 0,
+        "explanation": "Class C (192.168.x.x) is widely used for small networks."
+    },
+    {
+        "question": "What is the maximum segment length for standard Ethernet over twisted pair?",
+        "options": ["100 meters", "50 meters", "200 meters", "500 meters"],
+        "answer": 0,
+        "explanation": "Ethernet over twisted pair supports up to 100 meters per segment."
+    },
+    {
+        "question": "Which address is known as the default route address?",
+        "options": ["0.0.0.0", "255.255.255.255", "127.0.0.1", "192.168.1.1"],
+        "answer": 0,
+        "explanation": "0.0.0.0 is used as a default route address."
+    },
+    {
+        "question": "What does HTML stand for?",
+        "options": ["HyperText Markup Language", "Hyper Transfer Markup Language", "HighText Machine Language", "Hyperlink and Text Markup Language"],
+        "answer": 0,
+        "explanation": "HTML is the HyperText Markup Language used to create web pages."
+    },
+    {
+        "question": "Which port is used by IMAPS for secure email retrieval?",
+        "options": ["993", "143", "110", "995"],
+        "answer": 0,
+        "explanation": "IMAPS (IMAP over SSL) uses port 993."
+    },
+    {
+        "question": "What is the main function of DHCP?",
+        "options": ["Automatically assign IP addresses", "Encrypt network data", "Translate domain names", "Test network speed"],
+        "answer": 0,
+        "explanation": "DHCP dynamically assigns IP addresses and network settings."
+    },
+    {
+        "question": "Which protocol do browsers use to fetch web pages?",
+        "options": ["HTTP", "FTP", "SMTP", "POP3"],
+        "answer": 0,
+        "explanation": "HTTP is the protocol used to transfer web pages from servers to browsers."
+    },
+    {
+        "question": "Which type of IP address is fixed and manually assigned?",
+        "options": ["Static IP", "Dynamic IP", "Private IP", "Virtual IP"],
+        "answer": 0,
+        "explanation": "Static IP addresses are manually configured and remain constant."
+    },
+    {
+        "question": "Which is an example of a web search engine?",
+        "options": ["Google", "Microsoft Word", "Zoom", "Windows"],
+        "answer": 0,
+        "explanation": "Google is a widely used search engine for browsing the web."
+    },
+    {
+        "question": "Which frequency band is used for most Wi-Fi connections?",
+        "options": ["2.4 GHz", "1.5 GHz", "900 MHz", "60 GHz"],
+        "answer": 0,
+        "explanation": "Most Wi-Fi networks operate in the 2.4 GHz band."
+    },
+    {
+        "question": "What does the term 'ping' measure?",
+        "options": ["Round-trip time between devices", "Bandwidth", "Data size", "IP address range"],
+        "answer": 0,
+        "explanation": "Ping measures the time taken for a packet to travel to a host and back."
+    },
+    {
+        "question": "Which IP version has a much larger address space?",
+        "options": ["IPv6", "IPv4", "IPv5", "IPv3"],
+        "answer": 0,
+        "explanation": "IPv6 uses 128-bit addresses, allowing for vastly more unique IPs."
+    },
+    {
+        "question": "In networking, what does 'latency' refer to?",
+        "options": ["Delay in data transfer", "Total data sent", "Bandwidth", "Packet loss"],
+        "answer": 0,
+        "explanation": "Latency is the time delay between sending and receiving data."
+    },
+    {
+        "question": "Which layer of the OSI model is responsible for delivering packets from source to destination?",
+        "options": ["Network Layer", "Data Link Layer", "Transport Layer", "Application Layer"],
+        "answer": 0,
+        "explanation": "The Network Layer routes packets between source and destination devices."
+    },
+    {
+        "question": "Which is the common default IP address for many home routers?",
+        "options": ["192.168.1.1", "127.0.0.1", "255.255.255.0", "10.0.0.1"],
+        "answer": 0,
+        "explanation": "192.168.1.1 is a common local IP address for router setup."
+    },
+    {
+        "question": "Which protocol is used for secure file transfer?",
+        "options": ["SFTP", "FTP", "TFTP", "HTTP"],
+        "answer": 0,
+        "explanation": "SFTP uses SSH to secure file transfers."
+    },
+    {
+        "question": "Which type of network is used for close-range communication between devices?",
+        "options": ["PAN", "LAN", "MAN", "WAN"],
+        "answer": 0,
+        "explanation": "A Personal Area Network (PAN) connects devices close to an individual."
+    },
+    {
+        "question": "Which number system is used for IP addresses?",
+        "options": ["Binary", "Decimal", "Hexadecimal", "Octal"],
+        "answer": 0,
+        "explanation": "IP addresses are stored in binary but displayed in decimal (IPv4) or hexadecimal (IPv6)."
+    },
+	
+	{
+        "question": "What does HTTP stand for in Internet terminology?",
+        "options": ["HyperText Transfer Protocol", "HyperTerminal Tracing Program", "HyperText Translation Process", "HighText Transfer Protocol"],
+        "answer": 0,
+        "explanation": "HTTP stands for HyperText Transfer Protocol, the foundation of data communication on the Web."
+    },
+    {
+        "question": "Which device is primarily used to connect multiple devices within a local area network?",
+        "options": ["Router", "Switch", "Modem", "Repeater"],
+        "answer": 1,
+        "explanation": "A switch connects multiple devices within a LAN and facilitates communication among them."
+    },
+    {
+        "question": "Which IP address class offers 254 host addresses per network?",
+        "options": ["Class A", "Class B", "Class C", "Class D"],
+        "answer": 2,
+        "explanation": "Class C IP addresses have a subnet mask of 255.255.255.0, supporting 254 hosts."
+    },
+    {
+        "question": "What is the maximum length of an IPv4 address?",
+        "options": ["32 bits", "64 bits", "128 bits", "256 bits"],
+        "answer": 0,
+        "explanation": "An IPv4 address is represented by 32 bits."
+    },
+    {
+        "question": "Which protocol is used to send emails over the Internet?",
+        "options": ["FTP", "SMTP", "HTTP", "POP3"],
+        "answer": 1,
+        "explanation": "SMTP (Simple Mail Transfer Protocol) is used to send emails."
+    },
+    {
+        "question": "What is the full form of DNS in networking?",
+        "options": ["Domain Name System", "Data Network Service", "Dynamic Name Server", "Domain Number Service"],
+        "answer": 0,
+        "explanation": "DNS stands for Domain Name System, which translates domain names to IP addresses."
+    },
+    {
+        "question": "Which transport protocol is connection-oriented?",
+        "options": ["UDP", "TCP", "IP", "ICMP"],
+        "answer": 1,
+        "explanation": "TCP (Transmission Control Protocol) is connection-oriented, ensuring reliable communication."
+    },
+    {
+        "question": "What does MAC address stand for?",
+        "options": ["Media Access Control", "Machine Access Code", "Mainframe Access Control", "Media Authorization Code"],
+        "answer": 0,
+        "explanation": "MAC address is the unique identifier assigned to network interfaces at the data link layer."
+    },
+    {
+        "question": "In networking, what is a firewall used for?",
+        "options": ["Blocking unauthorized access", "Routing data packets", "Providing DHCP service", "Improving bandwidth"],
+        "answer": 0,
+        "explanation": "A firewall controls incoming and outgoing network traffic based on security rules."
+    },
+    {
+        "question": "Which protocol is used to retrieve emails from a mail server?",
+        "options": ["SMTP", "FTP", "POP3", "SSH"],
+        "answer": 2,
+        "explanation": "POP3 (Post Office Protocol version 3) is used to retrieve emails from a server."
+    },
+    {
+        "question": "What is the default port number for HTTP?",
+        "options": ["21", "25", "80", "443"],
+        "answer": 2,
+        "explanation": "HTTP uses port 80 for communication."
+    },
+    {
+        "question": "Which protocol is considered secure for transferring files over the Internet?",
+        "options": ["FTP", "SFTP", "TFTP", "HTTP"],
+        "answer": 1,
+        "explanation": "SFTP (SSH File Transfer Protocol) provides secure file transfer."
+    },
+    {
+        "question": "Which cable type is most commonly used for broadband Internet?",
+        "options": ["Coaxial cable", "Twisted pair cable", "Fiber optic cable", "Ethernet cable"],
+        "answer": 0,
+        "explanation": "Broadband Internet often uses coaxial cables, especially in cable modem connections."
+    },
+    {
+        "question": "What is the function of a modem in networking?",
+        "options": ["Modulate and demodulate signals", "Route packets", "Switch Ethernet frames", "Store network data"],
+        "answer": 0,
+        "explanation": "A modem converts digital data to analog signals and vice versa for transmission over phone lines."
+    },
+    {
+        "question": "Which protocol ensures data integrity by verifying packet delivery?",
+        "options": ["IP", "UDP", "TCP", "HTTP"],
+        "answer": 2,
+        "explanation": "TCP provides reliability with acknowledgments and retransmission."
+    },
+    {
+        "question": "What does URL stand for?",
+        "options": ["Uniform Resource Locator", "Universal Request Locator", "Unified Resource Link", "Universal Resource Locator"],
+        "answer": 0,
+        "explanation": "URL stands for Uniform Resource Locator, the address of a resource on the web."
+    },
+    {
+        "question": "What is the primary purpose of an IP address?",
+        "options": ["To identify a network device uniquely", "To encrypt data", "To store data", "To monitor network traffic"],
+        "answer": 0,
+        "explanation": "An IP address uniquely identifies a device on a network."
+    },
+    {
+        "question": "Which protocol automatically assigns IP addresses to devices on a network?",
+        "options": ["DNS", "DHCP", "FTP", "SMTP"],
+        "answer": 1,
+        "explanation": "DHCP (Dynamic Host Configuration Protocol) assigns IP addresses dynamically."
+    },
+    {
+        "question": "Which layer of the OSI model deals with error detection and control?",
+        "options": ["Network Layer", "Transport Layer", "Data Link Layer", "Physical Layer"],
+        "answer": 2,
+        "explanation": "The Data Link layer handles error detection and correction."
+    },
+    {
+        "question": "Which protocol is used for secure web browsing?",
+        "options": ["HTTP", "HTTPS", "FTP", "SMTP"],
+        "answer": 1,
+        "explanation": "HTTPS (HTTP Secure) uses encryption for secure communication."
+    },
+    {
+        "question": "What type of addressing is used by MAC addresses?",
+        "options": ["Logical addressing", "Physical addressing", "Virtual addressing", "Broadcast addressing"],
+        "answer": 1,
+        "explanation": "MAC addresses are physical addresses assigned to network interfaces."
+    },
+    {
+        "question": "Which of the following is a common wireless networking standard?",
+        "options": ["802.11", "802.3", "802.5", "802.1"],
+        "answer": 0,
+        "explanation": "802.11 is the standard for Wi-Fi wireless networks."
+    },
+    {
+        "question": "Which technology allows multiple devices to share a single physical network connection?",
+        "options": ["Multiplexing", "Routing", "Switching", "Segmenting"],
+        "answer": 0,
+        "explanation": "Multiplexing allows multiple signals to share a physical medium."
+    },
+    {
+        "question": "What does the acronym ISP stand for?",
+        "options": ["Internet Service Provider", "Internal System Protocol", "Integrated Software Program", "Internet Secure Portal"],
+        "answer": 0,
+        "explanation": "ISP refers to an Internet Service Provider."
+    },
+    {
+        "question": "Which device assigns IP addresses and manages traffic within a LAN?",
+        "options": ["Modem", "Router", "Switch", "Access Point"],
+        "answer": 1,
+        "explanation": "A router routes traffic between networks and typically assigns IP addresses."
+    },
+    {
+        "question": "What port number is used by the FTP protocol?",
+        "options": ["21", "23", "25", "110"],
+        "answer": 0,
+        "explanation": "FTP uses port 21 for control commands."
+    },
+    {
+        "question": "Which type of malware disguises itself as legitimate software?",
+        "options": ["Virus", "Worm", "Trojan Horse", "Spyware"],
+        "answer": 2,
+        "explanation": "Trojan Horse malware appears benign but carries malicious payload."
+    },
+    {
+        "question": "Which protocol is primarily used for secure remote login?",
+        "options": ["Telnet", "SSH", "FTP", "SMTP"],
+        "answer": 1,
+        "explanation": "SSH (Secure Shell) provides encrypted remote access."
+    },
+    {
+        "question": "What is the main function of a DHCP server?",
+        "options": ["Assign IP addresses", "Filter network traffic", "Encrypt data", "Monitor network usage"],
+        "answer": 0,
+        "explanation": "DHCP server dynamically assigns IP addresses to clients."
+    },
+    {
+        "question": "Which of the following is a private IP address?",
+        "options": ["192.168.1.1", "8.8.8.8", "172.30.50.1", "128.0.0.1"],
+        "answer": 0,
+        "explanation": "192.168.1.1 is a common private IP address."
+    },
+    {
+        "question": "What does SSL stand for?",
+        "options": ["Secure Sockets Layer", "Secret Socket Link", "Secure Signal Level", "Safe Socket Location"],
+        "answer": 0,
+        "explanation": "SSL is a security protocol for establishing encrypted links."
+    },
+    {
+        "question": "Which DNS record type maps a domain to an IP address?",
+        "options": ["MX", "A", "PTR", "NS"],
+        "answer": 1,
+        "explanation": "An 'A' record maps a domain name to its IPv4 address."
+    },
+    {
+        "question": "What is the primary function of a proxy server?",
+        "options": ["Cache web content", "Route emails", "Filter spam", "Secure physical access"],
+        "answer": 0,
+        "explanation": "A proxy server caches content and acts as an intermediary between clients and servers."
+    },
+    {
+        "question": "Which protocol is responsible for translating domain names into IP addresses?",
+        "options": ["HTTP", "DNS", "DHCP", "FTP"],
+        "answer": 1,
+        "explanation": "DNS resolves domain names to IP addresses."
+    },
+    {
+        "question": "Which device connects different network segments and filters traffic by MAC address?",
+        "options": ["Router", "Switch", "Hub", "Repeater"],
+        "answer": 1,
+        "explanation": "Switches use MAC addresses to direct data within LANs."
+    },
+    {
+        "question": "Which security protocol is commonly used to secure Wi-Fi networks?",
+        "options": ["WEP", "WPA2", "SSL", "TLS"],
+        "answer": 1,
+        "explanation": "WPA2 is widely used to secure wireless networks."
+    },
+    {
+        "question": "What is the common port number used for SMTP?",
+        "options": ["21", "25", "80", "110"],
+        "answer": 1,
+        "explanation": "SMTP commonly uses port 25 for mail transmission."
+    },
+    {
+        "question": "What does VPN stand for?",
+        "options": ["Virtual Private Network", "Variable Protocol Network", "Verified Public Node", "Virtual Proxy Network"],
+        "answer": 0,
+        "explanation": "VPN creates a secure connection over a public network."
+    },
+    {
+        "question": "Which Layer in the OSI model is responsible for routing?",
+        "options": ["Network Layer", "Data Link Layer", "Transport Layer", "Session Layer"],
+        "answer": 0,
+        "explanation": "The Network Layer handles routing and forwarding."
+    },
+    {
+        "question": "Which of the following is not an Internet protocol?",
+        "options": ["TCP", "IP", "FTP", "HTTP", "USB"],
+        "answer": 4,
+        "explanation": "USB is not a networking protocol; it is a hardware interface."
+    },
+    {
+        "question": "Which wireless technology uses short-range, low power for devices like headphones?",
+        "options": ["Wi-Fi", "Bluetooth", "NFC", "ZigBee"],
+        "answer": 1,
+        "explanation": "Bluetooth is designed for short-range wireless communication."
+    },
+    {
+        "question": "Which protocol is used to securely access a website with encryption?",
+        "options": ["HTTP", "HTTPS", "FTP", "Telnet"],
+        "answer": 1,
+        "explanation": "HTTPS uses SSL/TLS to encrypt web communications."
+    },
+    {
+        "question": "Which of the following is not a valid IP address?",
+        "options": ["192.168.1.1", "255.255.255.256", "10.0.0.1", "172.16.0.1"],
+        "answer": 1,
+        "explanation": "255.255.255.256 is invalid because 256 is not a valid octet."
+    },
+    {
+        "question": "What layer is responsible for encryption on the web?",
+        "options": ["Presentation Layer", "Application Layer", "Session Layer", "Physical Layer"],
+        "answer": 0,
+        "explanation": "The Presentation Layer handles data encryption and decryption."
+    },
+    {
+        "question": "Which protocol sends error messages and operational information?",
+        "options": ["TCP", "IP", "ICMP", "ARP"],
+        "answer": 2,
+        "explanation": "ICMP is used for sending error and control messages."
+    },
+    {
+        "question": "Which type of network is the Internet an example of?",
+        "options": ["LAN", "WAN", "MAN", "PAN"],
+        "answer": 1,
+        "explanation": "The Internet is a Worldwide Area Network (WAN)."
+    },
+    {
+        "question": "Which wireless standard provides data rates up to 1 Gbps?",
+        "options": ["802.11a", "802.11b", "802.11ac", "802.11g"],
+        "answer": 2,
+        "explanation": "802.11ac is a Wi-Fi standard supporting gigabit speeds."
+    },
+    {
+        "question": "What is the function of a repeater in networking?",
+        "options": ["Amplify signals", "Route packets", "Connect different networks", "Assign IP addresses"],
+        "answer": 0,
+        "explanation": "Repeaters regenerate signals to extend transmission distance."
+    },
+    {
+        "question": "What is the default subnet mask for Class B IP addresses?",
+        "options": ["255.255.0.0", "255.0.0.0", "255.255.255.0", "255.255.255.255"],
+        "answer": 0,
+        "explanation": "Class B uses 255.255.0.0 as default subnet mask."
+    },
+    {
+        "question": "What command is used to test connectivity between two computers?",
+        "options": ["ping", "tracert", "ipconfig", "netstat"],
+        "answer": 0,
+        "explanation": "The ping command checks the reachability of a host."
+    },
+	 {
+        "question": "What is the function of the 'tracert' command?",
+        "options": ["Tests the route packets take to a host", "Displays IP configuration", "Checks network statistics", "Tests DNS resolution"],
+        "answer": 0,
+        "explanation": "The 'tracert' command shows the path packets take to reach a target host."
+    },
+    {
+        "question": "Which device connects different IP networks and directs data packets?",
+        "options": ["Router", "Switch", "Repeater", "Hub"],
+        "answer": 0,
+        "explanation": "A router routes data between different networks based on IP addresses."
+    },
+    {
+        "question": "What does FTP stand for?",
+        "options": ["File Transfer Protocol", "Fast Transfer Protocol", "File Transmission Program", "First Transfer Protocol"],
+        "answer": 0,
+        "explanation": "FTP is used for transferring files over networks."
+    },
+    {
+        "question": "Which protocol manages domain name resolution on the Internet?",
+        "options": ["DNS", "DHCP", "IP", "HTTP"],
+        "answer": 0,
+        "explanation": "DNS translates domain names into IP addresses."
+    },
+    {
+        "question": "What layer of the OSI model is responsible for logical addressing?",
+        "options": ["Network layer", "Transport layer", "Data link layer", "Physical layer"],
+        "answer": 0,
+        "explanation": "The Network layer assigns logical IP addresses to route packets."
+    },
+    {
+        "question": "Which protocol is used to encrypt data exchanged on the web?",
+        "options": ["SSL", "FTP", "HTTP", "SMTP"],
+        "answer": 0,
+        "explanation": "SSL encrypts web data to secure communication."
+    },
+    {
+        "question": "Which port number is used by HTTPS by default?",
+        "options": ["443", "80", "21", "25"],
+        "answer": 0,
+        "explanation": "HTTPS uses port 443 for secure web traffic."
+    },
+    {
+        "question": "Which wireless networking technology operates mostly in the 2.4 GHz and 5 GHz frequency bands?",
+        "options": ["Wi-Fi", "Bluetooth", "ZigBee", "NFC"],
+        "answer": 0,
+        "explanation": "Wi-Fi typically operates at 2.4 GHz and 5 GHz."
+    },
+    {
+        "question": "What kind of IP address is 127.0.0.1?",
+        "options": ["Loopback address", "Broadcast address", "Public address", "Private address"],
+        "answer": 0,
+        "explanation": "127.0.0.1 is the loopback address used to test local machine networking."
+    },
+    {
+        "question": "What does DHCP stand for?",
+        "options": ["Dynamic Host Configuration Protocol", "Domain Host Control Protocol", "Data Handling and Communication Protocol", "Distributed Host Configuration Program"],
+        "answer": 0,
+        "explanation": "DHCP automatically assigns IP addresses to devices on a network."
+    },
+    {
+        "question": "Which device is typically used to extend the range of a wireless network?",
+        "options": ["Repeater", "Router", "Switch", "Firewall"],
+        "answer": 0,
+        "explanation": "Repeaters rebroadcast and extend the wireless signal range."
+    },
+    {
+        "question": "Which of the following describes a MAC address?",
+        "options": ["Unique physical address for network hardware", "Logical IP address", "Subnet mask", "Routing address"],
+        "answer": 0,
+        "explanation": "MAC address is a unique hardware identification for network interface cards."
+    },
+    {
+        "question": "Which device is responsible for assigning IP addresses in a network?",
+        "options": ["DHCP server", "DNS server", "Gateway", "Modem"],
+        "answer": 0,
+        "explanation": "DHCP servers allocate IP addresses dynamically to devices."
+    },
+    {
+        "question": "In networking, what is a subnet mask used for?",
+        "options": ["To identify the network portion of an IP address", "To mask data for security", "To provide encryption keys", "To assign IP addresses"],
+        "answer": 0,
+        "explanation": "Subnet mask divides IP into network and host parts."
+    },
+    {
+        "question": "Which layer of the OSI model provides end-to-end communication control?",
+        "options": ["Transport layer", "Session layer", "Network layer", "Application layer"],
+        "answer": 0,
+        "explanation": "Transport layer manages data transfer and flow control."
+    },
+    {
+        "question": "What is the primary function of a proxy server?",
+        "options": ["To act as an intermediary between clients and servers", "To assign IP addresses", "To encrypt data", "To manage routing tables"],
+        "answer": 0,
+        "explanation": "Proxies forward client requests to servers and can filter traffic."
+    },
+    {
+        "question": "What protocol does the 'ping' utility use?",
+        "options": ["ICMP", "TCP", "UDP", "HTTP"],
+        "answer": 0,
+        "explanation": "Ping uses ICMP packets to test connectivity."
+    },
+    {
+        "question": "Which one is a valid private IP address range?",
+        "options": ["192.168.0.0/16", "8.8.8.8", "172.32.0.0/12", "1.1.1.1"],
+        "answer": 0,
+        "explanation": "192.168.0.0 to 192.168.255.255 is a private IP range."
+    },
+    {
+        "question": "Which command-line tool is used to display TCP/IP configuration?",
+        "options": ["ipconfig", "ping", "tracert", "netstat"],
+        "answer": 0,
+        "explanation": "ipconfig shows IP address and network settings on Windows."
+    },
+    {
+        "question": "What is the maximum transmission unit (MTU) in networking?",
+        "options": ["The largest packet size that can be sent on a network", "The time to live on a packet", "The type of IP address", "The number of hops in routing"],
+        "answer": 0,
+        "explanation": "MTU defines the max size of a single data packet on a network."
+    },
+    {
+        "question": "Which of these protocols is used for transferring files securely?",
+        "options": ["SFTP", "FTP", "TFTP", "HTTP"],
+        "answer": 0,
+        "explanation": "SFTP adds a secure SSH layer to FTP for safe file transfer."
+    },
+    {
+        "question": "What does VLAN stand for in networking?",
+        "options": ["Virtual Local Area Network", "Very Large Area Network", "Virtual Link Access Network", "Virtual Logical Address Network"],
+        "answer": 0,
+        "explanation": "VLAN segments a single physical network into logical subnets."
+    },
+    {
+        "question": "What is an Internet Protocol address used for?",
+        "options": ["Identifying devices on a network", "Encrypting network traffic", "Monitoring throughput", "Managing firewall rules"],
+        "answer": 0,
+        "explanation": "IP addresses uniquely identify devices on a network."
+    },
+    {
+        "question": "Which of these is not a transmission medium?",
+        "options": ["Fiber optic cable", "Ethernet cable", "Bluetooth", "Router"],
+        "answer": 3,
+        "explanation": "A router is a device, not a medium for data transmission."
+    },
+    {
+        "question": "Which wireless standard is fastest among these?",
+        "options": ["802.11n", "802.11g", "802.11ac", "802.11b"],
+        "answer": 2,
+        "explanation": "802.11ac offers the highest throughput among these options."
+    },
+    {
+        "question": "What part of a URL specifies the protocol?",
+        "options": ["http://", "www.", ".com", "/page.html"],
+        "answer": 0,
+        "explanation": "The protocol part specifies which communication protocol is used."
+    },
+    {
+        "question": "Which port number is used by DNS services?",
+        "options": ["53", "21", "80", "110"],
+        "answer": 0,
+        "explanation": "DNS uses port 53 for domain name resolution."
+    },
+    {
+        "question": "Which is a broadcast IP address for a Class C network?",
+        "options": ["192.168.1.255", "192.168.0.0", "192.168.1.0", "192.168.0.1"],
+        "answer": 0,
+        "explanation": "The broadcast address for Class C ends with .255."
+    },
+    {
+        "question": "Which protocol is used to map IP network addresses to MAC addresses?",
+        "options": ["ARP", "ICMP", "DNS", "DHCP"],
+        "answer": 0,
+        "explanation": "ARP translates IP addresses to MAC hardware addresses."
+    },
+    {
+        "question": "Which network topology connects every device to a central device?",
+        "options": ["Star", "Bus", "Ring", "Mesh"],
+        "answer": 0,
+        "explanation": "Star topology connects devices individually to a central node."
+    },
+    {
+        "question": "What does the subnet mask 255.255.255.0 indicate?",
+        "options": ["Network has 254 hosts", "Network has 256 hosts", "Network has 512 hosts", "Network has 128 hosts"],
+        "answer": 0,
+        "explanation": "It allows 254 usable IP addresses in the subnet."
+    },
+    {
+        "question": "What is the name of the logical identifier assigned to a host on the Internet?",
+        "options": ["IP address", "MAC address", "Subnet", "Gateway"],
+        "answer": 0,
+        "explanation": "IP address uniquely identifies a host on networks."
+    },
+    {
+        "question": "Which wireless technology is mainly used for personal area networks over short distances?",
+        "options": ["Bluetooth", "Wi-Fi", "ZigBee", "Ethernet"],
+        "answer": 0,
+        "explanation": "Bluetooth is designed for short-range device communication."
+    },
+    {
+        "question": "What is the primary function of RTP in internet protocols?",
+        "options": ["Real-time Transport Protocol for streaming media", "Relative Transmission Protocol for emails", "Reliable Transfer Protocol for files", "Remote Terminal Protocol for shell access"],
+        "answer": 0,
+        "explanation": "RTP is used in delivering streaming audio and video over networks."
+    },
+    {
+        "question": "Which device distributes incoming network traffic to multiple servers to optimize resource use?",
+        "options": ["Load Balancer", "Router", "Switch", "Hub"],
+        "answer": 0,
+        "explanation": "A load balancer distributes client requests to multiple servers."
+    },
+    {
+        "question": "What does SSL/TLS stand for?",
+        "options": ["Secure Sockets Layer / Transport Layer Security", "Secure Socket Link / Transport Layer Source", "Secret Sockets License / Transport Layer Security", "Secure Signal Layer / Transmission Layer Security"],
+        "answer": 0,
+        "explanation": "SSL and TLS are protocols for encrypting Internet communications."
+    },
+    {
+        "question": "Which IP range belongs to Class A addresses?",
+        "options": ["1.0.0.0 to 126.255.255.255", "128.0.0.0 to 191.255.255.255", "192.0.0.0 to 223.255.255.255", "224.0.0.0 to 239.255.255.255"],
+        "answer": 0,
+        "explanation": "Class A addresses use the first octet from 1 to 126."
+    },
+    {
+        "question": "What does NAT stand for?",
+        "options": ["Network Address Translation", "Network Access Terminal", "Network Allocation Table", "Node Address Terminal"],
+        "answer": 0,
+        "explanation": "NAT translates private IPs to public IP addresses."
+    },
+    {
+        "question": "Which of these is a recognized network security protocol?",
+        "options": ["IPSec", "HTTP", "DNS", "FTP"],
+        "answer": 0,
+        "explanation": "IPSec secures IP communications by authenticating and encrypting each packet."
+    },
+    {
+        "question": "What does ping measure in networking?",
+        "options": ["Round trip time between hosts", "Number of hosts", "Router load", "Network speed"],
+        "answer": 0,
+        "explanation": "Ping measures latency or delay in packet transmission."
+    },
+    {
+        "question": "Which is a valid IPv6 address segment?",
+        "options": ["2001", "2564", "3001", "G001"],
+        "answer": 0,
+        "explanation": "IPv6 uses hexadecimal numbers from 0000 to FFFF per segment."
+    },
+    {
+        "question": "A firewall primarily operates on which layer of the OSI model?",
+        "options": ["Network Layer", "Application Layer", "Physical Layer", "Data Link Layer"],
+        "answer": 0,
+        "explanation": "Firewalls filter packets primarily at the network layer."
+    },
+    {
+        "question": "Which protocol converts hostnames to IP addresses in local networks?",
+        "options": ["NetBIOS", "DNS", "ARP", "HTTP"],
+        "answer": 0,
+        "explanation": "NetBIOS allows device names resolution in Windows networks."
+    },
+	{
+        "question": "What is the main purpose of the ARP protocol in networking?",
+        "options": ["Translate IP addresses to MAC addresses", "Translate domain names to IP addresses", "Assign IP addresses", "Encrypt traffic"],
+        "answer": 0,
+        "explanation": "ARP (Address Resolution Protocol) maps IP addresses to their physical MAC addresses."
+    },
+    {
+        "question": "Which of the following is an example of a Class B IP address?",
+        "options": ["172.16.0.1", "192.168.1.1", "10.0.0.1", "224.0.0.1"],
+        "answer": 0,
+        "explanation": "The 172.16.0.0 to 172.31.255.255 range is part of Class B addresses."
+    },
+    {
+        "question": "Which command is used to display routing tables in Windows?",
+        "options": ["route print", "netstat -r", "ipconfig /all", "ping"],
+        "answer": 0,
+        "explanation": "The 'route print' command shows the system's routing table."
+    },
+    {
+        "question": "What is the length of an IPv6 address?",
+        "options": ["64 bits", "128 bits", "256 bits", "32 bits"],
+        "answer": 1,
+        "explanation": "IPv6 addresses are 128-bit long, allowing a huge address space."
+    },
+    {
+        "question": "Which protocol is used by web browsers to request web pages?",
+        "options": ["HTTP", "SMTP", "FTP", "SNMP"],
+        "answer": 0,
+        "explanation": "HyperText Transfer Protocol (HTTP) is used by browsers to fetch web resources."
+    },
+    {
+        "question": "What is the default port number for IMAP?",
+        "options": ["25", "143", "110", "993"],
+        "answer": 1,
+        "explanation": "IMAP (Internet Message Access Protocol) typically uses port 143 for unencrypted communication."
+    },
+    {
+        "question": "Which OSI layer is responsible for data compression?",
+        "options": ["Presentation Layer", "Session Layer", "Application Layer", "Network Layer"],
+        "answer": 0,
+        "explanation": "The Presentation Layer handles data compression, encryption, and translation."
+    },
+    {
+        "question": "Which protocol is used for secure file transfers using SSH?",
+        "options": ["SFTP", "TFTP", "FTP", "FTPS"],
+        "answer": 0,
+        "explanation": "SFTP (SSH File Transfer Protocol) secures file transfers via SSH."
+    },
+    {
+        "question": "In networking, what is bandwidth?",
+        "options": ["The amount of data transmitted in a given time", "The speed of light on cables", "The length of a network cable", "The number of IP addresses in a subnet"],
+        "answer": 0,
+        "explanation": "Bandwidth is the amount of data a network can transfer over a time period."
+    },
+    {
+        "question": "Which device divides a network into multiple collision domains?",
+        "options": ["Switch", "Hub", "Repeater", "Modem"],
+        "answer": 0,
+        "explanation": "Switches create separate collision domains for each port."
+    },
+    {
+        "question": "What does ICANN manage?",
+        "options": ["Domain names and IP address allocation", "Internet routing tables", "Local firewalls", "Browser security"],
+        "answer": 0,
+        "explanation": "ICANN oversees domain name systems and IP allocation globally."
+    },
+    {
+        "question": "Which protocol is used for system and network management?",
+        "options": ["SNMP", "SMTP", "FTP", "HTTP"],
+        "answer": 0,
+        "explanation": "SNMP (Simple Network Management Protocol) is used for monitoring and managing devices."
+    },
+    {
+        "question": "What is a typical range for private Class A IP addresses?",
+        "options": ["10.0.0.0 to 10.255.255.255", "192.168.0.0 to 192.168.255.255", "172.16.0.0 to 172.31.255.255", "224.0.0.0 to 239.255.255.255"],
+        "answer": 0,
+        "explanation": "10.0.0.0/8 is the private range in Class A."
+    },
+    {
+        "question": "Which Layer of the OSI model ensures data is delivered error-free, in sequence, and without losses?",
+        "options": ["Transport Layer", "Network Layer", "Data Link Layer", "Session Layer"],
+        "answer": 0,
+        "explanation": "The Transport Layer handles reliable delivery via protocols like TCP."
+    },
+    {
+        "question": "What is the role of a gateway in networking?",
+        "options": ["Connecting networks using different protocols", "Boosting network signals", "Extending Wi-Fi range", "Assigning network addresses"],
+        "answer": 0,
+        "explanation": "A gateway connects networks that use different protocols."
+    },
+    {
+        "question": "What does the ‘nslookup’ command do?",
+        "options": ["Queries DNS servers", "Displays network statistics", "Lists MAC addresses", "Shows routing information"],
+        "answer": 0,
+        "explanation": "nslookup queries DNS to get IP addresses for domain names."
+    },
+    {
+        "question": "Which wireless security protocol is considered the weakest?",
+        "options": ["WEP", "WPA", "WPA2", "WPA3"],
+        "answer": 0,
+        "explanation": "WEP is now obsolete and considered insecure."
+    },
+    {
+        "question": "What is the maximum speed supported by Cat5e Ethernet cable?",
+        "options": ["100 Mbps", "1 Gbps", "10 Gbps", "10 Mbps"],
+        "answer": 1,
+        "explanation": "Cat5e supports speeds up to 1 Gbps."
+    },
+    {
+        "question": "Which organization defines Ethernet standards?",
+        "options": ["IEEE", "IETF", "ISO", "ICANN"],
+        "answer": 0,
+        "explanation": "IEEE (Institute of Electrical and Electronics Engineers) develops Ethernet standards such as 802.3."
+    },
+    {
+        "question": "Which network topology connects each device directly to many others, providing high redundancy?",
+        "options": ["Mesh", "Star", "Bus", "Ring"],
+        "answer": 0,
+        "explanation": "Mesh topology offers direct links between devices and high redundancy."
+    },
+    {
+        "question": "Which part of an email address comes after '@'?",
+        "options": ["Domain name", "Username", "Password", "Protocol name"],
+        "answer": 0,
+        "explanation": "After '@' is the domain name that hosts the email service."
+    },
+    {
+        "question": "What is the function of the TTL field in an IP packet?",
+        "options": ["Limits the packet's lifetime", "Tracks packet size", "Encrypts the packet", "Defines routing protocol"],
+        "answer": 0,
+        "explanation": "TTL (Time to Live) limits how long a packet can circulate in a network."
+    },
+    {
+        "question": "Which technology allows telephony over the Internet?",
+        "options": ["VoIP", "VPN", "FTP", "SSH"],
+        "answer": 0,
+        "explanation": "VoIP (Voice over Internet Protocol) transmits voice communications online."
+    },
+    {
+        "question": "Which protocol is part of the suite enabling IPv6 autoconfiguration?",
+        "options": ["NDP", "HTTP", "FTP", "SNMP"],
+        "answer": 0,
+        "explanation": "NDP (Neighbor Discovery Protocol) helps configure IPv6 nodes automatically."
+    },
+    {
+        "question": "Which device interconnects different types of networks at Layer 3?",
+        "options": ["Router", "Switch", "Hub", "Bridge"],
+        "answer": 0,
+        "explanation": "Routers operate at Layer 3, connecting different networks."
+    },
+    {
+        "question": "Which routing protocol is considered an Interior Gateway Protocol?",
+        "options": ["OSPF", "BGP", "ARP", "SMTP"],
+        "answer": 0,
+        "explanation": "OSPF is an Interior Gateway Protocol used within an autonomous system."
+    },
+    {
+        "question": "What is the standard port for Telnet?",
+        "options": ["22", "23", "25", "21"],
+        "answer": 1,
+        "explanation": "Telnet uses port 23 for remote terminal connections."
+    },
+    {
+        "question": "Which of these is a cloud computing service model?",
+        "options": ["IaaS", "LAN", "MAN", "PAN"],
+        "answer": 0,
+        "explanation": "IaaS (Infrastructure as a Service) is a cloud service model."
+    },
+    {
+        "question": "Which type of DNS record is used for mail servers?",
+        "options": ["MX record", "A record", "CNAME record", "PTR record"],
+        "answer": 0,
+        "explanation": "MX records specify the mail server handling email for a domain."
+    },
+    {
+        "question": "Which command displays all active network connections in Windows?",
+        "options": ["netstat", "ping", "ipconfig", "arp -a"],
+        "answer": 0,
+        "explanation": "netstat shows active connections and listening ports."
+    },
+    {
+        "question": "Which IP address version uses hexadecimal notation?",
+        "options": ["IPv4", "IPv6", "Both", "Neither"],
+        "answer": 1,
+        "explanation": "IPv6 addresses are written in hexadecimal format."
+    },
+    {
+        "question": "What does the HTTP 404 error code indicate?",
+        "options": ["Server error", "Page not found", "Access forbidden", "Redirect"],
+        "answer": 1,
+        "explanation": "HTTP 404 means the requested resource could not be found."
+    },
+    {
+        "question": "What is a common use of multicast in networking?",
+        "options": ["Video conferencing", "Unicast file transfer", "ARP queries", "Email delivery"],
+        "answer": 0,
+        "explanation": "Multicast is often used for applications like live video streaming or conferencing."
+    },
+    {
+        "question": "What does the ‘whois’ command do?",
+        "options": ["Shows domain registration info", "Finds IP from domain", "Finds MAC address", "Lists network interfaces"],
+        "answer": 0,
+        "explanation": "whois is used to view information about domain registration."
+    },
+    {
+        "question": "Which frequency band is unlicensed and commonly used for Wi-Fi?",
+        "options": ["2.4 GHz", "900 MHz", "4 GHz", "1 GHz"],
+        "answer": 0,
+        "explanation": "2.4 GHz is a widely used unlicensed frequency for Wi-Fi."
+    },
+    {
+        "question": "What is the function of the OSI Session Layer?",
+        "options": ["Establish, manage, and terminate sessions", "Route data", "Encrypt data", "Detect errors"],
+        "answer": 0,
+        "explanation": "The Session Layer manages sessions between applications."
+    },
+    {
+        "question": "What does a broadcast address do?",
+        "options": ["Sends data to all devices on a network", "Sends data to a single device", "Sends data to multiple specified devices", "Blocks all data"],
+        "answer": 0,
+        "explanation": "Broadcast sends a packet to all hosts in the broadcast domain."
+    },
+    {
+        "question": "Which device connects to a network wirelessly?",
+        "options": ["Access Point", "Router", "Switch", "Modem"],
+        "answer": 0,
+        "explanation": "Access points provide Wi-Fi connectivity to devices."
+    },
+    {
+        "question": "Which VPN protocol is considered most secure among the common ones?",
+        "options": ["PPTP", "L2TP/IPSec", "OpenVPN", "SSTP"],
+        "answer": 2,
+        "explanation": "OpenVPN is widely regarded as highly secure and reliable."
+    },
+    {
+        "question": "Which technology allows network communication over power lines?",
+        "options": ["Powerline networking", "Fiber optic", "DSL", "Cable modem"],
+        "answer": 0,
+        "explanation": "Powerline networking uses electrical wiring to carry network data."
+    },
+    {
+        "question": "Which IEEE standard covers Ethernet?",
+        "options": ["802.3", "802.11", "802.5", "802.15"],
+        "answer": 0,
+        "explanation": "IEEE 802.3 defines Ethernet networking standards."
+    },
+    {
+        "question": "What does the host portion of an IP address identify?",
+        "options": ["Specific device on a network", "The network itself", "Subnet mask", "Broadcast domain"],
+        "answer": 0,
+        "explanation": "The host portion specifies the device within a network."
+    },
+    {
+        "question": "Which tool is used to capture and analyze network traffic?",
+        "options": ["Wireshark", "Traceroute", "Ping", "nslookup"],
+        "answer": 0,
+        "explanation": "Wireshark captures and analyzes packets on a network."
+    },
+	{
+        "question": "Which type of IP address is intended to be used only within private networks?",
+        "options": ["Private IP address", "Public IP address", "Static IP address", "Dynamic IP address"],
+        "answer": 0,
+        "explanation": "Private IP addresses, like those in ranges 10.x.x.x, 172.16-31.x.x, 192.168.x.x, are reserved for local networks."
+    },
+    {
+        "question": "What does the acronym WAN stand for?",
+        "options": ["Wide Area Network", "Wired Access Network", "Web Application Node", "Wireless Access Network"],
+        "answer": 0,
+        "explanation": "WAN refers to a Wide Area Network, which spans large geographic areas like the Internet."
+    },
+    {
+        "question": "What type of IP address changes every time you connect to the network?",
+        "options": ["Static", "Dynamic", "Public", "Private"],
+        "answer": 1,
+        "explanation": "Dynamic IP addresses are assigned by DHCP and may change when reconnecting."
+    },
+    {
+        "question": "Which OSI model layer deals with physical media like cables and connectors?",
+        "options": ["Physical Layer", "Data Link Layer", "Network Layer", "Transport Layer"],
+        "answer": 0,
+        "explanation": "The Physical Layer defines electrical, mechanical, and physical standards for devices."
+    },
+    {
+        "question": "Which of these is an example of a Class A private IP address?",
+        "options": ["10.0.0.25", "172.33.5.7", "192.168.5.5", "8.8.8.8"],
+        "answer": 0,
+        "explanation": "Addresses in the 10.0.0.0/8 range are Class A private IPs."
+    },
+    {
+        "question": "Which network device receives signals and retransmits them at a higher power?",
+        "options": ["Repeater", "Switch", "Router", "Bridge"],
+        "answer": 0,
+        "explanation": "Repeaters regenerate signals to extend the transmission range."
+    },
+    {
+        "question": "Which protocol is used to securely browse websites?",
+        "options": ["HTTPS", "HTTP", "FTP", "SFTP"],
+        "answer": 0,
+        "explanation": "HTTPS encrypts communications using SSL/TLS for secure browsing."
+    },
+    {
+        "question": "Which IP protocol version uses 128-bit addresses?",
+        "options": ["IPv4", "IPv6", "IPX", "IPv2"],
+        "answer": 1,
+        "explanation": "IPv6 uses 128-bit addresses to support a vastly larger number of devices."
+    },
+    {
+        "question": "Which device operates at the Data Link Layer to forward frames based on MAC addresses?",
+        "options": ["Switch", "Router", "Hub", "Gateway"],
+        "answer": 0,
+        "explanation": "Switches forward Ethernet frames using MAC address tables."
+    },
+    {
+        "question": "What does the acronym LAN stand for?",
+        "options": ["Local Area Network", "Large Access Network", "Logical Address Node", "Local Application Network"],
+        "answer": 0,
+        "explanation": "LAN refers to a network covering a small geographic area like an office or campus."
+    },
+    {
+        "question": "Which command shows the path taken by packets to a remote device?",
+        "options": ["tracert (Windows) / traceroute (Linux)", "ping", "ipconfig", "netstat"],
+        "answer": 0,
+        "explanation": "tracert/traceroute lists the sequence of routers packets pass through."
+    },
+    {
+        "question": "Which network model uses clients and servers?",
+        "options": ["Client-Server Model", "Peer-to-Peer Model", "Bus Model", "Ring Model"],
+        "answer": 0,
+        "explanation": "In the Client-Server model, clients request services from servers."
+    },
+    {
+        "question": "What is the maximum length of a CAT6 Ethernet cable segment?",
+        "options": ["100 meters", "50 meters", "200 meters", "500 meters"],
+        "answer": 0,
+        "explanation": "Ethernet using twisted pair cables supports up to 100 meters per segment."
+    },
+    {
+        "question": "Which command in Linux is used to check network interface configurations?",
+        "options": ["ifconfig", "ipconfig", "ping", "route"],
+        "answer": 0,
+        "explanation": "ifconfig displays or configures network interface parameters in Unix/Linux."
+    },
+    {
+        "question": "Which protocol uses port 22 by default?",
+        "options": ["SSH", "Telnet", "HTTP", "SMTP"],
+        "answer": 0,
+        "explanation": "Secure Shell (SSH) uses port 22 for encrypted remote management."
+    },
+    {
+        "question": "What does the acronym URL stand for?",
+        "options": ["Uniform Resource Locator", "Universal Routing Link", "User Reference List", "Unified Resource Lookup"],
+        "answer": 0,
+        "explanation": "A URL is the Uniform Resource Locator, the address to access resources on the web."
+    },
+    {
+        "question": "Which protocol is used for sending files without encryption over TCP?",
+        "options": ["FTP", "SFTP", "HTTP", "SMTP"],
+        "answer": 0,
+        "explanation": "File Transfer Protocol (FTP) sends files in plain text by default."
+    },
+    {
+        "question": "What is the loopback IPv6 address?",
+        "options": ["::1", "127.0.0.1", "::0", "fe80::1"],
+        "answer": 0,
+        "explanation": "In IPv6, the loopback address is ::1."
+    },
+    {
+        "question": "Which protocol is commonly used for video streaming over the web?",
+        "options": ["RTP", "SMTP", "NTP", "SNMP"],
+        "answer": 0,
+        "explanation": "The Real-time Transport Protocol (RTP) supports audio/video streaming."
+    },
+    {
+        "question": "What is the function of NAT in networking?",
+        "options": ["Translate private addresses to public addresses", "Assign MAC addresses", "Encrypt data", "Route email messages"],
+        "answer": 0,
+        "explanation": "Network Address Translation maps internal private IPs to a public IP."
+    },
+    {
+        "question": "Which command is used to display ARP table entries in Windows?",
+        "options": ["arp -a", "ping", "route print", "netstat"],
+        "answer": 0,
+        "explanation": "The 'arp -a' command lists current ARP cache entries."
+    },
+    {
+        "question": "Which OSI layer provides logical addressing?",
+        "options": ["Network Layer", "Transport Layer", "Data Link Layer", "Application Layer"],
+        "answer": 0,
+        "explanation": "Network Layer assigns logical IP addresses for routing."
+    },
+    {
+        "question": "What is the default subnet mask for Class A IP addresses?",
+        "options": ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.255.252"],
+        "answer": 0,
+        "explanation": "Class A addresses have a default subnet mask of 255.0.0.0."
+    },
+    {
+        "question": "What is the role of a DNS MX record?",
+        "options": ["Specifies a domain's mail servers", "Specifies name servers", "Maps a name to an address", "Provides alias for a domain"],
+        "answer": 0,
+        "explanation": "An MX record directs email to a mail server."
+    },
+    {
+        "question": "Which address type in IPv6 is equivalent to a broadcast address in IPv4?",
+        "options": ["Anycast", "Multicast", "Unicast", "Loopback"],
+        "answer": 1,
+        "explanation": "IPv6 uses multicast instead of broadcast for one-to-many communication."
+    },
+    {
+        "question": "Which protocol is used to securely manage network devices?",
+        "options": ["SNMPv3", "SNMPv1", "Telnet", "HTTP"],
+        "answer": 0,
+        "explanation": "SNMPv3 adds authentication and encryption to Securely manage devices."
+    },
+    {
+        "question": "Which network device interconnects two LANs operating at the same protocol?",
+        "options": ["Bridge", "Router", "Gateway", "Switch"],
+        "answer": 0,
+        "explanation": "A bridge connects and filters traffic between two same-protocol LAN segments."
+    },
+    {
+        "question": "What is the default port for POP3 email protocol?",
+        "options": ["110", "25", "143", "53"],
+        "answer": 0,
+        "explanation": "POP3 (Post Office Protocol v3) uses port 110 for mail retrieval."
+    },
+    {
+        "question": "Which technology allows you to create virtual network segments within a switch?",
+        "options": ["VLAN", "VPN", "WLAN", "NAT"],
+        "answer": 0,
+        "explanation": "VLAN (Virtual LAN) creates logical sub-networks within a switch."
+    },
+    {
+        "question": "Which cable type uses light to transmit data?",
+        "options": ["Fiber optic cable", "UTP cable", "STP cable", "Coaxial cable"],
+        "answer": 0,
+        "explanation": "Fiber optic cables use pulses of light for high-speed data transmission."
+    },
+    {
+        "question": "In Wi-Fi security, what does WPA stand for?",
+        "options": ["Wi-Fi Protected Access", "Wireless Protocol Authentication", "Wide Protocol Access", "Wi-Fi Protocol Authorization"],
+        "answer": 0,
+        "explanation": "WPA is Wi-Fi Protected Access, an improved wireless security protocol."
+    },
+    {
+        "question": "What is the main purpose of a subnet mask?",
+        "options": ["Divide IP addresses into network and host portions", "Encrypt network traffic", "Assign MAC addresses", "Authenticate users"],
+        "answer": 0,
+        "explanation": "Subnet masks identify which parts of an IP address refer to the network and to the host."
+    },
+    {
+        "question": "Which OSI layer is responsible for routing packets?",
+        "options": ["Network Layer", "Transport Layer", "Session Layer", "Data Link Layer"],
+        "answer": 0,
+        "explanation": "The Network Layer decides the path for data to reach its destination."
+    },
+    {
+        "question": "Which type of IP address is permanent and does not change?",
+        "options": ["Static IP", "Dynamic IP", "Private IP", "Loopback IP"],
+        "answer": 0,
+        "explanation": "Static IP addresses are manually assigned and remain constant."
+    },
+    {
+        "question": "What is the maximum data transfer rate for standard USB 3.0?",
+        "options": ["5 Gbps", "480 Mbps", "10 Gbps", "1 Gbps"],
+        "answer": 0,
+        "explanation": "USB 3.0 supports transfer rates up to 5 Gbps."
+    },
+    {
+        "question": "Which device connects a LAN to the Internet?",
+        "options": ["Router", "Switch", "Repeater", "Hub"],
+        "answer": 0,
+        "explanation": "Routers connect local networks to external networks like the Internet."
+    },
+    {
+        "question": "What is a common cause of network latency?",
+        "options": ["High bandwidth", "Signal interference", "Short cables", "Low CPU usage"],
+        "answer": 1,
+        "explanation": "Signal interference and long routes often increase latency."
+    },
+    {
+        "question": "Which protocol uses port 3389 by default?",
+        "options": ["RDP", "SSH", "Telnet", "SNMP"],
+        "answer": 0,
+        "explanation": "Remote Desktop Protocol (RDP) uses port 3389."
+    },
+    {
+        "question": "Which type of network typically covers a single building?",
+        "options": ["LAN", "WAN", "MAN", "PAN"],
+        "answer": 0,
+        "explanation": "LAN covers a limited area like an office or a building."
+    },
+    {
+        "question": "In networking, what is jitter?",
+        "options": ["Variation in packet arrival times", "Packet loss rate", "Network speed", "Bandwidth"],
+        "answer": 0,
+        "explanation": "Jitter is the variation in the time between packet arrivals."
+    },
+    {
+        "question": "Which command can you use to test DNS name resolution?",
+        "options": ["nslookup", "ping", "tracert", "ipconfig"],
+        "answer": 0,
+        "explanation": "nslookup queries DNS servers for domain-to-IP mapping."
+    },
+    {
+        "question": "What does VoIP stand for?",
+        "options": ["Voice over Internet Protocol", "Virtual over IP", "Video over IP", "Virtual Input Protocol"],
+        "answer": 0,
+        "explanation": "VoIP is Voice over Internet Protocol for transmitting voice digitally."
+    },
+    {
+        "question": "Which OSI layer is responsible for establishing, managing and terminating sessions?",
+        "options": ["Session Layer", "Presentation Layer", "Transport Layer", "Network Layer"],
+        "answer": 0,
+        "explanation": "The Session Layer controls dialog management between systems."
+    },
+	{
+        "question": "Which type of network connects computers over short distances, often within a single room?",
+        "options": ["LAN", "WAN", "MAN", "PAN"],
+        "answer": 3,
+        "explanation": "PAN (Personal Area Network) connects devices within close proximity, like Bluetooth connections."
+    },
+    {
+        "question": "Which device is used to connect multiple networks and forward packets between them?",
+        "options": ["Router", "Switch", "Hub", "Access Point"],
+        "answer": 0,
+        "explanation": "Routers connect different networks and direct data packets."
+    },
+    {
+        "question": "What is the main function of the OSI Data Link Layer?",
+        "options": ["Provides error detection and organizes data into frames", "Routes data between networks", "Encrypts data", "Assigns IP addresses"],
+        "answer": 0,
+        "explanation": "The Data Link layer organizes data into frames and provides error detection."
+    },
+    {
+        "question": "Which port is used by HTTP over TLS/SSL (HTTPS)?",
+        "options": ["21", "80", "443", "25"],
+        "answer": 2,
+        "explanation": "HTTPS uses port 443 for secure communication over SSL/TLS."
+    },
+    {
+        "question": "What is the reserved IPv4 address for broadcast messages to all hosts in a network?",
+        "options": ["All bits in host part are 1", "All bits in network part are 0", "Loopback address", "Gateway address"],
+        "answer": 0,
+        "explanation": "A broadcast address has all host bits set to 1."
+    },
+    {
+        "question": "Which wireless encryption method is considered most secure for home Wi-Fi?",
+        "options": ["WEP", "WPA", "WPA2", "Open Network"],
+        "answer": 2,
+        "explanation": "WPA2 provides strong encryption and security for wireless networks."
+    },
+    {
+        "question": "Which tool is used to check the reachability of a host on the network?",
+        "options": ["ping", "tracert", "netstat", "ipconfig"],
+        "answer": 0,
+        "explanation": "ping sends ICMP echo requests to verify host connectivity."
+    },
+    {
+        "question": "Which protocol uses port 443 for encrypted transactions?",
+        "options": ["HTTPS", "FTP", "POP3", "SSH"],
+        "answer": 0,
+        "explanation": "HTTPS runs on port 443 for secure web communications."
+    },
+    {
+        "question": "What is the default subnet mask for a Class C IPv4 network?",
+        "options": ["255.255.255.0", "255.255.0.0", "255.0.0.0", "255.255.252.0"],
+        "answer": 0,
+        "explanation": "Class C networks have a default mask of 255.255.255.0 allowing 254 hosts."
+    },
+    {
+        "question": "Which layer of the OSI model do routers operate at?",
+        "options": ["Physical Layer", "Network Layer", "Transport Layer", "Session Layer"],
+        "answer": 1,
+        "explanation": "Routers operate at the Network Layer using logical addressing."
+    },
+    {
+        "question": "Which application layer protocol is used to access the World Wide Web?",
+        "options": ["HTTP", "SMTP", "FTP", "DNS"],
+        "answer": 0,
+        "explanation": "HTTP is the primary protocol for fetching web pages."
+    },
+    {
+        "question": "Which device broadcasts incoming data to all of its ports?",
+        "options": ["Hub", "Switch", "Router", "Proxy"],
+        "answer": 0,
+        "explanation": "Hubs send incoming data to all ports, unlike switches."
+    },
+    {
+        "question": "Which command displays current TCP/IP network connections and ports?",
+        "options": ["netstat", "arp -a", "ipconfig", "ping"],
+        "answer": 0,
+        "explanation": "netstat shows active connections and their states."
+    },
+    {
+        "question": "In networking, what is latency?",
+        "options": ["The delay between sending and receiving data", "The maximum packet size", "Speed of data transfer", "The packet loss ratio"],
+        "answer": 0,
+        "explanation": "Latency is the time delay between data transmission and its receipt."
+    },
+    {
+        "question": "Which cable offers the fastest data transmission speed?",
+        "options": ["Fiber optic cable", "Coaxial cable", "Cat5 Ethernet cable", "Serial cable"],
+        "answer": 0,
+        "explanation": "Fiber optic cables transmit signals as light, providing top speeds."
+    },
+    {
+        "question": "Which OSI model layer is responsible for segmenting and reassembling data?",
+        "options": ["Transport Layer", "Network Layer", "Data Link Layer", "Presentation Layer"],
+        "answer": 0,
+        "explanation": "The Transport Layer segments data and reassembles it at the destination."
+    },
+    {
+        "question": "What is the IPv4 loopback address?",
+        "options": ["127.0.0.1", "0.0.0.0", "255.255.255.255", "192.168.1.1"],
+        "answer": 0,
+        "explanation": "127.0.0.1 is the loopback address to test local host networking."
+    },
+    {
+        "question": "Which email protocol is used to read messages while keeping them on the server?",
+        "options": ["POP3", "SMTP", "IMAP", "FTP"],
+        "answer": 2,
+        "explanation": "IMAP stores emails on the server while allowing local viewing."
+    },
+    {
+        "question": "Which type of IP address is assigned manually and doesn’t change?",
+        "options": ["Static IP", "Dynamic IP", "Private IP", "Public IP"],
+        "answer": 0,
+        "explanation": "Static IP addresses remain the same unless changed manually."
+    },
+    {
+        "question": "Which tool can capture live network traffic for analysis?",
+        "options": ["Wireshark", "netstat", "ipconfig", "ping"],
+        "answer": 0,
+        "explanation": "Wireshark captures and analyzes network packets."
+    },
+    {
+        "question": "Which IEEE standard defines Wi-Fi?",
+        "options": ["802.11", "802.3", "802.15", "802.16"],
+        "answer": 0,
+        "explanation": "The IEEE 802.11 standard defines wireless LAN technology."
+    },
+    {
+        "question": "Which protocol is used to transfer files between client and server without encryption?",
+        "options": ["FTP", "SFTP", "TFTP", "HTTPS"],
+        "answer": 0,
+        "explanation": "FTP transfers files over TCP without encryption by default."
+    },
+    {
+        "question": "What is the main purpose of a firewall?",
+        "options": ["Control incoming and outgoing network traffic", "Assign IP addresses", "Store network data", "Boost signal strength"],
+        "answer": 0,
+        "explanation": "Firewalls filter and control traffic based on security rules."
+    },
+    {
+        "question": "Which network topology connects all nodes in a closed loop?",
+        "options": ["Ring Topology", "Star Topology", "Bus Topology", "Mesh Topology"],
+        "answer": 0,
+        "explanation": "In ring topology, each node connects to exactly two others forming a loop."
+    },
+    {
+        "question": "Which port is commonly used by FTP for control commands?",
+        "options": ["21", "22", "25", "80"],
+        "answer": 0,
+        "explanation": "Port 21 is the default for FTP control."
+    },
+    {
+        "question": "Which service translates domain names into IP addresses?",
+        "options": ["DNS", "DHCP", "SMTP", "SNMP"],
+        "answer": 0,
+        "explanation": "DNS maps domain names to their respective IP addresses."
+    },
+    {
+        "question": "What is the protocol used for remote desktop connections on Windows?",
+        "options": ["RDP", "SSH", "Telnet", "VNC"],
+        "answer": 0,
+        "explanation": "Remote Desktop Protocol (RDP) is used for remote connections to Windows systems."
+    },
+    {
+        "question": "Which command in Windows refreshes the IP address obtained from DHCP?",
+        "options": ["ipconfig /release and ipconfig /renew", "ping", "tracert", "nslookup"],
+        "answer": 0,
+        "explanation": "ipconfig /release and /renew refresh DHCP-assigned addresses."
+    },
+    {
+        "question": "Which frequency band is typically used by Bluetooth?",
+        "options": ["2.4 GHz", "5 GHz", "900 MHz", "1.2 GHz"],
+        "answer": 0,
+        "explanation": "Bluetooth operates in the 2.4 GHz ISM band."
+    },
+    {
+        "question": "Which type of network covers a city or metropolitan area?",
+        "options": ["MAN", "LAN", "WAN", "PAN"],
+        "answer": 0,
+        "explanation": "MAN (Metropolitan Area Network) spans a city-wide area."
+    },
+    {
+        "question": "Which protocol is used to automatically assign IP addresses to network devices?",
+        "options": ["DHCP", "DNS", "FTP", "HTTP"],
+        "answer": 0,
+        "explanation": "DHCP dynamically assigns IP addresses and other configurations."
+    },
+    {
+        "question": "Which type of switching sends the entire message to the next node before forwarding?",
+        "options": ["Message Switching", "Packet Switching", "Circuit Switching", "Frame Switching"],
+        "answer": 0,
+        "explanation": "In message switching, whole messages are routed hop by hop."
+    },
+    {
+        "question": "Which network device can function as both a modem and a router?",
+        "options": ["Gateway", "Gateway router", "Modem router combo", "Bridge"],
+        "answer": 2,
+        "explanation": "A modem-router combo integrates modem and router functions."
+    },
+    {
+        "question": "What does SMTP stand for?",
+        "options": ["Simple Mail Transfer Protocol", "Secure Mail Transmission Protocol", "Server Mail Transfer Process", "Service Mail Transfer Protocol"],
+        "answer": 0,
+        "explanation": "SMTP sends outgoing emails from client to server or server to server."
+    },
+    {
+        "question": "Which OSI model layer handles encryption and compression?",
+        "options": ["Presentation Layer", "Application Layer", "Session Layer", "Data Link Layer"],
+        "answer": 0,
+        "explanation": "The Presentation Layer manages data translation, encryption, and compression."
+    },
+    {
+        "question": "Which protocol secures communication between web browsers and servers?",
+        "options": ["HTTPS", "FTP", "SMTP", "IMAP"],
+        "answer": 0,
+        "explanation": "HTTPS encrypts HTTP communications using SSL/TLS."
+    },
+    {
+        "question": "What do you call the maximum rate of data transfer across a network path?",
+        "options": ["Bandwidth", "Latency", "Throughput", "Jitter"],
+        "answer": 0,
+        "explanation": "Bandwidth refers to the data transfer capacity of a network connection."
+    },
+    {
+        "question": "Which IP version supports vastly more addresses due to larger address length?",
+        "options": ["IPv6", "IPv4", "IPv3", "IPv2"],
+        "answer": 0,
+        "explanation": "IPv6 expands address length to 128 bits."
+    },
+    {
+        "question": "Which protocol retrieves email from a mail server and leaves a copy on the server?",
+        "options": ["IMAP", "POP3", "SMTP", "HTTP"],
+        "answer": 0,
+        "explanation": "IMAP retrieves and syncs email, keeping it on the server."
+    },
+    {
+        "question": "In networking, what does QoS stand for?",
+        "options": ["Quality of Service", "Quantity of Signal", "Quality of Signal", "Queue of Services"],
+        "answer": 0,
+        "explanation": "QoS prioritizes certain traffic to meet service quality needs."
+    },
+    {
+        "question": "Which TCP/IP layer corresponds to the OSI Application, Presentation, and Session layers?",
+        "options": ["Application Layer", "Transport Layer", "Internet Layer", "Network Access Layer"],
+        "answer": 0,
+        "explanation": "The TCP/IP Application Layer combines OSI's top three layers."
+    },
+    {
+        "question": "Which device strengthens and retransmits Wi-Fi signals?",
+        "options": ["Range Extender", "Switch", "Hub", "Gateway"],
+        "answer": 0,
+        "explanation": "A range extender boosts and relays wireless signals to improve coverage."
+    },
+    {
+        "question": "Which service lets you lease virtual servers over the internet?",
+        "options": ["IaaS", "PaaS", "SaaS", "VPN"],
+        "answer": 0,
+        "explanation": "Infrastructure as a Service (IaaS) offers virtualized computing resources online."
+    },
+	{
+        "question": "Which device is used to connect different types of networks, such as LAN and WAN?",
+        "options": ["Router", "Switch", "Hub", "Repeater"],
+        "answer": 0,
+        "explanation": "A router connects different networks and routes data between them."
+    },
+    {
+        "question": "What is the primary advantage of using fiber optic cables over copper cables?",
+        "options": ["Lower cost", "Easier installation", "Higher speed and longer distance", "Lighter weight only"],
+        "answer": 2,
+        "explanation": "Fiber optic cables can transmit data at higher speeds over longer distances than copper."
+    },
+    {
+        "question": "Which OSI layer handles flow control and error correction?",
+        "options": ["Transport Layer", "Network Layer", "Data Link Layer", "Physical Layer"],
+        "answer": 0,
+        "explanation": "The Transport Layer ensures reliable data delivery with flow control and error correction."
+    },
+    {
+        "question": "What does a subnet mask do?",
+        "options": ["Divides IP addresses into network and host portions", "Encrypts data", "Limits bandwidth", "Assigns MAC addresses"],
+        "answer": 0,
+        "explanation": "A subnet mask separates the IP address into the network and host parts."
+    },
+    {
+        "question": "Which command in Linux is used to display the system's network interfaces?",
+        "options": ["ifconfig", "ipconfig", "netstat", "route"],
+        "answer": 0,
+        "explanation": "'ifconfig' shows and configures network interfaces on Unix/Linux."
+    },
+    {
+        "question": "Which protocol is commonly used for remote desktop access?",
+        "options": ["RDP", "SSH", "Telnet", "VNC"],
+        "answer": 0,
+        "explanation": "Remote Desktop Protocol (RDP) allows remote graphical access to Windows systems."
+    },
+    {
+        "question": "In IPv4, how many bits are in an address?",
+        "options": ["32", "64", "128", "16"],
+        "answer": 0,
+        "explanation": "IPv4 addresses are 32 bits long, written in dot-decimal notation."
+    },
+    {
+        "question": "What is the range of Class C IPv4 addresses?",
+        "options": ["192.0.0.0 to 223.255.255.255", "128.0.0.0 to 191.255.255.255", "1.0.0.0 to 126.255.255.255", "224.0.0.0 to 239.255.255.255"],
+        "answer": 0,
+        "explanation": "Class C addresses start with bits 110 and cover 192.0.0.0 to 223.255.255.255."
+    },
+    {
+        "question": "Which tool is used to resolve a domain name to its IP address?",
+        "options": ["nslookup", "ping", "tracert", "ftp"],
+        "answer": 0,
+        "explanation": "'nslookup' queries the DNS for domain-to-IP mapping."
+    },
+    {
+        "question": "Which wireless standard operates on the 60 GHz band?",
+        "options": ["802.11ad", "802.11n", "802.11ac", "802.11g"],
+        "answer": 0,
+        "explanation": "802.11ad, known as WiGig, uses the 60 GHz frequency for ultra-fast short-range wireless."
+    },
+    {
+        "question": "What is the function of a DHCP server?",
+        "options": ["Assign IP and network configuration to clients", "Manage DNS records", "Route packets", "Encrypt network traffic"],
+        "answer": 0,
+        "explanation": "A DHCP server dynamically assigns IP addresses and configuration parameters."
+    },
+    {
+        "question": "Which command can show detailed network statistics on Windows?",
+        "options": ["netstat", "ping", "tracert", "nslookup"],
+        "answer": 0,
+        "explanation": "'netstat' displays active connections, listening ports, and statistics."
+    },
+    {
+        "question": "Which type of transmission sends data to all devices in a network segment?",
+        "options": ["Broadcast", "Unicast", "Multicast", "Anycast"],
+        "answer": 0,
+        "explanation": "Broadcast sends data to all devices in the same broadcast domain."
+    },
+    {
+        "question": "Which protocol uses port 23 by default?",
+        "options": ["Telnet", "FTP", "SMTP", "DNS"],
+        "answer": 0,
+        "explanation": "Telnet uses port 23 for remote text-based communication."
+    },
+    {
+        "question": "Which fiber type is best for longer distances, multimode or single-mode?",
+        "options": ["Single-mode", "Multimode", "Both are equal", "Depends on cable material"],
+        "answer": 0,
+        "explanation": "Single-mode fiber supports much longer distances due to low signal dispersion."
+    },
+    {
+        "question": "What does the TTL value in an IP packet represent?",
+        "options": ["Maximum hops before packet is discarded", "Transmission time length", "Total time to transmit", "Traffic type level"],
+        "answer": 0,
+        "explanation": "TTL (Time to Live) is decremented with each hop; packet is discarded when it reaches 0."
+    },
+    {
+        "question": "Which security protocol replaced WEP for better Wi-Fi security?",
+        "options": ["WPA", "SSL", "TLS", "IPSec"],
+        "answer": 0,
+        "explanation": "WPA replaced WEP as a more secure wireless encryption method."
+    },
+    {
+        "question": "Which type of IP address is routable over the internet?",
+        "options": ["Public IP", "Private IP", "Loopback IP", "Multicast IP"],
+        "answer": 0,
+        "explanation": "Public IP addresses are globally routable and unique."
+    },
+    {
+        "question": "Which Linux command displays the current IP address of the system?",
+        "options": ["ifconfig", "ls", "pwd", "traceroute"],
+        "answer": 0,
+        "explanation": "'ifconfig' or 'ip addr' shows the current IP configuration."
+    },
+    {
+        "question": "Which port is used by Secure Shell (SSH)?",
+        "options": ["22", "23", "443", "80"],
+        "answer": 0,
+        "explanation": "SSH uses port 22 for secure remote access."
+    },
+    {
+        "question": "In networking, what is throughput?",
+        "options": ["Actual data transfer rate", "Maximum possible bandwidth", "Total transmitted data", "Delay time"],
+        "answer": 0,
+        "explanation": "Throughput is the actual amount of data successfully transferred per unit time."
+    },
+    {
+        "question": "What does IPv6 use instead of broadcasts?",
+        "options": ["Multicast", "Unicast", "Anycast", "Loopback"],
+        "answer": 0,
+        "explanation": "IPv6 replaces broadcasting with multicasting."
+    },
+    {
+        "question": "Which device is a central hub for wireless devices in a network?",
+        "options": ["Access Point", "Router", "Switch", "Bridge"],
+        "answer": 0,
+        "explanation": "An access point provides wireless connectivity to devices."
+    },
+    {
+        "question": "Which tool allows you to test hops between your device and a remote server?",
+        "options": ["traceroute/tracert", "ping", "telnet", "ftp"],
+        "answer": 0,
+        "explanation": "Traceroute displays the route packets take to the destination."
+    },
+    {
+        "question": "Which layer of the OSI model deals with framing?",
+        "options": ["Data Link Layer", "Network Layer", "Transport Layer", "Presentation Layer"],
+        "answer": 0,
+        "explanation": "Framing is a function of the Data Link layer."
+    },
+    {
+        "question": "Which IPv4 address range is reserved for loopback testing?",
+        "options": ["127.0.0.0/8", "10.0.0.0/8", "192.168.0.0/16", "169.254.0.0/16"],
+        "answer": 0,
+        "explanation": "127.0.0.0 to 127.255.255.255 is reserved for loopback testing."
+    },
+    {
+        "question": "Which switching method selects the output port after receiving the entire packet?",
+        "options": ["Store-and-forward", "Cut-through", "Fragment-free", "Bypass"],
+        "answer": 0,
+        "explanation": "Store-and-forward stores the full packet before forwarding."
+    },
+    {
+        "question": "Which component in networking is responsible for resolving hostnames into IP addresses locally?",
+        "options": ["Hosts file", "DHCP", "ARP", "NAT"],
+        "answer": 0,
+        "explanation": "The hosts file stores static hostname-to-IP address mappings."
+    },
+    {
+        "question": "Which wireless standard supports both 2.4GHz and 5GHz bands?",
+        "options": ["802.11n", "802.11b", "802.11g", "802.11a"],
+        "answer": 0,
+        "explanation": "802.11n supports dual-band operation."
+    },
+    {
+        "question": "What does the acronym VPN stand for?",
+        "options": ["Virtual Private Network", "Virtual Protocol Node", "Verified Private Number", "Variable Path Network"],
+        "answer": 0,
+        "explanation": "A VPN creates a secure tunnel over the public Internet."
+    },
+    {
+        "question": "Which is the first step in the DNS query process?",
+        "options": ["Check browser cache", "Request to root DNS server", "Contact TLD server", "Contact authoritative server"],
+        "answer": 0,
+        "explanation": "The browser first checks its local cache before initiating DNS queries."
+    },
+    {
+        "question": "Which port number is used by HTTP?",
+        "options": ["80", "443", "21", "25"],
+        "answer": 0,
+        "explanation": "HTTP uses default port 80."
+    },
+    {
+        "question": "Which TCP flag is used to initiate a connection?",
+        "options": ["SYN", "ACK", "FIN", "RST"],
+        "answer": 0,
+        "explanation": "The SYN flag is set to initiate the three-way handshake."
+    },
+    {
+        "question": "Which high-speed network is used for connecting computers in data centers or between close sites?",
+        "options": ["SAN", "LAN", "MAN", "WAN"],
+        "answer": 0,
+        "explanation": "A Storage Area Network (SAN) connects storage to hosts in data centers."
+    },
+    {
+        "question": "Which protocol is used to fetch webpages from a server?",
+        "options": ["HTTP", "SMTP", "DNS", "FTP"],
+        "answer": 0,
+        "explanation": "HTTP is used to request and transfer web pages."
+    },
+    {
+        "question": "Which address is used to manage network devices remotely?",
+        "options": ["IP address", "MAC address", "Loopback address", "Broadcast address"],
+        "answer": 0,
+        "explanation": "IP addresses are needed for remote management of devices."
+    },
+    {
+        "question": "Which IPv6 address type is limited to a single subnet?",
+        "options": ["Link-local", "Global", "Multicast", "Anycast"],
+        "answer": 0,
+        "explanation": "Link-local addresses (fe80::/10) work only within the same subnet."
+    },
+    {
+        "question": "Which command in Windows releases the current DHCP IP?",
+        "options": ["ipconfig /release", "ipconfig /renew", "arp -a", "netstat"],
+        "answer": 0,
+        "explanation": "ipconfig /release releases the DHCP lease."
+    },
+    {
+        "question": "Which technology allows connecting to a network using electrical wiring?",
+        "options": ["Powerline networking", "Ethernet", "Wi-Fi", "DSL"],
+        "answer": 0,
+        "explanation": "Powerline adapters use existing electrical wiring for network transmission."
+    },
+    {
+        "question": "Which layer in OSI corresponds to IP addressing?",
+        "options": ["Network Layer", "Data Link Layer", "Transport Layer", "Session Layer"],
+        "answer": 0,
+        "explanation": "Network Layer deals with logical IP addressing and routing."
+    },
+    {
+        "question": "Which port number is assigned to DNS queries?",
+        "options": ["53", "25", "110", "8080"],
+        "answer": 0,
+        "explanation": "DNS commonly operates over port 53."
+    },
+    {
+        "question": "Which method is commonly used to prevent unauthorized network access in Wi-Fi?",
+        "options": ["WPA2 encryption", "Port forwarding", "Proxy servers", "MAC address randomization"],
+        "answer": 0,
+        "explanation": "WPA2 encrypts wireless networks to prevent unauthorized access."
+    },
+	{
+        "question": "Which network protocol is used to synchronize the clocks of computers over a network?",
+        "options": ["NTP", "SNMP", "SMTP", "RTP"],
+        "answer": 0,
+        "explanation": "NTP (Network Time Protocol) synchronizes system clocks across networks."
+    },
+    {
+        "question": "Which device connects wireless clients to a wired network?",
+        "options": ["Access Point", "Repeater", "Switch", "Hub"],
+        "answer": 0,
+        "explanation": "An Access Point bridges wireless devices to the wired network infrastructure."
+    },
+    {
+        "question": "Which class of IP address has the default subnet mask 255.255.0.0?",
+        "options": ["Class A", "Class B", "Class C", "Class D"],
+        "answer": 1,
+        "explanation": "Class B has a default subnet mask of 255.255.0.0."
+    },
+    {
+        "question": "Which OSI layer establishes a connection between applications?",
+        "options": ["Session Layer", "Presentation Layer", "Network Layer", "Transport Layer"],
+        "answer": 0,
+        "explanation": "The Session Layer opens, manages, and closes communication sessions."
+    },
+    {
+        "question": "Which cable type is immune to electromagnetic interference?",
+        "options": ["Fiber optic", "Coaxial", "STP", "UTP"],
+        "answer": 0,
+        "explanation": "Fiber optic cables use light signals and are immune to electromagnetic interference."
+    },
+    {
+        "question": "What does the acronym MAN stand for in networking?",
+        "options": ["Metropolitan Area Network", "Main Access Network", "Managed Area Node", "Multiple Access Network"],
+        "answer": 0,
+        "explanation": "MAN is a Metropolitan Area Network that spans a city or campus."
+    },
+    {
+        "question": "What is the purpose of the ICMP protocol?",
+        "options": ["Send control messages and error reports", "Encrypt datagrams", "Transfer files", "Manage DNS queries"],
+        "answer": 0,
+        "explanation": "ICMP sends error messages and operational information about packet delivery."
+    },
+    {
+        "question": "Which address type is used to identify a single recipient in a network?",
+        "options": ["Unicast", "Multicast", "Broadcast", "Anycast"],
+        "answer": 0,
+        "explanation": "Unicast addressing is for one-to-one communication."
+    },
+    {
+        "question": "Which frequency is commonly used by 802.11b Wi-Fi networks?",
+        "options": ["2.4 GHz", "5 GHz", "900 MHz", "60 GHz"],
+        "answer": 0,
+        "explanation": "802.11b operates in the 2.4 GHz band."
+    },
+    {
+        "question": "Which protocol is used to send email from a client to a server?",
+        "options": ["SMTP", "POP3", "IMAP", "SNMP"],
+        "answer": 0,
+        "explanation": "SMTP (Simple Mail Transfer Protocol) sends outgoing mail."
+    },
+    {
+        "question": "Which device filters traffic based on predefined rules?",
+        "options": ["Firewall", "Switch", "Router", "Hub"],
+        "answer": 0,
+        "explanation": "A firewall filters incoming and outgoing traffic according to rules."
+    },
+    {
+        "question": "What does the acronym BGP stand for in networking?",
+        "options": ["Border Gateway Protocol", "Basic Gateway Process", "Binary Gateway Protocol", "Bridge Gateway Path"],
+        "answer": 0,
+        "explanation": "BGP is the Border Gateway Protocol, a core routing protocol on the internet."
+    },
+    {
+        "question": "Which technology can transmit data over TV cable lines?",
+        "options": ["Cable modem", "DSL modem", "Fiber optic", "Satellite"],
+        "answer": 0,
+        "explanation": "Cable modems send data over coaxial TV cables."
+    },
+    {
+        "question": "What is the maximum number of hosts possible in a /29 subnet?",
+        "options": ["6", "8", "4", "2"],
+        "answer": 0,
+        "explanation": "/29 allows 8 total addresses, 2 reserved (network and broadcast), leaving 6 hosts."
+    },
+    {
+        "question": "Which IP address class is used for multicast?",
+        "options": ["Class D", "Class E", "Class C", "Class B"],
+        "answer": 0,
+        "explanation": "Class D ranges from 224.0.0.0 to 239.255.255.255 and is used for multicast."
+    },
+    {
+        "question": "What is the primary function of a DNS CNAME record?",
+        "options": ["Alias one domain name to another", "Map a domain to IP", "Define mail servers", "Reverse lookup"],
+        "answer": 0,
+        "explanation": "CNAME (Canonical Name) records create alias names for domains."
+    },
+    {
+        "question": "Which application is used to share the screen and control a remote computer?",
+        "options": ["VNC", "ping", "traceroute", "nslookup"],
+        "answer": 0,
+        "explanation": "VNC (Virtual Network Computing) provides remote desktop sharing."
+    },
+    {
+        "question": "Which transport protocol does DNS primarily use for queries?",
+        "options": ["UDP", "TCP", "ICMP", "HTTP"],
+        "answer": 0,
+        "explanation": "DNS primarily uses UDP on port 53 for speed, and TCP for zone transfers."
+    },
+    {
+        "question": "Which security protocol is used for secure online payment transactions?",
+        "options": ["SET", "SSL", "TLS", "IPSec"],
+        "answer": 0,
+        "explanation": "SET (Secure Electronic Transaction) was designed for secure credit card transactions."
+    },
+    {
+        "question": "Which part of an IPv4 address identifies the network?",
+        "options": ["Network prefix", "Host ID", "Subnet mask", "Default gateway"],
+        "answer": 0,
+        "explanation": "The network prefix indicates the network portion defined by the subnet mask."
+    },
+    {
+        "question": "Which 802.11 Wi-Fi standard supports up to 11 Mbps?",
+        "options": ["802.11b", "802.11n", "802.11g", "802.11a"],
+        "answer": 0,
+        "explanation": "802.11b supports speeds up to 11 Mbps in the 2.4 GHz band."
+    },
+    {
+        "question": "What is a benefit of using IPv6 over IPv4?",
+        "options": ["Larger address space", "Faster T1 speeds", "More wireless channels", "Built-in crossover detection"],
+        "answer": 0,
+        "explanation": "IPv6 has a 128-bit address space, offering vastly more unique addresses."
+    },
+    {
+        "question": "Which protocol does the traceroute command use on most systems?",
+        "options": ["ICMP or UDP", "TCP", "FTP", "HTTP"],
+        "answer": 0,
+        "explanation": "Traceroute uses ICMP Echo (Windows) or UDP packets (Unix)."
+    },
+    {
+        "question": "Which device uses NAT to allow multiple devices to share one public IP?",
+        "options": ["Router", "Hub", "Switch", "Repeater"],
+        "answer": 0,
+        "explanation": "Routers with NAT share a single public IP among internal devices."
+    },
+    {
+        "question": "Which command checks the DNS resolution of a given hostname?",
+        "options": ["nslookup", "ping", "route", "ftp"],
+        "answer": 0,
+        "explanation": "'nslookup' queries DNS servers for an IP address."
+    },
+    {
+        "question": "Which routing protocol is considered exterior and used between autonomous systems?",
+        "options": ["BGP", "OSPF", "RIP", "EIGRP"],
+        "answer": 0,
+        "explanation": "BGP (Border Gateway Protocol) exchanges routing information between ASes."
+    },
+    {
+        "question": "What is the default subnet mask for IPv4 Class B?",
+        "options": ["255.255.0.0", "255.0.0.0", "255.255.255.0", "255.255.128.0"],
+        "answer": 0,
+        "explanation": "Class B addresses have 255.255.0.0 as the default subnet mask."
+    },
+    {
+        "question": "Which device acts as a network gateway for cloud-based services?",
+        "options": ["Cloud gateway", "Load balancer", "Firewall", "Switch"],
+        "answer": 0,
+        "explanation": "Cloud gateways connect local networks to cloud services."
+    },
+    {
+        "question": "Which protocol is used for viewing web pages securely?",
+        "options": ["HTTPS", "FTP", "SMTP", "SSH"],
+        "answer": 0,
+        "explanation": "HTTPS encrypts website data with SSL/TLS."
+    },
+    {
+        "question": "Which address type sends a packet to the nearest of multiple nodes?",
+        "options": ["Anycast", "Broadcast", "Multicast", "Unicast"],
+        "answer": 0,
+        "explanation": "Anycast sends packets to the closest node in terms of routing distance."
+    },
+    {
+        "question": "Which port is used by default for secure email retrieval via IMAPS?",
+        "options": ["993", "143", "110", "995"],
+        "answer": 0,
+        "explanation": "Secure IMAP (IMAPS) operates on port 993."
+    },
+    {
+        "question": "Which device helps in reducing broadcast traffic by dividing networks?",
+        "options": ["Router", "Hub", "Repeater", "Access Point"],
+        "answer": 0,
+        "explanation": "Routers segment networks and contain broadcast traffic within subnets."
+    },
+    {
+        "question": "Which name is given to the unique identifier assigned to network interfaces for communications?",
+        "options": ["MAC address", "IP address", "Subnet mask", "Gateway"],
+        "answer": 0,
+        "explanation": "A MAC address is a hardware identifier for network interfaces."
+    },
+    {
+        "question": "Which version of IP provides auto-configuration without DHCP?",
+        "options": ["IPv6", "IPv4", "IPX", "IPv3"],
+        "answer": 0,
+        "explanation": "IPv6 supports stateless address autoconfiguration."
+    },
+    {
+        "question": "Which networking term refers to the delay variation of data packets?",
+        "options": ["Jitter", "Latency", "Bandwidth", "Throughput"],
+        "answer": 0,
+        "explanation": "Jitter refers to the variations in packet delay times."
+    },
+    {
+        "question": "Which tool monitors and captures live packets on a network?",
+        "options": ["Wireshark", "Traceroute", "Ping", "Netcat"],
+        "answer": 0,
+        "explanation": "Wireshark is widely used for packet capture and analysis."
+    },
+    {
+        "question": "What does the acronym NAT stand for?",
+        "options": ["Network Address Translation", "Network Access Tunnel", "Node Allocation Table", "Network Administration Tool"],
+        "answer": 0,
+        "explanation": "NAT converts private IP addresses to public IP addresses."
+    },
+    {
+        "question": "In IPv4, what is the default mask for a Class A address?",
+        "options": ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.240.0"],
+        "answer": 0,
+        "explanation": "Class A networks use a default mask of 255.0.0.0."
+    },
+    {
+        "question": "Which DHCP message is sent by a client before it has an IP address?",
+        "options": ["DHCP Discover", "DHCP Request", "DHCP Offer", "DHCP Acknowledge"],
+        "answer": 0,
+        "explanation": "A DHCP Discover message starts the process of obtaining an IP address."
+    },
+    {
+        "question": "Which protocol is used for instant messaging and presence information?",
+        "options": ["XMPP", "SMTP", "POP3", "IMAP"],
+        "answer": 0,
+        "explanation": "XMPP (Extensible Messaging and Presence Protocol) is used for chat and presence."
+    },
+    {
+        "question": "Which protocol is used for time synchronization on IP networks?",
+        "options": ["NTP", "FTP", "HTTP", "SMTP"],
+        "answer": 0,
+        "explanation": "NTP ensures synchronized clocks across networked systems."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

@@ -1,0 +1,2759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biology Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">BIOLOGY</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+
+    {
+        "question": "Which organ is responsible for filtering waste from the blood in humans?",
+        "options": ["Heart", "Liver", "Kidney", "Lungs"],
+        "answer": 2,
+        "explanation": "Kidneys filter waste products from the blood and regulate fluid balance."
+    },
+    {
+        "question": "What is the basic unit of heredity?",
+        "options": ["Chromosome", "Gene", "DNA", "Nucleus"],
+        "answer": 1,
+        "explanation": "A gene is the fundamental unit of heredity, made of DNA."
+    },
+    {
+        "question": "Which part of the plant conducts photosynthesis?",
+        "options": ["Root", "Leaf", "Stem", "Flower"],
+        "answer": 1,
+        "explanation": "Leaves contain chlorophyll and are the main site for photosynthesis."
+    },
+    {
+        "question": "Hemoglobin is found in which type of blood cells?",
+        "options": ["White blood cells", "Red blood cells", "Platelets", "Plasma"],
+        "answer": 1,
+        "explanation": "Red blood cells carry hemoglobin which transports oxygen."
+    },
+    {
+        "question": "Which molecule stores genetic information?",
+        "options": ["RNA", "Protein", "DNA", "Lipid"],
+        "answer": 2,
+        "explanation": "DNA contains hereditary information in cells."
+    },
+    {
+        "question": "The green pigment in plants is called?",
+        "options": ["Chlorophyll", "Carotene", "Xanthophyll", "Phytochrome"],
+        "answer": 0,
+        "explanation": "Chlorophyll is the pigment responsible for green color and photosynthesis."
+    },
+    {
+        "question": "Which disease is caused by a deficiency of insulin?",
+        "options": ["Goiter", "Diabetes", "Anemia", "Scurvy"],
+        "answer": 1,
+        "explanation": "Diabetes results from insufficient insulin production."
+    },
+    {
+        "question": "Which of the following is a monosaccharide?",
+        "options": ["Glucose", "Sucrose", "Starch", "Cellulose"],
+        "answer": 0,
+        "explanation": "Glucose is a simple sugar (monosaccharide)."
+    },
+    {
+        "question": "What is the powerhouse of the cell?",
+        "options": ["Ribosome", "Nucleus", "Mitochondria", "Golgi apparatus"],
+        "answer": 2,
+        "explanation": "Mitochondria generate cellular energy (ATP)."
+    },
+    {
+        "question": "Which organ secretes bile?",
+        "options": ["Pancreas", "Gallbladder", "Liver", "Stomach"],
+        "answer": 2,
+        "explanation": "The liver produces bile; it's stored in the gallbladder."
+    },
+    {
+        "question": "What is the largest organ in the human body?",
+        "options": ["Liver", "Skin", "Heart", "Kidney"],
+        "answer": 1,
+        "explanation": "Skin is the largest organ of the human body."
+    },
+    {
+        "question": "Which blood group is known as universal donor?",
+        "options": ["A", "B", "AB", "O"],
+        "answer": 3,
+        "explanation": "O negative blood group is universal donor."
+    },
+    {
+        "question": "What is the function of white blood cells?",
+        "options": ["Carry oxygen", "Fight infections", "Transport hormones", "Give blood color"],
+        "answer": 1,
+        "explanation": "White blood cells provide immunity by fighting pathogens."
+    },
+    {
+        "question": "Which hormone controls the human sleep cycle?",
+        "options": ["Melatonin", "Insulin", "Adrenaline", "Thyroxine"],
+        "answer": 0,
+        "explanation": "Melatonin regulates sleep and wake cycles."
+    },
+    {
+        "question": "Which structure is present only in plant cells?",
+        "options": ["Nucleus", "Cell wall", "Golgi body", "Mitochondria"],
+        "answer": 1,
+        "explanation": "Cell walls provide plants structural support and are absent in animal cells."
+    },
+    {
+        "question": "What does AIDS affect primarily in the human body?",
+        "options": ["Nervous system", "Immune system", "Digestive system", "Excretory system"],
+        "answer": 1,
+        "explanation": "AIDS weakens the immune system by targeting white blood cells."
+    },
+    {
+        "question": "Gregor Mendel is known as the father of?",
+        "options": ["Ecology", "Genetics", "Evolution", "Virology"],
+        "answer": 1,
+        "explanation": "Mendel is recognized for his foundational work in genetics."
+    },
+    {
+        "question": "Which component of blood helps in clotting?",
+        "options": ["Plasma", "Platelets", "Red blood cells", "White blood cells"],
+        "answer": 1,
+        "explanation": "Platelets aid in blood clotting during injury."
+    },
+    {
+        "question": "Which plant tissue transports water?",
+        "options": ["Phloem", "Xylem", "Cambium", "Epidermis"],
+        "answer": 1,
+        "explanation": "Xylem tissue carries water and minerals from roots."
+    },
+    {
+        "question": "Which vitamin prevents night blindness?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 0,
+        "explanation": "Vitamin A is crucial for healthy vision."
+    },
+    {
+        "question": "At what pH does human blood remain?",
+        "options": ["5.0", "7.0", "7.4", "8.2"],
+        "answer": 2,
+        "explanation": "Human blood has a slightly alkaline pH around 7.4."
+    },
+    {
+        "question": "What is the main function of root hairs?",
+        "options": ["Photosynthesis", "Absorption of water", "Reproduction", "Transport of food"],
+        "answer": 1,
+        "explanation": "Root hairs increase surface area for water and mineral absorption."
+    },
+    {
+        "question": "Which organelle is responsible for protein synthesis?",
+        "options": ["Lysosome", "Ribosome", "Vacuole", "Peroxisome"],
+        "answer": 1,
+        "explanation": "Ribosomes are the site where proteins are constructed."
+    },
+    {
+        "question": "Who proposed the theory of natural selection?",
+        "options": ["Charles Darwin", "Gregor Mendel", "Louis Pasteur", "Robert Koch"],
+        "answer": 0,
+        "explanation": "Darwin's theory explains evolution by natural selection."
+    },
+    {
+        "question": "Which mineral is necessary for hemoglobin formation?",
+        "options": ["Calcium", "Iron", "Potassium", "Sodium"],
+        "answer": 1,
+        "explanation": "Iron is essential for the production of hemoglobin."
+    },
+    {
+        "question": "Penicillin is an antibiotic extracted from?",
+        "options": ["Bacteria", "Fungi", "Algae", "Plant"],
+        "answer": 1,
+        "explanation": "Penicillin is produced by the fungus Penicillium."
+    },
+    {
+        "question": "Which tissue is responsible for the growth in plants?",
+        "options": ["Meristem", "Xylem", "Phloem", "Epidermis"],
+        "answer": 0,
+        "explanation": "Meristematic tissue causes growth in plants."
+    },
+    {
+        "question": "Which part of the brain regulates heartbeat and breathing?",
+        "options": ["Cerebrum", "Cerebellum", "Medulla oblongata", "Pons"],
+        "answer": 2,
+        "explanation": "Medulla oblongata controls involuntary actions like heartbeat and respiration."
+    },
+    {
+        "question": "What is the main component of plant cell walls?",
+        "options": ["Cellulose", "Starch", "Protein", "Lipid"],
+        "answer": 0,
+        "explanation": "Cellulose forms the structural framework of plant cell walls."
+    },
+    {
+        "question": "Which part of the flower develops into fruit?",
+        "options": ["Stamen", "Petal", "Ovary", "Sepal"],
+        "answer": 2,
+        "explanation": "The ovary of the flower matures into fruit."
+    },
+    {
+        "question": "Which substance determines the sex of a child?",
+        "options": ["Ovum", "X chromosome", "Y chromosome", "Z chromosome"],
+        "answer": 2,
+        "explanation": "Presence of Y chromosome determines male offspring."
+    },
+    {
+        "question": "Antibodies are produced by which cells?",
+        "options": ["Red blood cells", "Platelets", "Lymphocytes", "Basophils"],
+        "answer": 2,
+        "explanation": "Lymphocytes, a type of white blood cell, produce antibodies."
+    },
+    {
+        "question": "What type of respiration occurs in absence of oxygen?",
+        "options": ["Aerobic", "Anaerobic", "Pulmonary", "Cellular"],
+        "answer": 1,
+        "explanation": "Anaerobic respiration does not require oxygen."
+    },
+    {
+        "question": "Mitochondria are absent in?",
+        "options": ["Animal cells", "Plant cells", "Bacterial cells", "Fungal cells"],
+        "answer": 2,
+        "explanation": "Bacteria lack membrane-bound organelles like mitochondria."
+    },
+    {
+        "question": "Which organism is called the smallest living cell?",
+        "options": ["Virus", "Algae", "Mycoplasma", "Fungi"],
+        "answer": 2,
+        "explanation": "Mycoplasma is the smallest living cell known."
+    },
+    {
+        "question": "Which vitamin is synthesized in the skin by sunlight?",
+        "options": ["Vitamin A", "Vitamin D", "Vitamin E", "Vitamin K"],
+        "answer": 1,
+        "explanation": "Vitamin D is produced by the skin when exposed to sunlight."
+    },
+    {
+        "question": "Which human organ produces urea?",
+        "options": ["Kidney", "Liver", "Lung", "Heart"],
+        "answer": 1,
+        "explanation": "Urea is synthesized in the liver during protein metabolism."
+    },
+    {
+        "question": "Which gas is absorbed during photosynthesis?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Methane"],
+        "answer": 2,
+        "explanation": "Plants take in CO2 for photosynthesis."
+    },
+    {
+        "question": "In which organelle does photosynthesis occur?",
+        "options": ["Mitochondria", "Ribosome", "Chloroplast", "Centrosome"],
+        "answer": 2,
+        "explanation": "Photosynthesis occurs in the chloroplasts of plant cells."
+    },
+    {
+        "question": "Which enzyme breaks down starch into sugar?",
+        "options": ["Lipase", "Amylase", "Protease", "Trypsin"],
+        "answer": 1,
+        "explanation": "Amylase converts starch into maltose and sugar."
+    },
+    {
+        "question": "Which organism is used in alcohol fermentation?",
+        "options": ["Lactobacillus", "Yeast", "Escherichia coli", "Vibrio"],
+        "answer": 1,
+        "explanation": "Yeast helps ferment sugars into alcohol."
+    },
+    {
+        "question": "Which is the largest gland in the human body?",
+        "options": ["Thyroid", "Liver", "Pancreas", "Pituitary"],
+        "answer": 1,
+        "explanation": "Liver is the largest gland in humans."
+    },
+    {
+        "question": "Which cell organelle is called the suicide bag?",
+        "options": ["Mitochondria", "Lysosome", "Golgi apparatus", "Ribosome"],
+        "answer": 1,
+        "explanation": "Lysosomes contain digestive enzymes and can destroy the cell."
+    },
+    {
+        "question": "Which disease is caused by deficiency of vitamin C?",
+        "options": ["Rickets", "Scurvy", "Beriberi", "Pellagra"],
+        "answer": 1,
+        "explanation": "A lack of vitamin C leads to scurvy."
+    },
+    {
+        "question": "Plants absorb water through?",
+        "options": ["Root hairs", "Stomata", "Leaves", "Stem"],
+        "answer": 0,
+        "explanation": "Root hairs maximize water absorption from soil."
+    },
+    {
+        "question": "Which protein acts as a biological catalyst?",
+        "options": ["Enzyme", "Collagen", "Keratin", "Actin"],
+        "answer": 0,
+        "explanation": "Enzymes speed up biochemical reactions."
+    },
+    {
+        "question": "Which animal is called the ship of the desert?",
+        "options": ["Horse", "Camel", "Elephant", "Donkey"],
+        "answer": 1,
+        "explanation": "Camel is adapted to desert conditions and is called the ship of desert."
+    },
+    {
+        "question": "Which gas is produced during anaerobic respiration in muscles?",
+        "options": ["Oxygen", "Carbon dioxide", "Lactic acid", "Methane"],
+        "answer": 2,
+        "explanation": "Lactic acid is formed in muscles during anaerobic respiration."
+    },
+    {
+        "question": "Which bird is known for its elaborate courtship dance?",
+        "options": ["Peacock", "Sparrow", "Parrot", "Pigeon"],
+        "answer": 0,
+        "explanation": "Peacocks are famous for their courtship display."
+    },
+    {
+        "question": "Which element is present in chlorophyll?",
+        "options": ["Iron", "Magnesium", "Potassium", "Copper"],
+        "answer": 1,
+        "explanation": "Magnesium is central in the chlorophyll molecule."
+    },
+    {
+        "question": "What is the function of phloem in plants?",
+        "options": ["Transportation of water", "Photosynthesis", "Transport of food", "Anchoring plants"],
+        "answer": 2,
+        "explanation": "Phloem transports food materials in plants."
+    },
+	{
+        "question": "Which structure in a cell controls all its activities?",
+        "options": ["Nucleus", "Cell wall", "Mitochondria", "Chloroplast"],
+        "answer": 0,
+        "explanation": "The nucleus directs all cell activities and contains genetic material."
+    },
+    {
+        "question": "Which blood vessels carry blood away from the heart?",
+        "options": ["Veins", "Arteries", "Capillaries", "Venules"],
+        "answer": 1,
+        "explanation": "Arteries transport blood away from the heart."
+    },
+    {
+        "question": "Who discovered the circulation of blood?",
+        "options": ["William Harvey", "Louis Pasteur", "Edward Jenner", "Robert Hooke"],
+        "answer": 0,
+        "explanation": "William Harvey explained the circulation of blood in humans."
+    },
+    {
+        "question": "Which part of a plant takes in carbon dioxide from the air?",
+        "options": ["Root", "Stem", "Leaf", "Flower"],
+        "answer": 2,
+        "explanation": "Leaves absorb carbon dioxide through stomata for photosynthesis."
+    },
+    {
+        "question": "Which condition is caused by the deficiency of iodine?",
+        "options": ["Scurvy", "Goiter", "Rickets", "Beriberi"],
+        "answer": 1,
+        "explanation": "Goiter is caused by lack of iodine in the diet."
+    },
+    {
+        "question": "Which enzyme is present in human saliva?",
+        "options": ["Protease", "Amylase", "Lipase", "Pepsin"],
+        "answer": 1,
+        "explanation": "Salivary amylase acts on starch in the mouth."
+    },
+    {
+        "question": "Which gas do plants release during photosynthesis?",
+        "options": ["Carbon dioxide", "Oxygen", "Nitrogen", "Methane"],
+        "answer": 1,
+        "explanation": "Plants release oxygen during photosynthesis."
+    },
+    {
+        "question": "What is the main function of red blood cells?",
+        "options": ["Defend the body", "Carry oxygen", "Produce antibodies", "Blood clotting"],
+        "answer": 1,
+        "explanation": "Red blood cells transport oxygen to tissues."
+    },
+    {
+        "question": "Which part of the flower produces pollen?",
+        "options": ["Ovary", "Anther", "Petal", "Stigma"],
+        "answer": 1,
+        "explanation": "Anther is the site of pollen production."
+    },
+    {
+        "question": "Which organ in humans produces insulin?",
+        "options": ["Liver", "Pancreas", "Kidney", "Spleen"],
+        "answer": 1,
+        "explanation": "The pancreas secretes insulin to regulate blood sugar."
+    },
+    {
+        "question": "Which is the largest bone in the human body?",
+        "options": ["Humerus", "Femur", "Tibia", "Fibula"],
+        "answer": 1,
+        "explanation": "Femur, the thigh bone, is the largest bone."
+    },
+    {
+        "question": "Malaria is caused by which organism?",
+        "options": ["Virus", "Bacteria", "Protozoa", "Fungi"],
+        "answer": 2,
+        "explanation": "Protozoan parasite Plasmodium causes malaria."
+    },
+    {
+        "question": "Where is bile stored in the human body?",
+        "options": ["Liver", "Gallbladder", "Pancreas", "Duodenum"],
+        "answer": 1,
+        "explanation": "Bile produced by the liver is stored in the gallbladder."
+    },
+    {
+        "question": "What kind of tissue forms the outer protective layer of plants?",
+        "options": ["Epidermis", "Meristem", "Phloem", "Cambium"],
+        "answer": 0,
+        "explanation": "Epidermis is the outermost protective layer of plant cells."
+    },
+    {
+        "question": "The process by which green plants make their own food is called?",
+        "options": ["Respiration", "Photosynthesis", "Digestion", "Transpiration"],
+        "answer": 1,
+        "explanation": "Photosynthesis is the food-making process in plants."
+    },
+    {
+        "question": "Which organ in the human body is responsible for removing nitrogenous waste?",
+        "options": ["Heart", "Kidney", "Liver", "Lung"],
+        "answer": 1,
+        "explanation": "The kidneys filter and remove nitrogenous waste from blood."
+    },
+    {
+        "question": "What is the normal body temperature for humans?",
+        "options": ["35°C", "37°C", "39°C", "40°C"],
+        "answer": 1,
+        "explanation": "The average human body temperature is 37°C."
+    },
+    {
+        "question": "Which cell is responsible for transmitting nerve impulses?",
+        "options": ["RBC", "Neuron", "Lymphocyte", "Platelet"],
+        "answer": 1,
+        "explanation": "Neurons transmit electrical nerve impulses."
+    },
+    {
+        "question": "Which plant hormone promotes cell division?",
+        "options": ["Auxin", "Cytokinin", "Gibberellin", "Ethylene"],
+        "answer": 1,
+        "explanation": "Cytokinins stimulate cell division in plants."
+    },
+    {
+        "question": "Which organ produces digestive enzymes and hormones?",
+        "options": ["Kidney", "Pancreas", "Liver", "Gallbladder"],
+        "answer": 1,
+        "explanation": "The pancreas produces both digestive enzymes and hormones like insulin."
+    },
+    {
+        "question": "Which disease is prevented by the polio vaccine?",
+        "options": ["Measles", "Polio", "Influenza", "Tuberculosis"],
+        "answer": 1,
+        "explanation": "Polio vaccine protects against poliomyelitis."
+    },
+    {
+        "question": "What is the main function of the cuticle in plants?",
+        "options": ["Water absorption", "Water loss prevention", "Photosynthesis", "Food transport"],
+        "answer": 1,
+        "explanation": "Cuticle prevents water loss in plants."
+    },
+    {
+        "question": "Which organelle packages and distributes proteins?",
+        "options": ["Nucleus", "Mitochondria", "Golgi apparatus", "Chloroplast"],
+        "answer": 2,
+        "explanation": "Golgi apparatus modifies, sorts, and packages proteins."
+    },
+    {
+        "question": "How many chromosomes does a normal human cell have?",
+        "options": ["23", "44", "46", "48"],
+        "answer": 2,
+        "explanation": "Humans have 46 chromosomes in each cell."
+    },
+    {
+        "question": "Which disease is transmitted by the Anopheles mosquito?",
+        "options": ["Dengue", "Chikungunya", "Malaria", "Yellow fever"],
+        "answer": 2,
+        "explanation": "Anopheles mosquitoes transmit malaria."
+    },
+    {
+        "question": "Which solvent is mostly found in a living cell?",
+        "options": ["Alcohol", "Water", "Oil", "Ether"],
+        "answer": 1,
+        "explanation": "Water is the principal solvent of cells."
+    },
+    {
+        "question": "What is the term for animals that eat both plants and animals?",
+        "options": ["Carnivores", "Herbivores", "Omnivores", "Detritivores"],
+        "answer": 2,
+        "explanation": "Omnivores consume both plant and animal materials."
+    },
+    {
+        "question": "What is the role of stomata in plants?",
+        "options": ["Absorption of minerals", "Photosynthesis", "Gas exchange", "Transport food"],
+        "answer": 2,
+        "explanation": "Stomata are responsible for gas exchange in leaves."
+    },
+    {
+        "question": "Which one is a communicable disease?",
+        "options": ["Cancer", "Diabetes", "Tuberculosis", "Beriberi"],
+        "answer": 2,
+        "explanation": "Tuberculosis spreads between individuals."
+    },
+    {
+        "question": "Which vitamin is needed for blood clotting?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin D", "Vitamin K"],
+        "answer": 3,
+        "explanation": "Vitamin K helps in synthesis of clotting factors."
+    },
+    {
+        "question": "Which instrument is used to see cells?",
+        "options": ["Telescope", "Microscope", "Periscope", "Stethoscope"],
+        "answer": 1,
+        "explanation": "Microscope magnifies cells for observation."
+    },
+    {
+        "question": "Which substance provides energy to the cell?",
+        "options": ["DNA", "ATP", "RNA", "Enzyme"],
+        "answer": 1,
+        "explanation": "ATP (Adenosine Triphosphate) is the cell's energy currency."
+    },
+    {
+        "question": "Which hormone regulates the amount of sugar in the blood?",
+        "options": ["Insulin", "Adrenaline", "Estrogen", "Thyroxine"],
+        "answer": 0,
+        "explanation": "Insulin balances blood sugar level."
+    },
+    {
+        "question": "Which organ helps humans hear?",
+        "options": ["Eye", "Nose", "Ear", "Tongue"],
+        "answer": 2,
+        "explanation": "The ear is responsible for hearing."
+    },
+    {
+        "question": "What is the main function of the heart?",
+        "options": ["Respiration", "Digestion", "Pump blood", "Excretion"],
+        "answer": 2,
+        "explanation": "Heart pumps blood throughout the body."
+    },
+    {
+        "question": "What is the major function of chloroplast?",
+        "options": ["Protein synthesis", "Photosynthesis", "Cell division", "Storage of food"],
+        "answer": 1,
+        "explanation": "Chloroplasts are the site of photosynthesis."
+    },
+    {
+        "question": "What is the normal blood pressure in adults?",
+        "options": ["120/80 mm Hg", "140/90 mm Hg", "110/75 mm Hg", "90/60 mm Hg"],
+        "answer": 0,
+        "explanation": "120/80 mm Hg is considered normal adult blood pressure."
+    },
+    {
+        "question": "Which disease is caused by lack of vitamin B1?",
+        "options": ["Pellagra", "Beriberi", "Scurvy", "Rickets"],
+        "answer": 1,
+        "explanation": "Beriberi is caused by deficiency of vitamin B1."
+    },
+    {
+        "question": "Which process enables plants to lose excess water?",
+        "options": ["Respiration", "Photosynthesis", "Transpiration", "Absorption"],
+        "answer": 2,
+        "explanation": "Transpiration is the process of water loss from leaves."
+    },
+    {
+        "question": "The functional and structural unit of life is?",
+        "options": ["Tissue", "Cell", "Organelle", "Organ"],
+        "answer": 1,
+        "explanation": "Cell is the basic unit of life."
+    },
+    {
+        "question": "Which process turns atmospheric nitrogen into a usable form in soil?",
+        "options": ["Photosynthesis", "Nitrogen fixation", "Transpiration", "Fermentation"],
+        "answer": 1,
+        "explanation": "Nitrogen fixation converts nitrogen to ammonia for plant use."
+    },
+    {
+        "question": "Which enzyme splits protein in the stomach?",
+        "options": ["Amylase", "Lipase", "Pepsin", "Trypsin"],
+        "answer": 2,
+        "explanation": "Pepsin breaks down proteins in stomach."
+    },
+    {
+        "question": "Which animal lays eggs but is a mammal?",
+        "options": ["Bat", "Whale", "Platypus", "Tiger"],
+        "answer": 2,
+        "explanation": "Platypus is an egg-laying mammal (monotreme)."
+    },
+    {
+        "question": "Which is called the master gland in humans?",
+        "options": ["Thyroid", "Pituitary", "Adrenal", "Pancreas"],
+        "answer": 1,
+        "explanation": "Pituitary gland controls several other glands."
+    },
+    {
+        "question": "Which part of the plant absorbs sunlight?",
+        "options": ["Stem", "Leaf", "Root", "Flower"],
+        "answer": 1,
+        "explanation": "Leaves are the primary light-absorbing organ."
+    },
+    {
+        "question": "Which scientist discovered penicillin?",
+        "options": ["Alexander Fleming", "Louis Pasteur", "Robert Koch", "Edward Jenner"],
+        "answer": 0,
+        "explanation": "Alexander Fleming discovered penicillin antibiotic."
+    },
+    {
+        "question": "Which cell organelle contains genetic material?",
+        "options": ["Mitochondria", "Nucleus", "Golgi apparatus", "Lysosome"],
+        "answer": 1,
+        "explanation": "Nucleus contains chromosomes (genetic material)."
+    },
+    {
+        "question": "Which organisms convert atmospheric nitrogen to ammonia?",
+        "options": ["Fungi", "Nitrogen-fixing bacteria", "Algae", "Virus"],
+        "answer": 1,
+        "explanation": "Nitrogen-fixing bacteria perform this process."
+    },
+	{
+        "question": "Which vitamin is essential for calcium absorption in the human body?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin D"],
+        "answer": 3,
+        "explanation": "Vitamin D helps in the absorption of calcium in the intestines."
+    },
+    {
+        "question": "Which blood cells help in fighting bacterial infections?",
+        "options": ["Red blood cells", "White blood cells", "Platelets", "Plasma cells"],
+        "answer": 1,
+        "explanation": "White blood cells, particularly neutrophils and macrophages, defend against infections."
+    },
+    {
+        "question": "What is the function of the ribosome in a cell?",
+        "options": ["Protein synthesis", "Energy production", "DNA replication", "Waste removal"],
+        "answer": 0,
+        "explanation": "Ribosomes are responsible for synthesizing proteins."
+    },
+    {
+        "question": "Which kingdom do mushrooms belong to?",
+        "options": ["Plant", "Animal", "Fungi", "Protist"],
+        "answer": 2,
+        "explanation": "Mushrooms are classified under the kingdom Fungi."
+    },
+    {
+        "question": "Which hormone regulates the fight or flight response?",
+        "options": ["Adrenaline", "Insulin", "Estrogen", "Testosterone"],
+        "answer": 0,
+        "explanation": "Adrenaline prepares the body for quick physical action during stress."
+    },
+    {
+        "question": "What is the role of phloem in plants?",
+        "options": ["Transport water", "Transport food", "Provide support", "Absorb nutrients"],
+        "answer": 1,
+        "explanation": "Phloem transports food made in the leaves to other parts of the plant."
+    },
+    {
+        "question": "Which part of the human ear is responsible for balance?",
+        "options": ["Cochlea", "Eardrum", "Semicircular canals", "Auditory nerve"],
+        "answer": 2,
+        "explanation": "Semicircular canals help maintain balance and spatial orientation."
+    },
+    {
+        "question": "Which gas is released during aerobic respiration?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "answer": 1,
+        "explanation": "Carbon dioxide is a byproduct of aerobic respiration."
+    },
+    {
+        "question": "In genetics, what is a mutation?",
+        "options": ["A change in DNA sequence", "A type of protein", "Cell division", "A hormone"],
+        "answer": 0,
+        "explanation": "Mutation is an alteration in the DNA sequence."
+    },
+    {
+        "question": "Which vitamin deficiency causes rickets?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 3,
+        "explanation": "Vitamin D deficiency leads to weak or soft bones, known as rickets."
+    },
+    {
+        "question": "The human skeleton is primarily made up of which mineral?",
+        "options": ["Iron", "Calcium", "Potassium", "Sodium"],
+        "answer": 1,
+        "explanation": "Calcium is the major mineral component of bones."
+    },
+    {
+        "question": "Which blood vessel carries oxygenated blood to the body?",
+        "options": ["Pulmonary artery", "Pulmonary vein", "Aorta", "Vena cava"],
+        "answer": 2,
+        "explanation": "The aorta carries oxygen-rich blood from the heart to the body."
+    },
+    {
+        "question": "Which is a non-communicable disease?",
+        "options": ["Malaria", "Tuberculosis", "Diabetes", "Influenza"],
+        "answer": 2,
+        "explanation": "Diabetes is a non-communicable disease."
+    },
+    {
+        "question": "What is the primary function of mitochondria?",
+        "options": ["Photosynthesis", "Protein synthesis", "Cellular respiration", "Storage"],
+        "answer": 2,
+        "explanation": "Mitochondria produce energy through cellular respiration."
+    },
+    {
+        "question": "Which of these is a photosynthetic pigment?",
+        "options": ["Hemoglobin", "Chlorophyll", "Melanin", "Carotene"],
+        "answer": 1,
+        "explanation": "Chlorophyll is the main pigment involved in photosynthesis."
+    },
+    {
+        "question": "Which method of reproduction involves only one parent?",
+        "options": ["Sexual reproduction", "Asexual reproduction", "Fertilization", "Pollination"],
+        "answer": 1,
+        "explanation": "Asexual reproduction involves a single parent producing offspring."
+    },
+    {
+        "question": "Which organ in the human body detoxifies chemicals?",
+        "options": ["Heart", "Kidney", "Liver", "Lung"],
+        "answer": 2,
+        "explanation": "The liver detoxifies harmful substances in the body."
+    },
+    {
+        "question": "What is the function of the stomata in leaves?",
+        "options": ["Absorb water", "Gas exchange", "Food production", "Water transport"],
+        "answer": 1,
+        "explanation": "Stomata allow exchange of gases like oxygen and carbon dioxide."
+    },
+    {
+        "question": "Which disease is characterized by high blood sugar levels?",
+        "options": ["Hypothyroidism", "Diabetes", "Hypertension", "Anemia"],
+        "answer": 1,
+        "explanation": "Diabetes involves elevated blood glucose levels."
+    },
+    {
+        "question": "In humans, which blood type is known as the universal recipient?",
+        "options": ["O", "A", "B", "AB"],
+        "answer": 3,
+        "explanation": "AB blood group can receive blood from any other group."
+    },
+    {
+        "question": "Which part of the brain controls voluntary movements?",
+        "options": ["Cerebrum", "Cerebellum", "Medulla", "Hypothalamus"],
+        "answer": 0,
+        "explanation": "Cerebrum controls voluntary muscle movements."
+    },
+    {
+        "question": "Which cell organelle is involved in detoxification?",
+        "options": ["Lysosome", "Ribosome", "Smooth endoplasmic reticulum", "Golgi apparatus"],
+        "answer": 2,
+        "explanation": "Smooth ER detoxifies drugs and harmful substances."
+    },
+    {
+        "question": "Which of the following is a biotic component of ecosystem?",
+        "options": ["Water", "Soil", "Plants", "Air"],
+        "answer": 2,
+        "explanation": "Plants are living biotic components of an ecosystem."
+    },
+    {
+        "question": "What is the major source of energy for cellular activities?",
+        "options": ["Carbohydrates", "Proteins", "Fats", "ATP"],
+        "answer": 3,
+        "explanation": "ATP is the direct energy source for cellular activities."
+    },
+    {
+        "question": "Which structure in plants transports sugars?",
+        "options": ["Xylem", "Phloem", "Cambium", "Epidermis"],
+        "answer": 1,
+        "explanation": "Phloem transports food like sugars."
+    },
+    {
+        "question": "Which vitamin is important for blood clotting?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin K"],
+        "answer": 3,
+        "explanation": "Vitamin K plays a key role in blood clotting."
+    },
+    {
+        "question": "Who is known as the father of genetics?",
+        "options": ["Charles Darwin", "Gregor Mendel", "Louis Pasteur", "Robert Koch"],
+        "answer": 1,
+        "explanation": "Gregor Mendel is credited as the father of genetics."
+    },
+    {
+        "question": "What is the role of lysosomes in cells?",
+        "options": ["Protein synthesis", "Storage", "Digestion of waste", "Energy production"],
+        "answer": 2,
+        "explanation": "Lysosomes digest unwanted materials within the cell."
+    },
+    {
+        "question": "Which process results in the formation of gametes?",
+        "options": ["Mitosis", "Meiosis", "Fertilization", "Binary fission"],
+        "answer": 1,
+        "explanation": "Meiosis is the process that produces gametes."
+    },
+    {
+        "question": "Which organ system controls hormones?",
+        "options": ["Nervous system", "Endocrine system", "Digestive system", "Respiratory system"],
+        "answer": 1,
+        "explanation": "The endocrine system regulates hormone levels."
+    },
+    {
+        "question": "Where does protein digestion begin?",
+        "options": ["Mouth", "Stomach", "Small intestine", "Esophagus"],
+        "answer": 1,
+        "explanation": "Protein digestion starts in the stomach with pepsin."
+    },
+    {
+        "question": "The process by which blood cells are formed is called?",
+        "options": ["Ossification", "Hematopoiesis", "Photosynthesis", "Transpiration"],
+        "answer": 1,
+        "explanation": "Hematopoiesis is the formation of blood cells."
+    },
+    {
+        "question": "Which process is responsible for the formation of new species?",
+        "options": ["Evolution", "Speciation", "Mutation", "Genetics"],
+        "answer": 1,
+        "explanation": "Speciation is the evolutionary process of forming new species."
+    },
+    {
+        "question": "Which of the following is a non-renewable resource?",
+        "options": ["Solar energy", "Wind energy", "Coal", "Hydropower"],
+        "answer": 2,
+        "explanation": "Coal is a fossil fuel and non-renewable resource."
+    },
+    {
+        "question": "Which of the following diseases is caused by virus?",
+        "options": ["Tuberculosis", "Malaria", "Influenza", "Ringworm"],
+        "answer": 2,
+        "explanation": "Influenza is a viral infection."
+    },
+    {
+        "question": "What is the function of the spleen?",
+        "options": ["Digest food", "Filter blood", "Control heartbeat", "Secrete insulin"],
+        "answer": 1,
+        "explanation": "Spleen filters blood and recycles old red blood cells."
+    },
+    {
+        "question": "Which of the following is a structural carbohydrate found in plants?",
+        "options": ["Cellulose", "Starch", "Glycogen", "Glucose"],
+        "answer": 0,
+        "explanation": "Cellulose gives structural support to plant cell walls."
+    },
+    {
+        "question": "Which of the following is NOT a function of the liver?",
+        "options": ["Detoxification", "Production of bile", "Storage of glycogen", "Secretion of insulin"],
+        "answer": 3,
+        "explanation": "Insulin is secreted by the pancreas, not the liver."
+    },
+    {
+        "question": "Which part of the brain controls balance and coordination?",
+        "options": ["Cerebrum", "Medulla oblongata", "Cerebellum", "Thalamus"],
+        "answer": 2,
+        "explanation": "Cerebellum maintains balance and coordination."
+    },
+    {
+        "question": "Which process releases energy by breaking down glucose in cells?",
+        "options": ["Photosynthesis", "Respiration", "Fermentation", "Osmosis"],
+        "answer": 1,
+        "explanation": "Cellular respiration breaks down glucose to release energy."
+    },
+    {
+        "question": "In ecology, what is a producer?",
+        "options": ["A consumer", "A decomposer", "An organism that makes its own food", "A parasite"],
+        "answer": 2,
+        "explanation": "Producers synthesize food through photosynthesis."
+    },
+    {
+        "question": "Which macromolecule is the main component of enzymes?",
+        "options": ["Carbohydrates", "Lipids", "Proteins", "Nucleic acids"],
+        "answer": 2,
+        "explanation": "Enzymes are made of proteins."
+    },
+	 {
+        "question": "Which blood component carries oxygen throughout the human body?",
+        "options": ["White blood cells", "Red blood cells", "Plasma", "Platelets"],
+        "answer": 1,
+        "explanation": "Red blood cells contain hemoglobin that binds and transports oxygen."
+    },
+    {
+        "question": "What is the function of the root cap in plants?",
+        "options": ["Protect root tip", "Absorb water", "Photosynthesis", "Transport nutrients"],
+        "answer": 0,
+        "explanation": "Root cap protects the growing tip of the root from injury."
+    },
+    {
+        "question": "Which process in plants results in the loss of water vapor?",
+        "options": ["Photosynthesis", "Transpiration", "Respiration", "Germination"],
+        "answer": 1,
+        "explanation": "Transpiration is the evaporation of water from plant leaves."
+    },
+    {
+        "question": "Which organ in humans is primarily responsible for detoxification?",
+        "options": ["Kidney", "Liver", "Lung", "Heart"],
+        "answer": 1,
+        "explanation": "The liver detoxifies harmful chemicals and metabolizes drugs."
+    },
+    {
+        "question": "What is the name of the process by which plants convert light energy into chemical energy?",
+        "options": ["Respiration", "Photosynthesis", "Fermentation", "Osmosis"],
+        "answer": 1,
+        "explanation": "Photosynthesis converts light energy into glucose."
+    },
+    {
+        "question": "Which part of the human brain controls speech and reasoning?",
+        "options": ["Cerebellum", "Medulla", "Cerebrum", "Hypothalamus"],
+        "answer": 2,
+        "explanation": "The cerebrum controls speech, reasoning, and voluntary muscles."
+    },
+    {
+        "question": "Which vitamin is mostly found in citrus fruits?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 2,
+        "explanation": "Citrus fruits are rich in Vitamin C, essential for immunity."
+    },
+    {
+        "question": "Which substance strengthens plant cell walls?",
+        "options": ["Cellulose", "Starch", "Protein", "Lipid"],
+        "answer": 0,
+        "explanation": "Cellulose is a carbohydrate that provides strength to cell walls."
+    },
+    {
+        "question": "What is the major gas released during photosynthesis?",
+        "options": ["Carbon dioxide", "Oxygen", "Nitrogen", "Methane"],
+        "answer": 1,
+        "explanation": "Oxygen is released as a byproduct of photosynthesis."
+    },
+    {
+        "question": "Which type of cell division results in two identical daughter cells?",
+        "options": ["Meiosis", "Mitosis", "Binary fission", "Budding"],
+        "answer": 1,
+        "explanation": "Mitosis produces two genetically identical daughter cells."
+    },
+    {
+        "question": "Which mineral is important for thyroid function?",
+        "options": ["Calcium", "Potassium", "Iodine", "Magnesium"],
+        "answer": 2,
+        "explanation": "Iodine is essential for the synthesis of thyroid hormones."
+    },
+    {
+        "question": "What causes the red color of blood?",
+        "options": ["Plasma", "Hemoglobin", "Platelets", "White blood cells"],
+        "answer": 1,
+        "explanation": "Hemoglobin, containing iron, gives blood its red color."
+    },
+    {
+        "question": "Which is a zoonotic disease?",
+        "options": ["Malaria", "Rabies", "Tuberculosis", "Typhoid"],
+        "answer": 1,
+        "explanation": "Rabies spreads from animals to humans, a zoonotic disease."
+    },
+    {
+        "question": "Which pigment gives tomatoes their red color?",
+        "options": ["Chlorophyll", "Carotene", "Lycopene", "Xanthophyll"],
+        "answer": 2,
+        "explanation": "Lycopene is responsible for the red color of tomatoes."
+    },
+    {
+        "question": "Which method of reproduction involves the fusion of male and female gametes?",
+        "options": ["Sexual reproduction", "Asexual reproduction", "Budding", "Binary fission"],
+        "answer": 0,
+        "explanation": "Sexual reproduction involves gamete fusion."
+    },
+    {
+        "question": "What is the primary function of white blood cells?",
+        "options": ["Carry oxygen", "Fight infections", "Transport nutrients", "Blood clotting"],
+        "answer": 1,
+        "explanation": "White blood cells defend the body against infections."
+    },
+    {
+        "question": "Which animal is known as the father of genetics?",
+        "options": ["Charles Darwin", "Gregor Mendel", "Louis Pasteur", "Robert Koch"],
+        "answer": 1,
+        "explanation": "Gregor Mendel discovered the basic laws of heredity."
+    },
+    {
+        "question": "What is the normal pH of human blood?",
+        "options": ["6.8", "7.4", "8.2", "7.0"],
+        "answer": 1,
+        "explanation": "Blood pH is slightly alkaline, around 7.4."
+    },
+    {
+        "question": "What is the primary site for nutrient absorption in humans?",
+        "options": ["Stomach", "Small intestine", "Large intestine", "Esophagus"],
+        "answer": 1,
+        "explanation": "Small intestine absorbs nutrients from digested food."
+    },
+    {
+        "question": "What is the functional unit of the kidney?",
+        "options": ["Neuron", "Nephron", "Alveoli", "Neuron"],
+        "answer": 1,
+        "explanation": "Nephrons filter blood and produce urine."
+    },
+    {
+        "question": "Which plant hormone promotes stem elongation?",
+        "options": ["Auxin", "Gibberellin", "Ethylene", "Cytokinin"],
+        "answer": 1,
+        "explanation": "Gibberellins stimulate elongation of stems."
+    },
+    {
+        "question": "What are antibodies?",
+        "options": ["Proteins that fight pathogens", "Digestive enzymes", "Hormones", "Pigments in plants"],
+        "answer": 0,
+        "explanation": "Antibodies neutralize foreign pathogens."
+    },
+    {
+        "question": "Which disease is caused by a deficiency of vitamin B12?",
+        "options": ["Scurvy", "Pernicious anemia", "Rickets", "Beriberi"],
+        "answer": 1,
+        "explanation": "Pernicious anemia results from vitamin B12 deficiency."
+    },
+    {
+        "question": "Which blood group is known as the universal donor?",
+        "options": ["A", "B", "AB", "O"],
+        "answer": 3,
+        "explanation": "O negative blood can be donated to any group."
+    },
+    {
+        "question": "What is the main function of platelets?",
+        "options": ["Carry oxygen", "Fight infection", "Blood clotting", "Transport nutrients"],
+        "answer": 2,
+        "explanation": "Platelets help in blood clot formation."
+    },
+    {
+        "question": "Which part of the plant is involved in reproduction?",
+        "options": ["Root", "Stem", "Flower", "Leaf"],
+        "answer": 2,
+        "explanation": "Flowers bear reproductive organs."
+    },
+    {
+        "question": "Which organism is known for nitrogen fixation?",
+        "options": ["Algae", "Rhizobium bacteria", "Fungi", "Protozoa"],
+        "answer": 1,
+        "explanation": "Rhizobium bacteria fix atmospheric nitrogen into usable form."
+    },
+    {
+        "question": "What is the main function of DNA?",
+        "options": ["Protein synthesis", "Energy storage", "Genetic information storage", "Cell structure"],
+        "answer": 2,
+        "explanation": "DNA stores and transmits genetic information."
+    },
+    {
+        "question": "Where does the process of photosynthesis primarily occur?",
+        "options": ["Roots", "Stem", "Leaves", "Flowers"],
+        "answer": 2,
+        "explanation": "Photosynthesis takes place mainly in leaves."
+    },
+    {
+        "question": "What is the site of gas exchange in human lungs?",
+        "options": ["Bronchi", "Alveoli", "Trachea", "Bronchioles"],
+        "answer": 1,
+        "explanation": "Alveoli are tiny sacs where gas exchange happens."
+    },
+    {
+        "question": "Which part of the cell contains genetic material?",
+        "options": ["Nucleus", "Ribosome", "Mitochondria", "Golgi body"],
+        "answer": 0,
+        "explanation": "Nucleus contains chromosomes made of DNA."
+    },
+    {
+        "question": "What is the primary function of the circulatory system?",
+        "options": ["Respiration", "Transport of nutrients and gases", "Digestion", "Excretion"],
+        "answer": 1,
+        "explanation": "It transports oxygen, nutrients, and waste products."
+    },
+    {
+        "question": "Which animal is a marsupial?",
+        "options": ["Kangaroo", "Elephant", "Horse", "Tiger"],
+        "answer": 0,
+        "explanation": "Kangaroos carry young in pouches, characteristic of marsupials."
+    },
+    {
+        "question": "Which vitamin deficiency causes scurvy?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 2,
+        "explanation": "Vitamin C deficiency causes scurvy."
+    },
+    {
+        "question": "What is the function of the large intestine in humans?",
+        "options": ["Absorption of water", "Digestion of proteins", "Absorption of nutrients", "Production of enzymes"],
+        "answer": 0,
+        "explanation": "Large intestine absorbs water from undigested food."
+    },
+    {
+        "question": "How many chambers does the human heart have?",
+        "options": ["2", "3", "4", "5"],
+        "answer": 2,
+        "explanation": "Human heart has four chambers: two atria and two ventricles."
+    },
+    {
+        "question": "Which disease is transmitted by the tsetse fly?",
+        "options": ["Dengue", "Sleeping sickness", "Cholera", "Malaria"],
+        "answer": 1,
+        "explanation": "Tsetse fly transmits African trypanosomiasis or sleeping sickness."
+    },
+    {
+        "question": "What is the primary component of plant cell walls?",
+        "options": ["Cellulose", "Starch", "Protein", "Lipid"],
+        "answer": 0,
+        "explanation": "Cellulose forms the structural component of plant cell walls."
+    },
+    {
+        "question": "Which blood component is responsible for clotting?",
+        "options": ["Red blood cells", "White blood cells", "Platelets", "Plasma"],
+        "answer": 2,
+        "explanation": "Platelets help form blood clots."
+    },
+	 {
+        "question": "Which vitamin is essential for vision?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 0,
+        "explanation": "Vitamin A is crucial for maintaining good vision."
+    },
+    {
+        "question": "What type of macromolecule are enzymes?",
+        "options": ["Carbohydrates", "Proteins", "Lipids", "Nucleic acids"],
+        "answer": 1,
+        "explanation": "Enzymes are proteins that act as biological catalysts."
+    },
+    {
+        "question": "What is the role of the hormone insulin?",
+        "options": ["Regulates metabolism", "Increases blood sugar", "Decreases blood sugar", "Controls growth"],
+        "answer": 2,
+        "explanation": "Insulin lowers blood glucose levels by facilitating cellular uptake."
+    },
+    {
+        "question": "Photosynthesis primarily takes place in which part of the plant?",
+        "options": ["Roots", "Stem", "Leaves", "Flowers"],
+        "answer": 2,
+        "explanation": "Leaves contain chloroplasts where photosynthesis occurs."
+    },
+    {
+        "question": "Which blood vessel returns deoxygenated blood back to the heart?",
+        "options": ["Artery", "Vein", "Capillary", "Aorta"],
+        "answer": 1,
+        "explanation": "Veins carry blood towards the heart, mostly deoxygenated."
+    },
+    {
+        "question": "Which process produces gametes in animals?",
+        "options": ["Mitosis", "Meiosis", "Fertilization", "Binary fission"],
+        "answer": 1,
+        "explanation": "Meiosis results in the production of gametes."
+    },
+    {
+        "question": "Which mineral is important for oxygen transport in blood?",
+        "options": ["Calcium", "Iron", "Potassium", "Sodium"],
+        "answer": 1,
+        "explanation": "Iron is a key component of hemoglobin that transports oxygen."
+    },
+    {
+        "question": "Where does transcription of DNA to RNA occur?",
+        "options": ["Ribosome", "Cytoplasm", "Nucleus", "Mitochondria"],
+        "answer": 2,
+        "explanation": "Transcription occurs in the nucleus."
+    },
+    {
+        "question": "The process by which green plants lose water through leaves is called?",
+        "options": ["Transpiration", "Respiration", "Photosynthesis", "Absorption"],
+        "answer": 0,
+        "explanation": "Transpiration is the evaporation of water from leaf surfaces."
+    },
+    {
+        "question": "Which disease is caused by the deficiency of Vitamin D?",
+        "options": ["Scurvy", "Rickets", "Beriberi", "Anemia"],
+        "answer": 1,
+        "explanation": "Rickets is caused by lack of Vitamin D causing weak bones."
+    },
+    {
+        "question": "What is the primary function of the lymphatic system?",
+        "options": ["Circulate blood", "Maintain fluid balance and immunity", "Digest food", "Control body temperature"],
+        "answer": 1,
+        "explanation": "The lymphatic system removes excess fluid and aids immune defense."
+    },
+    {
+        "question": "Which cellular organelle packages and transports proteins?",
+        "options": ["Golgi apparatus", "Ribosome", "Mitochondrion", "Lysosome"],
+        "answer": 0,
+        "explanation": "The Golgi apparatus modifies and packages proteins for transport."
+    },
+    {
+        "question": "Which of these animals is an invertebrate?",
+        "options": ["Frog", "Earthworm", "Eagle", "Tiger"],
+        "answer": 1,
+        "explanation": "Earthworms lack a backbone making them invertebrates."
+    },
+    {
+        "question": "Which vitamin helps in blood clotting?",
+        "options": ["Vitamin B12", "Vitamin K", "Vitamin C", "Vitamin A"],
+        "answer": 1,
+        "explanation": "Vitamin K is essential for the synthesis of clotting factors."
+    },
+    {
+        "question": "Which part of the plant is responsible for uptake of water?",
+        "options": ["Leaf", "Root", "Stem", "Flower"],
+        "answer": 1,
+        "explanation": "Roots absorb water and minerals from soil."
+    },
+    {
+        "question": "The human heart has how many chambers?",
+        "options": ["2", "3", "4", "5"],
+        "answer": 2,
+        "explanation": "The human heart has four chambers: two atria and two ventricles."
+    },
+    {
+        "question": "Which blood cells help in clotting?",
+        "options": ["White blood cells", "Red blood cells", "Platelets", "Plasma"],
+        "answer": 2,
+        "explanation": "Platelets help in blood clot formation."
+    },
+    {
+        "question": "Which process describes the exchange of gases in lungs?",
+        "options": ["Breathing", "Respiration", "Diffusion", "Osmosis"],
+        "answer": 2,
+        "explanation": "Gas exchange at alveoli occurs by diffusion."
+    },
+    {
+        "question": "Which part of the cell is called the powerhouse?",
+        "options": ["Chloroplast", "Nucleus", "Ribosome", "Mitochondria"],
+        "answer": 3,
+        "explanation": "Mitochondria produce energy (ATP) for the cell."
+    },
+    {
+        "question": "DNA stands for?",
+        "options": ["Deoxyribonucleic acid", "Deoxyribose nucleic acid", "Deoxyribonitric acid", "Dioxynucleic acid"],
+        "answer": 0,
+        "explanation": "DNA stands for Deoxyribonucleic acid."
+    },
+    {
+        "question": "What is the main role of ribosomes?",
+        "options": ["Energy production", "Protein synthesis", "DNA storage", "Waste removal"],
+        "answer": 1,
+        "explanation": "Ribosomes are sites of protein synthesis."
+    },
+    {
+        "question": "Which of the following is a unicellular organism?",
+        "options": ["Fungus", "Amoeba", "Algae", "Moss"],
+        "answer": 1,
+        "explanation": "Amoeba is a unicellular protist."
+    },
+    {
+        "question": "Which process involves the formation of gametes?",
+        "options": ["Fertilization", "Mitosis", "Meiosis", "Binary fission"],
+        "answer": 2,
+        "explanation": "Meiosis generates haploid gametes."
+    },
+    {
+        "question": "Which organ produces bile?",
+        "options": ["Liver", "Pancreas", "Gallbladder", "Kidney"],
+        "answer": 0,
+        "explanation": "The liver produces bile which is stored in the gallbladder."
+    },
+    {
+        "question": "Which organism is used in the production of antibiotics?",
+        "options": ["Penicillium", "Rhizobium", "E. coli", "Amanita"],
+        "answer": 0,
+        "explanation": "Penicillium mold produces penicillin antibiotics."
+    },
+    {
+        "question": "Which of the following is not a part of the human digestive system?",
+        "options": ["Stomach", "Liver", "Pancreas", "Kidney"],
+        "answer": 3,
+        "explanation": "Kidneys are part of the excretory system, not digestion."
+    },
+    {
+        "question": "What is the role of chloroplasts?",
+        "options": ["Respiration", "Photosynthesis", "Protein synthesis", "Storage"],
+        "answer": 1,
+        "explanation": "Chloroplasts conduct photosynthesis in plant cells."
+    },
+    {
+        "question": "Which is the site of gas exchange in plants?",
+        "options": ["Stomata", "Roots", "Xylem", "Phloem"],
+        "answer": 0,
+        "explanation": "Stomata allow gas exchange in leaves."
+    },
+    {
+        "question": "Which of the following is a characteristic of mammals?",
+        "options": ["Lay eggs", "Have feathers", "Give birth to live young", "Have gills"],
+        "answer": 2,
+        "explanation": "Mammals give birth to live young and have mammary glands."
+    },
+    {
+        "question": "Which hormone regulates blood sugar levels?",
+        "options": ["Adrenaline", "Insulin", "Thyroxine", "Progesterone"],
+        "answer": 1,
+        "explanation": "Insulin decreases blood sugar levels."
+    },
+    {
+        "question": "What is osmosis?",
+        "options": ["Diffusion of solutes", "Diffusion of water", "Active transport of ions", "Endocytosis"],
+        "answer": 1,
+        "explanation": "Osmosis is the movement of water across a membrane."
+    },
+    {
+        "question": "Which enzyme breaks down starch?",
+        "options": ["Lipase", "Protease", "Amylase", "Cellulase"],
+        "answer": 2,
+        "explanation": "Amylase breaks down starch into sugars."
+    },
+    {
+        "question": "Which vitamin is synthesized by the skin when exposed to sunlight?",
+        "options": ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin K"],
+        "answer": 2,
+        "explanation": "Vitamin D is synthesized in skin via sunlight."
+    },
+    {
+        "question": "Which blood group is called the universal recipient?",
+        "options": ["A", "B", "AB", "O"],
+        "answer": 2,
+        "explanation": "AB blood group can receive blood from any group."
+    },
+    {
+        "question": "Which part of the nervous system controls voluntary actions?",
+        "options": ["Autonomic nervous system", "Central nervous system", "Peripheral nervous system", "Somatic nervous system"],
+        "answer": 3,
+        "explanation": "Somatic system controls voluntary movements."
+    },
+    {
+        "question": "Which air sacs are the site of oxygen exchange in lungs?",
+        "options": ["Bronchioles", "Alveoli", "Trachea", "Bronchi"],
+        "answer": 1,
+        "explanation": "Alveoli facilitate oxygen and carbon dioxide exchange."
+    },
+    {
+        "question": "Which organ filters waste from blood in humans?",
+        "options": ["Liver", "Kidney", "Heart", "Spleen"],
+        "answer": 1,
+        "explanation": "Kidneys filter blood and remove waste as urine."
+    },
+    {
+        "question": "Which of the following is an example of a vector-borne disease?",
+        "options": ["Tuberculosis", "Malaria", "Hepatitis", "Diabetes"],
+        "answer": 1,
+        "explanation": "Malaria is transmitted by Anopheles mosquitoes."
+    },
+    {
+        "question": "Which plant hormone controls fruit ripening?",
+        "options": ["Auxin", "Gibberellin", "Ethylene", "Cytokinin"],
+        "answer": 2,
+        "explanation": "Ethylene regulates fruit ripening."
+    },
+    {
+        "question": "RNA differs from DNA by having which sugar?",
+        "options": ["Deoxyribose", "Ribose", "Glucose", "Fructose"],
+        "answer": 1,
+        "explanation": "RNA contains ribose sugar instead of deoxyribose."
+    },
+    {
+        "question": "The blood cells that produce antibodies are called?",
+        "options": ["Red blood cells", "B-lymphocytes", "Platelets", "Neutrophils"],
+        "answer": 1,
+        "explanation": "B-lymphocytes produce antibodies as part of immune response."
+    },
+	 {
+        "question": "What is the primary purpose of chlorophyll in plants?",
+        "options": ["Absorb sunlight for photosynthesis", "Provide structural support", "Transport water", "Store nutrients"],
+        "answer": 0,
+        "explanation": "Chlorophyll absorbs sunlight to enable photosynthesis."
+    },
+    {
+        "question": "Which organ in the human body pumps blood?",
+        "options": ["Lungs", "Kidneys", "Heart", "Brain"],
+        "answer": 2,
+        "explanation": "The heart pumps blood to all body parts."
+    },
+    {
+        "question": "Which of the following is a vector for Dengue fever?",
+        "options": ["Anopheles mosquito", "Culex mosquito", "Aedes mosquito", "Housefly"],
+        "answer": 2,
+        "explanation": "Aedes mosquito transmits Dengue virus."
+    },
+    {
+        "question": "What is the basic structural and functional unit of life?",
+        "options": ["Organ", "Cell", "Tissue", "Organ system"],
+        "answer": 1,
+        "explanation": "The cell is the basic unit of life."
+    },
+    {
+        "question": "Which vitamin deficiency causes beriberi?",
+        "options": ["Vitamin A", "Vitamin B1", "Vitamin C", "Vitamin D"],
+        "answer": 1,
+        "explanation": "Beriberi results from a deficiency of Vitamin B1 (thiamine)."
+    },
+    {
+        "question": "Which of the following is NOT a biomolecule?",
+        "options": ["Carbohydrates", "Lipids", "Proteins", "Water"],
+        "answer": 3,
+        "explanation": "Water is a solvent, not a biomolecule."
+    },
+    {
+        "question": "Which animal is known for regeneration of lost body parts?",
+        "options": ["Starfish", "Fish", "Snake", "Frog"],
+        "answer": 0,
+        "explanation": "Starfish have the ability to regenerate lost limbs."
+    },
+    {
+        "question": "Which organ is responsible for detoxification and bile production?",
+        "options": ["Kidney", "Liver", "Pancreas", "Spleen"],
+        "answer": 1,
+        "explanation": "The liver detoxifies chemicals and produces bile."
+    },
+    {
+        "question": "What is the function of hemoglobin?",
+        "options": ["Transport oxygen", "Clot blood", "Fight infection", "Store energy"],
+        "answer": 0,
+        "explanation": "Hemoglobin binds and transports oxygen in red blood cells."
+    },
+    {
+        "question": "Which structure in plants transports water?",
+        "options": ["Phloem", "Xylem", "Cambium", "Epidermis"],
+        "answer": 1,
+        "explanation": "Xylem vessels transport water from roots to leaves."
+    },
+    {
+        "question": "Which hormone is secreted by the pancreas to regulate blood sugar?",
+        "options": ["Insulin", "Adrenaline", "Thyroxine", "Estrogen"],
+        "answer": 0,
+        "explanation": "Insulin reduces blood sugar levels by facilitating glucose uptake."
+    },
+    {
+        "question": "What blood type is called the universal recipient?",
+        "options": ["O", "A", "B", "AB"],
+        "answer": 3,
+        "explanation": "People with AB blood group can receive blood from any group."
+    },
+    {
+        "question": "Which human organ controls balance and coordination?",
+        "options": ["Cerebellum", "Medulla", "Cerebrum", "Hypothalamus"],
+        "answer": 0,
+        "explanation": "Cerebellum coordinates balance and voluntary movements."
+    },
+    {
+        "question": "Which of the following is NOT part of the human respiratory system?",
+        "options": ["Trachea", "Bronchi", "Alveoli", "Esophagus"],
+        "answer": 3,
+        "explanation": "Esophagus is part of the digestive system, not respiratory."
+    },
+    {
+        "question": "What is the function of stomata in plants?",
+        "options": ["Absorb water", "Gas exchange", "Store nutrients", "Transport food"],
+        "answer": 1,
+        "explanation": "Stomata allow the exchange of gases like oxygen and carbon dioxide."
+    },
+    {
+        "question": "Which macromolecule is the main source of energy for cells?",
+        "options": ["Proteins", "Lipids", "Carbohydrates", "Nucleic acids"],
+        "answer": 2,
+        "explanation": "Carbohydrates are primary energy sources."
+    },
+    {
+        "question": "What is the term for animals that feed on plants?",
+        "options": ["Carnivores", "Herbivores", "Omnivores", "Detritivores"],
+        "answer": 1,
+        "explanation": "Herbivores consume only plants."
+    },
+    {
+        "question": "Which vitamin is mainly responsible for blood clotting?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin K"],
+        "answer": 3,
+        "explanation": "Vitamin K is essential for blood clotting."
+    },
+    {
+        "question": "Which blood vessels carry blood away from the heart?",
+        "options": ["Veins", "Arteries", "Capillaries", "Venules"],
+        "answer": 1,
+        "explanation": "Arteries transport oxygenated blood away from the heart."
+    },
+    {
+        "question": "Which cell organelle is known as the 'powerhouse' of the cell?",
+        "options": ["Nucleus", "Mitochondria", "Ribosome", "Golgi apparatus"],
+        "answer": 1,
+        "explanation": "Mitochondria produce ATP, the energy currency of the cell."
+    },
+    {
+        "question": "Which genetic material is found in the nucleus?",
+        "options": ["RNA", "DNA", "Proteins", "Lipids"],
+        "answer": 1,
+        "explanation": "DNA located in the nucleus carries genetic information."
+    },
+    {
+        "question": "Which disease is caused by the Plasmodium parasite?",
+        "options": ["Tuberculosis", "Malaria", "Cholera", "Typhoid"],
+        "answer": 1,
+        "explanation": "Malaria is caused by Plasmodium transmitted by mosquitoes."
+    },
+    {
+        "question": "What is the main function of phloem in plants?",
+        "options": ["Transport water", "Transport food", "Support plant", "Produce seeds"],
+        "answer": 1,
+        "explanation": "Phloem transports organic nutrients, especially sugar."
+    },
+    {
+        "question": "Which organ in humans produces bile?",
+        "options": ["Liver", "Pancreas", "Gallbladder", "Kidney"],
+        "answer": 0,
+        "explanation": "The liver produces bile that emulsifies fats."
+    },
+    {
+        "question": "Which blood component helps in clotting?",
+        "options": ["Red blood cells", "White blood cells", "Platelets", "Plasma"],
+        "answer": 2,
+        "explanation": "Platelets help to stop bleeding by clot formation."
+    },
+    {
+        "question": "What is the function of alveoli in the lungs?",
+        "options": ["Trap dust particles", "Exchange gases", "Humidify air", "Filter blood"],
+        "answer": 1,
+        "explanation": "Alveoli are the sites of gas exchange in lungs."
+    },
+    {
+        "question": "Which macromolecule forms enzymes?",
+        "options": ["Carbohydrates", "Proteins", "Lipids", "Nucleic acids"],
+        "answer": 1,
+        "explanation": "Enzymes are proteins that catalyze biochemical reactions."
+    },
+    {
+        "question": "What process involves the formation of gametes?",
+        "options": ["Mitosis", "Meiosis", "Fertilization", "Binary fission"],
+        "answer": 1,
+        "explanation": "Meiosis produces haploid gametes for sexual reproduction."
+    },
+    {
+        "question": "Which vitamin is essential for calcium absorption?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 3,
+        "explanation": "Vitamin D helps absorb calcium in the intestine."
+    },
+    {
+        "question": "What is the natural vector of the plague?",
+        "options": ["Flea", "Mosquito", "Tick", "Fly"],
+        "answer": 0,
+        "explanation": "Fleas transmit plague-causing bacteria from rodents to humans."
+    },
+    {
+        "question": "Who is known as the father of evolution?",
+        "options": ["Gregor Mendel", "Louis Pasteur", "Charles Darwin", "Robert Koch"],
+        "answer": 2,
+        "explanation": "Darwin proposed the theory of natural selection and evolution."
+    },
+    {
+        "question": "Which organelle is present only in plant cells?",
+        "options": ["Ribosome", "Chloroplast", "Lysosome", "Centrioles"],
+        "answer": 1,
+        "explanation": "Chloroplasts conduct photosynthesis and are plant-specific."
+    },
+    {
+        "question": "Which part of the plant absorbs water and minerals?",
+        "options": ["Leaves", "Roots", "Stem", "Flowers"],
+        "answer": 1,
+        "explanation": "Roots absorb water and minerals from the soil."
+    },
+    {
+        "question": "What is the role of red blood cells?",
+        "options": ["Transport oxygen", "Fight infection", "Clot blood", "Produce hormones"],
+        "answer": 0,
+        "explanation": "Red blood cells carry oxygen via hemoglobin."
+    },
+    {
+        "question": "Which gas is essential for respiration in humans?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "answer": 0,
+        "explanation": "Oxygen is required for cellular respiration."
+    },
+    {
+        "question": "Which country is known as the 'Land of Biodiversity' due to its vast range of species?",
+        "options": ["India", "Brazil", "Australia", "Canada"],
+        "answer": 1,
+        "explanation": "Brazil is known for its vast biodiversity, especially in the Amazon rainforest."
+    },
+    {
+        "question": "Which plant tissue aids in the transport of food substances?",
+        "options": ["Xylem", "Phloem", "Parenchyma", "Collenchyma"],
+        "answer": 1,
+        "explanation": "Phloem transports food like sugars throughout the plant."
+    },
+	{
+        "question": "Which organ is known as the ‘control center’ of the human body?",
+        "options": ["Heart", "Brain", "Liver", "Kidney"],
+        "answer": 1,
+        "explanation": "The brain controls all functions and responses of the body."
+    },
+    {
+        "question": "Which vitamin deficiency causes 'Night Blindness'?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 0,
+        "explanation": "Vitamin A deficiency leads to night blindness."
+    },
+    {
+        "question": "What is the main source of energy in living organisms?",
+        "options": ["Carbohydrates", "Proteins", "Lipids", "Water"],
+        "answer": 0,
+        "explanation": "Carbohydrates provide immediate energy to the body."
+    },
+    {
+        "question": "Which of the following is a lysozyme-rich fluid that protects eyes?",
+        "options": ["Tears", "Saliva", "Sweat", "Blood"],
+        "answer": 0,
+        "explanation": "Tears contain lysozyme enzyme that fights bacteria in the eyes."
+    },
+    {
+        "question": "Which of the following is the site of photosynthesis?",
+        "options": ["Chloroplast", "Mitochondria", "Ribosome", "Lysosome"],
+        "answer": 0,
+        "explanation": "Chloroplasts in plant cells carry out photosynthesis."
+    },
+    {
+        "question": "Which organ is responsible for filtering blood and producing urine?",
+        "options": ["Liver", "Kidney", "Spleen", "Pancreas"],
+        "answer": 1,
+        "explanation": "Kidneys filter waste products from blood and produce urine."
+    },
+    {
+        "question": "Who is called the father of modern taxonomy?",
+        "options": ["Charles Darwin", "Carl Linnaeus", "Gregor Mendel", "Louis Pasteur"],
+        "answer": 1,
+        "explanation": "Carl Linnaeus developed the binomial nomenclature system."
+    },
+    {
+        "question": "Which of these is a non-communicable disease?",
+        "options": ["Tuberculosis", "Diabetes", "Malaria", "Cholera"],
+        "answer": 1,
+        "explanation": "Diabetes is a non-communicable metabolic disorder."
+    },
+    {
+        "question": "Which plant hormone is primarily responsible for cell elongation?",
+        "options": ["Cytokinin", "Auxin", "Gibberellin", "Ethylene"],
+        "answer": 1,
+        "explanation": "Auxin promotes cell elongation and growth."
+    },
+    {
+        "question": "What is the function of the alveoli in lungs?",
+        "options": ["Transport oxygen", "Exchange gases", "Produce mucus", "Filter air"],
+        "answer": 1,
+        "explanation": "Alveoli are the site where oxygen and carbon dioxide exchange happens."
+    },
+    {
+        "question": "Which vitamin is synthesized by gut bacteria?",
+        "options": ["Vitamin K", "Vitamin C", "Vitamin D", "Vitamin A"],
+        "answer": 0,
+        "explanation": "Gut bacteria synthesize Vitamin K necessary for blood clotting."
+    },
+    {
+        "question": "Which organ of the human body produces insulin?",
+        "options": ["Pancreas", "Liver", "Gallbladder", "Kidney"],
+        "answer": 0,
+        "explanation": "Pancreas secretes insulin to regulate blood glucose."
+    },
+    {
+        "question": "In which organelle does cellular respiration take place?",
+        "options": ["Ribosome", "Mitochondria", "Nucleus", "Golgi apparatus"],
+        "answer": 1,
+        "explanation": "Mitochondria produce energy by cellular respiration."
+    },
+    {
+        "question": "What is the function of white blood cells?",
+        "options": ["Transport oxygen", "Fight infection", "Clot blood", "Digest food"],
+        "answer": 1,
+        "explanation": "White blood cells are part of the immune system that fight infection."
+    },
+    {
+        "question": "What is the name of the process by which plants lose water vapor?",
+        "options": ["Photosynthesis", "Transpiration", "Respiration", "Evaporation"],
+        "answer": 1,
+        "explanation": "Transpiration is water loss through plant leaf stomata."
+    },
+    {
+        "question": "Which biomolecule forms the genetic material DNA?",
+        "options": ["Carbohydrates", "Proteins", "Nucleic acids", "Lipids"],
+        "answer": 2,
+        "explanation": "DNA is a nucleic acid that carries genetic information."
+    },
+    {
+        "question": "Which blood group is known as the universal donor?",
+        "options": ["A", "B", "AB", "O"],
+        "answer": 3,
+        "explanation": "Blood group O negative can be donated to all groups."
+    },
+    {
+        "question": "Which part of the nervous system controls involuntary actions?",
+        "options": ["Central nervous system", "Autonomic nervous system", "Somatic nervous system", "Peripheral nervous system"],
+        "answer": 1,
+        "explanation": "Autonomic nervous system controls involuntary body functions."
+    },
+    {
+        "question": "Which is the largest gland in the human body?",
+        "options": ["Kidney", "Pancreas", "Liver", "Spleen"],
+        "answer": 2,
+        "explanation": "The liver is the largest gland and has multiple metabolic functions."
+    },
+    {
+        "question": "What is the site of protein synthesis in a cell?",
+        "options": ["Chloroplast", "Golgi apparatus", "Ribosome", "Nucleus"],
+        "answer": 2,
+        "explanation": "Ribosomes synthesize proteins by assembling amino acids."
+    },
+    {
+        "question": "Which type of blood cells help in clotting?",
+        "options": ["White blood cells", "Red blood cells", "Platelets", "Plasma"],
+        "answer": 2,
+        "explanation": "Platelets initiate blood clotting to prevent bleeding."
+    },
+    {
+        "question": "Who proposed the theory of natural selection?",
+        "options": ["Gregor Mendel", "Charles Darwin", "Louis Pasteur", "Robert Koch"],
+        "answer": 1,
+        "explanation": "Charles Darwin proposed the theory explaining evolution by natural selection."
+    },
+    {
+        "question": "Which organelle contains digestive enzymes in cells?",
+        "options": ["Lysosome", "Golgi apparatus", "Mitochondria", "Endoplasmic reticulum"],
+        "answer": 0,
+        "explanation": "Lysosomes digest waste materials in cells."
+    },
+    {
+        "question": "Which part of the cell is often called the 'brain of the cell'?",
+        "options": ["Ribosome", "Nucleus", "Mitochondria", "Endoplasmic reticulum"],
+        "answer": 1,
+        "explanation": "The nucleus contains genetic material and controls cell activities."
+    },
+    {
+        "question": "What is the main function of the xylem in plants?",
+        "options": ["Transport food", "Transport water", "Support the plant", "Photosynthesis"],
+        "answer": 1,
+        "explanation": "Xylem conducts water and minerals from roots to aerial parts."
+    },
+    {
+        "question": "Which disease is caused by deficiency of vitamin C?",
+        "options": ["Rickets", "Scurvy", "Beriberi", "Anemia"],
+        "answer": 1,
+        "explanation": "Vitamin C deficiency leads to scurvy, characterized by bleeding gums."
+    },
+    {
+        "question": "Which of the following is a fungal disease?",
+        "options": ["Malaria", "Ringworm", "Tuberculosis", "Influenza"],
+        "answer": 1,
+        "explanation": "Ringworm is caused by fungal infection of the skin."
+    },
+    {
+        "question": "Which hormone regulates the sleep-wake cycle?",
+        "options": ["Melatonin", "Insulin", "Adrenaline", "Cortisol"],
+        "answer": 0,
+        "explanation": "Melatonin regulates circadian rhythms including sleep."
+    },
+    {
+        "question": "Which process in plants is responsible for sugar transport?",
+        "options": ["Xylem", "Phloem", "Cambium", "Epidermis"],
+        "answer": 1,
+        "explanation": "Phloem transports sugars from leaves to other parts."
+    },
+    {
+        "question": "What is the genetic material found in viruses?",
+        "options": ["DNA or RNA", "Protein", "Lipids", "Carbohydrates"],
+        "answer": 0,
+        "explanation": "Viruses contain either DNA or RNA as their genetic material."
+    },
+    {
+        "question": "Which animal is capable of flight?",
+        "options": ["Bat", "Elephant", "Lion", "Dolphin"],
+        "answer": 0,
+        "explanation": "Bats are mammals adapted for flight."
+    },
+    {
+        "question": "What is biodiversity?",
+        "options": ["Variety of organisms in an ecosystem", "Number of species in an area", "Climate of a region", "Types of plants only"],
+        "answer": 0,
+        "explanation": "Biodiversity refers to all living organisms in an ecosystem."
+    },
+    {
+        "question": "Which of the following helps in photosynthesis?",
+        "options": ["Chlorophyll", "Hemoglobin", "Carotene", "Lignin"],
+        "answer": 0,
+        "explanation": "Chlorophyll is the green pigment essential for photosynthesis."
+    },
+    {
+        "question": "What is the term for animals that eat both plants and animals?",
+        "options": ["Carnivores", "Herbivores", "Omnivores", "Detritivores"],
+        "answer": 2,
+        "explanation": "Omnivores consume both plant and animal matter."
+    },
+    {
+        "question": "Which disease is caused by the deficiency of iron?",
+        "options": ["Anemia", "Scurvy", "Rickets", "Beriberi"],
+        "answer": 0,
+        "explanation": "Iron deficiency causes anemia, leading to reduced red blood cells."
+    },
+	 {
+        "question": "What is the main function of the digestive system?",
+        "options": ["Transport oxygen", "Break down food", "Produce hormones", "Remove waste"],
+        "answer": 1,
+        "explanation": "The digestive system breaks down food into nutrients for absorption."
+    },
+    {
+        "question": "Which part of the plant helps in vegetative propagation?",
+        "options": ["Stem", "Leaf", "Root", "Flower"],
+        "answer": 0,
+        "explanation": "Many plants propagate vegetatively via stem cuttings or runners."
+    },
+    {
+        "question": "Which of the following is NOT a carbohydrate?",
+        "options": ["Glucose", "Sucrose", "Cellulose", "Insulin"],
+        "answer": 3,
+        "explanation": "Insulin is a protein hormone, not a carbohydrate."
+    },
+    {
+        "question": "Which part of the brain controls voluntary movement?",
+        "options": ["Cerebellum", "Medulla", "Cerebrum", "Hypothalamus"],
+        "answer": 2,
+        "explanation": "The cerebrum controls voluntary muscle movements."
+    },
+    {
+        "question": "What is the term for a group of cells with similar structure and function?",
+        "options": ["Organ", "Tissue", "Organ system", "Cell"],
+        "answer": 1,
+        "explanation": "Tissue is a group of similar cells performing a specific function."
+    },
+    {
+        "question": "Which vitamin is important for blood clotting and bone metabolism?",
+        "options": ["Vitamin A", "Vitamin D", "Vitamin C", "Vitamin K"],
+        "answer": 3,
+        "explanation": "Vitamin K is crucial for blood clotting and bone health."
+    },
+    {
+        "question": "Which component of blood transports nutrients and hormones?",
+        "options": ["Plasma", "Red blood cells", "White blood cells", "Platelets"],
+        "answer": 0,
+        "explanation": "Plasma carries nutrients, hormones, and waste products."
+    },
+    {
+        "question": "Cell division that results in two identical daughter cells is called?",
+        "options": ["Meiosis", "Mitosis", "Fertilization", "Binary fission"],
+        "answer": 1,
+        "explanation": "Mitosis produces two genetically identical daughter cells."
+    },
+    {
+        "question": "What is the main component of plant cell walls?",
+        "options": ["Cellulose", "Lignin", "Chitin", "Starch"],
+        "answer": 0,
+        "explanation": "Cellulose provides structural support to plant cell walls."
+    },
+    {
+        "question": "Which type of blood vessel has the thinnest walls?",
+        "options": ["Arteries", "Veins", "Capillaries", "Venules"],
+        "answer": 2,
+        "explanation": "Capillaries have thin walls to allow exchange of substances."
+    },
+    {
+        "question": "Which part of the eye controls the amount of light entering?",
+        "options": ["Lens", "Cornea", "Iris", "Retina"],
+        "answer": 2,
+        "explanation": "The iris adjusts the pupil size regulating light intake."
+    },
+    {
+        "question": "Which vitamin deficiency causes rickets?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin D", "Vitamin C"],
+        "answer": 2,
+        "explanation": "Vitamin D deficiency leads to rickets, causing bone deformities."
+    },
+    {
+        "question": "The process of conversion of nitrogen gas into a usable form by plants is called?",
+        "options": ["Photosynthesis", "Nitrogen fixation", "Respiration", "Denitrification"],
+        "answer": 1,
+        "explanation": "Nitrogen fixation converts inert nitrogen gas into ammonia for plant use."
+    },
+    {
+        "question": "Which human organ stores bile?",
+        "options": ["Liver", "Pancreas", "Gallbladder", "Kidney"],
+        "answer": 2,
+        "explanation": "The gallbladder stores bile produced by the liver."
+    },
+    {
+        "question": "Which of the following diseases is caused by a virus?",
+        "options": ["Cholera", "Tuberculosis", "Influenza", "Malaria"],
+        "answer": 2,
+        "explanation": "Influenza is a viral infection."
+    },
+    {
+        "question": "Which part of a neuron receives signals from other neurons?",
+        "options": ["Axon", "Dendrite", "Cell body", "Synapse"],
+        "answer": 1,
+        "explanation": "Dendrites receive electrical messages from other neurons."
+    },
+    {
+        "question": "What is the main function of the small intestine?",
+        "options": ["Digest food", "Absorb nutrients", "Absorb water", "Store waste"],
+        "answer": 1,
+        "explanation": "Small intestine absorbs digested nutrients into the bloodstream."
+    },
+    {
+        "question": "Which blood cells protect the body against infections?",
+        "options": ["Red blood cells", "White blood cells", "Platelets", "Plasma"],
+        "answer": 1,
+        "explanation": "White blood cells fight infection by destroying pathogens."
+    },
+    {
+        "question": "Which macromolecule is the main constituent of cell membranes?",
+        "options": ["Carbohydrates", "Lipids", "Proteins", "Nucleic acids"],
+        "answer": 1,
+        "explanation": "Lipids, mainly phospholipids, form the cell membrane's bilayer."
+    },
+    {
+        "question": "How many pairs of chromosomes do humans have?",
+        "options": ["22", "23", "24", "46"],
+        "answer": 1,
+        "explanation": "Humans have 23 pairs of chromosomes, totaling 46."
+    },
+    {
+        "question": "Which of the following is not a component of blood?",
+        "options": ["Plasma", "Platelets", "Lymph", "Red blood cells"],
+        "answer": 2,
+        "explanation": "Lymph is part of the lymphatic system, not blood."
+    },
+    {
+        "question": "Where are red blood cells produced?",
+        "options": ["Bone marrow", "Liver", "Spleen", "Kidneys"],
+        "answer": 0,
+        "explanation": "Bone marrow produces red blood cells through hematopoiesis."
+    },
+    {
+        "question": "Which animal is known as a marsupial?",
+        "options": ["Kangaroo", "Elephant", "Frog", "Whale"],
+        "answer": 0,
+        "explanation": "Marsupials like kangaroos carry their young in pouches."
+    },
+    {
+        "question": "What is the genetic material in most organisms?",
+        "options": ["RNA", "DNA", "Protein", "Fat"],
+        "answer": 1,
+        "explanation": "DNA carries genetic information in most living organisms."
+    },
+    {
+        "question": "Which ecosystem has the highest biodiversity?",
+        "options": ["Desert", "Rainforest", "Tundra", "Grassland"],
+        "answer": 1,
+        "explanation": "Rainforests host the greatest variety of species."
+    },
+    {
+        "question": "Which hormone is responsible for the fight-or-flight response?",
+        "options": ["Insulin", "Adrenaline", "Cortisol", "Estrogen"],
+        "answer": 1,
+        "explanation": "Adrenaline prepares the body for rapid response under stress."
+    },
+    {
+        "question": "Which part of the human body produces red and white blood cells?",
+        "options": ["Liver", "Bone marrow", "Spleen", "Kidney"],
+        "answer": 1,
+        "explanation": "Bone marrow produces blood cells continuously."
+    },
+    {
+        "question": "What is the main function of lysosomes in a cell?",
+        "options": ["Protein synthesis", "Digestion of waste", "Energy production", "Cell division"],
+        "answer": 1,
+        "explanation": "Lysosomes digest unwanted cellular materials."
+    },
+    {
+        "question": "Which vitamin deficiency leads to scurvy?",
+        "options": ["Vitamin A", "Vitamin B1", "Vitamin C", "Vitamin D"],
+        "answer": 2,
+        "explanation": "Lack of Vitamin C causes scurvy with bleeding gums."
+    },
+    {
+        "question": "What is the process by which cells divide to form two identical daughter cells?",
+        "options": ["Meiosis", "Mitosis", "Fertilization", "Duplication"],
+        "answer": 1,
+        "explanation": "Mitosis results in the division of a cell into identical daughter cells."
+    },
+    {
+        "question": "Which part of the cell contains the cell's genetic material?",
+        "options": ["Cytoplasm", "Nucleus", "Mitochondria", "Ribosome"],
+        "answer": 1,
+        "explanation": "The nucleus contains DNA and controls cell activities."
+    },
+    {
+        "question": "Which blood vessels connect arteries and veins?",
+        "options": ["Capillaries", "Venules", "Arterioles", "Lymph vessels"],
+        "answer": 0,
+        "explanation": "Capillaries facilitate exchange between blood and tissues."
+    },
+    {
+        "question": "Which organism is known as the universal decomposer?",
+        "options": ["Bacteria", "Fungi", "Protozoa", "Viruses"],
+        "answer": 1,
+        "explanation": "Fungi decompose organic matter and recycle nutrients."
+    },
+    {
+        "question": "Which vitamin is important for vision and skin health?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 0,
+        "explanation": "Vitamin A supports retina function and skin maintenance."
+    },
+    {
+        "question": "What is the function of the stamen in flowers?",
+        "options": ["Produce pollen", "Attract pollinators", "Protect seeds", "Produce fruit"],
+        "answer": 0,
+        "explanation": "Stamens are male reproductive organs producing pollen."
+    },
+	{
+        "question": "In human genetics, which term refers to the observable traits of an organism?",
+        "options": ["Genotype", "Phenotype", "Allele", "Chromosome"],
+        "answer": 1,
+        "explanation": "Phenotype refers to the observable physical or biochemical characteristics of an organism."
+    },
+    {
+        "question": "Which vitamin acts as a coenzyme in the Krebs cycle to facilitate energy production?",
+        "options": ["Vitamin B1 (Thiamine)", "Vitamin B6 (Pyridoxine)", "Vitamin C", "Vitamin K"],
+        "answer": 0,
+        "explanation": "Vitamin B1 (Thiamine) acts as a coenzyme in the Krebs cycle crucial for energy metabolism."
+    },
+    {
+        "question": "What is the major difference between meiosis I and meiosis II?",
+        "options": ["Meiosis I is equational division; Meiosis II is reductional division", "Meiosis I separates homologous chromosomes; Meiosis II separates sister chromatids", "Both separate homologous chromosomes", "Both separate sister chromatids"],
+        "answer": 1,
+        "explanation": "Meiosis I separates homologous chromosomes, whereas Meiosis II separates sister chromatids."
+    },
+    {
+        "question": "In plant physiology, which of the following regulates stomatal opening and closing via turgor changes in guard cells?",
+        "options": ["Abscisic acid", "Auxins", "Kinins", "Cytokinins"],
+        "answer": 0,
+        "explanation": "Abscisic acid triggers stomatal closure during water stress by affecting guard cell turgor."
+    },
+    {
+        "question": "During which phase of the cell cycle does DNA replication occur?",
+        "options": ["G1 phase", "S phase", "G2 phase", "M phase"],
+        "answer": 1,
+        "explanation": "DNA synthesis (replication) occurs during the S (synthesis) phase of the cell cycle."
+    },
+    {
+        "question": "Which immune response involves the production of memory cells following exposure to a pathogen?",
+        "options": ["Innate immunity", "Primary immune response", "Secondary immune response", "Passive immunity"],
+        "answer": 2,
+        "explanation": "Secondary immune response is faster and stronger due to memory cell involvement."
+    },
+    {
+        "question": "What type of ecological interaction describes a symbiotic relationship where one organism benefits and the other is neither harmed nor benefited?",
+        "options": ["Mutualism", "Parasitism", "Commensalism", "Competition"],
+        "answer": 2,
+        "explanation": "Commensalism benefits one species without affecting the other."
+    },
+    {
+        "question": "Which of the following biomolecules contains a pentose sugar, a nitrogenous base, and a phosphate group?",
+        "options": ["Lipid", "Carbohydrate", "Protein", "Nucleotide"],
+        "answer": 3,
+        "explanation": "Nucleotides are the basic units of nucleic acids consisting of sugar, base, and phosphate."
+    },
+    {
+        "question": "In blood coagulation, which factor catalyzes the conversion of prothrombin to thrombin?",
+        "options": ["Factor VIII", "Factor X", "Factor VII", "Factor V"],
+        "answer": 1,
+        "explanation": "Factor X plays a central role in catalyzing prothrombin to thrombin."
+    },
+    {
+        "question": "What is the major mechanism by which C4 plants minimize photorespiration?",
+        "options": ["Spatial separation of CO2 fixation and Calvin cycle", "Temporal separation of photosynthesis", "Using a different form of rubisco", "Alternative respiration pathways"],
+        "answer": 0,
+        "explanation": "C4 plants spatially separate initial CO2 fixation and the Calvin cycle to reduce photorespiration."
+    },
+    {
+        "question": "Which hormone in animals is secreted by the hypothalamus and controls the release of anterior pituitary hormones?",
+        "options": ["Oxytocin", "Releasing hormones", "Adrenaline", "Thyroxine"],
+        "answer": 1,
+        "explanation": "Hypothalamic releasing hormones regulate anterior pituitary secretions."
+    },
+    {
+        "question": "What is the functional significance of introns in eukaryotic genes?",
+        "options": ["Encode proteins", "Enhance mRNA stability", "Allow alternative splicing", "Control DNA replication"],
+        "answer": 2,
+        "explanation": "Introns enable alternative splicing, increasing protein diversity."
+    },
+    {
+        "question": "Which of the following correctly describes Hardy-Weinberg equilibrium?",
+        "options": ["Allele frequencies remain constant in an idealized population", "Natural selection influences allele frequency", "Mutation rates determine allele frequencies", "Gene flow alters allele frequencies"],
+        "answer": 0,
+        "explanation": "Hardy-Weinberg principle predicts allele frequencies remain constant in non-evolving populations."
+    },
+    {
+        "question": "In an ecosystem, what is the correct order of energy flow through trophic levels?",
+        "options": ["Producer → Primary consumer → Secondary consumer → Tertiary consumer", "Primary consumer → Producer → Secondary consumer → Tertiary consumer", "Producer → Secondary consumer → Primary consumer → Tertiary consumer", "Tertiary consumer → Secondary consumer → Primary consumer → Producer"],
+        "answer": 0,
+        "explanation": "Energy flows from producers to higher consumer levels sequentially."
+    },
+    {
+        "question": "Which of the following enzymes is responsible for unwinding the DNA double helix during replication?",
+        "options": ["DNA polymerase", "Helicase", "Ligase", "Topoisomerase"],
+        "answer": 1,
+        "explanation": "Helicase breaks hydrogen bonds to unwind DNA strands."
+    },
+    {
+        "question": "What is the mode of inheritance for mitochondrial DNA?",
+        "options": ["Maternal inheritance", "Paternal inheritance", "Both parents", "Chromosomal inheritance"],
+        "answer": 0,
+        "explanation": "Mitochondrial DNA is inherited almost exclusively from the mother."
+    },
+    {
+        "question": "Which of the following diseases is an example of an autoimmune disorder?",
+        "options": ["Type 1 diabetes", "Tuberculosis", "Malaria", "Influenza"],
+        "answer": 0,
+        "explanation": "Type 1 diabetes results from immune system attacking pancreatic beta cells."
+    },
+    {
+        "question": "In evolutionary biology, what is the founder effect?",
+        "options": ["Loss of genetic variation due to a small founding population", "Increase in mutation rates", "Natural selection in large populations", "Genetic drift caused by migration"],
+        "answer": 0,
+        "explanation": "Founder effect occurs when a new population arises from a small group with limited genetic diversity."
+    },
+    {
+        "question": "Which of the following best describes the 'fluid mosaic model' of biological membranes?",
+        "options": ["Membranes are rigid and static", "Proteins are embedded in a lipid bilayer that is fluid", "Lipid monolayers with attached proteins", "Proteins form a continuous sheet"],
+        "answer": 1,
+        "explanation": "The fluid mosaic model depicts membranes as dynamic lipid bilayers with embedded proteins."
+    },
+    {
+        "question": "Which nucleotide base pairs with adenine in DNA?",
+        "options": ["Thymine", "Uracil", "Cytosine", "Guanine"],
+        "answer": 0,
+        "explanation": "In DNA, adenine pairs with thymine via two hydrogen bonds."
+    },
+    {
+        "question": "Which type of immunity is gained through vaccination?",
+        "options": ["Passive immunity", "Active immunity", "Innate immunity", "Herd immunity"],
+        "answer": 1,
+        "explanation": "Vaccination induces active immunity by stimulating the immune system."
+    },
+    {
+        "question": "Which of the following is NOT a characteristic of prokaryotic cells?",
+        "options": ["Lack of membrane-bound organelles", "Presence of a nucleus", "Single circular chromosome", "Cell wall"],
+        "answer": 1,
+        "explanation": "Prokaryotic cells lack a nucleus."
+    },
+    {
+        "question": "Which process in plants involves movement of water from roots to leaves against gravity?",
+        "options": ["Osmosis", "Diffusion", "Transpiration pull", "Capillary action"],
+        "answer": 2,
+        "explanation": "Transpiration pull creates a negative pressure driving water upwards."
+    },
+    {
+        "question": "Which of the following is a Gram-positive bacterium?",
+        "options": ["Escherichia coli", "Staphylococcus aureus", "Pseudomonas aeruginosa", "Salmonella typhi"],
+        "answer": 1,
+        "explanation": "Staphylococcus aureus stains positive due to a thick peptidoglycan cell wall."
+    },
+    {
+        "question": "What kind of bonds hold the two strands of DNA together?",
+        "options": ["Covalent bonds", "Hydrogen bonds", "Ionic bonds", "Peptide bonds"],
+        "answer": 1,
+        "explanation": "Hydrogen bonds between complementary bases hold DNA strands together."
+    },
+    {
+        "question": "Which pigment besides chlorophyll helps in light absorption in photosynthesis?",
+        "options": ["Carotenoids", "Anthocyanins", "Melanin", "Xanthophyll"],
+        "answer": 0,
+        "explanation": "Carotenoids are accessory pigments aiding photosynthesis."
+    },
+    {
+        "question": "Which part of the kidney is responsible for filtration of blood?",
+        "options": ["Glomerulus", "Loop of Henle", "Collecting duct", "Renal pelvis"],
+        "answer": 0,
+        "explanation": "Glomerulus filters blood to initiate urine formation."
+    },
+    {
+        "question": "Which of the following is an example of a homeostatic process in the human body?",
+        "options": ["Blood clotting", "Temperature regulation", "Blood circulation", "Digestion"],
+        "answer": 1,
+        "explanation": "Temperature regulation maintains internal body temperature."
+    },
+    {
+        "question": "Which of the following genetic disorders is caused by trisomy of chromosome 21?",
+        "options": ["Turner syndrome", "Down syndrome", "Klinefelter syndrome", "Cri-du-chat syndrome"],
+        "answer": 1,
+        "explanation": "Down syndrome results from an extra copy of chromosome 21."
+    },
+    {
+        "question": "Which class of biomolecules includes enzymes, antibodies, and structural proteins?",
+        "options": ["Carbohydrates", "Lipids", "Proteins", "Nucleic acids"],
+        "answer": 2,
+        "explanation": "Proteins perform diverse biological functions including enzymatic activity."
+    },
+	{
+        "question": "Which organ in the human body produces the hormone thyroxine?",
+        "options": ["Pituitary gland", "Thyroid gland", "Adrenal gland", "Pancreas"],
+        "answer": 1,
+        "explanation": "The thyroid gland produces thyroxine, which regulates metabolism."
+    },
+    {
+        "question": "What is the primary role of ribosomes in cells?",
+        "options": ["Synthesize proteins", "Store genetic information", "Produce energy", "Break down waste"],
+        "answer": 0,
+        "explanation": "Ribosomes synthesize proteins by translating mRNA."
+    },
+    {
+        "question": "Which of the following is a parasitic disease?",
+        "options": ["Malaria", "Tuberculosis", "Influenza", "Diabetes"],
+        "answer": 0,
+        "explanation": "Malaria is caused by the protozoan parasite Plasmodium."
+    },
+    {
+        "question": "Which part of the plant is responsible for photosynthesis?",
+        "options": ["Stem", "Root", "Leaf", "Flower"],
+        "answer": 2,
+        "explanation": "Leaves contain chlorophyll and carry out photosynthesis."
+    },
+    {
+        "question": "Which element is essential for the formation of hemoglobin?",
+        "options": ["Calcium", "Iron", "Potassium", "Magnesium"],
+        "answer": 1,
+        "explanation": "Iron is a key component of hemoglobin, enabling oxygen transport."
+    },
+    {
+        "question": "Which blood group is considered the universal donor?",
+        "options": ["A", "B", "AB", "O"],
+        "answer": 3,
+        "explanation": "Blood group O negative can be donated to any other group."
+    },
+    {
+        "question": "Which vitamin deficiency leads to scurvy?",
+        "options": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"],
+        "answer": 2,
+        "explanation": "Vitamin C deficiency causes scurvy, characterized by bleeding gums and general weakness."
+    },
+    {
+        "question": "What is the basic structural unit of the kidney?",
+        "options": ["Nephron", "Alveolus", "Neuron", "Osteon"],
+        "answer": 0,
+        "explanation": "Nephrons filter blood and form urine."
+    },
+    {
+        "question": "Which hormone regulates the sleep-wake cycle?",
+        "options": ["Insulin", "Melatonin", "Adrenaline", "Thyroxine"],
+        "answer": 1,
+        "explanation": "Melatonin is responsible for regulating circadian rhythms."
+    },
+    {
+        "question": "Which organelle is responsible for energy production in the cell?",
+        "options": ["Nucleus", "Mitochondria", "Ribosome", "Golgi apparatus"],
+        "answer": 1,
+        "explanation": "Mitochondria generate ATP through cellular respiration."
+    },
+    {
+        "question": "Which part of blood helps in clotting?",
+        "options": ["Red blood cells", "White blood cells", "Platelets", "Plasma"],
+        "answer": 2,
+        "explanation": "Platelets initiate blood clotting to prevent excessive bleeding."
+    },
+    {
+        "question": "Who discovered the basic laws of heredity?",
+        "options": ["Charles Darwin", "Gregor Mendel", "Louis Pasteur", "Robert Koch"],
+        "answer": 1,
+        "explanation": "Mendel is known as the father of genetics for his work on pea plants."
+    },
+    {
+        "question": "Which plant hormone promotes fruit ripening?",
+        "options": ["Auxin", "Cytokinin", "Ethylene", "Gibberellin"],
+        "answer": 2,
+        "explanation": "Ethylene is involved in the ripening of fruits."
+    },
+    {
+        "question": "In which part of the human body are alveoli found?",
+        "options": ["Heart", "Kidneys", "Lungs", "Liver"],
+        "answer": 2,
+        "explanation": "Alveoli are tiny air sacs in the lungs where gas exchange occurs."
+    },
+    {
+        "question": "Which of the following diseases is caused by a bacterium?",
+        "options": ["Influenza", "Tuberculosis", "HIV/AIDS", "Malaria"],
+        "answer": 1,
+        "explanation": "Tuberculosis is caused by Mycobacterium tuberculosis."
+    },
+    {
+        "question": "What is the primary function of white blood cells?",
+        "options": ["Transport oxygen", "Fight infections", "Clot blood", "Digest food"],
+        "answer": 1,
+        "explanation": "White blood cells are part of the immune system to defend against diseases."
+    },
+    {
+        "question": "The process by which green plants make their own food is called?",
+        "options": ["Photosynthesis", "Respiration", "Transpiration", "Fermentation"],
+        "answer": 0,
+        "explanation": "Photosynthesis converts light energy into chemical energy."
+    },
+    {
+        "question": "Which component of blood carries oxygen to tissues?",
+        "options": ["Red blood cells", "White blood cells", "Platelets", "Plasma"],
+        "answer": 0,
+        "explanation": "Red blood cells contain hemoglobin which binds oxygen."
+    },
+    {
+        "question": "Which vitamin is synthesized by the skin upon exposure to sunlight?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin D", "Vitamin K"],
+        "answer": 2,
+        "explanation": "Vitamin D synthesis is triggered by UV rays in the skin."
+    },
+    {
+        "question": "Which part of the cell contains genetic material?",
+        "options": ["Cytoplasm", "Nucleus", "Mitochondria", "Ribosome"],
+        "answer": 1,
+        "explanation": "Nucleus contains chromosomes made of DNA."
+    },
+    {
+        "question": "Which organ filters waste from the blood to form urine?",
+        "options": ["Liver", "Kidney", "Pancreas", "Lung"],
+        "answer": 1,
+        "explanation": "Kidneys filter blood and excrete waste as urine."
+    },
+    {
+        "question": "Which organism is responsible for nitrogen fixation in the soil?",
+        "options": ["Rhizobium bacteria", "Paramecium", "Euglena", "Plasmodium"],
+        "answer": 0,
+        "explanation": "Rhizobium bacteria fix atmospheric nitrogen into forms usable by plants."
+    },
+    {
+        "question": "Which blood group is known as the universal recipient?",
+        "options": ["A", "B", "AB", "O"],
+        "answer": 2,
+        "explanation": "Individuals with AB blood group can receive blood from any other group."
+    },
+    {
+        "question": "Which organ produces insulin in the human body?",
+        "options": ["Liver", "Pancreas", "Kidney", "Gallbladder"],
+        "answer": 1,
+        "explanation": "The pancreas produces insulin to regulate blood glucose."
+    },
+    {
+        "question": "Which part of the nervous system controls voluntary muscles?",
+        "options": ["Autonomic nervous system", "Central nervous system", "Somatic nervous system", "Peripheral nervous system"],
+        "answer": 2,
+        "explanation": "Somatic nervous system controls voluntary body movements."
+    },
+    {
+        "question": "Which one of the following diseases is caused by a virus?",
+        "options": ["Cholera", "Measles", "Tuberculosis", "Plasmodium infection"],
+        "answer": 1,
+        "explanation": "Measles is caused by the measles virus."
+    },
+    {
+        "question": "Which plant tissue is responsible for transport of food?",
+        "options": ["Xylem", "Phloem", "Cambium", "Parenchyma"],
+        "answer": 1,
+        "explanation": "Phloem transports organic nutrients from leaves to other parts."
+    },
+    {
+        "question": "Which part of the eye controls the amount of light entering?",
+        "options": ["Lens", "Cornea", "Iris", "Retina"],
+        "answer": 2,
+        "explanation": "The iris adjusts pupil size to regulate light intake."
+    },
+    {
+        "question": "Which animal is known as the ‘Ship of the Desert’?",
+        "options": ["Horse", "Camel", "Elephant", "Donkey"],
+        "answer": 1,
+        "explanation": "Camel is adapted to desert life and known as ‘Ship of the Desert’."
+    },
+    {
+        "question": "Which macromolecule primarily stores genetic information?",
+        "options": ["Protein", "Carbohydrate", "DNA", "Lipid"],
+        "answer": 2,
+        "explanation": "DNA carries hereditary genetic information."
+    },
+	 {
+        "question": "What is the function of the Golgi apparatus in a cell?",
+        "options": ["Protein synthesis", "Packaging and transport of proteins", "Energy production", "DNA replication"],
+        "answer": 1,
+        "explanation": "The Golgi apparatus modifies, sorts, and packages proteins for secretion."
+    },
+    {
+        "question": "Which type of RNA carries amino acids to the ribosome during protein synthesis?",
+        "options": ["mRNA", "rRNA", "tRNA", "snRNA"],
+        "answer": 2,
+        "explanation": "tRNA transports specific amino acids to the ribosome."
+    },
+    {
+        "question": "Which of the following is a characteristic of veins?",
+        "options": ["Carry oxygenated blood", "Have thicker walls than arteries", "Contain valves to prevent backflow", "Are involved in gas exchange"],
+        "answer": 2,
+        "explanation": "Veins have valves to prevent backflow of blood."
+    },
+    {
+        "question": "Which vitamin deficiency causes night blindness?",
+        "options": ["Vitamin A", "Vitamin B1", "Vitamin C", "Vitamin D"],
+        "answer": 0,
+        "explanation": "Vitamin A is essential for the formation of rhodopsin, a pigment in the retina."
+    },
+    {
+        "question": "What is the role of microtubules in animal cells?",
+        "options": ["Protein synthesis", "Provide shape and aid in cell division", "Energy production", "DNA storage"],
+        "answer": 1,
+        "explanation": "Microtubules maintain cell shape and form the spindle apparatus in mitosis."
+    },
+    {
+        "question": "Which gas is essential for photosynthesis?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+        "answer": 2,
+        "explanation": "Carbon dioxide is a raw material used by chlorophyll in photosynthesis."
+    },
+    {
+        "question": "Which part of the human brain primarily controls balance and coordination?",
+        "options": ["Cerebrum", "Medulla oblongata", "Cerebellum", "Thalamus"],
+        "answer": 2,
+        "explanation": "The cerebellum coordinates balance and movement."
+    },
+    {
+        "question": "Which blood component transports hormones, nutrients, and waste products?",
+        "options": ["Red blood cells", "Plasma", "White blood cells", "Platelets"],
+        "answer": 1,
+        "explanation": "Plasma carries hormones, nutrients, and waste molecules."
+    },
+    {
+        "question": "Which enzyme initiates the breakdown of starch in the mouth?",
+        "options": ["Protease", "Lipase", "Amylase", "Cellulase"],
+        "answer": 2,
+        "explanation": "Salivary amylase breaks down starch into maltose."
+    },
+    {
+        "question": "Which hormone regulates calcium levels in the blood?",
+        "options": ["Calcitonin", "Insulin", "Thyroxine", "Adrenaline"],
+        "answer": 0,
+        "explanation": "Calcitonin lowers blood calcium levels by inhibiting bone resorption."
+    },
+    {
+        "question": "Which blood type has both A and B antigens on the surface of red blood cells?",
+        "options": ["Type A", "Type B", "Type AB", "Type O"],
+        "answer": 2,
+        "explanation": "Type AB blood has both A and B antigens."
+    },
+    {
+        "question": "Which tissue connects muscles to bones?",
+        "options": ["Ligaments", "Tendons", "Cartilage", "Fascia"],
+        "answer": 1,
+        "explanation": "Tendons connect muscles to bones to facilitate movement."
+    },
+    {
+        "question": "Which of the following organisms performs nitrogen fixation?",
+        "options": ["Rhizobium", "Paramecium", "Amoeba", "Euglena"],
+        "answer": 0,
+        "explanation": "Rhizobium bacteria fix atmospheric nitrogen into ammonia."
+    },
+    {
+        "question": "Which part of a plant is primarily responsible for absorbing minerals and water?",
+        "options": ["Root hair", "Stem", "Leaf", "Flower"],
+        "answer": 0,
+        "explanation": "Root hairs increase surface area to absorb water and minerals."
+    },
+    {
+        "question": "Which vitamin deficiency causes rickets in children?",
+        "options": ["Vitamin A", "Vitamin D", "Vitamin C", "Vitamin B12"],
+        "answer": 1,
+        "explanation": "Vitamin D deficiency leads to bone softening called rickets."
+    },
+    {
+        "question": "Which organ produces adrenaline in the human body?",
+        "options": ["Pituitary gland", "Adrenal gland", "Thyroid gland", "Pancreas"],
+        "answer": 1,
+        "explanation": "The adrenal glands secrete adrenaline during stress."
+    },
+    {
+        "question": "Which pigment absorbs light energy during photosynthesis?",
+        "options": ["Chlorophyll", "Hemoglobin", "Myoglobin", "Carotene"],
+        "answer": 0,
+        "explanation": "Chlorophyll absorbs light for photosynthesis."
+    },
+    {
+        "question": "Which vitamin helps in the absorption of iron from food?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin D"],
+        "answer": 2,
+        "explanation": "Vitamin C enhances iron absorption in the intestines."
+    },
+    {
+        "question": "Which part of the cell is involved in detoxification and lipid synthesis?",
+        "options": ["Rough endoplasmic reticulum", "Smooth endoplasmic reticulum", "Golgi apparatus", "Lysosome"],
+        "answer": 1,
+        "explanation": "Smooth ER synthesizes lipids and detoxifies harmful substances."
+    },
+    {
+        "question": "Which of the following is a vector-borne disease?",
+        "options": ["Tuberculosis", "Malaria", "Diabetes", "Cholera"],
+        "answer": 1,
+        "explanation": "Malaria is transmitted by the Anopheles mosquito vector."
+    },
+	{
+        "question": "What is the function of the Golgi apparatus in a cell?",
+        "options": ["Protein synthesis", "Packaging and transport of proteins", "Energy production", "DNA replication"],
+        "answer": 1,
+        "explanation": "The Golgi apparatus modifies, sorts, and packages proteins for secretion."
+    },
+    {
+        "question": "Which type of RNA carries amino acids to the ribosome during protein synthesis?",
+        "options": ["mRNA", "rRNA", "tRNA", "snRNA"],
+        "answer": 2,
+        "explanation": "tRNA transports specific amino acids to the ribosome."
+    },
+    {
+        "question": "Which of the following is a characteristic of veins?",
+        "options": ["Carry oxygenated blood", "Have thicker walls than arteries", "Contain valves to prevent backflow", "Are involved in gas exchange"],
+        "answer": 2,
+        "explanation": "Veins have valves to prevent backflow of blood."
+    },
+    {
+        "question": "Which vitamin deficiency causes night blindness?",
+        "options": ["Vitamin A", "Vitamin B1", "Vitamin C", "Vitamin D"],
+        "answer": 0,
+        "explanation": "Vitamin A is essential for the formation of rhodopsin, a pigment in the retina."
+    },
+    {
+        "question": "What is the role of microtubules in animal cells?",
+        "options": ["Protein synthesis", "Provide shape and aid in cell division", "Energy production", "DNA storage"],
+        "answer": 1,
+        "explanation": "Microtubules maintain cell shape and form the spindle apparatus in mitosis."
+    },
+    {
+        "question": "Which gas is essential for photosynthesis?",
+        "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+        "answer": 2,
+        "explanation": "Carbon dioxide is a raw material used by chlorophyll in photosynthesis."
+    },
+    {
+        "question": "Which part of the human brain primarily controls balance and coordination?",
+        "options": ["Cerebrum", "Medulla oblongata", "Cerebellum", "Thalamus"],
+        "answer": 2,
+        "explanation": "The cerebellum coordinates balance and movement."
+    },
+    {
+        "question": "Which blood component transports hormones, nutrients, and waste products?",
+        "options": ["Red blood cells", "Plasma", "White blood cells", "Platelets"],
+        "answer": 1,
+        "explanation": "Plasma carries hormones, nutrients, and waste molecules."
+    },
+    {
+        "question": "Which enzyme initiates the breakdown of starch in the mouth?",
+        "options": ["Protease", "Lipase", "Amylase", "Cellulase"],
+        "answer": 2,
+        "explanation": "Salivary amylase breaks down starch into maltose."
+    },
+    {
+        "question": "Which hormone regulates calcium levels in the blood?",
+        "options": ["Calcitonin", "Insulin", "Thyroxine", "Adrenaline"],
+        "answer": 0,
+        "explanation": "Calcitonin lowers blood calcium levels by inhibiting bone resorption."
+    },
+    {
+        "question": "Which blood type has both A and B antigens on the surface of red blood cells?",
+        "options": ["Type A", "Type B", "Type AB", "Type O"],
+        "answer": 2,
+        "explanation": "Type AB blood has both A and B antigens."
+    },
+    {
+        "question": "Which tissue connects muscles to bones?",
+        "options": ["Ligaments", "Tendons", "Cartilage", "Fascia"],
+        "answer": 1,
+        "explanation": "Tendons connect muscles to bones to facilitate movement."
+    },
+    {
+        "question": "Which of the following organisms performs nitrogen fixation?",
+        "options": ["Rhizobium", "Paramecium", "Amoeba", "Euglena"],
+        "answer": 0,
+        "explanation": "Rhizobium bacteria fix atmospheric nitrogen into ammonia."
+    },
+    {
+        "question": "Which part of a plant is primarily responsible for absorbing minerals and water?",
+        "options": ["Root hair", "Stem", "Leaf", "Flower"],
+        "answer": 0,
+        "explanation": "Root hairs increase surface area to absorb water and minerals."
+    },
+    {
+        "question": "Which vitamin deficiency causes rickets in children?",
+        "options": ["Vitamin A", "Vitamin D", "Vitamin C", "Vitamin B12"],
+        "answer": 1,
+        "explanation": "Vitamin D deficiency leads to bone softening called rickets."
+    },
+    {
+        "question": "Which organ produces adrenaline in the human body?",
+        "options": ["Pituitary gland", "Adrenal gland", "Thyroid gland", "Pancreas"],
+        "answer": 1,
+        "explanation": "The adrenal glands secrete adrenaline during stress."
+    },
+    {
+        "question": "Which pigment absorbs light energy during photosynthesis?",
+        "options": ["Chlorophyll", "Hemoglobin", "Myoglobin", "Carotene"],
+        "answer": 0,
+        "explanation": "Chlorophyll absorbs light for photosynthesis."
+    },
+    {
+        "question": "Which vitamin helps in the absorption of iron from food?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin D"],
+        "answer": 2,
+        "explanation": "Vitamin C enhances iron absorption in the intestines."
+    },
+    {
+        "question": "Which part of the cell is involved in detoxification and lipid synthesis?",
+        "options": ["Rough endoplasmic reticulum", "Smooth endoplasmic reticulum", "Golgi apparatus", "Lysosome"],
+        "answer": 1,
+        "explanation": "Smooth ER synthesizes lipids and detoxifies harmful substances."
+    },
+    {
+        "question": "Which of the following is a vector-borne disease?",
+        "options": ["Tuberculosis", "Malaria", "Diabetes", "Cholera"],
+        "answer": 1,
+        "explanation": "Malaria is transmitted by the Anopheles mosquito vector."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

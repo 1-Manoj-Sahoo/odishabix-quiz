@@ -1,0 +1,3178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Word Substitution Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">One Word Substitution</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "A person who dislikes humankind and avoids human society.",
+        "options": ["Misanthrope", "Misogynist", "Egoist", "Pessimist"],
+        "answer": 0,
+        "explanation": "A misanthrope is someone who avoids and dislikes other people."
+    },
+    {
+        "question": "A place where animals are slaughtered for food.",
+        "options": ["Palace", "Abattoir", "Aviary", "Dairy"],
+        "answer": 1,
+        "explanation": "An abattoir is a slaughterhouse where animals are killed for food."
+    },
+    {
+        "question": "A speech at the end of a play, book, or movie as a conclusion.",
+        "options": ["Prologue", "Epilogue", "Dialogue", "Soliloquy"],
+        "answer": 1,
+        "explanation": "An epilogue is an ending speech or section in a literary work."
+    },
+    {
+        "question": "One who believes that all events are predetermined and inevitable.",
+        "options": ["Fatalist", "Optimist", "Pessimist", "Stoic"],
+        "answer": 0,
+        "explanation": "A fatalist believes in fate, viewing events as unavoidable."
+    },
+    {
+        "question": "A poem or song expressing sadness, especially for someone who has died.",
+        "options": ["Sonnet", "Ballad", "Ode", "Elegy"],
+        "answer": 3,
+        "explanation": "An elegy is a mournful poem, especially for the dead."
+    },
+    {
+        "question": "A government by officials.",
+        "options": ["Democracy", "Autocracy", "Bureaucracy", "Oligarchy"],
+        "answer": 2,
+        "explanation": "A bureaucracy is a government managed by non-elected officials."
+    },
+    {
+        "question": "A person who eats human flesh.",
+        "options": ["Vegetarian", "Cannibal", "Omnivore", "Carnivorous"],
+        "answer": 1,
+        "explanation": "A cannibal eats the flesh of other humans."
+    },
+    {
+        "question": "An extreme fear of being in a small or confined place.",
+        "options": ["Agoraphobia", "Xenophobia", "Hydrophobia", "Claustrophobia"],
+        "answer": 3,
+        "explanation": "Claustrophobia is fear of confined or small spaces."
+    },
+    {
+        "question": "A person who thinks he/she is better than others and talks too much about themselves.",
+        "options": ["Narcissist", "Egoist", "Altruist", "Pessimist"],
+        "answer": 1,
+        "explanation": "An egoist is highly self-centered and talks about themselves."
+    },
+    {
+        "question": "A mild expression used for something harsh.",
+        "options": ["Rhetoric", "Proverb", "Euphemism", "Antonym"],
+        "answer": 2,
+        "explanation": "A euphemism is a polite phrase replacing a harsh one."
+    },
+    {
+        "question": "A short speech delivered by a character in a play, expressing the character's thoughts.",
+        "options": ["Eulogy", "Soliloquy", "Dialogue", "Monologue"],
+        "answer": 1,
+        "explanation": "A soliloquy expresses the character's inner thoughts."
+    },
+    {
+        "question": "One who hates women.",
+        "options": ["Misanthrope", "Misogynist", "Philogynist", "Misogamist"],
+        "answer": 1,
+        "explanation": "A misogynist is a person who hates women."
+    },
+    {
+        "question": "A person who collects or has a great love of books.",
+        "options": ["Demagogue", "Bibliophile", "Philanthropist", "Egoist"],
+        "answer": 1,
+        "explanation": "A bibliophile loves or collects books."
+    },
+    {
+        "question": "A person not sure of God’s existence or one who believes it is impossible to know if God exists.",
+        "options": ["Atheist", "Agnostic", "Believer", "Optimist"],
+        "answer": 1,
+        "explanation": "An agnostic neither believes nor disbelieves in God."
+    },
+    {
+        "question": "A political leader who seeks support by appealing to the desires and prejudices of people.",
+        "options": ["Monarch", "Demagogue", "Diplomat", "Tyrant"],
+        "answer": 1,
+        "explanation": "A demagogue appeals to popular desires rather than rational argument."
+    },
+    {
+        "question": "One who lives in solitude.",
+        "options": ["Recluse", "Hermit", "Extrovert", "Ascetic"],
+        "answer": 0,
+        "explanation": "A recluse prefers to live away from others."
+    },
+    {
+        "question": "A person who believes in equal rights and opportunities for all.",
+        "options": ["Egalitarian", "Aristocrat", "Autocrat", "Conservative"],
+        "answer": 0,
+        "explanation": "An egalitarian supports equality for everyone."
+    },
+    {
+        "question": "Deliberate setting of fire to property.",
+        "options": ["Burglary", "Arson", "Theft", "Extortion"],
+        "answer": 1,
+        "explanation": "Arson is the act of setting fire intentionally."
+    },
+    {
+        "question": "A state of disorder due to absence or non-recognition of authority.",
+        "options": ["Anarchy", "Oligarchy", "Democracy", "Plutocracy"],
+        "answer": 0,
+        "explanation": "Anarchy is a lawless or state of disorder."
+    },
+    {
+        "question": "A list of things to be done.",
+        "options": ["Agenda", "Menu", "Dictionary", "Glossary"],
+        "answer": 0,
+        "explanation": "Agenda is a sequence of items to tackle or do."
+    },
+    {
+        "question": "A person who seldom speaks.",
+        "options": ["Taciturn", "Loquacious", "Reticent", "Garrulous"],
+        "answer": 0,
+        "explanation": "A taciturn person is naturally quiet or reserved."
+    },
+    {
+        "question": "A person who is fanatical and uncompromising in pursuit of their ideals.",
+        "options": ["Zealot", "Hermit", "Fanatic", "Tycoon"],
+        "answer": 0,
+        "explanation": "A zealot is extreme and uncompromising in their beliefs."
+    },
+    {
+        "question": "Deliberate extermination of a racial or cultural group.",
+        "options": ["Homicide", "Genocide", "Fratricide", "Suicide"],
+        "answer": 1,
+        "explanation": "Genocide is the mass killing of a group of people."
+    },
+    {
+        "question": "A person who has excessive interest in or admiration of themselves.",
+        "options": ["Egoist", "Narcissist", "Optimist", "Altruist"],
+        "answer": 1,
+        "explanation": "A narcissist focuses heavily on themselves."
+    },
+    {
+        "question": "A speech by a single actor in a play.",
+        "options": ["Soliloquy", "Monologue", "Dialogue", "Ode"],
+        "answer": 1,
+        "explanation": "A monologue is a lengthy speech by one character."
+    },
+    {
+        "question": "A person who deserts and betrays an organization, country, or set of principles.",
+        "options": ["Renegade", "Prophet", "Martyr", "Optimist"],
+        "answer": 0,
+        "explanation": "A renegade betrays a group or principle."
+    },
+    {
+        "question": "Lasting for a very short time.",
+        "options": ["Perennial", "Ephemeral", "Transient", "Frequent"],
+        "answer": 1,
+        "explanation": "Ephemeral means lasting a short period."
+    },
+    {
+        "question": "Sparing or economical with money.",
+        "options": ["Stingy", "Frugal", "Spendthrift", "Miser"],
+        "answer": 1,
+        "explanation": "Frugal means being careful in spending."
+    },
+    {
+        "question": "One who eats both plants and meat.",
+        "options": ["Herbivore", "Omnivore", "Carnivore", "Vegetarian"],
+        "answer": 1,
+        "explanation": "An omnivore eats both plants and animals."
+    },
+    {
+        "question": "A government by the people.",
+        "options": ["Oligarchy", "Democracy", "Plutocracy", "Bureaucracy"],
+        "answer": 1,
+        "explanation": "Democracy is rule by the people."
+    },
+    {
+        "question": "One who cannot sleep.",
+        "options": ["Hypochondriac", "Somnambulist", "Insomniac", "Lunatic"],
+        "answer": 2,
+        "explanation": "An insomniac is a person who cannot sleep."
+    },
+    {
+        "question": "A person appointed to investigate complaints against public authorities.",
+        "options": ["Magistrate", "Ombudsman", "Advocate", "Orator"],
+        "answer": 1,
+        "explanation": "Ombudsman investigates public complaints."
+    },
+    {
+        "question": "A collection of poems.",
+        "options": ["Anthology", "Synopsis", "Biography", "Novel"],
+        "answer": 0,
+        "explanation": "An anthology is a collection of poems or literary pieces."
+    },
+    {
+        "question": "A person who is skilled in foreign languages.",
+        "options": ["Linguist", "Scientist", "Philanthropist", "Arbitrator"],
+        "answer": 0,
+        "explanation": "Linguist is skilled in languages."
+    },
+    {
+        "question": "Deliberate breaking of a religious law or moral principle.",
+        "options": ["Heresy", "Rebellion", "Blasphemy", "Apostasy"],
+        "answer": 2,
+        "explanation": "Blasphemy is profane talk about sacred things."
+    },
+    {
+        "question": "Pertaining to an ideal society or world of perfection.",
+        "options": ["Distopia", "Utopia", "Panacea", "Arcadia"],
+        "answer": 1,
+        "explanation": "Utopia is an imagined place of perfection."
+    },
+    {
+        "question": "A person who does not eat meat.",
+        "options": ["Vegetarian", "Omnivore", "Cannibal", "Carnivore"],
+        "answer": 0,
+        "explanation": "A vegetarian is someone who avoids meat."
+    },
+    {
+        "question": "A person who often talks a lot.",
+        "options": ["Taciturn", "Loquacious", "Introvert", "Hermit"],
+        "answer": 1,
+        "explanation": "Loquacious is someone very talkative."
+    },
+    {
+        "question": "A loud and powerful voice.",
+        "options": ["Taciturn", "Stentorian", "Pious", "Mute"],
+        "answer": 1,
+        "explanation": "Stentorian refers to a powerful voice."
+    },
+    {
+        "question": "A person who collects stamps.",
+        "options": ["Numismatist", "Philatelist", "Anthropologist", "Philogynist"],
+        "answer": 1,
+        "explanation": "Philatelist is a stamp collector."
+    },
+    {
+        "question": "A person who is a specialist in skin diseases.",
+        "options": ["Dermatologist", "Physician", "Cardiologist", "Neurologist"],
+        "answer": 0,
+        "explanation": "Dermatologist specializes in skin diseases."
+    },
+    {
+        "question": "Fear of foreigners.",
+        "options": ["Hydrophobia", "Claustrophobia", "Xenophobia", "Agoraphobia"],
+        "answer": 2,
+        "explanation": "Xenophobia is fear of foreigners."
+    },
+    {
+        "question": "A remedy for all diseases.",
+        "options": ["Antidote", "Elixir", "Panacea", "Vaccine"],
+        "answer": 2,
+        "explanation": "Panacea is a universal cure."
+    },
+    {
+        "question": "Deliberate repetition of the same word at the beginning of successive clauses.",
+        "options": ["Anaphora", "Euphemism", "Metaphor", "Simile"],
+        "answer": 0,
+        "explanation": "Anaphora involves repetition at the start of clauses."
+    },
+    {
+        "question": "A government ruled by the wealthy.",
+        "options": ["Plutocracy", "Aristocracy", "Democracy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Plutocracy is rule by the rich."
+    },
+    {
+        "question": "A person who walks in sleep.",
+        "options": ["Insomniac", "Somnambulist", "Hypochondriac", "Lunatic"],
+        "answer": 1,
+        "explanation": "Somnambulist is a sleepwalker."
+    },
+    {
+        "question": "Science of heredity and variation.",
+        "options": ["Genetics", "Nostalgia", "Epigraphy", "Philology"],
+        "answer": 0,
+        "explanation": "Genetics deals with heredity."
+    },
+    {
+        "question": "A figure of speech involving exaggeration.",
+        "options": ["Personification", "Hyperbole", "Metonymy", "Alliteration"],
+        "answer": 1,
+        "explanation": "Hyperbole involves exaggeration."
+    },
+    {
+        "question": "A person who opposes all forms of government.",
+        "options": ["Anarchist", "Bureaucrat", "Autocrat", "Socialist"],
+        "answer": 0,
+        "explanation": "An anarchist opposes governmental control."
+    },
+    {
+        "question": "A person who supports war or the use of military force.",
+        "options": ["Pacifist", "Warmonger", "Stoic", "Egalitarian"],
+        "answer": 1,
+        "explanation": "Warmonger advocates for war."
+    },
+	{
+        "question": "A person who helps others, especially by giving money to good causes.",
+        "options": ["Philatelist", "Philanthropist", "Agnostic", "Pessimist"],
+        "answer": 1,
+        "explanation": "A philanthropist donates money/time for the welfare of others."
+    },
+    {
+        "question": "A government by a king or queen.",
+        "options": ["Monarchy", "Oligarchy", "Plutocracy", "Democracy"],
+        "answer": 0,
+        "explanation": "Monarchy is the rule by a single royal leader."
+    },
+    {
+        "question": "A medicine that prevents infection by killing bacteria.",
+        "options": ["Antidote", "Vaccine", "Antibiotic", "Analgesic"],
+        "answer": 2,
+        "explanation": "Antibiotic prevents infections by killing bacteria."
+    },
+    {
+        "question": "A system of government in which only a few people hold all the power.",
+        "options": ["Democracy", "Oligarchy", "Plutocracy", "Aristocracy"],
+        "answer": 1,
+        "explanation": "Oligarchy is a government by a small group."
+    },
+    {
+        "question": "A person who is new to a subject, skill, or belief.",
+        "options": ["Expatriate", "Novice", "Veteran", "Connoisseur"],
+        "answer": 1,
+        "explanation": "A novice is a beginner."
+    },
+    {
+        "question": "One who is excessively patriotic.",
+        "options": ["Secularist", "Jingoist", "Egalitarian", "Humanist"],
+        "answer": 1,
+        "explanation": "A jingoist is highly, often aggressively, patriotic."
+    },
+    {
+        "question": "A person without a home or job who moves from place to place.",
+        "options": ["Nomad", "Exile", "Hermit", "Emigrant"],
+        "answer": 0,
+        "explanation": "A nomad is someone who moves frequently with no permanent home."
+    },
+    {
+        "question": "A person who is indifferent to pain or pleasure.",
+        "options": ["Stoic", "Cynic", "Epicure", "Sceptic"],
+        "answer": 0,
+        "explanation": "A stoic remains unaffected by both joy and pain."
+    },
+    {
+        "question": "A person who is well known for doing something bad.",
+        "options": ["Popular", "Notorious", "Eminent", "Famous"],
+        "answer": 1,
+        "explanation": "Notorious means known for bad reasons."
+    },
+    {
+        "question": "A cure for all diseases or problems.",
+        "options": ["Nostrum", "Panacea", "Placebo", "Antidote"],
+        "answer": 1,
+        "explanation": "Panacea is a solution for all diseases/troubles."
+    },
+    {
+        "question": "To examine one's own thoughts and feelings.",
+        "options": ["Meditate", "Introspect", "Extravert", "Interrogate"],
+        "answer": 1,
+        "explanation": "To introspect is to examine one's own mind."
+    },
+    {
+        "question": "A person who loves good food and drink.",
+        "options": ["Gourmet", "Ascetic", "Egotist", "Cynic"],
+        "answer": 0,
+        "explanation": "Gourmet is a lover of excellent food and drink."
+    },
+    {
+        "question": "An instrument that measures temperature.",
+        "options": ["Spectrometer", "Thermometer", "Barometer", "Anemometer"],
+        "answer": 1,
+        "explanation": "Thermometer measures temperature."
+    },
+    {
+        "question": "A person who always expects the worst to happen.",
+        "options": ["Optimist", "Pessimist", "Skeptic", "Cynic"],
+        "answer": 1,
+        "explanation": "A pessimist always expects a negative outcome."
+    },
+    {
+        "question": "A woman whose husband is dead.",
+        "options": ["Spinster", "Widow", "Divorcee", "Orphan"],
+        "answer": 1,
+        "explanation": "A widow is a woman who has lost her husband by death."
+    },
+    {
+        "question": "A person who never gets tired of working.",
+        "options": ["Indolent", "Indefatigable", "Lethargic", "Dormant"],
+        "answer": 1,
+        "explanation": "Indefatigable means untiring."
+    },
+    {
+        "question": "A person who leaves his own country to settle in another.",
+        "options": ["Emigrant", "Immigrant", "Expatriate", "Alien"],
+        "answer": 0,
+        "explanation": "Emigrant is a person who leaves one’s country."
+    },
+    {
+        "question": "A place where bees are kept.",
+        "options": ["Aviary", "Apiary", "Granary", "Orchard"],
+        "answer": 1,
+        "explanation": "Apiary is where bees are kept."
+    },
+    {
+        "question": "A person who supports, especially financially, an artist or a writer.",
+        "options": ["Philanthropist", "Patron", "Fanatic", "Host"],
+        "answer": 1,
+        "explanation": "Patron is one who gives support to others."
+    },
+    {
+        "question": "A fictional name used by an author.",
+        "options": ["Mononym", "Sobriquet", "Pseudonym", "Homonym"],
+        "answer": 2,
+        "explanation": "Pseudonym is a fictitious author's name."
+    },
+    {
+        "question": "Killing of one’s own brother.",
+        "options": ["Matricide", "Fratricide", "Patricide", "Genocide"],
+        "answer": 1,
+        "explanation": "Fratricide is killing of one’s brother."
+    },
+    {
+        "question": "The right to vote.",
+        "options": ["Suffrage", "Privilege", "Enfranchise", "Veto"],
+        "answer": 0,
+        "explanation": "Suffrage is the right to vote in elections."
+    },
+    {
+        "question": "One who dies for a noble cause.",
+        "options": ["Martyr", "Patriot", "Renegade", "Ascetic"],
+        "answer": 0,
+        "explanation": "A martyr sacrifices their life for a cause."
+    },
+    {
+        "question": "Animals that live on land and water.",
+        "options": ["Aquatic", "Amphibian", "Terrestrial", "Aerial"],
+        "answer": 1,
+        "explanation": "Amphibians live both on land and in water."
+    },
+    {
+        "question": "A group of three books or plays written by the same person.",
+        "options": ["Quadruplet", "Trio", "Triptych", "Trilogy"],
+        "answer": 3,
+        "explanation": "A trilogy is a set of three related works."
+    },
+    {
+        "question": "The distance around a circle.",
+        "options": ["Diameter", "Radius", "Circumference", "Chord"],
+        "answer": 2,
+        "explanation": "Circumference is the perimeter of a circle."
+    },
+    {
+        "question": "The study of human society and social behaviour.",
+        "options": ["Psychology", "Anthropology", "Sociology", "Philology"],
+        "answer": 2,
+        "explanation": "Sociology is the study of society."
+    },
+    {
+        "question": "A person who talks too much.",
+        "options": ["Taciturn", "Verbose", "Loquacious", "Eloquent"],
+        "answer": 2,
+        "explanation": "Loquacious means very talkative."
+    },
+    {
+        "question": "Taking someone else's words or ideas and passing them off as one's own.",
+        "options": ["Plagiarism", "Forgery", "Felicitation", "Quotation"],
+        "answer": 0,
+        "explanation": "Plagiarism is copying someone’s work as own."
+    },
+    {
+        "question": "A thing that is very greatly feared.",
+        "options": ["Bugbear", "Marvel", "Miracle", "Phenomenon"],
+        "answer": 0,
+        "explanation": "Bugbear means a source of fear or dread."
+    },
+    {
+        "question": "A story with a moral lesson.",
+        "options": ["Epic", "Ballad", "Fable", "Saga"],
+        "answer": 2,
+        "explanation": "A fable is a short moral story."
+    },
+    {
+        "question": "The line at which the sky and the earth appear to meet.",
+        "options": ["Equator", "Horizon", "Latitude", "Prime Meridian"],
+        "answer": 1,
+        "explanation": "Horizon is the meeting point of earth and sky."
+    },
+    {
+        "question": "Words spoken by a character that are meant to be heard by the audience but not by other characters.",
+        "options": ["Dialogue", "Aside", "Anecdote", "Prologue"],
+        "answer": 1,
+        "explanation": "Aside is a theatrical term for such words."
+    },
+    {
+        "question": "A place where birds are kept.",
+        "options": ["Aviary", "Sanctuary", "Abattoir", "Stable"],
+        "answer": 0,
+        "explanation": "Aviary is for keeping birds."
+    },
+    {
+        "question": "A place where weapons and ammunition are stored.",
+        "options": ["Granary", "Armory", "Vinery", "Repository"],
+        "answer": 1,
+        "explanation": "Armory is for storing weapons."
+    },
+    {
+        "question": "One who writes a dictionary.",
+        "options": ["Linguist", "Lexicographer", "Philanthropist", "Grammarian"],
+        "answer": 1,
+        "explanation": "Lexicographer writes/edits dictionaries."
+    },
+    {
+        "question": "Killing of one’s father.",
+        "options": ["Patricide", "Matricide", "Fratricide", "Genocide"],
+        "answer": 0,
+        "explanation": "Patricide is killing of father."
+    },
+    {
+        "question": "Action or speech that makes someone annoyed or angry.",
+        "options": ["Provocation", "Interrogation", "Eulogy", "Provender"],
+        "answer": 0,
+        "explanation": "Provocation is act of making someone angry intentionally."
+    },
+    {
+        "question": "A rule or command which must be obeyed strictly.",
+        "options": ["Doctrine", "Decree", "Edict", "Mandate"],
+        "answer": 3,
+        "explanation": "Mandate is an authoritative command."
+    },
+    {
+        "question": "A person who believes only what he sees.",
+        "options": ["Agnostic", "Skeptic", "Atheist", "Iconoclast"],
+        "answer": 1,
+        "explanation": "A skeptic doubts and demands evidence."
+    },
+    {
+        "question": "A speech given in praise of someone who has died.",
+        "options": ["Eulogy", "Elegy", "Epilogue", "Prologue"],
+        "answer": 0,
+        "explanation": "Eulogy praises someone, especially after death."
+    },
+    {
+        "question": "A government by the wealthy.",
+        "options": ["Aristocracy", "Plutocracy", "Autocracy", "Theocracy"],
+        "answer": 1,
+        "explanation": "Plutocracy is government by the wealthy."
+    },
+    {
+        "question": "A person who is excessively concerned with minor details and rules.",
+        "options": ["Pedant", "Pundit", "Prodigy", "Paragon"],
+        "answer": 0,
+        "explanation": "Pedant is overly concerned with details."
+    },
+    {
+        "question": "A person who is constantly dissatisfied and complains.",
+        "options": ["Stoic", "Malcontent", "Ascetic", "Connoisseur"],
+        "answer": 1,
+        "explanation": "Malcontent is always dissatisfied."
+    },
+    {
+        "question": "Government by priests or religious leaders.",
+        "options": ["Plutocracy", "Theocracy", "Oligarchy", "Democracy"],
+        "answer": 1,
+        "explanation": "Theocracy is rule by religious authorities."
+    },
+    {
+        "question": "A thing that is allowed by law.",
+        "options": ["Legitimate", "Illicit", "Prohibited", "Taciturn"],
+        "answer": 0,
+        "explanation": "Legitimate means lawful."
+    },
+    {
+        "question": "A person who cannot make mistakes.",
+        "options": ["Invincible", "Infallible", "Indefatigable", "Insolvent"],
+        "answer": 1,
+        "explanation": "Infallible means incapable of doing wrong."
+    },
+    {
+        "question": "A deep dislike; hatred.",
+        "options": ["Affinity", "Aversion", "Affinity", "Adulation"],
+        "answer": 1,
+        "explanation": "Aversion means strong dislike."
+    },
+    {
+        "question": "A formal written charge of crime.",
+        "options": ["Indictment", "Impeachment", "Injunction", "Endorsement"],
+        "answer": 0,
+        "explanation": "Indictment is formal criminal accusation."
+    },
+    {
+        "question": "A group of stars that form a pattern.",
+        "options": ["Comet", "Meteor", "Constellation", "Asteroid"],
+        "answer": 2,
+        "explanation": "Constellation is a star pattern."
+    },
+    {
+        "question": "A story of a person's life written by someone else.",
+        "options": ["Biography", "Autobiography", "Memoir", "Diary"],
+        "answer": 0,
+        "explanation": "Biography is a person's life story by another."
+    },
+    {
+        "question": "The study of ancient cultures through their material remains.",
+        "options": ["Philology", "Archaeology", "Epidemiology", "Sociology"],
+        "answer": 1,
+        "explanation": "Archaeology is the study of ancient artifacts/cultures."
+    },
+    {
+        "question": "Killing of oneself.",
+        "options": ["Genocide", "Regicide", "Suicide", "Infanticide"],
+        "answer": 2,
+        "explanation": "Suicide means killing oneself."
+    },
+    {
+        "question": "A person who doubts accepted opinions.",
+        "options": ["Pundit", "Iconoclast", "Zealot", "Cynic"],
+        "answer": 1,
+        "explanation": "Iconoclast challenges or overturns traditional beliefs."
+    },
+    {
+        "question": "A person who takes a bright or hopeful view of life.",
+        "options": ["Pessimist", "Optimist", "Cynic", "Stoic"],
+        "answer": 1,
+        "explanation": "Optimist is hopeful about the future."
+    },
+	{
+        "question": "A person who loves mankind and works for the welfare of humanity.",
+        "options": ["Misogynist", "Misanthrope", "Philanthropist", "Egalitarian"],
+        "answer": 2,
+        "explanation": "A philanthropist helps and loves mankind."
+    },
+    {
+        "question": "One who speaks several languages.",
+        "options": ["Polyglot", "Monolingual", "Linguist", "Philologist"],
+        "answer": 0,
+        "explanation": "A polyglot knows multiple languages."
+    },
+    {
+        "question": "A person who leads a life of self-discipline and abstains from indulgences.",
+        "options": ["Hedonist", "Ascetic", "Epicure", "Stoic"],
+        "answer": 1,
+        "explanation": "Ascetics practice severe self-discipline."
+    },
+    {
+        "question": "One who collects coins.",
+        "options": ["Numismatist", "Philatelist", "Archaeologist", "Epigraphist"],
+        "answer": 0,
+        "explanation": "Numismatist is a coin collector."
+    },
+    {
+        "question": "A government ruled by a single person having absolute power.",
+        "options": ["Republic", "Democracy", "Autocracy", "Oligarchy"],
+        "answer": 2,
+        "explanation": "Autocracy is rule by one person with absolute power."
+    },
+    {
+        "question": "A person who studies the origin and development of words.",
+        "options": ["Lexicographer", "Philologist", "Archaeologist", "Etymologist"],
+        "answer": 3,
+        "explanation": "Etymologist studies word origins."
+    },
+    {
+        "question": "A government controlled by religious leaders.",
+        "options": ["Theocracy", "Plutocracy", "Oligarchy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious rule."
+    },
+    {
+        "question": "Killing of one's mother.",
+        "options": ["Patricide", "Fratricide", "Matricide", "Genocide"],
+        "answer": 2,
+        "explanation": "Matricide is killing mother."
+    },
+    {
+        "question": "The art of effective speaking or writing.",
+        "options": ["Grammar", "Rhetoric", "Syntax", "Eloquence"],
+        "answer": 1,
+        "explanation": "Rhetoric is art of persuasion through speech."
+    },
+    {
+        "question": "A person who takes bribes.",
+        "options": ["Arsonist", "Extortionist", "Bribegiver", "Graftor"],
+        "answer": 3,
+        "explanation": "Graftor is a bribe-taker."
+    },
+    {
+        "question": "A person who kills animals for their skins or fur.",
+        "options": ["Poacher", "Furrier", "Trapper", "Hunter"],
+        "answer": 2,
+        "explanation": "Trapper kills animals to get fur."
+    },
+    {
+        "question": "A person who collects stamps.",
+        "options": ["Philatelist", "Numismatist", "Linguist", "Anthropologist"],
+        "answer": 0,
+        "explanation": "Philatelist collects stamps."
+    },
+    {
+        "question": "A mild or indirect word substituted for one considered harsh.",
+        "options": ["Euphemism", "Antonym", "Homonym", "Metaphor"],
+        "answer": 0,
+        "explanation": "Euphemism replaces harsh words politely."
+    },
+    {
+        "question": "A government ruled by the nobility.",
+        "options": ["Plutocracy", "Theocracy", "Aristocracy", "Oligarchy"],
+        "answer": 2,
+        "explanation": "Aristocracy is rule by nobility."
+    },
+    {
+        "question": "A person who speaks in praise of someone.",
+        "options": ["Orator", "Eulogist", "Critic", "Jester"],
+        "answer": 1,
+        "explanation": "Eulogist praises especially the dead."
+    },
+    {
+        "question": "Uncertainty or doubt about the existence of God.",
+        "options": ["Atheism", "Agnosticism", "Theism", "Deism"],
+        "answer": 1,
+        "explanation": "Agnosticism is doubt about God's existence."
+    },
+    {
+        "question": "Government ruled by a single selfish dictator.",
+        "options": ["Autocracy", "Dictatorship", "Monarchy", "Tyranny"],
+        "answer": 3,
+        "explanation": "Tyranny is oppressive absolute rule."
+    },
+    {
+        "question": "Government by a few powerful people.",
+        "options": ["Plutocracy", "Oligarchy", "Bureaucracy", "Democracy"],
+        "answer": 1,
+        "explanation": "Oligarchy is rule by few."
+    },
+    {
+        "question": "A person's characteristic manner of speaking.",
+        "options": ["Accent", "Voice", "Tone", "Dialect"],
+        "answer": 0,
+        "explanation": "Accent is the way a person pronounces words."
+    },
+    {
+        "question": "A government without a ruler or governing body.",
+        "options": ["Democracy", "Anarchy", "Monarchy", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Anarchy is absence of government."
+    },
+    {
+        "question": "A person who is very skilled in a particular field.",
+        "options": ["Expert", "Novice", "Pundit", "Prodigy"],
+        "answer": 2,
+        "explanation": "Pundit is an expert or authority."
+    },
+    {
+        "question": "A person who supports or is an advocate for a cause.",
+        "options": ["Opposer", "Proponent", "Refuter", "Detractor"],
+        "answer": 1,
+        "explanation": "Proponent supports a cause."
+    },
+    {
+        "question": "A book containing a list of words and their meanings.",
+        "options": ["Thesaurus", "Glossary", "Dictionary", "Encyclopedia"],
+        "answer": 2,
+        "explanation": "Dictionary defines words."
+    },
+    {
+        "question": "One who writes letters for others.",
+        "options": ["Calligrapher", "Scrivener", "Typist", "Scribe"],
+        "answer": 1,
+        "explanation": "Scrivener is a professional writer or scribe."
+    },
+    {
+        "question": "Incapable of being wrong or making mistakes.",
+        "options": ["Infallible", "Invincible", "Irrefutable", "Indisputable"],
+        "answer": 0,
+        "explanation": "Infallible means cannot err."
+    },
+    {
+        "question": "A person who hates foreigners.",
+        "options": ["Misogynist", "Xenophobe", "Misanthrope", "Philanthropist"],
+        "answer": 1,
+        "explanation": "Xenophobe dislikes foreigners."
+    },
+    {
+        "question": "A person who avoids pleasures and lives a simple life.",
+        "options": ["Hedonist", "Ascetic", "Epicure", "Sybarite"],
+        "answer": 1,
+        "explanation": "Ascetic practices self-denial."
+    },
+    {
+        "question": "Completely destroyed or ruined.",
+        "options": ["Dilapidated", "Devastated", "Decayed", "Demolished"],
+        "answer": 1,
+        "explanation": "Devastated means ruined completely."
+    },
+    {
+        "question": "A person who is habitually lazy.",
+        "options": ["Industrious", "Lethargic", "Indolent", "Diligent"],
+        "answer": 2,
+        "explanation": "Indolent means lazy."
+    },
+    {
+        "question": "One who wanders without a fixed home.",
+        "options": ["Nomad", "Gypsy", "Migrant", "Vagabond"],
+        "answer": 3,
+        "explanation": "Vagabond is a person who roams aimlessly."
+    },
+    {
+        "question": "A government ruled by the rich.",
+        "options": ["Oligarchy", "Plutocracy", "Democracy", "Autocracy"],
+        "answer": 1,
+        "explanation": "Plutocracy is government by the wealthy."
+    },
+    {
+        "question": "Unit of measure for liquids.",
+        "options": ["Gallon", "Meter", "Liter", "Gram"],
+        "answer": 2,
+        "explanation": "Liter is a unit for liquid volume."
+    },
+    {
+        "question": "A person skilled in the treatment of diseases.",
+        "options": ["Surgeon", "Physician", "Doctor", "Therapist"],
+        "answer": 1,
+        "explanation": "Physician is a medical doctor."
+    },
+    {
+        "question": "The act of killing a king.",
+        "options": ["Patricide", "Regicide", "Fratricide", "Matricide"],
+        "answer": 1,
+        "explanation": "Regicide is killing a king."
+    },
+    {
+        "question": "A compound word formed from parts of two words.",
+        "options": ["Portmanteau", "Palindrome", "Oxymoron", "Onomatopoeia"],
+        "answer": 0,
+        "explanation": "Portmanteau combines parts of words."
+    },
+    {
+        "question": "A person who studies or collects coins.",
+        "options": ["Numismatist", "Philatelist", "Anthropologist", "Epigraphist"],
+        "answer": 0,
+        "explanation": "Numismatist studies coins."
+    },
+    {
+        "question": "The highest point or peak.",
+        "options": ["Summit", "Crest", "Apex", "All of the above"],
+        "answer": 3,
+        "explanation": "Summit, crest, and apex all mean peak."
+    },
+    {
+        "question": "A person who loves books.",
+        "options": ["Bibliophile", "Philanthropist", "Linguist", "Hermit"],
+        "answer": 0,
+        "explanation": "Bibliophile loves books."
+    },
+    {
+        "question": "One who moves away from their native country.",
+        "options": ["Immigrant", "Emigrant", "Expatriate", "Refugee"],
+        "answer": 1,
+        "explanation": "Emigrant leaves their own country."
+    },
+    {
+        "question": "A speech delivered to honor a deceased person.",
+        "options": ["Eulogy", "Elegy", "Oration", "Hymn"],
+        "answer": 0,
+        "explanation": "Eulogy praises someone deceased."
+    },
+    {
+        "question": "Giving up a throne or responsibility voluntarily.",
+        "options": ["Renounce", "Abdicate", "Resign", "Vacate"],
+        "answer": 1,
+        "explanation": "Abdicate means to give up a throne."
+    },
+    {
+        "question": "The belief that the Bible is the only authoritative text.",
+        "options": ["Biblicism", "Fundamentalism", "Literalism", "Scripturalism"],
+        "answer": 1,
+        "explanation": "Fundamentalism insists on literal Bible interpretation."
+    },
+    {
+        "question": "A government ruled by the people through elected representatives.",
+        "options": ["Monarchy", "Republic", "Democracy", "Theocracy"],
+        "answer": 1,
+        "explanation": "Republic is a government with elected leaders."
+    },
+    {
+        "question": "A government ruled by religious leaders.",
+        "options": ["Theocracy", "Oligarchy", "Autocracy", "Plutocracy"],
+        "answer": 0,
+        "explanation": "Theocracy is rule by religious authorities."
+    },
+    {
+        "question": "The study of diseases and their causes.",
+        "options": ["Pathology", "Physiology", "Epidemiology", "Microbiology"],
+        "answer": 0,
+        "explanation": "Pathology studies diseases."
+    },
+    {
+        "question": "A person who avoids work or effort.",
+        "options": ["Industrious", "Lethargic", "Indolent", "Diligent"],
+        "answer": 2,
+        "explanation": "Indolent means lazy or avoiding effort."
+    },
+    {
+        "question": "A large destructive fire.",
+        "options": ["Conflagration", "Inferno", "Blaze", "Firestorm"],
+        "answer": 0,
+        "explanation": "Conflagration is a big destructive fire."
+    },
+    {
+        "question": "A person who looks at the dark or negative side of things.",
+        "options": ["Cynic", "Stoic", "Optimist", "Pessimist"],
+        "answer": 3,
+        "explanation": "Pessimist expects negative outcomes."
+    },
+    {
+        "question": "The practice of giving up worldly pleasures for religious reasons.",
+        "options": ["Epicureanism", "Asceticism", "Hedonism", "Materialism"],
+        "answer": 1,
+        "explanation": "Asceticism is self-denial in religion."
+    },
+	{
+        "question": "One who lives on another’s money without doing any work.",
+        "options": ["Parasite", "Freeloader", "Mendicant", "Dependent"],
+        "answer": 0,
+        "explanation": "Parasite lives off others without contributing."
+    },
+    {
+        "question": "A person who studies the stars and planets.",
+        "options": ["Geologist", "Meteorologist", "Astronomer", "Astrologer"],
+        "answer": 2,
+        "explanation": "Astronomer studies celestial bodies scientifically."
+    },
+    {
+        "question": "A speech expressing sorrow or lamentation for the dead.",
+        "options": ["Eulogy", "Elegy", "Dirge", "Ode"],
+        "answer": 1,
+        "explanation": "Elegy is a mournful poem or speech for the dead."
+    },
+    {
+        "question": "One who loves or supports the rights of women.",
+        "options": ["Feminist", "Misogynist", "Humanist", "Egalitarian"],
+        "answer": 0,
+        "explanation": "Feminist advocates for women’s rights."
+    },
+    {
+        "question": "The study of the human mind and behavior.",
+        "options": ["Sociology", "Psychology", "Anthropology", "Philosophy"],
+        "answer": 1,
+        "explanation": "Psychology studies the mind and behavior."
+    },
+    {
+        "question": "A person who is excessively fond of luxury and pleasure.",
+        "options": ["Hedonist", "Ascetic", "Epicure", "Sybarite"],
+        "answer": 3,
+        "explanation": "Sybarite loves luxury and indulgence."
+    },
+    {
+        "question": "A statement or expression of praise.",
+        "options": ["Panegyric", "Eulogy", "Criticism", "Rebuke"],
+        "answer": 0,
+        "explanation": "Panegyric is a formal expression of praise."
+    },
+    {
+        "question": "A person who believes that human life is meaningless.",
+        "options": ["Optimist", "Pessimist", "Nihilist", "Existentialist"],
+        "answer": 2,
+        "explanation": "Nihilist believes life has no inherent meaning."
+    },
+    {
+        "question": "The act of purifying from sin or guilt.",
+        "options": ["Expiation", "Absolution", "Redemption", "Reparation"],
+        "answer": 0,
+        "explanation": "Expiation is the act of making amends for sin."
+    },
+    {
+        "question": "The fear or hatred of strangers or foreigners.",
+        "options": ["Claustrophobia", "Xenophobia", "Agoraphobia", "Hydrophobia"],
+        "answer": 1,
+        "explanation": "Xenophobia is fear of foreigners."
+    },
+    {
+        "question": "One who loves or collects antiques.",
+        "options": ["Antiquarian", "Numismatist", "Philatelist", "Archaeologist"],
+        "answer": 0,
+        "explanation": "Antiquarian collects and studies antiques."
+    },
+    {
+        "question": "The science of diseases.",
+        "options": ["Physiology", "Pathology", "Epidemiology", "Pharmacology"],
+        "answer": 1,
+        "explanation": "Pathology is the study of diseases."
+    },
+    {
+        "question": "A short, amusing story about a real incident or person.",
+        "options": ["Fable", "Anecdote", "Parable", "Epigram"],
+        "answer": 1,
+        "explanation": "Anecdote is a brief and amusing account."
+    },
+    {
+        "question": "A person who refuses to believe in God.",
+        "options": ["Atheist", "Agnostic", "Theist", "Skeptic"],
+        "answer": 0,
+        "explanation": "Atheist denies the existence of God."
+    },
+    {
+        "question": "A person who takes part in a journey or quest.",
+        "options": ["Explorer", "Pilgrim", "Traveler", "Voyager"],
+        "answer": 1,
+        "explanation": "A pilgrim journeys for a religious purpose."
+    },
+    {
+        "question": "A speech at the beginning of a play or book.",
+        "options": ["Epilogue", "Prologue", "Interlude", "Eulogy"],
+        "answer": 1,
+        "explanation": "Prologue is the introductory part of a work."
+    },
+    {
+        "question": "The science or study of maps.",
+        "options": ["Biology", "Cartography", "Geography", "Geology"],
+        "answer": 1,
+        "explanation": "Cartography is the study of maps."
+    },
+    {
+        "question": "An expert judge in matters of art, music, or literature.",
+        "options": ["Critic", "Connoisseur", "Arbiter", "Pundit"],
+        "answer": 1,
+        "explanation": "Connoisseur is a discerning expert."
+    },
+    {
+        "question": "A person who disapproves of human society and its values.",
+        "options": ["Misogynist", "Misanthrope", "Cynic", "Pessimist"],
+        "answer": 1,
+        "explanation": "Misanthrope hates or distrusts humankind."
+    },
+    {
+        "question": "A person who is always silent or says little.",
+        "options": ["Garrulous", "Taciturn", "Loquacious", "Verbose"],
+        "answer": 1,
+        "explanation": "Taciturn is reserved or uncommunicative."
+    },
+    {
+        "question": "One who loves books.",
+        "options": ["Bibliophile", "Philatelist", "Numismatist", "Linguist"],
+        "answer": 0,
+        "explanation": "Bibliophile loves or collects books."
+    },
+    {
+        "question": "A government led by representatives elected by the people.",
+        "options": ["Monarchy", "Republic", "Autocracy", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Republic is a government with elected leaders."
+    },
+    {
+        "question": "One who is skilled in treating diseases.",
+        "options": ["Surgeon", "Physician", "Pharmacist", "Therapist"],
+        "answer": 1,
+        "explanation": "Physician is a medical doctor."
+    },
+    {
+        "question": "A person who collects stamps.",
+        "options": ["Philatelist", "Numismatist", "Anthropologist", "Geologist"],
+        "answer": 0,
+        "explanation": "Philatelist collects stamps."
+    },
+    {
+        "question": "Killing of one's father.",
+        "options": ["Patricide", "Matricide", "Fratricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Patricide is killing of father."
+    },
+    {
+        "question": "Killing of one's mother.",
+        "options": ["Matricide", "Patricide", "Fratricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Matricide is killing of mother."
+    },
+    {
+        "question": "Killing of one's brother.",
+        "options": ["Fratricide", "Patricide", "Matricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Fratricide is killing of brother."
+    },
+    {
+        "question": "A person who is an expert in languages.",
+        "options": ["Linguist", "Philologist", "Polyglot", "Translator"],
+        "answer": 0,
+        "explanation": "Linguist is expert in languages."
+    },
+    {
+        "question": "One who has no permanent home and moves from place to place.",
+        "options": ["Nomad", "Vagabond", "Exile", "Wanderer"],
+        "answer": 0,
+        "explanation": "Nomad is a wandering person."
+    },
+    {
+        "question": "A person who hates women.",
+        "options": ["Misogynist", "Misanthrope", "Feminist", "Humanist"],
+        "answer": 0,
+        "explanation": "Misogynist hates women."
+    },
+    {
+        "question": "A person who dislikes men.",
+        "options": ["Misandrist", "Misanthrope", "Misogynist", "Feminist"],
+        "answer": 0,
+        "explanation": "Misandrist hates men."
+    },
+    {
+        "question": "One who loves or supports animal rights.",
+        "options": ["Animalist", "Animalitarian", "Animal Advocate", "Animal Rights Activist"],
+        "answer": 3,
+        "explanation": "Animal rights activist supports animal welfare."
+    },
+    {
+        "question": "A person who fears or dislikes strangers.",
+        "options": ["Xenophile", "Xenophobe", "Misanthrope", "Philanthropist"],
+        "answer": 1,
+        "explanation": "Xenophobe fears or hates foreigners."
+    },
+    {
+        "question": "A person who is addicted to alcohol.",
+        "options": ["Drunkard", "Teetotaler", "Alcoholic", "Insolvent"],
+        "answer": 2,
+        "explanation": "Alcoholic is addicted to drinking alcohol."
+    },
+    {
+        "question": "A system where the government owns all property and means of production.",
+        "options": ["Capitalism", "Socialism", "Communism", "Fascism"],
+        "answer": 2,
+        "explanation": "Communism advocates common ownership."
+    },
+    {
+        "question": "The place where a legislative body meets.",
+        "options": ["Court", "Assembly", "Parliament", "Senate"],
+        "answer": 2,
+        "explanation": "Parliament is where laws are debated and made."
+    },
+	 {
+        "question": "A person who does not believe in any religion.",
+        "options": ["Agnostic", "Atheist", "Theist", "Skeptic"],
+        "answer": 1,
+        "explanation": "Atheist denies the existence of God or gods."
+    },
+    {
+        "question": "A person who is fond of eating.",
+        "options": ["Gourmet", "Glutton", "Epicure", "Hedonist"],
+        "answer": 1,
+        "explanation": "Glutton is someone who eats excessively."
+    },
+    {
+        "question": "A government ruled by the people directly or through representatives.",
+        "options": ["Democracy", "Autocracy", "Oligarchy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Democracy is rule by the people."
+    },
+    {
+        "question": "A person who is excessively fond of their own beauty or abilities.",
+        "options": ["Egotist", "Narcissist", "Egoist", "Altruist"],
+        "answer": 1,
+        "explanation": "Narcissist admires themselves excessively."
+    },
+    {
+        "question": "A person who is learned in the study of human history through artifacts and fossils.",
+        "options": ["Archaeologist", "Anthropologist", "Historian", "Philologist"],
+        "answer": 0,
+        "explanation": "Archaeologist studies ancient human remains."
+    },
+    {
+        "question": "A person who opposes the law or legal system.",
+        "options": ["Criminal", "Anarchist", "Lawbreaker", "Outlaw"],
+        "answer": 1,
+        "explanation": "An anarchist opposes all forms of government."
+    },
+    {
+        "question": "A government where power is held by religious leaders.",
+        "options": ["Theocracy", "Plutocracy", "Oligarchy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious government."
+    },
+    {
+        "question": "A person who does not believe in the existence of God.",
+        "options": ["Atheist", "Agnostic", "Polytheist", "Monotheist"],
+        "answer": 0,
+        "explanation": "Atheist denies God’s existence."
+    },
+    {
+        "question": "An official order or commission to do something.",
+        "options": ["Mandate", "Decree", "Directive", "Edict"],
+        "answer": 0,
+        "explanation": "Mandate is an authoritative command."
+    },
+    {
+        "question": "A person who steals goods from a ship or a building.",
+        "options": ["Pirate", "Robber", "Thief", "Burglar"],
+        "answer": 0,
+        "explanation": "Pirate steals from ships."
+    },
+    {
+        "question": "An object or symbol that represents a nation or group.",
+        "options": ["Emblem", "Signature", "Logo", "Trademark"],
+        "answer": 0,
+        "explanation": "Emblem is a symbolic representation."
+    },
+    {
+        "question": "A ruler who has absolute power and rules tyrannically.",
+        "options": ["Monarch", "Dictator", "Tyrant", "King"],
+        "answer": 2,
+        "explanation": "Tyrant rules oppressively."
+    },
+    {
+        "question": "A person who is intolerant of differences in others.",
+        "options": ["Bigot", "Puritan", "Conformist", "Philanthropist"],
+        "answer": 0,
+        "explanation": "Bigot is intolerant of others' beliefs."
+    },
+    {
+        "question": "A place where people secretly meet.",
+        "options": ["Sanctuary", "Hideout", "Den", "Conclave"],
+        "answer": 3,
+        "explanation": "Conclave is a secret meeting."
+    },
+    {
+        "question": "A small, exclusive group holding power.",
+        "options": ["Oligarchy", "Democracy", "Anarchy", "Plutocracy"],
+        "answer": 0,
+        "explanation": "Oligarchy is rule by a few."
+    },
+    {
+        "question": "A person who loves fine food and drink.",
+        "options": ["Epicure", "Ascetic", "Gastrologist", "Chef"],
+        "answer": 0,
+        "explanation": "Epicure enjoys fine food and drink."
+    },
+    {
+        "question": "One who distrusts the motives of others.",
+        "options": ["Cynic", "Optimist", "Pessimist", "Skeptic"],
+        "answer": 0,
+        "explanation": "Cynic doubts others’ sincerity."
+    },
+    {
+        "question": "A speech of praise given publicly in honor of someone.",
+        "options": ["Eulogy", "Elegy", "Prologue", "Epigraph"],
+        "answer": 0,
+        "explanation": "Eulogy praises a person, often at funerals."
+    },
+    {
+        "question": "A person who writes poetry.",
+        "options": ["Novelist", "Poet", "Dramatist", "Author"],
+        "answer": 1,
+        "explanation": "Poet composes poems."
+    },
+    {
+        "question": "One who supports the rights and equality of women.",
+        "options": ["Feminist", "Misogynist", "Humanist", "Suffragette"],
+        "answer": 0,
+        "explanation": "Feminist promotes women's rights."
+    },
+    {
+        "question": "The act of condemning someone formally.",
+        "options": ["Excommunication", "Condemnation", "Impeachment", "Denunciation"],
+        "answer": 1,
+        "explanation": "Condemnation is formal disapproval."
+    },
+    {
+        "question": "A person who collects or studies fossils.",
+        "options": ["Paleontologist", "Geologist", "Archaeologist", "Anthropologist"],
+        "answer": 0,
+        "explanation": "Paleontologist studies fossils."
+    },
+    {
+        "question": "One who renounces worldly possessions and lives a life of religious devotion.",
+        "options": ["Ascetic", "Hermit", "Monk", "Priest"],
+        "answer": 0,
+        "explanation": "Ascetic practices strict self-denial."
+    },
+    {
+        "question": "The study of the origin, history, and structure of the Earth.",
+        "options": ["Geology", "Geography", "Ecology", "Meteorology"],
+        "answer": 0,
+        "explanation": "Geology studies the Earth's physical structure."
+    },
+    {
+        "question": "A law that punishes criminals.",
+        "options": ["Statute", "Ordinance", "Code", "Penal Law"],
+        "answer": 3,
+        "explanation": "Penal law relates to punishment of crimes."
+    },
+    {
+        "question": "A ruler who inherits power through family lineage.",
+        "options": ["Monarch", "Democrat", "Aristocrat", "Oligarch"],
+        "answer": 0,
+        "explanation": "Monarch inherits rule by birth."
+    },
+    {
+        "question": "One who rules with absolute authority but is cruel or oppressive.",
+        "options": ["Monarch", "Tyrant", "President", "Governor"],
+        "answer": 1,
+        "explanation": "Tyrant is an oppressive ruler."
+    },
+    {
+        "question": "A government ruled by a few wealthy individuals.",
+        "options": ["Plutocracy", "Aristocracy", "Oligarchy", "Democracy"],
+        "answer": 0,
+        "explanation": "Plutocracy is rule by the rich."
+    },
+    {
+        "question": "A government with no ruler or law.",
+        "options": ["Anarchy", "Theocracy", "Monarchy", "Autocracy"],
+        "answer": 0,
+        "explanation": "Anarchy means absence of government."
+    },
+    {
+        "question": "An allegorical narrative in which characters represent abstract qualities.",
+        "options": ["Parable", "Fable", "Allegory", "Myth"],
+        "answer": 2,
+        "explanation": "Allegory is a symbolic story."
+    },
+    {
+        "question": "An expression or phrase peculiar to a particular language or region.",
+        "options": ["Idiom", "Euphemism", "Simile", "Metaphor"],
+        "answer": 0,
+        "explanation": "Idiom is a phrase with figurative meaning."
+    },
+    {
+        "question": "A large group of people gathered for a particular purpose.",
+        "options": ["Convention", "Congress", "Assembly", "All of these"],
+        "answer": 3,
+        "explanation": "All terms mean large meeting."
+    },
+    {
+        "question": "A speech delivered to praise someone or something.",
+        "options": ["Eulogy", "Panegyric", "Rebuke", "Denunciation"],
+        "answer": 1,
+        "explanation": "Panegyric is formal praise."
+    },
+    {
+        "question": "One who abstains from drinking alcohol.",
+        "options": ["Teetotaler", "Drunkard", "Alcoholic", "Sober"],
+        "answer": 0,
+        "explanation": "Teetotaler avoids alcohol completely."
+    },
+    {
+        "question": "The scientific study of plants.",
+        "options": ["Zoology", "Botany", "Ecology", "Biology"],
+        "answer": 1,
+        "explanation": "Botany studies plants."
+    },
+    {
+        "question": "A government ruled by the people directly.",
+        "options": ["Democracy", "Republic", "Anarchy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Democracy means government by people."
+    },
+    {
+        "question": "A speech in praise of someone who has died.",
+        "options": ["Eulogy", "Elegy", "Anthem", "Hymn"],
+        "answer": 0,
+        "explanation": "Eulogy praises the deceased."
+    },
+    {
+        "question": "One who studies ancient writings and inscriptions.",
+        "options": ["Epigraphist", "Philologist", "Archaeologist", "Linguist"],
+        "answer": 0,
+        "explanation": "Epigraphist studies inscriptions."
+    },
+    {
+        "question": "A person who wanders from place to place without a home or job.",
+        "options": ["Vagabond", "Nomad", "Emigrant", "Traveller"],
+        "answer": 0,
+        "explanation": "Vagabond wanders aimlessly."
+    },
+    {
+        "question": "A person who talks a lot.",
+        "options": ["Taciturn", "Reticent", "Loquacious", "Silent"],
+        "answer": 2,
+        "explanation": "Loquacious means very talkative."
+    },
+    {
+        "question": "The highest point of something.",
+        "options": ["Nadir", "Apex", "Base", "Bottom"],
+        "answer": 1,
+        "explanation": "Apex is the highest point."
+    },
+	{
+        "question": "A person who hates or distrusts mankind.",
+        "options": ["Misanthrope", "Misogynist", "Philanthropist", "Egoist"],
+        "answer": 0,
+        "explanation": "Misanthrope dislikes humanity."
+    },
+    {
+        "question": "A mild or indirect word substituted for one considered harsh.",
+        "options": ["Euphemism", "Simile", "Metaphor", "Oxymoron"],
+        "answer": 0,
+        "explanation": "Euphemism replaces harsh words politely."
+    },
+    {
+        "question": "A person who is excessively fond of their own beauty or abilities.",
+        "options": ["Egotist", "Narcissist", "Egoist", "Altruist"],
+        "answer": 1,
+        "explanation": "Narcissist admires themselves excessively."
+    },
+    {
+        "question": "One who studies human societies and cultures.",
+        "options": ["Sociologist", "Anthropologist", "Psychologist", "Archaeologist"],
+        "answer": 1,
+        "explanation": "Anthropologist studies human cultures."
+    },
+    {
+        "question": "A government ruled by a king or queen.",
+        "options": ["Democracy", "Monarchy", "Republic", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Monarchy is rule by a monarch."
+    },
+    {
+        "question": "One who eats both plants and animals.",
+        "options": ["Carnivore", "Herbivore", "Omnivore", "Insectivore"],
+        "answer": 2,
+        "explanation": "Omnivore eats both plant and animal food."
+    },
+    {
+        "question": "One who is skilled in several languages.",
+        "options": ["Polyglot", "Linguist", "Translator", "Philologist"],
+        "answer": 0,
+        "explanation": "Polyglot knows multiple languages."
+    },
+    {
+        "question": "A government led by a few wealthy people.",
+        "options": ["Oligarchy", "Plutocracy", "Democracy", "Aristocracy"],
+        "answer": 1,
+        "explanation": "Plutocracy is rule by the wealthy."
+    },
+    {
+        "question": "A government with no laws or rulers.",
+        "options": ["Anarchy", "Monarchy", "Oligarchy", "Democracy"],
+        "answer": 0,
+        "explanation": "Anarchy means absence of government."
+    },
+    {
+        "question": "A formal recommendation or advice.",
+        "options": ["Edict", "Directive", "Mandate", "Counsel"],
+        "answer": 3,
+        "explanation": "Counsel is advice or recommendation."
+    },
+    {
+        "question": "A person who loves books.",
+        "options": ["Bibliophile", "Philatelist", "Numismatist", "Anthropologist"],
+        "answer": 0,
+        "explanation": "Bibliophile loves books."
+    },
+    {
+        "question": "A person who writes a dictionary.",
+        "options": ["Lexicographer", "Linguist", "Philologist", "Grammarian"],
+        "answer": 0,
+        "explanation": "Lexicographer compiles dictionaries."
+    },
+    {
+        "question": "An expression exaggerating for effect.",
+        "options": ["Oxymoron", "Hyperbole", "Simile", "Metaphor"],
+        "answer": 1,
+        "explanation": "Hyperbole is deliberate exaggeration."
+    },
+    {
+        "question": "A person who opposes religious beliefs.",
+        "options": ["Atheist", "Agnostic", "Heretic", "Infidel"],
+        "answer": 2,
+        "explanation": "Heretic holds beliefs against established religion."
+    },
+    {
+        "question": "Killing of one's brother.",
+        "options": ["Patricide", "Fratricide", "Matricide", "Regicide"],
+        "answer": 1,
+        "explanation": "Fratricide is killing a brother."
+    },
+    {
+        "question": "Killing of one's father.",
+        "options": ["Patricide", "Matricide", "Regicide", "Fratricide"],
+        "answer": 0,
+        "explanation": "Patricide is killing a father."
+    },
+    {
+        "question": "Killing of one's mother.",
+        "options": ["Matricide", "Patricide", "Fratricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Matricide is killing a mother."
+    },
+    {
+        "question": "A speech made to praise someone, especially at a funeral.",
+        "options": ["Eulogy", "Elegy", "Requiem", "Panegyric"],
+        "answer": 0,
+        "explanation": "Eulogy praises a deceased person."
+    },
+    {
+        "question": "Fear of confined or narrow spaces.",
+        "options": ["Agoraphobia", "Xenophobia", "Claustrophobia", "Hydrophobia"],
+        "answer": 2,
+        "explanation": "Claustrophobia is fear of tight spaces."
+    },
+    {
+        "question": "A person who speaks in public well.",
+        "options": ["Orator", "Eloquence", "Speaker", "Narrator"],
+        "answer": 0,
+        "explanation": "Orator is a skilled public speaker."
+    },
+    {
+        "question": "A government by officials rather than elected representatives.",
+        "options": ["Bureaucracy", "Democracy", "Monarchy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Bureaucracy is rule by appointed officials."
+    },
+    {
+        "question": "A government ruled by the nobility.",
+        "options": ["Plutocracy", "Aristocracy", "Oligarchy", "Monarchy"],
+        "answer": 1,
+        "explanation": "Aristocracy is rule by nobles."
+    },
+    {
+        "question": "A person who abstains from marriage.",
+        "options": ["Celibate", "Skeptic", "Ascetic", "Hermit"],
+        "answer": 0,
+        "explanation": "Celibate abstains from marriage/sexual relations."
+    },
+    {
+        "question": "A government ruled by a woman.",
+        "options": ["Monarchy", "Oligarchy", "Matriarchy", "Patriarchy"],
+        "answer": 2,
+        "explanation": "Matriarchy is female-led government."
+    },
+    {
+        "question": "A person who loves mankind and works for their welfare.",
+        "options": ["Misanthrope", "Philanthropist", "Humanist", "Egalitarian"],
+        "answer": 1,
+        "explanation": "Philanthropist promotes human welfare."
+    },
+    {
+        "question": "The highest point or peak.",
+        "options": ["Nadir", "Apex", "Bottom", "Base"],
+        "answer": 1,
+        "explanation": "Apex means the highest point."
+    },
+    {
+        "question": "A speech given at the end of a book or play.",
+        "options": ["Epilogue", "Prologue", "Interlude", "Dialogue"],
+        "answer": 0,
+        "explanation": "Epilogue is a concluding section."
+    },
+    {
+        "question": "The act of deliberately setting fire.",
+        "options": ["Arson", "Burglary", "Robbery", "Sabotage"],
+        "answer": 0,
+        "explanation": "Arson is setting fire illegally."
+    },
+    {
+        "question": "One who does not believe in God.",
+        "options": ["Atheist", "Deist", "Theist", "Agnostic"],
+        "answer": 0,
+        "explanation": "Atheist denies God."
+    },
+    {
+        "question": "A government ruled by religious leaders.",
+        "options": ["Theocracy", "Autocracy", "Democracy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious rule."
+    },
+    {
+        "question": "The deliberate killing of a king.",
+        "options": ["Patricide", "Matricide", "Regicide", "Fratricide"],
+        "answer": 2,
+        "explanation": "Regicide is killing a king."
+    },
+    {
+        "question": "One who studies the origin and history of words.",
+        "options": ["Lexicographer", "Philologist", "Etymologist", "Linguist"],
+        "answer": 2,
+        "explanation": "Etymologist studies word origins."
+    },
+    {
+        "question": "One who is indifferent to pleasure and pain.",
+        "options": ["Stoic", "Epicure", "Ascetic", "Hedonist"],
+        "answer": 0,
+        "explanation": "Stoic accepts pain and pleasure without complaint."
+    },
+    {
+        "question": "A person who deserts their country or cause.",
+        "options": ["Traitor", "Renegade", "Rebel", "Revolutionary"],
+        "answer": 1,
+        "explanation": "Renegade betrays their group."
+    },
+    {
+        "question": "A person who collects or studies coins.",
+        "options": ["Numismatist", "Philatelist", "Collector", "Historian"],
+        "answer": 0,
+        "explanation": "Numismatist studies coins."
+    },
+    {
+        "question": "The use of words that imitate sounds.",
+        "options": ["Simile", "Onomatopoeia", "Metaphor", "Hyperbole"],
+        "answer": 1,
+        "explanation": "Onomatopoeia imitates natural sounds."
+    },
+    {
+        "question": "A government ruled by a few.",
+        "options": ["Oligarchy", "Democracy", "Autocracy", "Plutocracy"],
+        "answer": 0,
+        "explanation": "Oligarchy is rule by few."
+    },
+    {
+        "question": "One who attacks or seeks to overthrow traditional beliefs.",
+        "options": ["Iconoclast", "Conformist", "Heretic", "Anarchist"],
+        "answer": 0,
+        "explanation": "Iconoclast challenges tradition."
+    },
+    {
+        "question": "A person who moves from place to place seeking work.",
+        "options": ["Nomad", "Vagabond", "Migrant", "Transient"],
+        "answer": 2,
+        "explanation": "Migrant moves for work or livelihood."
+    },
+    {
+        "question": "A government ruled by the wealthy.",
+        "options": ["Plutocracy", "Aristocracy", "Monarchy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Plutocracy is rule by the rich."
+    },
+    {
+        "question": "A person who always expects the worst.",
+        "options": ["Optimist", "Pessimist", "Cynic", "Stoic"],
+        "answer": 1,
+        "explanation": "Pessimist expects negative outcomes."
+    },
+    {
+        "question": "A short and amusing or interesting story about a real incident.",
+        "options": ["Epic", "Fable", "Anecdote", "Parable"],
+        "answer": 2,
+        "explanation": "Anecdote is a brief story."
+    },
+	{
+        "question": "One who loves and collects stamps.",
+        "options": ["Numismatist", "Philatelist", "Bibliophile", "Archaeologist"],
+        "answer": 1,
+        "explanation": "Philatelist collects stamps."
+    },
+    {
+        "question": "A person who is unable to speak.",
+        "options": ["Mute", "Deaf", "Dumb", "Mute"],
+        "answer": 0,
+        "explanation": "Mute means unable to speak."
+    },
+    {
+        "question": "A government ruled by one person with absolute power.",
+        "options": ["Democracy", "Autocracy", "Oligarchy", "Monarchy"],
+        "answer": 1,
+        "explanation": "Autocracy is rule by one individual."
+    },
+    {
+        "question": "A government ruled by the masses.",
+        "options": ["Democracy", "Autocracy", "Oligarchy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Democracy is government by the people."
+    },
+    {
+        "question": "A government ruled by the rich.",
+        "options": ["Plutocracy", "Oligarchy", "Aristocracy", "Democracy"],
+        "answer": 0,
+        "explanation": "Plutocracy is rule by the wealthy."
+    },
+    {
+        "question": "One who steals or unlawfully takes property.",
+        "options": ["Robber", "Thief", "Looter", "Felon"],
+        "answer": 1,
+        "explanation": "Thief unlawfully steals property."
+    },
+    {
+        "question": "A substance that relieves pain.",
+        "options": ["Antiseptic", "Analgesic", "Antibiotic", "Antidote"],
+        "answer": 1,
+        "explanation": "Analgesic reduces or eliminates pain."
+    },
+    {
+        "question": "The practice of giving up worldly pleasures for religious reasons.",
+        "options": ["Asceticism", "Epicureanism", "Hedonism", "Materialism"],
+        "answer": 0,
+        "explanation": "Asceticism is self-denial for spiritual aims."
+    },
+    {
+        "question": "A speech given in praise of someone who has died.",
+        "options": ["Eulogy", "Elegy", "Prologue", "Panegyric"],
+        "answer": 0,
+        "explanation": "Eulogy honors the deceased."
+    },
+    {
+        "question": "A person who dislikes women.",
+        "options": ["Misogynist", "Misandrist", "Misanthrope", "Pessimist"],
+        "answer": 0,
+        "explanation": "Misogynist hates women."
+    },
+    {
+        "question": "A person who hates men.",
+        "options": ["Misogynist", "Misandrist", "Misanthrope", "Pessimist"],
+        "answer": 1,
+        "explanation": "Misandrist hates men."
+    },
+    {
+        "question": "A person who gives up a throne or high position voluntarily.",
+        "options": ["Abdicate", "Resign", "Renounce", "Vacate"],
+        "answer": 0,
+        "explanation": "Abdicate means to renounce the throne."
+    },
+    {
+        "question": "Killing of one's father.",
+        "options": ["Patricide", "Matricide", "Fratricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Patricide is killing of father."
+    },
+    {
+        "question": "Killing of one's mother.",
+        "options": ["Matricide", "Patricide", "Fratricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Matricide is killing of mother."
+    },
+    {
+        "question": "Killing of one's brother.",
+        "options": ["Fratricide", "Patricide", "Matricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Fratricide is killing of brother."
+    },
+    {
+        "question": "A person who collects coins.",
+        "options": ["Numismatist", "Philatelist", "Anthropologist", "Epigraphist"],
+        "answer": 0,
+        "explanation": "Numismatist studies coins."
+    },
+    {
+        "question": "A government without a king or queen.",
+        "options": ["Monarchy", "Republic", "Oligarchy", "Autocracy"],
+        "answer": 1,
+        "explanation": "Republic has elected leaders, no monarch."
+    },
+    {
+        "question": "A person who studies the origin and history of words.",
+        "options": ["Lexicographer", "Philologist", "Etymologist", "Linguist"],
+        "answer": 2,
+        "explanation": "Etymologist studies word origins."
+    },
+    {
+        "question": "An object or symbol representing a group or idea.",
+        "options": ["Emblem", "Logo", "Trademark", "Symbol"],
+        "answer": 0,
+        "explanation": "Emblem represents an organization or idea."
+    },
+    {
+        "question": "One who fears confined or narrow spaces.",
+        "options": ["Claustrophobe", "Agoraphobe", "Xenophobe", "Hydrophobe"],
+        "answer": 0,
+        "explanation": "Claustrophobe fears small spaces."
+    },
+    {
+        "question": "An official command or order.",
+        "options": ["Decree", "Mandate", "Edict", "All of these"],
+        "answer": 3,
+        "explanation": "All refer to authoritative orders."
+    },
+    {
+        "question": "A government ruled by priests or religious leaders.",
+        "options": ["Theocracy", "Monarchy", "Democracy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious rule."
+    },
+    {
+        "question": "A figure of speech comparing two things using 'like' or 'as'.",
+        "options": ["Metaphor", "Simile", "Hyperbole", "Personification"],
+        "answer": 1,
+        "explanation": "Simile uses 'like' or 'as' for comparison."
+    },
+    {
+        "question": "A person who disbelieves in human goodness.",
+        "options": ["Cynic", "Skeptic", "Pessimist", "Misanthrope"],
+        "answer": 0,
+        "explanation": "Cynic doubts sincerity or goodness."
+    },
+    {
+        "question": "One who sees only the good in people and situations.",
+        "options": ["Pessimist", "Optimist", "Realist", "Cynic"],
+        "answer": 1,
+        "explanation": "Optimist expects positive outcomes."
+    },
+    {
+        "question": "The removal of sins or guilt.",
+        "options": ["Redemption", "Expiation", "Absolution", "Reparation"],
+        "answer": 2,
+        "explanation": "Absolution is forgiveness of sins."
+    },
+    {
+        "question": "Fear of water.",
+        "options": ["Hydrophobia", "Agoraphobia", "Claustrophobia", "Xenophobia"],
+        "answer": 0,
+        "explanation": "Hydrophobia is fear of water."
+    },
+    {
+        "question": "A lover of fine food and drink.",
+        "options": ["Epicure", "Ascetic", "Hedonist", "Sybarite"],
+        "answer": 0,
+        "explanation": "Epicure enjoys gourmet food."
+    },
+    {
+        "question": "A person who supports women’s rights.",
+        "options": ["Feminist", "Misogynist", "Humanist", "Suffragette"],
+        "answer": 0,
+        "explanation": "Feminist advocates equality for women."
+    },
+    {
+        "question": "A brief story illustrating a moral lesson.",
+        "options": ["Fable", "Parable", "Allegory", "Anecdote"],
+        "answer": 0,
+        "explanation": "Fable is a short moral story."
+    },
+    {
+        "question": "One who studies the mind and human behavior.",
+        "options": ["Psychologist", "Sociologist", "Anthropologist", "Philosopher"],
+        "answer": 0,
+        "explanation": "Psychologist studies behavior and mind."
+    },
+    {
+        "question": "A government ruled by the people through elected representatives.",
+        "options": ["Monarchy", "Republic", "Democracy", "Autocracy"],
+        "answer": 1,
+        "explanation": "Republic has elected leadership."
+    },
+    {
+        "question": "The art or act of effective speaking or writing.",
+        "options": ["Grammar", "Rhetoric", "Syntax", "Eloquence"],
+        "answer": 1,
+        "explanation": "Rhetoric is persuasive communication."
+    },
+    {
+        "question": "A government by officials rather than elected by people.",
+        "options": ["Democracy", "Bureaucracy", "Autocracy", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Bureaucracy is government by appointed officials."
+    },
+    {
+        "question": "A speech addressed to oneself alone.",
+        "options": ["Monologue", "Dialogue", "Soliloquy", "Aside"],
+        "answer": 2,
+        "explanation": "Soliloquy is a character speaking to themselves."
+    },
+    {
+        "question": "One who believes in predestination or fate.",
+        "options": ["Fatalist", "Optimist", "Skeptic", "Pessimist"],
+        "answer": 0,
+        "explanation": "Fatalist believes events are predetermined."
+    },
+    {
+        "question": "Speech to a person who is absent or dead.",
+        "options": ["Eulogy", "Monologue", "Soliloquy", "Apostrophe"],
+        "answer": 3,
+        "explanation": "Apostrophe addresses someone not present."
+    },
+    {
+        "question": "A person appointed to investigate complaints against public officials.",
+        "options": ["Magistrate", "Ombudsman", "Judge", "Arbitrator"],
+        "answer": 1,
+        "explanation": "Ombudsman investigates complaints."
+    },
+    {
+        "question": "A place where the dead are buried.",
+        "options": ["Cemetery", "Mausoleum", "Crypt", "Catacomb"],
+        "answer": 0,
+        "explanation": "Cemetery is a burial ground."
+    },
+    {
+        "question": "A poisonous substance produced by some animals or plants.",
+        "options": ["Venom", "Toxin", "Poison", "Antidote"],
+        "answer": 1,
+        "explanation": "Toxin is a poisonous chemical."
+    },
+    {
+        "question": "A person who works in the fields cultivating crops.",
+        "options": ["Farmer", "Agriculturist", "Peasant", "Laborer"],
+        "answer": 2,
+        "explanation": "Peasant is a small-scale farmer or laborer."
+    },
+    {
+        "question": "An official list or record.",
+        "options": ["Register", "Ledger", "Directory", "Catalog"],
+        "answer": 0,
+        "explanation": "Register is an official record."
+    },
+    {
+        "question": "A long speech by one actor in a play.",
+        "options": ["Monologue", "Dialogue", "Soliloquy", "Recitation"],
+        "answer": 0,
+        "explanation": "Monologue is a long speech by one person."
+    },
+	{
+        "question": "A person who believes in only one God.",
+        "options": ["Atheist", "Monotheist", "Polytheist", "Agnostic"],
+        "answer": 1,
+        "explanation": "Monotheist believes in the existence of one God."
+    },
+    {
+        "question": "A speech delivered to express grief for someone who has died.",
+        "options": ["Elegy", "Eulogy", "Dirge", "Ode"],
+        "answer": 0,
+        "explanation": "Elegy is a poem or speech expressing sorrow for the dead."
+    },
+    {
+        "question": "A government ruled by a few powerful people.",
+        "options": ["Democracy", "Oligarchy", "Autocracy", "Theocracy"],
+        "answer": 1,
+        "explanation": "Oligarchy is rule by a limited group of people."
+    },
+    {
+        "question": "One who is indifferent to pleasure or pain.",
+        "options": ["Epicure", "Stoic", "Ascetic", "Hedonist"],
+        "answer": 1,
+        "explanation": "Stoic endures pain or hardship without showing feelings."
+    },
+    {
+        "question": "A person who loves mankind and promotes human welfare.",
+        "options": ["Philanthropist", "Misanthrope", "Egalitarian", "Altruist"],
+        "answer": 0,
+        "explanation": "Philanthropist helps and supports humanity."
+    },
+    {
+        "question": "A government ruled by religious leaders.",
+        "options": ["Theocracy", "Plutocracy", "Oligarchy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is rule by priests or religious officials."
+    },
+    {
+        "question": "A person who collects or studies fossils.",
+        "options": ["Paleontologist", "Archaeologist", "Geologist", "Anthropologist"],
+        "answer": 0,
+        "explanation": "Paleontologist studies fossils."
+    },
+    {
+        "question": "A government ruled by the wealthy.",
+        "options": ["Plutocracy", "Oligarchy", "Aristocracy", "Democracy"],
+        "answer": 0,
+        "explanation": "Plutocracy means rule by the rich."
+    },
+    {
+        "question": "A person who talks too much.",
+        "options": ["Taciturn", "Loquacious", "Reticent", "Silent"],
+        "answer": 1,
+        "explanation": "Loquacious means talkative."
+    },
+    {
+        "question": "One who does not believe in God’s existence.",
+        "options": ["Atheist", "Agnostic", "Theist", "Skeptic"],
+        "answer": 0,
+        "explanation": "Atheist rejects belief in God."
+    },
+    {
+        "question": "A mild or indirect expression substituted for something harsh.",
+        "options": ["Euphemism", "Hyperbole", "Idiomatic", "Metaphor"],
+        "answer": 0,
+        "explanation": "Euphemism makes a harsh statement polite."
+    },
+    {
+        "question": "One who is new to a subject or skill.",
+        "options": ["Expert", "Novice", "Adept", "Veteran"],
+        "answer": 1,
+        "explanation": "Novice is a beginner."
+    },
+    {
+        "question": "A person who destroys images or opposes religious practice.",
+        "options": ["Iconoclast", "Heretic", "Infidel", "Skeptic"],
+        "answer": 0,
+        "explanation": "Iconoclast opposes tradition or religious icons."
+    },
+    {
+        "question": "A place where animals are kept for exhibition or breeding.",
+        "options": ["Aviary", "Zoo", "Aquarium", "Sanctuary"],
+        "answer": 1,
+        "explanation": "Zoo is a place for keeping animals."
+    },
+    {
+        "question": "The ability to read and write.",
+        "options": ["Literacy", "Numeracy", "Illiteracy", "Grammar"],
+        "answer": 0,
+        "explanation": "Literacy is the ability to read and write."
+    },
+    {
+        "question": "One who studies human history through excavation.",
+        "options": ["Historian", "Archaeologist", "Anthropologist", "Geologist"],
+        "answer": 1,
+        "explanation": "Archaeologist excavates ancient artifacts."
+    },
+    {
+        "question": "A person who preaches religious doctrines.",
+        "options": ["Apostle", "Preacher", "Prophet", "Missionary"],
+        "answer": 1,
+        "explanation": "Preacher delivers religious sermons."
+    },
+    {
+        "question": "To formally reject or abandon a throne or office.",
+        "options": ["Resign", "Abdicate", "Vacate", "Retire"],
+        "answer": 1,
+        "explanation": "Abdicate means giving up a throne or power."
+    },
+    {
+        "question": "A person who favors equal rights and opportunities for all people.",
+        "options": ["Egalitarian", "Aristocrat", "Philanthropist", "Autocrat"],
+        "answer": 0,
+        "explanation": "Egalitarian supports equality."
+    },
+    {
+        "question": "The study of plants.",
+        "options": ["Zoology", "Botany", "Ecology", "Microbiology"],
+        "answer": 1,
+        "explanation": "Botany is the study of plants."
+    },
+    {
+        "question": "A person who cannot hear.",
+        "options": ["Mute", "Deaf", "Dumb", "Silent"],
+        "answer": 1,
+        "explanation": "Deaf means unable to hear."
+    },
+    {
+        "question": "One who kills their own father.",
+        "options": ["Patricide", "Matricide", "Fratricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Patricide is killing father."
+    },
+    {
+        "question": "One who kills their own mother.",
+        "options": ["Matricide", "Patricide", "Fratricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Matricide is killing mother."
+    },
+    {
+        "question": "One who kills their own brother.",
+        "options": ["Fratricide", "Patricide", "Matricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Fratricide is killing brother."
+    },
+    {
+        "question": "A figure of speech involving exaggeration.",
+        "options": ["Hyperbole", "Metaphor", "Simile", "Alliteration"],
+        "answer": 0,
+        "explanation": "Hyperbole exaggerates for effect."
+    },
+    {
+        "question": "One who loves to eat and drink.",
+        "options": ["Epicure", "Glutton", "Gourmet", "Hedonist"],
+        "answer": 0,
+        "explanation": "Epicure enjoys fine food and drink."
+    },
+    {
+        "question": "The act of killing a king or queen.",
+        "options": ["Regicide", "Patricide", "Fratricide", "Matricide"],
+        "answer": 0,
+        "explanation": "Regicide is killing a ruler."
+    },
+    {
+        "question": "A person who is excessively proud or vain.",
+        "options": ["Egotist", "Narcissist", "Egoist", "Altruist"],
+        "answer": 1,
+        "explanation": "Narcissist loves themselves excessively."
+    },
+    {
+        "question": "One who supports the overthrow of existing government.",
+        "options": ["Revolutionary", "Anarchist", "Democrat", "Patriot"],
+        "answer": 0,
+        "explanation": "Revolutionary seeks to overthrow government."
+    },
+    {
+        "question": "A person who speaks several languages.",
+        "options": ["Polyglot", "Linguist", "Translator", "Philologist"],
+        "answer": 0,
+        "explanation": "Polyglot knows many languages."
+    },
+    {
+        "question": "A government ruled by the people directly.",
+        "options": ["Democracy", "Republic", "Monarchy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Democracy is people's rule."
+    },
+    {
+        "question": "A government ruled by a single person with absolute power.",
+        "options": ["Monarchy", "Dictatorship", "Autocracy", "Oligarchy"],
+        "answer": 2,
+        "explanation": "Autocracy is absolute rule by one."
+    },
+    {
+        "question": "A person who avoids work or effort.",
+        "options": ["Diligent", "Indolent", "Lazy", "Idle"],
+        "answer": 1,
+        "explanation": "Indolent avoids exertion."
+    },
+    {
+        "question": "One who is skilled in the treatment of diseases.",
+        "options": ["Physician", "Surgeon", "Therapist", "Medic"],
+        "answer": 0,
+        "explanation": "Physician treats diseases."
+    },
+    {
+        "question": "The art of persuasive speaking or writing.",
+        "options": ["Rhetoric", "Grammar", "Syntax", "Eloquence"],
+        "answer": 0,
+        "explanation": "Rhetoric is persuasive communication."
+    },
+    {
+        "question": "One who recovers lost property or money.",
+        "options": ["Collector", "Recovery Agent", "Restorer", "Reclaimer"],
+        "answer": 3,
+        "explanation": "Reclaimer recovers property."
+    },
+    {
+        "question": "A person who behaves in a miserly manner.",
+        "options": ["Stingy", "Frugal", "Miser", "Thrifty"],
+        "answer": 2,
+        "explanation": "A miser saves and hoards money excessively."
+    },
+	{
+        "question": "A person who supports or promotes the welfare of others.",
+        "options": ["Philanthropist", "Misanthrope", "Egalitarian", "Altruist"],
+        "answer": 3,
+        "explanation": "Altruist is concerned with the welfare of others."
+    },
+    {
+        "question": "One who lives alone and avoids society.",
+        "options": ["Hermit", "Recluse", "Ascetic", "Monk"],
+        "answer": 1,
+        "explanation": "Recluse lives in solitude, avoiding people."
+    },
+    {
+        "question": "A government ruled by the wealthy class.",
+        "options": ["Oligarchy", "Plutocracy", "Aristocracy", "Democracy"],
+        "answer": 1,
+        "explanation": "Plutocracy is rule by the rich."
+    },
+    {
+        "question": "A person who believes that all events are predetermined.",
+        "options": ["Fatalist", "Optimist", "Pessimist", "Determinist"],
+        "answer": 0,
+        "explanation": "Fatalist believes in fate and predetermination."
+    },
+    {
+        "question": "A person who writes stories.",
+        "options": ["Novelist", "Poet", "Dramatist", "Essayist"],
+        "answer": 0,
+        "explanation": "Novelist writes fiction."
+    },
+    {
+        "question": "One who betrays a friend or cause.",
+        "options": ["Traitor", "Renegade", "Deserter", "Defector"],
+        "answer": 0,
+        "explanation": "Traitor betrays trust."
+    },
+    {
+        "question": "One who loves money excessively.",
+        "options": ["Miser", "Spendthrift", "Greedy", "Avaricious"],
+        "answer": 0,
+        "explanation": "Miser hoards money selfishly."
+    },
+    {
+        "question": "A person who studies and collects plants.",
+        "options": ["Botanist", "Zoologist", "Geologist", "Ecologist"],
+        "answer": 0,
+        "explanation": "Botanist studies plants."
+    },
+    {
+        "question": "A person who speaks several languages fluently.",
+        "options": ["Linguist", "Polyglot", "Translator", "Interpreter"],
+        "answer": 1,
+        "explanation": "Polyglot knows many languages."
+    },
+    {
+        "question": "One who loves luxury and pleasure.",
+        "options": ["Hedonist", "Ascetic", "Epicure", "Sybarite"],
+        "answer": 0,
+        "explanation": "Hedonist pursues pleasure."
+    },
+    {
+        "question": "A person who writes poems.",
+        "options": ["Poet", "Novelist", "Dramatist", "Lyricist"],
+        "answer": 0,
+        "explanation": "Poet composes poetry."
+    },
+    {
+        "question": "A government ruled by all the people.",
+        "options": ["Democracy", "Republic", "Monarchy", "Aristocracy"],
+        "answer": 0,
+        "explanation": "Democracy is rule by the people."
+    },
+    {
+        "question": "One who supports equal rights for all.",
+        "options": ["Egalitarian", "Aristocrat", "Philanthropist", "Autocrat"],
+        "answer": 0,
+        "explanation": "Egalitarian supports equality."
+    },
+    {
+        "question": "A speech delivered to praise someone.",
+        "options": ["Eulogy", "Elegy", "Panegyric", "Requiem"],
+        "answer": 2,
+        "explanation": "Panegyric is formal praise."
+    },
+    {
+        "question": "A government ruled by priests or religious leaders.",
+        "options": ["Theocracy", "Monarchy", "Oligarchy", "Plutocracy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious rule."
+    },
+    {
+        "question": "Fear of strangers or foreigners.",
+        "options": ["Claustrophobia", "Xenophobia", "Agoraphobia", "Hydrophobia"],
+        "answer": 1,
+        "explanation": "Xenophobia is fear of foreigners."
+    },
+    {
+        "question": "A person who has no fixed home and wanders.",
+        "options": ["Nomad", "Vagabond", "Migrant", "Wanderer"],
+        "answer": 0,
+        "explanation": "Nomad moves from place to place with no permanent home."
+    },
+    {
+        "question": "A place where birds are kept.",
+        "options": ["Aviary", "Orchard", "Menagerie", "Sanctuary"],
+        "answer": 0,
+        "explanation": "Aviary is an enclosure for birds."
+    },
+    {
+        "question": "A person who steals goods from a ship at sea.",
+        "options": ["Pirate", "Robber", "Thief", "Brigand"],
+        "answer": 0,
+        "explanation": "Pirate attacks at sea to steal."
+    },
+    {
+        "question": "The study of maps and map-making.",
+        "options": ["Cartography", "Geography", "Topography", "Geomorphology"],
+        "answer": 0,
+        "explanation": "Cartography is map-making."
+    },
+    {
+        "question": "A person who collects antiques.",
+        "options": ["Antiquarian", "Philatelist", "Numismatist", "Collector"],
+        "answer": 0,
+        "explanation": "Antiquarian studies or collects antiques."
+    },
+    {
+        "question": "A person who refuses to believe in religious doctrines.",
+        "options": ["Atheist", "Agnostic", "Heretic", "Infidel"],
+        "answer": 2,
+        "explanation": "Heretic challenges religious beliefs."
+    },
+    {
+        "question": "A short and amusing story about a real incident.",
+        "options": ["Fable", "Anecdote", "Parable", "Myth"],
+        "answer": 1,
+        "explanation": "Anecdote is a brief, interesting story."
+    },
+    {
+        "question": "A government ruled by a king or queen.",
+        "options": ["Democracy", "Monarchy", "Aristocracy", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Monarchy is ruled by royalty."
+    },
+    {
+        "question": "A person who hates women.",
+        "options": ["Misogynist", "Misandrist", "Feminist", "Misanthrope"],
+        "answer": 0,
+        "explanation": "Misogynist hates women."
+    },
+    {
+        "question": "A person who hates men.",
+        "options": ["Misogynist", "Misandrist", "Feminist", "Misanthrope"],
+        "answer": 1,
+        "explanation": "Misandrist hates men."
+    },
+    {
+        "question": "One who talks excessively.",
+        "options": ["Taciturn", "Loquacious", "Reticent", "Silent"],
+        "answer": 1,
+        "explanation": "Loquacious means talkative."
+    },
+    {
+        "question": "A person who hates mankind in general.",
+        "options": ["Misanthrope", "Misogynist", "Philanthropist", "Egalitarian"],
+        "answer": 0,
+        "explanation": "Misanthrope dislikes humanity."
+    },
+    {
+        "question": "A government ruled by the people through elected representatives.",
+        "options": ["Monarchy", "Republic", "Democracy", "Autocracy"],
+        "answer": 1,
+        "explanation": "Republic has elected leaders."
+    },
+    {
+        "question": "A government where citizens directly participate in decision-making.",
+        "options": ["Democracy", "Monarchy", "Oligarchy", "Autocracy"],
+        "answer": 0,
+        "explanation": "Democracy is rule by people."
+    },
+    {
+        "question": "A person who hates or distrusts all people.",
+        "options": ["Misanthrope", "Misogynist", "Cynic", "Skeptic"],
+        "answer": 0,
+        "explanation": "Misanthrope hates humanity."
+    },
+    {
+        "question": "One who seeks revenge.",
+        "options": ["Avenger", "Vindicator", "Retaliator", "Revengeful"],
+        "answer": 0,
+        "explanation": "Avenger seeks to repay harm."
+    },
+    {
+        "question": "A person who studies or collects coins.",
+        "options": ["Numismatist", "Philatelist", "Linguist", "Epigraphist"],
+        "answer": 0,
+        "explanation": "Numismatist studies coins."
+    },
+    {
+        "question": "Words or phrases that imitate sounds.",
+        "options": ["Simile", "Onomatopoeia", "Metaphor", "Hyperbole"],
+        "answer": 1,
+        "explanation": "Onomatopoeia imitates natural sounds."
+    },
+    {
+        "question": "A speech given by one character in a play.",
+        "options": ["Monologue", "Dialogue", "Soliloquy", "Aside"],
+        "answer": 0,
+        "explanation": "Monologue is a speech by one person."
+    },
+    {
+        "question": "A government ruled by a few.",
+        "options": ["Oligarchy", "Democracy", "Autocracy", "Plutocracy"],
+        "answer": 0,
+        "explanation": "Oligarchy is rule by few."
+    },
+    {
+        "question": "One who moves from place to place without a fixed home.",
+        "options": ["Nomad", "Vagabond", "Migrant", "Transient"],
+        "answer": 0,
+        "explanation": "Nomad wanders with no permanent home."
+    },
+    {
+        "question": "A speech to a character who is not present or dead.",
+        "options": ["Apostrophe", "Eulogy", "Monologue", "Soliloquy"],
+        "answer": 0,
+        "explanation": "Apostrophe addresses absent entities."
+    },
+    {
+        "question": "One who believes that life is meaningless.",
+        "options": ["Nihilist", "Optimist", "Pessimist", "Cynic"],
+        "answer": 0,
+        "explanation": "Nihilist rejects meaning in life."
+    },
+    {
+        "question": "A person who has excessive admiration for themselves.",
+        "options": ["Egotist", "Narcissist", "Egoist", "Altruist"],
+        "answer": 1,
+        "explanation": "Narcissist is self-admiring."
+    },
+    {
+        "question": "One who believes in fate or destiny.",
+        "options": ["Fatalist", "Optimist", "Determinist", "Skeptic"],
+        "answer": 0,
+        "explanation": "Fatalist believes fate controls events."
+    },
+	 {
+        "question": "A place where birds are kept.",
+        "options": ["Aviary", "Sanctuary", "Menagerie", "Orchard"],
+        "answer": 0,
+        "explanation": "An aviary is an enclosure for birds."
+    },
+    {
+        "question": "One who loves or supports the cause of women’s rights.",
+        "options": ["Feminist", "Misogynist", "Humanist", "Egalitarian"],
+        "answer": 0,
+        "explanation": "A feminist advocates for women's rights."
+    },
+    {
+        "question": "Release from blame or guilt.",
+        "options": ["Exoneration", "Condemnation", "Conviction", "Punishment"],
+        "answer": 0,
+        "explanation": "Exoneration means to clear from blame."
+    },
+    {
+        "question": "The killing of a king.",
+        "options": ["Patricide", "Matricide", "Fratricide", "Regicide"],
+        "answer": 3,
+        "explanation": "Regicide is the killing of a king."
+    },
+    {
+        "question": "A person who deserts their cause or country.",
+        "options": ["Traitor", "Renegade", "Defector", "Expatriate"],
+        "answer": 1,
+        "explanation": "A renegade betrays their group."
+    },
+    {
+        "question": "A person who is excessively fond of luxury and pleasure.",
+        "options": ["Hedonist", "Ascetic", "Sybarite", "Epicure"],
+        "answer": 2,
+        "explanation": "Sybarite indulges in luxury."
+    },
+    {
+        "question": "A mild or indirect word substituted for a harsh or offensive one.",
+        "options": ["Euphemism", "Simile", "Metaphor", "Oxymoron"],
+        "answer": 0,
+        "explanation": "A euphemism is a polite substitute."
+    },
+    {
+        "question": "A disease that is widespread and affects many people.",
+        "options": ["Epidemic", "Pandemic", "Endemic", "Plague"],
+        "answer": 1,
+        "explanation": "Pandemic spreads over a wide area."
+    },
+    {
+        "question": "A piece of writing that praises someone who has died.",
+        "options": ["Eulogy", "Elegy", "Requiem", "Ode"],
+        "answer": 0,
+        "explanation": "Eulogy praises the deceased."
+    },
+    {
+        "question": "A person who studies the origin and history of words.",
+        "options": ["Lexicographer", "Philologist", "Etymologist", "Grammarian"],
+        "answer": 2,
+        "explanation": "Etymologist studies word origins."
+    },
+    {
+        "question": "One who hates women.",
+        "options": ["Misogynist", "Misandrist", "Misanthrope", "Feminist"],
+        "answer": 0,
+        "explanation": "Misogynist hates women."
+    },
+    {
+        "question": "A person who believes only in observable facts.",
+        "options": ["Empiricist", "Rationalist", "Skeptic", "Positivist"],
+        "answer": 0,
+        "explanation": "Empiricist trusts knowledge based on experience."
+    },
+    {
+        "question": "A person who takes bribes.",
+        "options": ["Corruptor", "Bribe-taker", "Graftor", "Extortionist"],
+        "answer": 2,
+        "explanation": "Graftor is a bribe-taker."
+    },
+    {
+        "question": "A person who collects stamps.",
+        "options": ["Philatelist", "Numismatist", "Anthropologist", "Epigraphist"],
+        "answer": 0,
+        "explanation": "Philatelist collects stamps."
+    },
+    {
+        "question": "One who hates mankind.",
+        "options": ["Misanthrope", "Misogynist", "Cynic", "Pessimist"],
+        "answer": 0,
+        "explanation": "Misanthrope dislikes humanity."
+    },
+    {
+        "question": "One who is silent or reserved in speech.",
+        "options": ["Taciturn", "Loquacious", "Garrulous", "Verbose"],
+        "answer": 0,
+        "explanation": "Taciturn is habitually silent."
+    },
+    {
+        "question": "A person who collects coins.",
+        "options": ["Numismatist", "Philatelist", "Linguist", "Anthropologist"],
+        "answer": 0,
+        "explanation": "Numismatist studies coins."
+    },
+    {
+        "question": "A person who believes that all events are determined by fate.",
+        "options": ["Fatalist", "Optimist", "Pessimist", "Determinist"],
+        "answer": 0,
+        "explanation": "Fatalist believes fate controls outcomes."
+    },
+    {
+        "question": "A person who loves books.",
+        "options": ["Bibliophile", "Philatelist", "Linguist", "Archaeologist"],
+        "answer": 0,
+        "explanation": "Bibliophile loves books."
+    },
+    {
+        "question": "A government ruled by the people directly or through representatives.",
+        "options": ["Democracy", "Republic", "Monarchy", "Autocracy"],
+        "answer": 1,
+        "explanation": "Republic is representative government."
+    },
+    {
+        "question": "One who believes in the existence of multiple gods.",
+        "options": ["Monotheist", "Polytheist", "Atheist", "Agnostic"],
+        "answer": 1,
+        "explanation": "Polytheist believes in multiple gods."
+    },
+    {
+        "question": "A place where bombs or explosives are stored.",
+        "options": ["Armory", "Arsenal", "Depot", "Stockpile"],
+        "answer": 1,
+        "explanation": "Arsenal stores weapons and explosives."
+    },
+    {
+        "question": "A government ruled by a single all-powerful ruler.",
+        "options": ["Monarchy", "Autocracy", "Democracy", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Autocracy is absolute rule by one."
+    },
+    {
+        "question": "A person who studies the stars and planets.",
+        "options": ["Astrologer", "Astronomer", "Geologist", "Meteorologist"],
+        "answer": 1,
+        "explanation": "Astronomer studies celestial bodies scientifically."
+    },
+    {
+        "question": "The use of words that imitate sounds.",
+        "options": ["Simile", "Metaphor", "Onomatopoeia", "Hyperbole"],
+        "answer": 2,
+        "explanation": "Onomatopoeia mimics sounds."
+    },
+    {
+        "question": "A government ruled by a few wealthy people.",
+        "options": ["Plutocracy", "Oligarchy", "Monarchy", "Democracy"],
+        "answer": 0,
+        "explanation": "Plutocracy is rule by the rich."
+    },
+    {
+        "question": "The act of killing oneself.",
+        "options": ["Homicide", "Suicide", "Euthanasia", "Regicide"],
+        "answer": 1,
+        "explanation": "Suicide is self-killing."
+    },
+    {
+        "question": "A government ruled by the wealthy class.",
+        "options": ["Plutocracy", "Oligarchy", "Aristocracy", "Democracy"],
+        "answer": 0,
+        "explanation": "Plutocracy is rule by wealth."
+    },
+    {
+        "question": "Speech delivered to praise a person who has died.",
+        "options": ["Eulogy", "Elegy", "Dirge", "Speech"],
+        "answer": 0,
+        "explanation": "Eulogy praises deceased."
+    },
+    {
+        "question": "A government ruled by priests or religious leaders.",
+        "options": ["Theocracy", "Monarchy", "Democracy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious governance."
+    },
+    {
+        "question": "The process of making amends for sin or wrongdoing.",
+        "options": ["Redemption", "Reparation", "Expiation", "Absolution"],
+        "answer": 2,
+        "explanation": "Expiation is making amends."
+    },
+    {
+        "question": "A person who loves and supports equal rights for women.",
+        "options": ["Feminist", "Misogynist", "Humanist", "Suffragette"],
+        "answer": 0,
+        "explanation": "Feminist advocates women's rights."
+    },
+    {
+        "question": "A person who studies ancient cultures and artifacts.",
+        "options": ["Anthropologist", "Archaeologist", "Historian", "Geologist"],
+        "answer": 1,
+        "explanation": "Archaeologist studies ancient remains."
+    },
+    {
+        "question": "One who refuses to believe in God or gods.",
+        "options": ["Atheist", "Agnostic", "Skeptic", "Infidel"],
+        "answer": 0,
+        "explanation": "Atheist denies God’s existence."
+    },
+    {
+        "question": "A person who speaks several languages fluently.",
+        "options": ["Polyglot", "Linguist", "Translator", "Interpreter"],
+        "answer": 0,
+        "explanation": "Polyglot knows many languages."
+    },
+    {
+        "question": "A short, funny or interesting story about a real incident.",
+        "options": ["Anecdote", "Fable", "Parable", "Legend"],
+        "answer": 0,
+        "explanation": "Anecdote is a brief story."
+    },
+    {
+        "question": "Sudden overwhelming fear.",
+        "options": ["Panic", "Terror", "Anxiety", "Dread"],
+        "answer": 0,
+        "explanation": "Panic is sudden fear."
+    },
+    {
+        "question": "A mild or polite expression used instead of a harsh one.",
+        "options": ["Euphemism", "Dysphemism", "Simile", "Metaphor"],
+        "answer": 0,
+        "explanation": "Euphemism is a polite substitute."
+    },
+    {
+        "question": "A person who is excessive or unreasonable in beliefs.",
+        "options": ["Fanatic", "Zealot", "Extremist", "Radical"],
+        "answer": 0,
+        "explanation": "Fanatic is an extreme enthusiast."
+    },
+	{
+        "question": "A person who studies human societies, cultures, and their development.",
+        "options": ["Anthropologist", "Sociologist", "Archaeologist", "Psychologist"],
+        "answer": 0,
+        "explanation": "Anthropologist studies human societies and culture."
+    },
+    {
+        "question": "A government ruled by the people.",
+        "options": ["Democracy", "Aristocracy", "Oligarchy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Democracy means rule by the people."
+    },
+    {
+        "question": "One who eagerly supports a cause or proposal.",
+        "options": ["Opponent", "Proponent", "Detractor", "Critic"],
+        "answer": 1,
+        "explanation": "Proponent supports an idea or cause."
+    },
+    {
+        "question": "A mild or indirect expression substituted for a harsh or blunt one.",
+        "options": ["Euphemism", "Dysphemism", "Metaphor", "Simile"],
+        "answer": 0,
+        "explanation": "Euphemism replaces harsh words with pleasant ones."
+    },
+    {
+        "question": "One who is habitually silent or reserved.",
+        "options": ["Loquacious", "Taciturn", "Garrulous", "Verbose"],
+        "answer": 1,
+        "explanation": "Taciturn is naturally quiet."
+    },
+    {
+        "question": "A government ruled by a monarch.",
+        "options": ["Democracy", "Monarchy", "Republic", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Monarchy is ruled by a king or queen."
+    },
+    {
+        "question": "One who eats only plants.",
+        "options": ["Carnivore", "Herbivore", "Omnivore", "Insectivore"],
+        "answer": 1,
+        "explanation": "Herbivore eats only plants."
+    },
+    {
+        "question": "One who eats both plants and animals.",
+        "options": ["Carnivore", "Herbivore", "Omnivore", "Insectivore"],
+        "answer": 2,
+        "explanation": "Omnivore eats both plants and animals."
+    },
+    {
+        "question": "A government system in which a few people hold all power.",
+        "options": ["Monarchy", "Oligarchy", "Democracy", "Plutocracy"],
+        "answer": 1,
+        "explanation": "Oligarchy is rule by a few."
+    },
+    {
+        "question": "A government ruled by religious leaders.",
+        "options": ["Theocracy", "Monarchy", "Democracy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious rule."
+    },
+    {
+        "question": "The science of the classification of living things.",
+        "options": ["Taxonomy", "Biology", "Zoology", "Botany"],
+        "answer": 0,
+        "explanation": "Taxonomy classifies organisms."
+    },
+    {
+        "question": "A person who loves books.",
+        "options": ["Philatelist", "Numismatist", "Bibliophile", "Anthropologist"],
+        "answer": 2,
+        "explanation": "Bibliophile loves books."
+    },
+    {
+        "question": "A word that sounds like the noise it describes.",
+        "options": ["Simile", "Metaphor", "Onomatopoeia", "Hyperbole"],
+        "answer": 2,
+        "explanation": "Onomatopoeia mimics sounds."
+    },
+    {
+        "question": "A person who breaks the law by force.",
+        "options": ["Thief", "Robber", "Mugger", "Burglar"],
+        "answer": 1,
+        "explanation": "Robber uses force to steal."
+    },
+    {
+        "question": "A person who is new to a subject or activity.",
+        "options": ["Expert", "Novice", "Veteran", "Adept"],
+        "answer": 1,
+        "explanation": "Novice is a beginner."
+    },
+    {
+        "question": "A government ruled by one absolute leader.",
+        "options": ["Democracy", "Republic", "Autocracy", "Oligarchy"],
+        "answer": 2,
+        "explanation": "Autocracy is rule by one person."
+    },
+    {
+        "question": "The art of using language effectively to inform or persuade.",
+        "options": ["Grammar", "Rhetoric", "Syntax", "Phonetics"],
+        "answer": 1,
+        "explanation": "Rhetoric is persuasive language."
+    },
+    {
+        "question": "One who deserts or betrays a cause, country, or group.",
+        "options": ["Traitor", "Renegade", "Defector", "Rebel"],
+        "answer": 0,
+        "explanation": "Traitor betrays their group."
+    },
+    {
+        "question": "To formally give up a throne or position.",
+        "options": ["Resign", "Abdicate", "Renounce", "Vacate"],
+        "answer": 1,
+        "explanation": "Abdicate means to relinquish authority."
+    },
+    {
+        "question": "A person who is excessively proud or vain.",
+        "options": ["Egotist", "Narcissist", "Egoist", "Altruist"],
+        "answer": 1,
+        "explanation": "Narcissist loves themselves excessively."
+    },
+    {
+        "question": "A person who works secretly against their country or group.",
+        "options": ["Spy", "Saboteur", "Traitor", "Enemy"],
+        "answer": 2,
+        "explanation": "Traitor undermines allegiance secretly."
+    },
+    {
+        "question": "A person who speaks well in public.",
+        "options": ["Orator", "Speaker", "Narrator", "Lecturer"],
+        "answer": 0,
+        "explanation": "Orator is skilled in public speaking."
+    },
+    {
+        "question": "A figure of speech that compares two things directly.",
+        "options": ["Simile", "Metaphor", "Hyperbole", "Personification"],
+        "answer": 1,
+        "explanation": "Metaphor directly compares without using 'like' or 'as'."
+    },
+    {
+        "question": "A person who is excessively religious and self-denying.",
+        "options": ["Ascetic", "Epicure", "Hedonist", "Sybarite"],
+        "answer": 0,
+        "explanation": "Ascetic lives a life of self-discipline."
+    },
+    {
+        "question": "A person who studies language scientifically.",
+        "options": ["Linguist", "Philologist", "Lexicographer", "Grammarian"],
+        "answer": 0,
+        "explanation": "Linguist studies languages."
+    },
+    {
+        "question": "A government with no lawful ruler or government.",
+        "options": ["Chaos", "Anarchy", "Egalitarian", "Democracy"],
+        "answer": 1,
+        "explanation": "Anarchy is absence of government."
+    },
+    {
+        "question": "A speech at the end of a book or play.",
+        "options": ["Prologue", "Epilogue", "Foreword", "Preface"],
+        "answer": 1,
+        "explanation": "Epilogue concludes a work."
+    },
+    {
+        "question": "A government ruled by the nobility.",
+        "options": ["Plutocracy", "Aristocracy", "Oligarchy", "Democracy"],
+        "answer": 1,
+        "explanation": "Aristocracy is rule by noble class."
+    },
+    {
+        "question": "Writing that imitates another work in a humorous or satirical way.",
+        "options": ["Parody", "Satire", "Burlesque", "Farce"],
+        "answer": 0,
+        "explanation": "Parody imitates for comic effect."
+    },
+    {
+        "question": "One who loves financial gain above all else.",
+        "options": ["Avaricious", "Miserly", "Greedy", "Stingy"],
+        "answer": 0,
+        "explanation": "Avaricious means greed for wealth."
+    },
+    {
+        "question": "A person who organizes and manages enterprises, especially businesses.",
+        "options": ["Entrepreneur", "Manager", "CEO", "Director"],
+        "answer": 0,
+        "explanation": "Entrepreneur starts and runs a business."
+    },
+	{
+        "question": "A person who is responsible for carrying out legal documents.",
+        "options": ["Executor", "Advocate", "Prosecutor", "Notary"],
+        "answer": 0,
+        "explanation": "Executor carries out the terms of a will."
+    },
+    {
+        "question": "The study of ancient writing and inscriptions.",
+        "options": ["Epigraphy", "Philology", "Archaeology", "Linguistics"],
+        "answer": 0,
+        "explanation": "Epigraphy studies inscriptions."
+    },
+    {
+        "question": "A person who behaves in a selfish, cruel, or violent way.",
+        "options": ["Tyrant", "Dictator", "Despotic", "Autocrat"],
+        "answer": 0,
+        "explanation": "Tyrant rules oppressively."
+    },
+    {
+        "question": "A person who writes books.",
+        "options": ["Novelist", "Author", "Poet", "Playwright"],
+        "answer": 1,
+        "explanation": "Author writes books."
+    },
+    {
+        "question": "The killing of one’s self.",
+        "options": ["Suicide", "Homicide", "Patricide", "Regicide"],
+        "answer": 0,
+        "explanation": "Suicide is self-inflicted death."
+    },
+    {
+        "question": "A place where religious worship is performed.",
+        "options": ["Temple", "Sanctuary", "Church", "Abode"],
+        "answer": 1,
+        "explanation": "Sanctuary is a sacred place."
+    },
+    {
+        "question": "One who is fond of money and possessions.",
+        "options": ["Miser", "Spendthrift", "Avaricious", "Frugal"],
+        "answer": 2,
+        "explanation": "Avaricious means greedy."
+    },
+    {
+        "question": "A public speech given in praise of someone or something.",
+        "options": ["Eulogy", "Panegyric", "Epitaph", "Oration"],
+        "answer": 1,
+        "explanation": "Panegyric is formal praise."
+    },
+    {
+        "question": "A government in which people elect representatives.",
+        "options": ["Democracy", "Republic", "Monarchy", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Republic is representative government."
+    },
+    {
+        "question": "A person who is indifferent to pleasure or pain.",
+        "options": ["Stoic", "Hedonist", "Ascetic", "Epicure"],
+        "answer": 0,
+        "explanation": "Stoic endures hardship without complaint."
+    },
+    {
+        "question": "A person who eats the flesh of dead animals.",
+        "options": ["Scavenger", "Carnivore", "Omnivore", "Herbivore"],
+        "answer": 0,
+        "explanation": "Scavenger feeds on dead animals."
+    },
+    {
+        "question": "A person who moves from one country to another permanently.",
+        "options": ["Immigrant", "Emigrant", "Expatriate", "Refugee"],
+        "answer": 0,
+        "explanation": "Immigrant moves into a country."
+    },
+    {
+        "question": "One who pretends to have virtues or qualities not truly possessed.",
+        "options": ["Hypocrite", "Fraud", "Charlatan", "Impostor"],
+        "answer": 0,
+        "explanation": "Hypocrite pretends to be virtuous."
+    },
+    {
+        "question": "A speech expressing sorrow for someone who has died.",
+        "options": ["Eulogy", "Elegy", "Dirge", "Requiem"],
+        "answer": 1,
+        "explanation": "Elegy is a mournful poem for the dead."
+    },
+    {
+        "question": "A person who writes dictionaries.",
+        "options": ["Lexicographer", "Philologist", "Linguist", "Grammarian"],
+        "answer": 0,
+        "explanation": "Lexicographer compiles dictionaries."
+    },
+    {
+        "question": "One who speaks numerous languages fluently.",
+        "options": ["Polyglot", "Linguist", "Translator", "Interpreter"],
+        "answer": 0,
+        "explanation": "Polyglot uses many languages."
+    },
+    {
+        "question": "A government where the ruling power is in the hands of a few.",
+        "options": ["Oligarchy", "Plutocracy", "Democracy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Oligarchy is rule by few."
+    },
+    {
+        "question": "A government ruled by priests or religious leaders.",
+        "options": ["Theocracy", "Autocracy", "Democracy", "Monarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious government."
+    },
+    {
+        "question": "A short, amusing or interesting story about a real incident or person.",
+        "options": ["Anecdote", "Fable", "Parable", "Epic"],
+        "answer": 0,
+        "explanation": "Anecdote is a brief story."
+    },
+    {
+        "question": "One who loves humanity.",
+        "options": ["Misanthrope", "Philanthropist", "Humanist", "Egalitarian"],
+        "answer": 1,
+        "explanation": "Philanthropist loves mankind."
+    },
+    {
+        "question": "A person who hates women.",
+        "options": ["Misogynist", "Misandrist", "Misanthrope", "Feminist"],
+        "answer": 0,
+        "explanation": "Misogynist hates women."
+    },
+    {
+        "question": "A person who hates men.",
+        "options": ["Misandrist", "Misogynist", "Misanthrope", "Feminist"],
+        "answer": 0,
+        "explanation": "Misandrist hates men."
+    },
+    {
+        "question": "One who collects or studies coins.",
+        "options": ["Numismatist", "Philatelist", "Anthropologist", "Epigraphist"],
+        "answer": 0,
+        "explanation": "Numismatist studies coins."
+    },
+    {
+        "question": "A person who loves books.",
+        "options": ["Bibliophile", "Philatelist", "Linguist", "Anthropologist"],
+        "answer": 0,
+        "explanation": "Bibliophile loves books."
+    },
+    {
+        "question": "One who hates mankind.",
+        "options": ["Misanthrope", "Misogynist", "Cynic", "Pessimist"],
+        "answer": 0,
+        "explanation": "Misanthrope dislikes humanity."
+    },
+    {
+        "question": "A government ruled by a king or queen.",
+        "options": ["Monarchy", "Democracy", "Aristocracy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Monarchy is ruled by hereditary ruler."
+    },
+    {
+        "question": "One who treats others unfairly or cruelly.",
+        "options": ["Tyrant", "Dictator", "Despot", "Oppressor"],
+        "answer": 3,
+        "explanation": "Oppressor exercises unjust authority."
+    },
+    {
+        "question": "A speech that praises someone, especially after death.",
+        "options": ["Eulogy", "Elegy", "Panegyric", "Requiem"],
+        "answer": 0,
+        "explanation": "Eulogy expresses praise for the dead."
+    },
+    {
+        "question": "A government ruled by a few wealthy people.",
+        "options": ["Plutocracy", "Aristocracy", "Oligarchy", "Democracy"],
+        "answer": 0,
+        "explanation": "Plutocracy is rule by the wealthy."
+    },
+    {
+        "question": "A person who speaks well in public.",
+        "options": ["Speaker", "Orator", "Narrator", "Lecturer"],
+        "answer": 1,
+        "explanation": "Orator is skilled in public speaking."
+    },
+    {
+        "question": "A person who is silent or reserved in conversation.",
+        "options": ["Taciturn", "Loquacious", "Garrulous", "Verbose"],
+        "answer": 0,
+        "explanation": "Taciturn is habitually quiet."
+    },
+    {
+        "question": "A government without a ruler or laws.",
+        "options": ["Anarchy", "Chaos", "Dictatorship", "Totalitarianism"],
+        "answer": 0,
+        "explanation": "Anarchy is absence of government."
+    },
+    {
+        "question": "A government ruled by religion or priests.",
+        "options": ["Theocracy", "Monarchy", "Democracy", "Oligarchy"],
+        "answer": 0,
+        "explanation": "Theocracy is religious rule."
+    },
+    {
+        "question": "A government ruled by one person with absolute power.",
+        "options": ["Monarchy", "Autocracy", "Democracy", "Oligarchy"],
+        "answer": 1,
+        "explanation": "Autocracy is absolute one-person rule."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">CLIMATE</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+        "question": "Which gas is considered the primary contributor to global warming?",
+        "options": ["Oxygen", "Methane", "Carbon dioxide", "Helium"],
+        "answer": 2,
+        "explanation": "Carbon dioxide is the major greenhouse gas responsible for global warming through the greenhouse effect."
+    },
+    {
+        "question": "The Kyoto Protocol is an international treaty related to the reduction of:",
+        "options": ["Deforestation", "Greenhouse gas emissions", "Ozone layer depletion", "Acid rain"],
+        "answer": 1,
+        "explanation": "The Kyoto Protocol is concerned with limiting and reducing greenhouse gas emissions."
+    },
+    {
+        "question": "Which of the following is NOT a greenhouse gas?",
+        "options": ["Methane", "Ozone", "Carbon monoxide", "Nitrous oxide"],
+        "answer": 2,
+        "explanation": "Carbon monoxide is not classified as a greenhouse gas."
+    },
+    {
+        "question": "Global warming leads to which of the following events?",
+        "options": [
+            "Increase in polar ice caps",
+            "Reduction in greenhouse gases",
+            "More frequent extreme weather events",
+            "Decrease in sea level"
+        ],
+        "answer": 2,
+        "explanation": "Global warming increases the frequency of extreme weather events."
+    },
+    {
+        "question": "Which of the following is a direct effect of melting glaciers?",
+        "options": ["Rise in sea levels", "Decrease in rainfall", "Increase in soil fertility", "Formation of deserts"],
+        "answer": 0,
+        "explanation": "Melting glaciers contribute to the rise in sea levels."
+    },
+    {
+        "question": "Which mission under India's National Action Plan on Climate Change (NAPCC) aims to promote solar energy?",
+        "options": [
+            "National Water Mission",
+            "National Solar Mission",
+            "National Water Conservation Mission",
+            "National Mission on Biodiversity"
+        ],
+        "answer": 1,
+        "explanation": "National Solar Mission promotes the use and development of solar energy."
+    },
+    {
+        "question": "Ozone depletion in the stratosphere is mainly caused by which of the following?",
+        "options": ["Methane emissions", "CFCs (Chlorofluorocarbons)", "Dust storms", "Carbon dioxide"],
+        "answer": 1,
+        "explanation": "CFCs are the main culprits behind ozone layer depletion."
+    },
+    {
+        "question": "Which sector is the largest source of human-caused greenhouse gas emissions globally?",
+        "options": ["Agriculture", "Industry", "Transportation", "Energy (electricity and heat)"],
+        "answer": 3,
+        "explanation": "The largest source is the energy sector, especially fuel combustion for electricity and heating."
+    },
+    {
+        "question": "What is the main cause of sea level rise?",
+        "options": [
+            "Melting of ice sheets and glaciers",
+            "Increase in volcanic eruptions",
+            "Reduction of rainfall",
+            "Expansion of deserts"
+        ],
+        "answer": 0,
+        "explanation": "Melting ice sheets and glaciers add more water to oceans, causing sea levels to rise."
+    },
+    {
+        "question": "Which international agreement aimed to limit the increase in global average temperature below 2°C?",
+        "options": ["Montreal Protocol", "Basel Convention", "Paris Agreement", "Kyoto Protocol"],
+        "answer": 2,
+        "explanation": "The Paris Agreement is focused on limiting global temperature rise below 2°C."
+    },
+    {
+        "question": "What is the greenhouse effect?",
+        "options": [
+            "Increase in plant growth due to excess fertilizer use",
+            "Trapping of heat in the Earth's atmosphere by certain gases",
+            "Destruction of forests and greenery",
+            "Melting of mountain glaciers"
+        ],
+        "answer": 1,
+        "explanation": "The greenhouse effect is the warming of Earth's atmosphere due to trapped heat by specific gases."
+    },
+    {
+        "question": "Which one of the following is an adaptation strategy to combat climate change?",
+        "options": [
+            "Increasing use of fossil fuels",
+            "Building sea walls to protect against flooding",
+            "Deforestation",
+            "Increasing industrial emissions"
+        ],
+        "answer": 1,
+        "explanation": "Building sea walls helps communities adapt to rising sea levels and flooding."
+    },
+    {
+        "question": "Ocean acidification is primarily caused by the absorption of which gas?",
+        "options": ["Methane", "Ozone", "Sulphur dioxide", "Carbon dioxide"],
+        "answer": 3,
+        "explanation": "Absorption of carbon dioxide by ocean water leads to ocean acidification."
+    },
+    {
+        "question": "Which country is the largest emitter of carbon dioxide as of 2025?",
+        "options": ["United States", "China", "India", "Russia"],
+        "answer": 1,
+        "explanation": "China is currently the world's largest CO₂ emitter."
+    },
+    {
+        "question": "The term 'carbon footprint' refers to:",
+        "options": [
+            "The area covered by carbon deposits",
+            "The amount of carbon dioxide emissions from individual or group activities",
+            "Carbon deposits found in the soil",
+            "The mark left by burning fossil fuels"
+        ],
+        "answer": 1,
+        "explanation": "It quantifies all greenhouse gases produced by a person, organization, or product."
+    },
+    {
+        "question": "Which of the following natural events results in temporary cooling of Earth's surface?",
+        "options": ["Volcanic eruptions", "Forest fires", "Cyclones", "Droughts"],
+        "answer": 0,
+        "explanation": "Volcanic eruptions release particles that reflect sunlight, leading to temporary cooling."
+    },
+    {
+        "question": "Which of the following is considered a carbon sink?",
+        "options": ["Desert", "Ocean", "Glass", "Concrete structures"],
+        "answer": 1,
+        "explanation": "Oceans act as major carbon sinks, absorbing large amounts of CO₂."
+    },
+    {
+        "question": "Which renewable energy source has the least environmental impact?",
+        "options": ["Coal", "Wind", "Oil", "Natural Gas"],
+        "answer": 1,
+        "explanation": "Wind energy is considered the cleanest and least polluting energy source."
+    },
+    {
+        "question": "Methane is produced in significant quantities from which of the following sources?",
+        "options": ["Cattle farming", "Vehicles", "Industrial waste gases", "Nuclear reactors"],
+        "answer": 0,
+        "explanation": "Large-scale cattle farming is a significant source of methane emissions."
+    },
+    {
+        "question": "Which of the following is an effect of climate change on human health?",
+        "options": [
+            "Increased prevalence of vector-borne diseases",
+            "Reduction in sun exposure",
+            "Decrease in respiratory problems",
+            "Improvement in crop yields everywhere"
+        ],
+        "answer": 0,
+        "explanation": "Climate change can expand the range of vectors like mosquitoes, increasing disease transmission."
+    },
+    {
+        "question": "Which of the following practices helps in mitigating climate change?",
+        "options": [
+            "Burning more coal",
+            "Using energy-efficient appliances",
+            "Dumping waste in rivers",
+            "Deforestation"
+        ],
+        "answer": 1,
+        "explanation": "Efficient appliances use less energy, thereby reducing emissions."
+    },
+    {
+        "question": "Which day is observed as World Environment Day to encourage environmental protection?",
+        "options": ["June 5", "April 22", "March 8", "July 11"],
+        "answer": 0,
+        "explanation": "World Environment Day is celebrated every year on June 5."
+    },
+    {
+        "question": "Which component of the atmosphere absorbs most of the ultraviolet radiation from the sun?",
+        "options": ["Ozone", "Nitrogen", "Carbon dioxide", "Oxygen"],
+        "answer": 0,
+        "explanation": "The ozone layer absorbs the bulk of harmful UV radiation."
+    },
+    {
+        "question": "What practice is referred to as afforestation?",
+        "options": [
+            "Conversion of forest land for agriculture",
+            "Planting trees in barren lands",
+            "Cutting down trees in a forest",
+            "Burning forest areas"
+        ],
+        "answer": 1,
+        "explanation": "Afforestation means planting trees in non-forested (barren) areas."
+    },
+    {
+        "question": "Which of the following is a consequence of ocean acidification?",
+        "options": [
+            "Enhanced coral reef growth",
+            "Reduced food security from fisheries",
+            "Lower atmospheric CO₂ levels",
+            "Increased oxygen production"
+        ],
+        "answer": 1,
+        "explanation": "Ocean acidification harms marine life, threatening food security from fisheries."
+    },
+    {
+        "question": "What is the full form of IPCC in climate science?",
+        "options": [
+            "International Panel for Climate Control",
+            "Intergovernmental Panel on Climate Change",
+            "International Policy for Carbon Control",
+            "Intergovernmental Protection Council for Climate"
+        ],
+        "answer": 1,
+        "explanation": "IPCC stands for Intergovernmental Panel on Climate Change."
+    },
+    {
+        "question": "Which year was the Paris Agreement adopted?",
+        "options": ["1997", "2005", "2015", "2020"],
+        "answer": 2,
+        "explanation": "The Paris Agreement was adopted in 2015."
+    },
+    {
+        "question": "Which Indian state is most vulnerable to sea level rise?",
+        "options": ["Rajasthan", "Odisha", "Himachal Pradesh", "Madhya Pradesh"],
+        "answer": 1,
+        "explanation": "Odisha has a long coastline, making it vulnerable to rising sea levels."
+    },
+    {
+        "question": "Which type of forests play the most important role as carbon sinks?",
+        "options": [
+            "Mangrove forests",
+            "Deciduous forests",
+            "Desert shrubs",
+            "Tundra grasslands"
+        ],
+        "answer": 0,
+        "explanation": "Mangroves sequester large amounts of carbon in their soil and biomass."
+    },
+    {
+        "question": "Which fossil fuel has the highest carbon footprint per unit of energy?",
+        "options": ["Coal", "Natural gas", "Petrol", "Diesel"],
+        "answer": 0,
+        "explanation": "Coal releases the most CO₂ per unit of energy compared to other fuels."
+    },
+    {
+        "question": "Which Indian mission focuses on enhancing carbon sinks in forests?",
+        "options": [
+            "National Solar Mission",
+            "National Mission for Green India",
+            "National Water Mission",
+            "National Wind Mission"
+        ],
+        "answer": 1,
+        "explanation": "National Mission for Green India focuses on increasing carbon sinks via forest management."
+    },
+    {
+        "question": "Which of the following gases is responsible for acid rain?",
+        "options": ["Nitrogen oxide and sulfur dioxide", "Methane and ozone", "Hydrocarbons", "Ammonia"],
+        "answer": 0,
+        "explanation": "NOx and SO₂ are the main gases responsible for formation of acid rain."
+    },
+    {
+        "question": "Which of the following is not an effect of climate change?",
+        "options": [
+            "Increase in global average temperature",
+            "Rise in sea level",
+            "Improved biodiversity everywhere",
+            "More frequent extreme weather events"
+        ],
+        "answer": 2,
+        "explanation": "Climate change actually threatens global biodiversity."
+    },
+    {
+        "question": "Which protocol was signed to combat ozone layer depletion?",
+        "options": ["Kyoto Protocol", "Montreal Protocol", "Paris Agreement", "Geneva Protocol"],
+        "answer": 1,
+        "explanation": "The Montreal Protocol aims to phase out substances depleting the ozone layer."
+    },
+    {
+        "question": "What is 'desertification'?",
+        "options": [
+            "Formation of new deserts by natural processes",
+            "Land degradation in arid and semi-arid areas due to various factors",
+            "Carving out of deserts by wind erosion",
+            "Increasing cold deserts in polar regions"
+        ],
+        "answer": 1,
+        "explanation": "Desertification refers to land degradation in dry regions due to climate and human activities."
+    },
+    {
+        "question": "Which policy promotes the use of renewable energy in India?",
+        "options": [
+            "National Biodiversity Act",
+            "Perform, Achieve and Trade Scheme",
+            "National Solar Mission",
+            "Swachh Bharat Abhiyan"
+        ],
+        "answer": 2,
+        "explanation": "The National Solar Mission encourages and supports solar power generation."
+    },
+    {
+        "question": "El Niño effect results in:",
+        "options": [
+            "Warming of Pacific Ocean waters near South America",
+            "Formation of new land masses",
+            "Lowering global temperatures",
+            "Melting of ice caps exclusively in Antarctica"
+        ],
+        "answer": 0,
+        "explanation": "El Niño refers to warming of Pacific Ocean waters, impacting global weather patterns."
+    },
+    {
+        "question": "Which organization releases the annual 'Emissions Gap Report'?",
+        "options": [
+            "World Health Organization",
+            "United Nations Environment Programme",
+            "World Bank",
+            "International Monetary Fund"
+        ],
+        "answer": 1,
+        "explanation": "UNEP publishes the annual Emissions Gap Report."
+    },
+    {
+        "question": "Which is a non-renewable resource?",
+        "options": ["Wind", "Solar", "Natural gas", "Hydropower"],
+        "answer": 2,
+        "explanation": "Natural gas is a fossil fuel and thus non-renewable."
+    },
+    {
+        "question": "The term 'sustainable development' refers to:",
+        "options": [
+            "Development for present generation only",
+            "Development at the cost of environment",
+            "Development without compromising future needs",
+            "Rapid industrialization"
+        ],
+        "answer": 2,
+        "explanation": "Sustainable development meets present needs without harming future resources."
+    },
+    {
+        "question": "Which year did the Intergovernmental Panel on Climate Change (IPCC) receive the Nobel Peace Prize?",
+        "options": ["2007", "1995", "2010", "2015"],
+        "answer": 0,
+        "explanation": "The IPCC, along with Al Gore, was awarded the Nobel Peace Prize in 2007."
+    },
+    {
+        "question": "Which Indian city is most prone to floods due to sea level rise?",
+        "options": ["Jaipur", "Chennai", "Bhopal", "Ranchi"],
+        "answer": 1,
+        "explanation": "Chennai is located on the southeastern coast of India and is vulnerable to floods."
+    },
+    {
+        "question": "The largest share of greenhouse gas emissions in Indian agriculture is due to:",
+        "options": [
+            "Paddy rice cultivation",
+            "Poultry farming",
+            "Orchard farming",
+            "Tea plantations"
+        ],
+        "answer": 0,
+        "explanation": "Paddy rice cultivation emits methane due to anaerobic decomposition."
+    },
+    {
+        "question": "Which United Nations conference led to the formation of UNFCCC?",
+        "options": [
+            "Stockholm Conference (1972)",
+            "Rio de Janeiro Earth Summit (1992)",
+            "Kyoto Summit (1997)",
+            "Johannesburg Summit (2002)"
+        ],
+        "answer": 1,
+        "explanation": "The 1992 Rio Summit resulted in the United Nations Framework Convention on Climate Change."
+    },
+    {
+        "question": "Which process removes carbon dioxide from the atmosphere naturally?",
+        "options": ["Combustion", "Respiration", "Photosynthesis", "Volcanism"],
+        "answer": 2,
+        "explanation": "Plants absorb CO₂ from the atmosphere during photosynthesis."
+    },
+    {
+        "question": "Which UN summit resulted in adoption of Sustainable Development Goals (SDGs)?",
+        "options": [
+            "Kyoto Protocol",
+            "Paris Agreement",
+            "Rio+20 Summit (2012)",
+            "Johannesburg Summit"
+        ],
+        "answer": 2,
+        "explanation": "SDGs were formulated at the Rio+20 Conference in 2012."
+    },
+    {
+        "question": "The main reason for coral bleaching is:",
+        "options": [
+            "Oil spills",
+            "Ocean acidification and rising sea temperatures",
+            "Overfishing",
+            "Plastic pollution"
+        ],
+        "answer": 1,
+        "explanation": "Coral bleaching is mainly caused by higher water temperatures and ocean acidification due to climate change."
+    },
+    {
+        "question": "Which Indian river system is the most vulnerable to the impact of glacial melt?",
+        "options": [
+            "Ganga",
+            "Godavari",
+            "Krishna",
+            "Kaveri"
+        ],
+        "answer": 0,
+        "explanation": "The Ganga river system depends on Himalayan glaciers sensitive to global warming."
+    },
+    {
+        "question": "Which of these is a positive feedback effect that can accelerate global warming?",
+        "options": [
+            "Melting permafrost releasing methane",
+            "Cooling from volcanic eruptions",
+            "Plantation of new forests",
+            "Reflective roofs in cities"
+        ],
+        "answer": 0,
+        "explanation": "Methane release from thawing permafrost speeds up global warming—positive feedback."
+    },
+	{
+        "question": "Which one of the following measures can help in carbon sequestration?",
+        "options": ["Construction of dams", "Plantation of trees", "Intensive mining", "Excessive groundwater use"],
+        "answer": 1,
+        "explanation": "Planting trees helps absorb carbon dioxide from the atmosphere through photosynthesis."
+    },
+    {
+        "question": "What is the main aim of REDD+ programme?",
+        "options": [
+            "Reforestation in desert areas",
+            "Reducing deforestation and forest degradation",
+            "Renewable energy production",
+            "River bank conservation"
+        ],
+        "answer": 1,
+        "explanation": "REDD+ is 'Reducing Emissions from Deforestation and forest Degradation' plus sustainable management of forests."
+    },
+    {
+        "question": "Sulphur hexafluoride (SF6) is a:",
+        "options": [
+            "Major greenhouse gas",
+            "Ozone-friendly refrigerant",
+            "Natural fertilizer",
+            "Water solvent"
+        ],
+        "answer": 0,
+        "explanation": "SF6 is a potent greenhouse gas with a much higher global warming potential than CO₂."
+    },
+    {
+        "question": "What is the approximate average pH of ocean water before industrialization?",
+        "options": ["6.5", "7.8", "8.2", "9.0"],
+        "answer": 2,
+        "explanation": "Before industrialization, ocean water pH was about 8.2; it is now falling due to acidification."
+    },
+    {
+        "question": "Which Indian Act provides a legal framework for addressing air pollution and thereby climate change mitigation?",
+        "options": ["The Environment Protection Act", "The Air (Prevention and Control of Pollution) Act", "The Forest Act", "The Biodiversity Act"],
+        "answer": 1,
+        "explanation": "The Air (Prevention and Control of Pollution) Act 1981 directly addresses air pollution."
+    },
+    {
+        "question": "Which of the following best explains climate 'mitigation'?",
+        "options": [
+            "Adapting to rising sea levels",
+            "Reducing greenhouse gas emissions",
+            "Building cyclone shelters",
+            "Early warning systems for natural disasters"
+        ],
+        "answer": 1,
+        "explanation": "Mitigation means efforts to reduce or prevent greenhouse gas emissions."
+    },
+    {
+        "question": "Which of the following is a biofuel?",
+        "options": ["Ethanol", "Natural gas", "Coal", "Uranium"],
+        "answer": 0,
+        "explanation": "Ethanol, derived from plant materials, is a commonly used biofuel."
+    },
+    {
+        "question": "Which sector in India has the highest potential for solar energy production?",
+        "options": ["Western India", "Eastern India", "North-Eastern India", "Himalayan region"],
+        "answer": 0,
+        "explanation": "The western region (Rajasthan, Gujarat) receives high solar insolation, ideal for solar energy."
+    },
+    {
+        "question": "What is the target year for India to achieve net zero emissions, as declared in 2021?",
+        "options": ["2030", "2040", "2050", "2070"],
+        "answer": 3,
+        "explanation": "India has committed to achieving net zero emissions by 2070."
+    },
+    {
+        "question": "Which is a major cause of increased forest fires recently?",
+        "options": [
+            "Rise in use of bio-pesticides",
+            "Climate change resulting in heatwaves and droughts",
+            "Excessive rainfall in forests",
+            "Reduction of wind speed"
+        ],
+        "answer": 1,
+        "explanation": "Rising temperatures and droughts, caused by climate change, increase the risk of forest fires."
+    },
+    {
+        "question": "Which ocean current has been slowing due to climate change, affecting European climates?",
+        "options": [
+            "Kuroshio Current",
+            "Gulf Stream",
+            "Humboldt Current",
+            "Canary Current"
+        ],
+        "answer": 1,
+        "explanation": "The Gulf Stream is weakening, which impacts Europe’s weather systems."
+    },
+    {
+        "question": "The 'Blue Carbon' initiative relates to the carbon captured by:",
+        "options": [
+            "Coal mines",
+            "Marine and coastal ecosystems",
+            "Mountains",
+            "Urban green roofs"
+        ],
+        "answer": 1,
+        "explanation": "Blue carbon refers to carbon sequestered by oceanic and coastal ecosystems like mangroves and salt marshes."
+    },
+    {
+        "question": "Which industry is the single largest source of fluorinated greenhouse gases?",
+        "options": ["Steelmaking", "Electronics manufacture", "Aerosol production", "Cement industry"],
+        "answer": 1,
+        "explanation": "Electronics manufacturing uses a variety of fluorinated gases."
+    },
+    {
+        "question": "Which term is used to describe the periodical warming of Pacific ocean and impact on climatic conditions worldwide?",
+        "options": ["El Niño", "La Niña", "Monsoon", "Cyclone"],
+        "answer": 0,
+        "explanation": "El Niño is characterized by unusual warming of the central and eastern Pacific Ocean."
+    },
+    {
+        "question": "Which gas is NOT a significant contributor to the greenhouse effect?",
+        "options": ["CO₂", "CH₄", "N₂O", "O₂"],
+        "answer": 3,
+        "explanation": "Oxygen (O₂) does not contribute to the greenhouse effect."
+    },
+    {
+        "question": "Which of these FAO practices is used for sustainable agriculture and climate change mitigation?",
+        "options": ["Conservation tillage", "Slash and burn", "Excessive irrigation", "Heavy pesticide application"],
+        "answer": 0,
+        "explanation": "Conservation tillage reduces soil erosion and carbon loss."
+    },
+    {
+        "question": "Which is the most abundant greenhouse gas in Earth's atmosphere?",
+        "options": ["Carbon dioxide", "Water vapor", "Methane", "Ozone"],
+        "answer": 1,
+        "explanation": "Water vapor is the most abundant greenhouse gas."
+    },
+    {
+        "question": "Which phenomenon is responsible for the retreat of Himalayan glaciers?",
+        "options": [
+            "Increased snowfall",
+            "Global warming and rise in regional temperatures",
+            "Decrease in volcanic activity",
+            "Mining activities"
+        ],
+        "answer": 1,
+        "explanation": "Rising temperatures due to global warming are causing glacier retreat."
+    },
+    {
+        "question": "What is the main focus of the UNFCCC?",
+        "options": [
+            "Conservation of migratory birds",
+            "Climate change stabilization and mitigation",
+            "Regulation of the trade of endangered species",
+            "Control of marine pollution"
+        ],
+        "answer": 1,
+        "explanation": "UNFCCC establishes a framework for action against climate change."
+    },
+    {
+        "question": "Which of these can result from global warming?",
+        "options": ["Increase in crop yields everywhere", "Expansion of mosquito habitats", "Global cooling", "Decrease in rainfall in all deserts"],
+        "answer": 1,
+        "explanation": "Rising temperatures can expand mosquito habitats, spreading disease."
+    },
+    {
+        "question": "In which layer of atmosphere does most weather take place?",
+        "options": ["Stratosphere", "Troposphere", "Mesosphere", "Exosphere"],
+        "answer": 1,
+        "explanation": "The troposphere is the lowest atmosphere layer, where weather events occur."
+    },
+    {
+        "question": "Which gas has the highest global warming potential among the following?",
+        "options": ["CO₂", "CH₄", "N₂O", "SF₆"],
+        "answer": 3,
+        "explanation": "SF₆ (Sulphur hexafluoride) has a much greater global warming potential than the others."
+    },
+    {
+        "question": "Which agreement sets binding emission reduction targets for developed countries?",
+        "options": [
+            "Paris Agreement",
+            "Montreal Protocol",
+            "Kyoto Protocol",
+            "Copenhagen Accord"
+        ],
+        "answer": 2,
+        "explanation": "Kyoto Protocol imposed legally binding targets mainly on developed countries."
+    },
+    {
+        "question": "Which Indian program provides subsidy for rooftop solar panel installations?",
+        "options": [
+            "Ujjwala Yojana",
+            "PM-KUSUM",
+            "Saubhagya Scheme",
+            "Unnat Jyoti by Affordable LEDs",
+        ],
+        "answer": 1,
+        "explanation": "PM-KUSUM promotes and subsidizes rooftop solar installations."
+    },
+    {
+        "question": "What is the main source of man-made methane emissions globally?",
+        "options": [
+            "Coal mining",
+            "Waste landfills and agriculture",
+            "Hydroelectric plants",
+            "Ocean emissions"
+        ],
+        "answer": 1,
+        "explanation": "Most man-made methane comes from landfills and agriculture (mainly livestock)."
+    },
+    {
+        "question": "Which concept involves growing two or more crops together for soil quality and climate resilience?",
+        "options": ["Monocropping", "Intercropping", "Hydroponics", "Fallowing"],
+        "answer": 1,
+        "explanation": "Intercropping is the growing of two or more crops together to improve sustainability."
+    },
+    {
+        "question": "Who releases the Global Climate Risk Index annually?",
+        "options": [
+            "Greenpeace",
+            "Intergovernmental Panel on Climate Change",
+            "Germanwatch",
+            "World Meteorological Organization"
+        ],
+        "answer": 2,
+        "explanation": "Germanwatch releases the Global Climate Risk Index."
+    },
+    {
+        "question": "Which of these environmental pollutants indirectly worsens climate change by reducing cloud reflectivity?",
+        "options": ["Black carbon (soot)", "Sulphur dioxide", "Ground-level ozone", "Chlorine gas"],
+        "answer": 0,
+        "explanation": "Black carbon decreases cloud reflectivity, increasing warming."
+    },
+    {
+        "question": "The 'COP' meetings in climate negotiations stand for:",
+        "options": [
+            "Council of Presidents",
+            "Conference of the Parties",
+            "Coalition of Policy-makers",
+            "Committee on Pollution"
+        ],
+        "answer": 1,
+        "explanation": "COP stands for 'Conference of the Parties' to the UNFCCC or Paris Agreement."
+    },
+    {
+        "question": "Which food production practice most reduces greenhouse gas emissions?",
+        "options": [
+            "Intensive livestock farming",
+            "Vertical farming using renewable energy",
+            "Slash and burn agriculture",
+            "Heavy fertilizer use"
+        ],
+        "answer": 1,
+        "explanation": "Vertical farming using renewables minimizes emissions."
+    },
+    {
+        "question": "The heat-trapping ability of greenhouse gases is referred to as:",
+        "options": ["Global warming effect", "Greenhouse effect", "Temperature inversion", "Thermal uplift"],
+        "answer": 1,
+        "explanation": "The greenhouse effect is the process by which gases trap heat in the atmosphere."
+    },
+    {
+        "question": "Which is NOT a likely effect of climate change on biodiversity?",
+        "options": [
+            "Species extinctions",
+            "Range shifts of animals and plants",
+            "Heightened genetic diversity everywhere",
+            "Introduction of invasive species"
+        ],
+        "answer": 2,
+        "explanation": "Climate change stresses can reduce genetic diversity in many populations."
+    },
+    {
+        "question": "What is the main cause of urban heat islands?",
+        "options": [
+            "Abundant green spaces in cities",
+            "Air pollution from factories",
+            "Concrete and asphalt surface absorption of heat",
+            "Valleys and rivers in cities"
+        ],
+        "answer": 2,
+        "explanation": "Heat-absorbing surfaces and limited vegetation make cities warmer than surroundings."
+    },
+    {
+        "question": "Which organization leads the global system for monitoring atmospheric greenhouse gases?",
+        "options": [
+            "World Health Organization",
+            "World Meteorological Organization",
+            "UNESCO",
+            "FAO"
+        ],
+        "answer": 1,
+        "explanation": "The WMO coordinates atmospheric greenhouse gas monitoring."
+    },
+    {
+        "question": "Which is considered a 'climate refugee'?",
+        "options": [
+            "Person displaced by war",
+            "Person forced to move due to climate-related disasters",
+            "Person who migrates for work",
+            "Person returning from foreign country"
+        ],
+        "answer": 1,
+        "explanation": "Climate refugees are forced to migrate because of events like droughts, floods, or sea level rise."
+    },
+    {
+        "question": "What is 'carbon pricing'?",
+        "options": [
+            "Government purchase of carbon stocks",
+            "Charging emitters for each ton of carbon dioxide produced",
+            "Free distribution of emission rights",
+            "Taxing renewable energy developers"
+        ],
+        "answer": 1,
+        "explanation": "Carbon pricing involves attaching a cost to carbon emissions."
+    },
+    {
+        "question": "Which of these best describes 'Climate Smart Agriculture'?",
+        "options": [
+            "Reducing use of fertilizers only",
+            "Agricultural practices for increasing productivity, resilience, and emissions reduction",
+            "Burning crop residues to clear fields",
+            "Only organic farming"
+        ],
+        "answer": 1,
+        "explanation": "Climate smart agriculture increases productivity, builds resilience, and reduces emissions."
+    },
+    {
+        "question": "Which 2018 IPCC report emphasized keeping global warming below 1.5°C?",
+        "options": [
+            "Global Warming of 1.5°C Special Report",
+            "Climate Change and Land",
+            "Fifth Assessment Report (AR5)",
+            "The Physical Science Basis"
+        ],
+        "answer": 0,
+        "explanation": "The IPCC 2018 special report warns about dangers of exceeding 1.5°C warming."
+    },
+    {
+        "question": "Which constitutes the largest share of renewable energy used globally?",
+        "options": ["Wind", "Solar", "Hydropower", "Geothermal"],
+        "answer": 2,
+        "explanation": "Hydropower remains the largest source of renewable electricity worldwide."
+    },
+    {
+        "question": "What is called when increased earth temperatures raise water vapor, thereby increasing further warming?",
+        "options": [
+            "Positive feedback mechanism",
+            "Negative feedback mechanism",
+            "Radiation equilibrium",
+            "Energy neutral effect"
+        ],
+        "answer": 0,
+        "explanation": "More heat → more water vapor → more heat retained is a positive feedback."
+    },
+    {
+        "question": "Which country hosted the COP26 climate conference?",
+        "options": ["India", "China", "United Kingdom", "Brazil"],
+        "answer": 2,
+        "explanation": "The United Kingdom hosted COP26 in Glasgow in 2021."
+    },
+    {
+        "question": "Which is an example of negative feedback in the climate system?",
+        "options": [
+            "Increased cloud formation reflecting sunlight",
+            "Melting ice exposing dark surfaces",
+            "Emitting more methane from permafrost",
+            "Increased bleaching of coral reefs"
+        ],
+        "answer": 0,
+        "explanation": "More clouds can reflect solar rays, mitigating warming—a negative feedback."
+    },
+    {
+        "question": "Which of the following is used to estimate past climates?",
+        "options": [
+            "Satellite images", 
+            "Tree ring analysis", 
+            "Digital thermometers", 
+            "Water vapor measurement"
+        ],
+        "answer": 1,
+        "explanation": "Tree ring studies (dendrochronology) help reconstruct past climates."
+    },
+    {
+        "question": "Glacial lake outburst floods (GLOFs) are caused by:",
+        "options": [
+            "Excessive monsoon rains",
+            "Sudden breaching of glacier-dammed lakes due to melting",
+            "Destruction of mangroves",
+            "Reduced wind velocities"
+        ],
+        "answer": 1,
+        "explanation": "Melting glaciers can create unstable lakes that burst, causing GLOFs."
+    },
+    {
+        "question": "Which Indian institution is apex for climate change research and policy advice?",
+        "options": [
+            "CSIR-NEERI",
+            "Indian Institute of Tropical Meteorology",
+            "ISRO",
+            "National Institute of Hydrology"
+        ],
+        "answer": 1,
+        "explanation": "IITM Pune is the nodal institute for climate change research."
+    },
+    {
+        "question": "Which of these is a climate variable NOT directly measured by satellite remote sensing?",
+        "options": ["Sea surface salinity", "Surface air temperature", "Population growth", "Vegetation cover"],
+        "answer": 2,
+        "explanation": "Population growth is demographic, not a physical climate variable."
+    },
+    {
+        "question": "Which hazardous weather event is most strongly linked to climate change?",
+        "options": ["Landslides", "Lightning", "Increase in heatwaves", "Seasonal cold spells"],
+        "answer": 2,
+        "explanation": "Climate change increases the frequency and severity of heatwaves."
+    },
+    {
+        "question": "How are 'green roofs' beneficial in urban environments?",
+        "options": [
+            "Increase building cooling, reduce runoff, and support biodiversity",
+            "Increase CO₂ emissions",
+            "Promote water wastage",
+            "Block cell phone signals"
+        ],
+        "answer": 0,
+        "explanation": "Green roofs help with insulation, rainfall runoff, and provide urban habitat."
+    },
+    {
+        "question": "Which goal is NOT part of the Paris Agreement?",
+        "options": [
+            "Limit global temperature rise to below 2°C",
+            "Increase adaptive capacity worldwide",
+            "Abolish all fossil fuels by 2025",
+            "Promote climate finance",
+        ],
+        "answer": 2,
+        "explanation": "There is no mandate to end all fossil fuels by 2025 in the Paris Agreement."
+    },
+	{
+        "question": "Which Indian city suffered severe flooding in 2015 primarily due to heavy rains and poor urban planning aggravated by climate change?",
+        "options": ["Mumbai", "Chennai", "Kolkata", "Hyderabad"],
+        "answer": 1,
+        "explanation": "Chennai experienced severe floods in 2015 caused by extreme rainfall and drainage issues."
+    },
+    {
+        "question": "Which term describes the loss of ice from glaciers and polar ice caps due to rising temperatures?",
+        "options": ["Ice shelf growth", "Glacial retreat", "Permafrost expansion", "Iceberg strengthening"],
+        "answer": 1,
+        "explanation": "Glacial retreat refers to glaciers shrinking due to melting from higher temperatures."
+    },
+    {
+        "question": "Which of the following is NOT a renewable energy source?",
+        "options": ["Wind energy", "Solar energy", "Natural gas", "Hydroelectric power"],
+        "answer": 2,
+        "explanation": "Natural gas is a fossil fuel and thus not renewable."
+    },
+    {
+        "question": "Which Indian government agency is primarily responsible for monitoring air quality across the country?",
+        "options": [
+            "Central Pollution Control Board (CPCB)",
+            "Indian Meteorological Department (IMD)",
+            "Environment Ministry",
+            "Forest Survey of India"
+        ],
+        "answer": 0,
+        "explanation": "CPCB is responsible for air quality monitoring and regulation in India."
+    },
+    {
+        "question": "Which chemical compounds released by refrigeration and air conditioning devices contribute to ozone depletion and global warming?",
+        "options": [
+            "CFCs and HCFCs",
+            "CO₂ and CH₄",
+            "NOx and SO₂",
+            "H₂O and O₂"
+        ],
+        "answer": 0,
+        "explanation": "Chlorofluorocarbons (CFCs) and hydrochlorofluorocarbons (HCFCs) deplete the ozone layer and are greenhouse gases."
+    },
+    {
+        "question": "Which crop is considered highly vulnerable to climate change impacts in India?",
+        "options": ["Rice", "Wheat", "Cotton", "All of the above"],
+        "answer": 3,
+        "explanation": "Rice, wheat, and cotton crops are all vulnerable due to changes in temperature, rainfall, and water availability."
+    },
+    {
+        "question": "Which is a major effect of climate change on the monsoon patterns in India?",
+        "options": [
+            "Reduced rainfall with increased variability",
+            "Consistent rainfall with fewer floods",
+            "Longer winter season",
+            "Increased snowfall in the Himalayas"
+        ],
+        "answer": 0,
+        "explanation": "Climate change causes irregular and unpredictable monsoon rainfall."
+    },
+    {
+        "question": "What is the main purpose of the Cap and Trade system?",
+        "options": [
+            "To set a limit on total emissions and enable trading of emission credits",
+            "To cap the use of renewable energy",
+            "To regulate carbon taxes",
+            "To cap water usage in agriculture"
+        ],
+        "answer": 0,
+        "explanation": "It allows companies to buy and sell emission allowances within a capped limit."
+    },
+    {
+        "question": "Which of the following is NOT an effect of rising sea levels?",
+        "options": [
+            "Coastal erosion",
+            "Saltwater intrusion into freshwater resources",
+            "Increased area of coastal wetlands",
+            "Increased flooding frequency"
+        ],
+        "answer": 2,
+        "explanation": "Rising sea levels typically decrease coastal wetlands by flooding or submergence."
+    },
+    {
+        "question": "Which one of the following is a natural greenhouse gas?",
+        "options": ["Hydrofluorocarbons (HFCs)", "Methane (CH₄)", "CFCs", "Nitrogen trifluoride"],
+        "answer": 1,
+        "explanation": "Methane is a naturally occurring greenhouse gas released from wetlands and digestion in ruminants."
+    },
+    {
+        "question": "What does 'carbon offsetting' mean?",
+        "options": [
+            "Planting trees to compensate for carbon emissions",
+            "Buying carbon credits to avoid emissions reductions",
+            "Increasing fossil fuel use to boost economy",
+            "Ignoring emission targets"
+        ],
+        "answer": 0,
+        "explanation": "Carbon offsetting compensates for emissions by funding activities that reduce or capture CO₂."
+    },
+    {
+        "question": "Which of the following international treaties focuses primarily on protecting the ozone layer?",
+        "options": [
+            "Kyoto Protocol",
+            "Paris Agreement",
+            "Montreal Protocol",
+            "Biodiversity Convention"
+        ],
+        "answer": 2,
+        "explanation": "The Montreal Protocol specifically addresses substances that destroy the ozone layer."
+    },
+    {
+        "question": "Which Indian state recently launched “Climate Resilient Agriculture” program to mitigate climate risks for farmers?",
+        "options": ["Punjab", "Odisha", "Kerala", "Maharashtra"],
+        "answer": 1,
+        "explanation": "Odisha has initiated programs aimed at climate-resilient agricultural practices."
+    },
+    {
+        "question": "Which of these is a major source of black carbon emissions?",
+        "options": [
+            "Diesel engines",
+            "Solar panels",
+            "Hydropower plants",
+            "Wind turbines"
+        ],
+        "answer": 0,
+        "explanation": "Diesel engines emit black carbon, a potent climate warming pollutant."
+    },
+    {
+        "question": "Which natural disaster is most likely to increase in frequency due to climate change?",
+        "options": ["Earthquakes", "Volcanic eruptions", "Heatwaves", "Tsunamis"],
+        "answer": 2,
+        "explanation": "Climate change leads to more frequent and intense heatwaves."
+    },
+    {
+        "question": "The reduction in the extent and thickness of Arctic sea ice is linked to:",
+        "options": [
+            "Global warming",
+            "Ozone depletion",
+            "Nitrogen pollution",
+            "Deforestation"
+        ],
+        "answer": 0,
+        "explanation": "Arctic ice melting is a direct impact of rising global temperatures."
+    },
+    {
+        "question": "Which of these is a non-point source of pollution contributing to climate change?",
+        "options": ["Industrial smokestacks", "Vehicle emissions", "Agricultural runoff", "Power plant chimneys"],
+        "answer": 2,
+        "explanation": "Agricultural runoff is diffuse pollution from various small sources."
+    },
+    {
+        "question": "Which Indian international initiative focuses on solar energy cooperation?",
+        "options": [
+            "International Solar Alliance",
+            "Green Climate Fund",
+            "Global Environment Facility",
+            "Paris Agreement"
+        ],
+        "answer": 0,
+        "explanation": "India launched the International Solar Alliance to promote solar energy globally."
+    },
+    {
+        "question": "What is the effect of deforestation on climate change?",
+        "options": [
+            "Increases carbon sequestration",
+            "Increases greenhouse gas emissions",
+            "Improves air quality",
+            "Reduces soil erosion"
+        ],
+        "answer": 1,
+        "explanation": "Deforestation releases stored carbon and reduces carbon sequestration."
+    },
+    {
+        "question": "The 'Greenhouse Effect' primarily results in:",
+        "options": [
+            "Cooling of the Earth’s surface",
+            "Warming of the Earth’s surface",
+            "Acid rain",
+            "Ozone layer depletion"
+        ],
+        "answer": 1,
+        "explanation": "Greenhouse gases trap heat, leading to warming of the Earth's surface."
+    },
+    {
+        "question": "Which of the following is a result of increased ocean temperatures?",
+        "options": [
+            "Coral bleaching",
+            "Reduced ocean salinity",
+            "Increase in marine biodiversity",
+            "Ocean water becoming less acidic"
+        ],
+        "answer": 0,
+        "explanation": "Warmer ocean waters cause corals to lose their symbiotic algae, leading to bleaching."
+    },
+    {
+        "question": "Which gas is commonly known as laughing gas and also a potent greenhouse gas?",
+        "options": ["Carbon dioxide", "Nitrous oxide", "Methane", "Ozone"],
+        "answer": 1,
+        "explanation": "Nitrous oxide (N₂O) is also known as laughing gas and is a potent greenhouse gas."
+    },
+    {
+        "question": "The practice of 'crop rotation' helps mitigate climate change effects by:",
+        "options": [
+            "Depleting soil nutrients",
+            "Increasing pest outbreaks",
+            "Improving soil fertility and reducing emissions",
+            "Increasing water pollution"
+        ],
+        "answer": 2,
+        "explanation": "Crop rotation enhances soil health and reduces the need for fertilizers, lowering emissions."
+    },
+    {
+        "question": "Which Indian body releases the annual State of Environment report?",
+        "options": [
+            "Ministry of Environment, Forest and Climate Change",
+            "Central Pollution Control Board",
+            "Indian Meteorological Department",
+            "National Biodiversity Authority"
+        ],
+        "answer": 0,
+        "explanation": "The Ministry of Environment, Forest and Climate Change releases environment reports."
+    },
+    {
+        "question": "Melting of glaciers in which mountain ranges significantly impacts the water supply of millions in South Asia?",
+        "options": [
+            "Himalayas and Karakoram",
+            "Andes",
+            "Alps",
+            "Rocky Mountains"
+        ],
+        "answer": 0,
+        "explanation": "Glaciers in the Himalayas and Karakoram feed rivers crucial for South Asia."
+    },
+    {
+        "question": "Which of the following is a major feedback loop accelerating global warming?",
+        "options": [
+            "Increased snowfall",
+            "Methane release from permafrost thaw",
+            "Afforestation",
+            "Increased cloud cover reflecting sunlight"
+        ],
+        "answer": 1,
+        "explanation": "Thawing permafrost releases methane, a powerful greenhouse gas."
+    },
+    {
+        "question": "The term 'carbon credit' means:",
+        "options": [
+            "Permission to emit a specific amount of CO₂",
+            "Credit given for planting trees only",
+            "Tax paid by polluters",
+            "License to use renewable energy"
+        ],
+        "answer": 0,
+        "explanation": "Carbon credits allow companies a set limit of emissions; unused credits can be sold."
+    },
+    {
+        "question": "Which pollutant causes respiratory illnesses and also contributes to climate change?",
+        "options": [
+            "Particulate matter (PM2.5)",
+            "Helium",
+            "Oxygen",
+            "Nitrogen gas"
+        ],
+        "answer": 0,
+        "explanation": "PM2.5 particles cause health issues and can also contribute to atmospheric warming."
+    },
+    {
+        "question": "Which country announced plans to become carbon neutral by 2060?",
+        "options": ["United States", "China", "India", "Russia"],
+        "answer": 1,
+        "explanation": "China declared its goal to be carbon neutral by 2060."
+    },
+    {
+        "question": "Which is an example of climate change mitigation?",
+        "options": [
+            "Installing solar panels",
+            "Constructing flood shelter",
+            "Developing drought-resistant crop varieties",
+            "Relocation due to rising sea levels"
+        ],
+        "answer": 0,
+        "explanation": "Mitigation involves reducing emissions and increasing renewable energy use."
+    },
+    {
+        "question": "Which term describes a policy where governments pay to preserve forests to sequester carbon?",
+        "options": ["Carbon trading", "REDD+", "Cap and Trade", "Carbon taxing"],
+        "answer": 1,
+        "explanation": "REDD+ incentivizes forest conservation to reduce emissions."
+    },
+    {
+        "question": "Which of the following is NOT a source of atmospheric methane?",
+        "options": [
+            "Rice paddies",
+            "Landfills",
+            "Cattle farming",
+            "Deforestation"
+        ],
+        "answer": 3,
+        "explanation": "Deforestation releases CO₂ but not methane directly."
+    },
+    {
+        "question": "Which of these is the biggest contributor to sea level rise?",
+        "options": [
+            "Thermal expansion of ocean water",
+            "Increased evaporation",
+            "Melting of Arctic tundra",
+            "Increased rainfall"
+        ],
+        "answer": 0,
+        "explanation": "Thermal expansion due to warming oceans is a leading cause of sea level rise."
+    },
+    {
+        "question": "Which measurement unit is used to compare the warming potential of greenhouse gases?",
+        "options": [
+            "Global Warming Potential (GWP)",
+            "Carbon Intensity",
+            "Atmospheric Pressure",
+            "Heat Capacity"
+        ],
+        "answer": 0,
+        "explanation": "GWP measures how much heat a greenhouse gas traps compared to CO₂."
+    },
+	{
+        "question": "Which process leads to the release of methane from wetlands?",
+        "options": [
+            "Anaerobic decomposition of organic material",
+            "Combustion of fossil fuels",
+            "Photosynthesis",
+            "Evaporation"
+        ],
+        "answer": 0,
+        "explanation": "Methane is produced during anaerobic decomposition of organic matter in waterlogged conditions."
+    },
+    {
+        "question": "Which Indian state is home to the Sundarbans, an important mangrove ecosystem vulnerable to sea-level rise?",
+        "options": ["West Bengal", "Tamil Nadu", "Kerala", "Maharashtra"],
+        "answer": 0,
+        "explanation": "West Bengal contains the Sundarbans, the largest mangrove forest and a vital coastal ecosystem."
+    },
+    {
+        "question": "What type of energy does a geothermal power plant use?",
+        "options": [
+            "Solar energy",
+            "Heat from the Earth's interior",
+            "Wind energy",
+            "Hydropower"
+        ],
+        "answer": 1,
+        "explanation": "Geothermal plants use heat from inside the Earth to generate electricity."
+    },
+    {
+        "question": "Which of the following is a direct consequence of ocean acidification?",
+        "options": [
+            "Increased coral growth",
+            "Reduced shell formation in marine animals",
+            "Improved fish breeding",
+            "Increased oxygen levels in oceans"
+        ],
+        "answer": 1,
+        "explanation": "Acidification reduces carbonate ions needed by marine animals to build shells and skeletons."
+    },
+    {
+        "question": "Which gas is responsible for the ‘greenhouse effect’ along with carbon dioxide and methane?",
+        "options": ["Nitrous oxide", "Argon", "Helium", "Neon"],
+        "answer": 0,
+        "explanation": "Nitrous oxide is a potent greenhouse gas contributing to global warming."
+    },
+    {
+        "question": "Which of the following is NOT a major contributor to anthropogenic greenhouse gas emissions?",
+        "options": [
+            "Coal burning",
+            "Deforestation",
+            "Volcanic eruptions",
+            "Livestock farming"
+        ],
+        "answer": 2,
+        "explanation": "Volcanic eruptions contribute natural emissions, unlike the other human-caused sources."
+    },
+    {
+        "question": "The Paris Agreement encourages countries to limit global temperature rise to below:",
+        "options": ["1°C", "1.5°C", "2°C", "3°C"],
+        "answer": 2,
+        "explanation": "The Paris Agreement aims to keep temperature rise well below 2°C, preferably to 1.5°C."
+    },
+    {
+        "question": "Which sector is a significant emitter of methane in India?",
+        "options": [
+            "Transportation",
+            "Agriculture (especially rice paddies and cattle)",
+            "Energy generation",
+            "Manufacturing"
+        ],
+        "answer": 1,
+        "explanation": "Agriculture contributes large methane emissions mainly from rice cultivation and livestock."
+    },
+    {
+        "question": "Which international body prepares assessment reports on climate change science?",
+        "options": [
+            "World Health Organization",
+            "Intergovernmental Panel on Climate Change (IPCC)",
+            "United Nations Development Programme",
+            "International Monetary Fund"
+        ],
+        "answer": 1,
+        "explanation": "IPCC releases comprehensive scientific assessments on climate change."
+    },
+    {
+        "question": "Which of the following is a method to reduce carbon dioxide levels in the atmosphere?",
+        "options": [
+            "Increasing fossil fuel consumption",
+            "Afforestation and reforestation",
+            "Burning more coal",
+            "Dumping plastic waste in oceans"
+        ],
+        "answer": 1,
+        "explanation": "Planting trees removes CO₂ by natural absorption."
+    },
+    {
+        "question": "What is the main cause of the frequency increase in extreme weather events?",
+        "options": [
+            "Climate change due to human activities",
+            "Natural solar cycles",
+            "Changes in Earth's orbit",
+            "Cloud cover variation"
+        ],
+        "answer": 0,
+        "explanation": "Human-driven climate change intensifies extreme weather events."
+    },
+    {
+        "question": "Which term describes the shift in species geographic ranges due to climate change?",
+        "options": [
+            "Speciation",
+            "Migration",
+            "Range shift",
+            "Extinction"
+        ],
+        "answer": 2,
+        "explanation": "Climate change causes species to shift their ranges in search of suitable habitats."
+    },
+    {
+        "question": "Which is the largest source of anthropogenic carbon dioxide emissions globally?",
+        "options": [
+            "Deforestation",
+            "Electricity and heat production",
+            "Agriculture",
+            "Waste management"
+        ],
+        "answer": 1,
+        "explanation": "Energy production for electricity and heat is the largest source of CO₂ emissions."
+    },
+    {
+        "question": "Which of the following best describes a 'carbon sink'?",
+        "options": [
+            "A source of CO₂ emissions",
+            "A process or reservoir that absorbs more carbon than it releases",
+            "A type of fossil fuel",
+            "A unit to measure carbon emissions"
+        ],
+        "answer": 1,
+        "explanation": "Carbon sinks remove CO₂ from the atmosphere and store it."
+    },
+    {
+        "question": "Which Indian state is most vulnerable to cyclones exacerbated by climate change?",
+        "options": ["Odisha", "Punjab", "Himachal Pradesh", "Karnataka"],
+        "answer": 0,
+        "explanation": "Odisha is on the east coast and frequently affected by cyclones."
+    },
+    {
+        "question": "Which of the following international conferences is focused on global climate policy negotiations?",
+        "options": [
+            "COP (Conference of Parties)",
+            "G20 Summit",
+            "BRICS Summit",
+            "World Economic Forum"
+        ],
+        "answer": 0,
+        "explanation": "COP meetings under the UNFCCC address climate policy annually."
+    },
+    {
+        "question": "What does 'climate resilience' refer to?",
+        "options": [
+            "Ability to adapt and recover from climate-related shocks",
+            "Resistance to all environmental changes",
+            "Ignoring climate change effects",
+            "Reducing carbon emissions only"
+        ],
+        "answer": 0,
+        "explanation": "Climate resilience means adapting and recovering effectively from impacts."
+    },
+    {
+        "question": "Which of the following is a non-renewable energy source?",
+        "options": ["Wind", "Natural gas", "Solar", "Biomass"],
+        "answer": 1,
+        "explanation": "Natural gas is a fossil fuel and non-renewable."
+    },
+    {
+        "question": "Which of these is a greenhouse gas with the highest global warming potential?",
+        "options": [
+            "Carbon dioxide (CO₂)",
+            "Methane (CH₄)",
+            "Nitrous oxide (N₂O)",
+            "Sulfur hexafluoride (SF₆)"
+        ],
+        "answer": 3,
+        "explanation": "SF₆ has the highest global warming potential among common greenhouse gases."
+    },
+    {
+        "question": "Which country is the largest carbon emitter as of 2025?",
+        "options": [
+            "United States",
+            "China",
+            "India",
+            "Russia"
+        ],
+        "answer": 1,
+        "explanation": "China is currently the top carbon emitter globally."
+    },
+    {
+        "question": "What is the main component of 'carbon neutrality'?",
+        "options": [
+            "Eliminating all carbon emissions",
+            "Balancing emitted carbon by removing an equivalent amount from the atmosphere",
+            "Increasing carbon emissions but balancing with renewable energy",
+            "Doubling carbon emissions"
+        ],
+        "answer": 1,
+        "explanation": "Carbon neutrality means net-zero carbon emissions by balancing emitted and removed carbon."
+    },
+    {
+        "question": "Which Indian mission focuses on water conservation and management to address climate change?",
+        "options": [
+            "National Water Mission",
+            "National Solar Mission",
+            "National Electric Mobility Mission",
+            "National Mission on Sustainable Agriculture"
+        ],
+        "answer": 0,
+        "explanation": "The National Water Mission aims to conserve water, reduce waste, and improve water use efficiency."
+    },
+    {
+        "question": "Which of the following is NOT a way to reduce individual carbon footprint?",
+        "options": [
+            "Using public transportation",
+            "Reducing meat consumption",
+            "Increasing use of single-use plastics",
+            "Using energy-efficient appliances"
+        ],
+        "answer": 2,
+        "explanation": "Increasing single-use plastics contributes to higher emissions."
+    },
+    {
+        "question": "Which of the following international funds assists developing countries in climate change adaptation and mitigation?",
+        "options": [
+            "Green Climate Fund",
+            "World Bank",
+            "IMF",
+            "Paris Fund"
+        ],
+        "answer": 0,
+        "explanation": "The Green Climate Fund finances climate projects in developing nations."
+    },
+    {
+        "question": "Which part of India is most affected by rising temperatures due to climate change?",
+        "options": [
+            "Western India",
+            "North-Eastern India",
+            "Southern India",
+            "Central India"
+        ],
+        "answer": 0,
+        "explanation": "Western India, including the Thar Desert, experiences significant temperature rises."
+    },
+    {
+        "question": "What is the key environmental issue caused by climate change in the Arctic region?",
+        "options": [
+            "Melting permafrost",
+            "Increased rainfall",
+            "More vegetation growth",
+            "Decreased sunlight"
+        ],
+        "answer": 0,
+        "explanation": "Warming temperatures cause thawing of permanently frozen ground (permafrost)."
+    },
+    {
+        "question": "Global warming impacts which of the following ocean phenomena?",
+        "options": [
+            "Ocean acidification",
+            "Sea level rise",
+            "Disruption of marine food chains",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "Global warming affects all these oceanic changes."
+    },
+    {
+        "question": "Which layer of the atmosphere contains the ozone layer?",
+        "options": [
+            "Troposphere",
+            "Stratosphere",
+            "Mesosphere",
+            "Thermosphere"
+        ],
+        "answer": 1,
+        "explanation": "The ozone layer is located in the stratosphere."
+    },
+    {
+        "question": "Which of the following is NOT a greenhouse gas?",
+        "options": [
+            "Carbon dioxide",
+            "Methane",
+            "Nitrogen",
+            "Nitrous oxide"
+        ],
+        "answer": 2,
+        "explanation": "Nitrogen gas is the most abundant atmospheric gas but not a greenhouse gas."
+    },
+    {
+        "question": "Which Indian forest type is an important carbon sink and helps combat climate change?",
+        "options": [
+            "Mangrove forests",
+            "Tropical wet evergreen forests",
+            "Deciduous forests",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "All these forests absorb carbon and are important for climate regulation."
+    },
+	{
+        "question": "Which of the following is considered a major cause of ocean acidification?",
+        "options": [
+            "Increased CO₂ absorption by oceans",
+            "Increased ocean salinity",
+            "Increased volcanic activity",
+            "Decreased ocean temperature"
+        ],
+        "answer": 0,
+        "explanation": "Oceans absorb excess CO₂ from the atmosphere, leading to acidification."
+    },
+    {
+        "question": "Solar radiation management is an example of which climate change strategy?",
+        "options": [
+            "Adaptation",
+            "Mitigation",
+            "Carbon sequestration",
+            "Geoengineering"
+        ],
+        "answer": 3,
+        "explanation": "Solar radiation management is a geoengineering method to reflect sunlight to reduce warming."
+    },
+    {
+        "question": "Which gas is primarily responsible for ozone layer depletion?",
+        "options": [
+            "Methane",
+            "Chlorofluorocarbons (CFCs)",
+            "Nitrous oxide",
+            "Carbon dioxide"
+        ],
+        "answer": 1,
+        "explanation": "CFCs break down ozone molecules leading to layer depletion."
+    },
+    {
+        "question": "Climate change is expected to have the greatest impact on which group?",
+        "options": [
+            "Coastal communities",
+            "Urban city residents",
+            "Mountain communities",
+            "Desert dwellers"
+        ],
+        "answer": 0,
+        "explanation": "Coastal communities face threats from sea-level rise and storms."
+    },
+    {
+        "question": "Which of the following is an effect of melting permafrost?",
+        "options": [
+            "Release of methane",
+            "Increase in forest density",
+            "Decreased carbon dioxide",
+            "Formation of glaciers"
+        ],
+        "answer": 0,
+        "explanation": "Melting permafrost releases trapped methane, a potent greenhouse gas."
+    },
+    {
+        "question": "Which of the following sectors is NOT a major contributor to greenhouse gas emissions?",
+        "options": [
+            "Energy supply",
+            "Waste management",
+            "Tourism",
+            "Transportation"
+        ],
+        "answer": 2,
+        "explanation": "Tourism itself is less directly responsible compared to the others."
+    },
+    {
+        "question": "What is the cause of urban heat island effect?",
+        "options": [
+            "Reduced urbanization",
+            "More vegetation in cities",
+            "Heat absorption by concrete and asphalt",
+            "Increased wind speeds"
+        ],
+        "answer": 2,
+        "explanation": "Materials like concrete absorb and retain more heat, raising urban temperatures."
+    },
+    {
+        "question": "Which country was the first to declare a climate emergency nationally?",
+        "options": [
+            "United Kingdom",
+            "France",
+            "Canada",
+            "New Zealand"
+        ],
+        "answer": 0,
+        "explanation": "The UK was among the first to formally declare a climate emergency."
+    },
+    {
+        "question": "Which of the following is the largest carbon sink on Earth?",
+        "options": [
+            "Tropical forests",
+            "Oceans",
+            "Soil",
+            "Wetlands"
+        ],
+        "answer": 1,
+        "explanation": "Oceans absorb the largest amount of carbon dioxide globally."
+    },
+    {
+        "question": "Which term describes the transition of a region from a productive agricultural area to desert?",
+        "options": [
+            "Desertification",
+            "Deforestation",
+            "Afforestation",
+            "Urbanization"
+        ],
+        "answer": 0,
+        "explanation": "Desertification is land degradation in arid areas reducing agricultural productivity."
+    },
+    {
+        "question": "What is the main goal of afforestation as a climate change measure?",
+        "options": [
+            "To reduce soil erosion",
+            "To increase carbon sequestration",
+            "To improve water retention",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "Afforestation helps in carbon storage, soil stability, and water conservation."
+    },
+    {
+        "question": "Which is NOT a typical greenhouse gas?",
+        "options": [
+            "Ozone",
+            "Water vapor",
+            "Nitrogen",
+            "Methane"
+        ],
+        "answer": 2,
+        "explanation": "Nitrogen gas makes up most of the atmosphere but is not a greenhouse gas."
+    },
+    {
+        "question": "Climate finance refers to funds directed towards:",
+        "options": [
+            "Mitigating and adapting to climate change",
+            "Increasing fossil fuel usage",
+            "Promoting deforestation",
+            "Infrastructure fossil fuel expansion"
+        ],
+        "answer": 0,
+        "explanation": "Climate finance supports projects and policies tackling climate change."
+    },
+    {
+        "question": "Which Indian mission supports sustainable agriculture under climate change conditions?",
+        "options": [
+            "National Electric Mobility Mission",
+            "National Mission on Sustainable Agriculture",
+            "National Water Mission",
+            "National Solar Mission"
+        ],
+        "answer": 1,
+        "explanation": "This mission promotes climate-resilient agriculture."
+    },
+    {
+        "question": "Which of the following climatic events is directly related to the El Niño phenomenon?",
+        "options": [
+            "Drought in Australia",
+            "Floods in South America",
+            "Warm ocean surface temperatures in the Pacific",
+            "All of the above"
+        ],
+        "answer": 3,
+        "explanation": "El Niño leads to a range of climate anomalies including droughts, floods, and warm ocean waters."
+    },
+    {
+        "question": "What does the Global Warming Potential (GWP) indicate?",
+        "options": [
+            "The amount of CO₂ emissions per vehicle",
+            "The potential of a greenhouse gas to warm the atmosphere relative to CO₂",
+            "The temperature increase over a decade",
+            "The total amount of fossil fuels burned"
+        ],
+        "answer": 1,
+        "explanation": "GWP compares the heat-trapping ability of different gases against CO₂ over a set time."
+    },
+    {
+        "question": "Why is methane considered more potent than carbon dioxide as a greenhouse gas?",
+        "options": [
+            "It traps more heat per molecule but remains in the atmosphere for less time",
+            "It is more abundant",
+            "It lasts longer in the atmosphere",
+            "It reacts with ozone"
+        ],
+        "answer": 0,
+        "explanation": "Methane has a higher heat-trapping ability but shorter atmospheric lifetime compared to CO₂."
+    },
+    {
+        "question": "Which major international agreement was adopted in 1997 to reduce greenhouse gas emissions?",
+        "options": [
+            "Paris Agreement",
+            "Kyoto Protocol",
+            "Montreal Protocol",
+            "Geneva Convention"
+        ],
+        "answer": 1,
+        "explanation": "The Kyoto Protocol set binding emission reduction targets for developed countries."
+    },
+    {
+        "question": "Which Indian state's Sundarbans are vulnerable to sea-level rise?",
+        "options": [
+            "West Bengal",
+            "Orissa",
+            "Gujarat",
+            "Maharashtra"
+        ],
+        "answer": 0,
+        "explanation": "The Sundarbans mangrove forest in West Bengal is vulnerable to rising seas."
+    },
+    {
+        "question": "Which is NOT an effect of global warming?",
+        "options": [
+            "Increased frequency of droughts",
+            "Rising sea levels",
+            "Lower global temperature",
+            "Melting of glaciers"
+        ],
+        "answer": 2,
+        "explanation": "Global warming causes rising, not lowering, of global temperatures."
+    },
+    {
+        "question": "What is the main anthropogenic source of nitrous oxide emissions?",
+        "options": [
+            "Fertilizer use in agriculture",
+            "Deforestation",
+            "Fossil fuel combustion",
+            "Waste disposal"
+        ],
+        "answer": 0,
+        "explanation": "Agricultural soils fertilized with nitrogen release nitrous oxide."
+    },
+    {
+        "question": "Which phenomenon results in cooler than average Pacific Ocean temperatures, often affecting weather patterns?",
+        "options": [
+            "El Niño",
+            "La Niña",
+            "Indian Ocean Dipole",
+            "Atlantic Meridional Oscillation"
+        ],
+        "answer": 1,
+        "explanation": "La Niña is characterized by cooler ocean temperatures in the central/eastern Pacific."
+    },
+    {
+        "question": "What does the term ‘carbon footprint’ mean?",
+        "options": [
+            "The total amount of greenhouse gases emitted by an individual or organization",
+            "A mark left by carbon on objects",
+            "The geographical area absorbing carbon dioxide",
+            "The carbon content in soil"
+        ],
+        "answer": 0,
+        "explanation": "Carbon footprint quantifies all greenhouse gas emissions caused by an entity."
+    },
+    {
+        "question": "Which Indian program targets increasing renewable energy capacity including solar and wind?",
+        "options": [
+            "Perform Achieve Trade (PAT)",
+            "Ujjwala Yojana",
+            "National Solar Mission",
+            "Atal Mission"
+        ],
+        "answer": 2,
+        "explanation": "The National Solar Mission promotes solar and other renewables."
+    },
+    {
+        "question": "Which of the following is an example of climate adaptation?",
+        "options": [
+            "Building sea walls",
+            "Reducing carbon emissions",
+            "Planting more trees",
+            "Burning fossil fuels"
+        ],
+        "answer": 0,
+        "explanation": "Adapting infrastructure like sea walls helps cope with climate impacts."
+    },
+	    {
+        "question": "Which gas is the most abundant greenhouse gas in Earth's atmosphere?",
+        "options": ["Carbon dioxide", "Methane", "Water vapor", "Nitrous oxide"],
+        "answer": 2,
+        "explanation": "Water vapor is the most abundant greenhouse gas in Earth’s atmosphere."
+    },
+    {
+        "question": "Which convention is specifically aimed at preserving biodiversity and addressing climate change effects?",
+        "options": [
+            "UNFCCC (United Nations Framework Convention on Climate Change)",
+            "CBD (Convention on Biological Diversity)",
+            "Kyoto Protocol",
+            "Paris Agreement"
+        ],
+        "answer": 1,
+        "explanation": "CBD focuses on conserving biodiversity and fostering sustainable development."
+    },
+    {
+        "question": "The ‘carbon cycle’ involves:",
+        "options": [
+            "The movement of carbon among atmosphere, oceans, soil, and living organisms",
+            "The production of carbon monoxide in vehicles",
+            "Industrial carbon capture technologies",
+            "The flow of carbon in volcanic eruptions"
+        ],
+        "answer": 0,
+        "explanation": "The carbon cycle is a natural process of carbon exchange among different Earth spheres."
+    },
+    {
+        "question": "Which greenhouse gas has the shortest lifetime but has a very high global warming potential?",
+        "options": [
+            "Methane",
+            "Carbon dioxide",
+            "Nitrous oxide",
+            "Sulfur hexafluoride (SF₆)"
+        ],
+        "answer": 0,
+        "explanation": "Methane persists for about 12 years but traps much more heat compared to CO₂."
+    },
+    {
+        "question": "REEs (Rare Earth Elements) used in wind turbines and electric vehicles are important for:",
+        "options": [
+            "Reducing greenhouse gas emissions",
+            "Increasing fossil fuel dependency",
+            "Boosting deforestation",
+            "Promoting coal mining"
+        ],
+        "answer": 0,
+        "explanation": "REEs are key materials for clean energy technologies that reduce emissions."
+    },
+    {
+        "question": "National Adaptation Fund for Climate Change (NAFCC) was launched by which country?",
+        "options": ["India", "China", "United States", "Brazil"],
+        "answer": 0,
+        "explanation": "India launched NAFCC to provide financial support for climate adaptation projects."
+    },
+    {
+        "question": "Which is the major anthropogenic source of sulfur dioxide contributing to acid rain?",
+        "options": [
+            "Coal combustion",
+            "Vehicle exhaust",
+            "Methane leaks",
+            "Agriculture"
+        ],
+        "answer": 0,
+        "explanation": "Burning coal releases sulfur dioxide, a primary cause of acid rain."
+    },
+    {
+        "question": "Which of the following is an example of blue carbon ecosystem?",
+        "options": [
+            "Mangroves",
+            "Desert scrub",
+            "Alpine meadows",
+            "Tropical forests"
+        ],
+        "answer": 0,
+        "explanation": "Mangroves store carbon in coastal and marine environments known as blue carbon."
+    },
+    {
+        "question": "Which country is the host of the United Nations Framework Convention on Climate Change secretariat?",
+        "options": [
+            "Switzerland",
+            "Germany",
+            "United States",
+            "France"
+        ],
+        "answer": 0,
+        "explanation": "The UNFCCC secretariat is based in Bonn, Germany, part of Switzerland's jurisdictional influence."
+    },
+    {
+        "question": "What is 'climate justice'?",
+        "options": [
+            "The concept that impacts and responsibilities for climate change should be fairly distributed",
+            "The right to pollute freely",
+            "Economic growth prioritizing emissions",
+            "Technological advancements only"
+        ],
+        "answer": 0,
+        "explanation": "Climate justice calls for equitable response to climate impacts and mitigation efforts."
+    },
+    {
+        "question": "Which is NOT a part of the National Action Plan on Climate Change (NAPCC) missions?",
+        "options": [
+            "National Solar Mission",
+            "National Bio-Energy Mission",
+            "National Water Mission",
+            "National Wildlife Mission"
+        ],
+        "answer": 3,
+        "explanation": "National Wildlife Mission is separate from NAPCC."
+    },
+    {
+        "question": "Which of the following pollutants contributes to both climate change and air pollution?",
+        "options": [
+            "Particulate matter (PM2.5)",
+            "Carbon dioxide",
+            "Black carbon (soot)",
+            "Ozone"
+        ],
+        "answer": 2,
+        "explanation": "Black carbon is a potent climate forcer and component of air pollution."
+    },
+    {
+        "question": "Which of the following phenomena is an example of climate change adaptation in agriculture?",
+        "options": [
+            "Developing drought-resistant crop varieties",
+            "Slash and burn farming",
+            "Excessive groundwater extraction",
+            "Monocropping"
+        ],
+        "answer": 0,
+        "explanation": "Drought-resistant crops help farmers cope with changing climate conditions."
+    },
+    {
+        "question": "Which sector contributes the highest share of methane emissions globally?",
+        "options": [
+            "Waste management",
+            "Agriculture",
+            "Energy",
+            "Transport"
+        ],
+        "answer": 1,
+        "explanation": "Agriculture, especially livestock and rice paddies, is the largest methane source."
+    },
+    {
+        "question": "Carbon capture and storage (CCS) is a technology that:",
+        "options": [
+            "Captures CO₂ emissions and stores them underground",
+            "Increases CO₂ emissions deliberately",
+            "Reduces forest cover",
+            "Promotes deforestation"
+        ],
+        "answer": 0,
+        "explanation": "CCS prevents CO₂ from entering the atmosphere by capturing and storing it."
+    },
+    {
+        "question": "Which of these is an effect of deforestation linked to climate change?",
+        "options": [
+            "Loss of carbon sink",
+            "Decrease in soil erosion",
+            "Increase in biodiversity",
+            "Increase in rainfall"
+        ],
+        "answer": 0,
+        "explanation": "Deforestation reduces forests which act as carbon sinks."
+    },
+    {
+        "question": "Which of the following is a greenhouse gas regulated under the Kigali Amendment?",
+        "options": [
+            "Methane",
+            "Hydrofluorocarbons (HFCs)",
+            "Nitrous oxide",
+            "Ozone"
+        ],
+        "answer": 1,
+        "explanation": "The Kigali Amendment targets phasedown of HFCs due to their high warming potential."
+    },
+    {
+        "question": "Which of the following is NOT a climate change mitigation strategy?",
+        "options": [
+            "Increasing renewable energy use",
+            "Afforestation",
+            "Building seawalls",
+            "Energy efficiency improvement"
+        ],
+        "answer": 2,
+        "explanation": "Building seawalls is an adaptation strategy, not mitigation."
+    },
+    {
+        "question": "Which of these is an example of negative emissions technology?",
+        "options": [
+            "Renewable energy",
+            "Direct air capture",
+            "Fossil fuel combustion",
+            "Deforestation"
+        ],
+        "answer": 1,
+        "explanation": "Direct air capture removes CO₂ from the atmosphere."
+    },
+    {
+        "question": "What is the likely effect of continued global warming on coral reefs?",
+        "options": [
+            "Expansion of coral reefs",
+            "Increased coral bleaching events",
+            "Less ocean acidification",
+            "Stronger coral skeletons"
+        ],
+        "answer": 1,
+        "explanation": "Warming oceans cause coral bleaching, threatening reef survival."
+    },
+    {
+        "question": "Which of the following is a climate vulnerability index used globally?",
+        "options": [
+            "IPCC Vulnerability Index",
+            "Notre Dame Global Adaptation Index (ND-GAIN)",
+            "Green Climate Fund Index",
+            "World Bank Climate Index"
+        ],
+        "answer": 1,
+        "explanation": "ND-GAIN assesses countries' vulnerabilities and readiness for climate change."
+    },
+    {
+        "question": "Which is the most effective way to reduce methane emissions from rice cultivation?",
+        "options": [
+            "Alternate wetting and drying irrigation",
+            "Flooding fields continuously",
+            "Overuse of fertilizers",
+            "Burning crop residues"
+        ],
+        "answer": 0,
+        "explanation": "Alternate wetting and drying reduces methane production in paddies."
+    },
+    {
+        "question": "Which UN body is responsible for the Green Climate Fund?",
+        "options": [
+            "United Nations Environment Programme (UNEP)",
+            "United Nations Framework Convention on Climate Change (UNFCCC)",
+            "World Bank",
+            "International Monetary Fund (IMF)"
+        ],
+        "answer": 1,
+        "explanation": "The Green Climate Fund was established under the UNFCCC to support climate actions."
+    },
+    {
+        "question": "Which of the following best describes the 'Paris Agreement'?",
+        "options": [
+            "A legally binding treaty to phase out fossil fuels by 2030",
+            "A global pact aiming to limit temperature rise this century to well below 2°C",
+            "An agreement to increase agricultural subsidies",
+            "A fund to finance infrastructure projects"
+        ],
+        "answer": 1,
+        "explanation": "The Paris Agreement seeks global cooperation to limit warming to below 2°C."
+    },
+	 {
+        "question": "Which of the following practices can increase soil carbon sequestration?",
+        "options": [
+            "Monoculture farming",
+            "Conservation tillage",
+            "Excessive fertilizer use",
+            "Deforestation"
+        ],
+        "answer": 1,
+        "explanation": "Conservation tillage helps preserve soil organic carbon by minimizing soil disturbance."
+    },
+    {
+        "question": "What is the role of forests in the global carbon cycle?",
+        "options": [
+            "They release carbon dioxide through respiration only",
+            "They act as carbon sinks absorbing CO₂",
+            "They emit greenhouse gases during photosynthesis",
+            "They have no role in the carbon cycle"
+        ],
+        "answer": 1,
+        "explanation": "Forests absorb carbon dioxide and store it in biomass, acting as carbon sinks."
+    },
+    {
+        "question": "Which gas is the main component of natural gas and also a potent greenhouse gas?",
+        "options": [
+            "Carbon dioxide",
+            "Methane",
+            "Nitrous oxide",
+            "Sulfur dioxide"
+        ],
+        "answer": 1,
+        "explanation": "Methane is the primary component of natural gas and a potent greenhouse gas."
+    },
+    {
+        "question": "Which Indian ministry is responsible for implementing climate change policies?",
+        "options": [
+            "Ministry of Environment, Forest and Climate Change",
+            "Ministry of Agriculture",
+            "Ministry of Power",
+            "Ministry of Science and Technology"
+        ],
+        "answer": 0,
+        "explanation": "The Ministry of Environment, Forest and Climate Change handles climate policies in India."
+    },
+    {
+        "question": "Which technology helps to use power generated by solar panels even during the night?",
+        "options": [
+            "Hybrid solar systems",
+            "Grid-connected solar systems",
+            "Solar batteries",
+            "Thermal solar systems"
+        ],
+        "answer": 2,
+        "explanation": "Solar batteries store energy to be used when solar panels are not generating power."
+    },
+    {
+        "question": "Which of the following sectors contributes the most to greenhouse gas emissions globally?",
+        "options": [
+            "Agriculture",
+            "Energy",
+            "Transportation",
+            "Waste management"
+        ],
+        "answer": 1,
+        "explanation": "The energy sector, mainly fossil fuel combustion, is the biggest emitter globally."
+    },
+    {
+        "question": "Which of the following is not a direct impact of climate change?",
+        "options": [
+            "Sea level rise",
+            "Increased frequency of heatwaves",
+            "Ozone layer depletion",
+            "Changes in precipitation patterns"
+        ],
+        "answer": 2,
+        "explanation": "Ozone depletion is related to CFCs, not directly caused by climate change."
+    },
+    {
+        "question": "Which of the following is a major source of methane emissions?",
+        "options": [
+            "Rice cultivation",
+            "Automobile exhaust",
+            "Industrial factories",
+            "Solar energy production"
+        ],
+        "answer": 0,
+        "explanation": "Methane is emitted from flooded rice fields during anaerobic decomposition."
+    },
+    {
+        "question": "Which of the following best describes the ‘greenhouse effect’?",
+        "options": [
+            "Trapping of heat by greenhouse gases",
+            "Reflection of sunlight back to space",
+            "Absorption of UV radiation by ozone",
+            "Cooling of Earth’s surface at night"
+        ],
+        "answer": 0,
+        "explanation": "Greenhouse gases trap heat, warming the Earth’s atmosphere."
+    },
+    {
+        "question": "Which country has the largest installed solar power capacity as of 2025?",
+        "options": [
+            "China",
+            "India",
+            "United States",
+            "Germany"
+        ],
+        "answer": 0,
+        "explanation": "China leads in installed solar power capacity globally."
+    },
+    {
+        "question": "What type of climate action is planting trees categorized under?",
+        "options": [
+            "Mitigation",
+            "Adaptation",
+            "Geoengineering",
+            "Renewable energy"
+        ],
+        "answer": 0,
+        "explanation": "Planting trees helps mitigate climate change by absorbing CO₂."
+    },
+    {
+        "question": "Which of the following statements is true regarding the carbon footprint?",
+        "options": [
+            "It measures the amount of carbon dioxide emitted directly or indirectly by an individual or organization",
+            "It represents the total area of forest cover",
+            "It is the area of arable land",
+            "It is the amount of CO₂ in the atmosphere"
+        ],
+        "answer": 0,
+        "explanation": "Carbon footprint quantifies greenhouse gas emissions caused directly or indirectly."
+    },
+    {
+        "question": "Which gas is responsible for acid rain?",
+        "options": [
+            "Carbon dioxide",
+            "Sulfur dioxide",
+            "Oxygen",
+            "Nitrogen gas"
+        ],
+        "answer": 1,
+        "explanation": "Sulfur dioxide reacts with water to form acid rain."
+    },
+    {
+        "question": "Which of the following is a strategy to reduce emissions from the transportation sector?",
+        "options": [
+            "Promoting electric vehicles",
+            "Increasing fossil fuel use",
+            "Expanding highway networks",
+            "Reducing public transport"
+        ],
+        "answer": 0,
+        "explanation": "Electric vehicles reduce dependency on fossil fuels and emissions."
+    },
+    {
+        "question": "Which country is the largest emitter of carbon dioxide in the world?",
+        "options": [
+            "United States",
+            "China",
+            "India",
+            "Russia"
+        ],
+        "answer": 1,
+        "explanation": "China is the largest global emitter of CO₂."
+    },
+    {
+        "question": "Greenhouse gases trap heat in the atmosphere by absorbing:",
+        "options": [
+            "Visible light",
+            "Ultraviolet radiation",
+            "Infrared radiation",
+            "Microwaves"
+        ],
+        "answer": 2,
+        "explanation": "Greenhouse gases absorb infrared radiation emitted by Earth's surface."
+    },
+    {
+        "question": "Which one of these is NOT an international climate agreement?",
+        "options": [
+            "Kyoto Protocol",
+            "Paris Agreement",
+            "Montreal Protocol",
+            "Biodiversity Protocol"
+        ],
+        "answer": 3,
+        "explanation": "The Biodiversity Protocol is not an international climate agreement."
+    },
+    {
+        "question": "Which of the following is a renewable source of energy?",
+        "options": [
+            "Coal",
+            "Natural gas",
+            "Solar",
+            "Oil"
+        ],
+        "answer": 2,
+        "explanation": "Solar energy is renewable and sustainable."
+    },
+    {
+        "question": "The term ‘climate adaptation’ means:",
+        "options": [
+            "Efforts to reduce greenhouse gas emissions",
+            "Adjusting to actual or expected climate and its effects",
+            "Building solar panels",
+            "Eliminating fossil fuel use"
+        ],
+        "answer": 1,
+        "explanation": "Adaptation involves making adjustments to cope with the impacts of climate change."
+    },
+    {
+        "question": "What is ‘carbon trading’?",
+        "options": [
+            "Buying and selling rights to emit carbon dioxide",
+            "Trading fossil fuels globally",
+            "Exchanging renewable energy certificates",
+            "Bartering trees and forests"
+        ],
+        "answer": 0,
+        "explanation": "Carbon trading involves buying and selling emissions allowances."
+    },
+    {
+        "question": "Which organization is responsible for publishing the Emissions Gap Report?",
+        "options": [
+            "United Nations Environment Programme (UNEP)",
+            "World Bank",
+            "International Energy Agency",
+            "International Monetary Fund"
+        ],
+        "answer": 0,
+        "explanation": "UNEP publishes the annual Emissions Gap Report highlighting emission trends."
+    },
+    {
+        "question": "Which ecosystem is known as a ‘blue carbon’ ecosystem?",
+        "options": [
+            "Tropical forests",
+            "Mangroves",
+            "Grasslands",
+            "Deserts"
+        ],
+        "answer": 1,
+        "explanation": "Mangroves sequester carbon in the coastal and marine environment, termed blue carbon."
+    },
+    {
+        "question": "Which of the following contributes the most to urban heat islands?",
+        "options": [
+            "Green cover",
+            "Concrete and asphalt surfaces",
+            "Water bodies",
+            "Open fields"
+        ],
+        "answer": 1,
+        "explanation": "Urban materials retain heat leading to higher temperature in cities."
+    },
+    {
+        "question": "Which one of these is NOT a result of climate change?",
+        "options": [
+            "Increased frequency of hurricanes",
+            "Melting glaciers",
+            "Decrease in sea levels",
+            "Changes in agricultural productivity"
+        ],
+        "answer": 2,
+        "explanation": "Climate change causes sea levels to rise, not decrease."
+    },
+	 {
+        "question": "Which of the following is considered a climate 'mitigation' strategy?",
+        "options": [
+            "Building flood defenses",
+            "Using renewable energy",
+            "Developing drought-resistant crops",
+            "Raising awareness"
+        ],
+        "answer": 1,
+        "explanation": "Mitigation involves reducing or preventing greenhouse gas emissions."
+    },
+    {
+        "question": "Which greenhouse gas has the highest heat-trapping ability per molecule?",
+        "options": [
+            "Carbon dioxide (CO₂)",
+            "Methane (CH₄)",
+            "Nitrous oxide (N₂O)",
+            "Sulfur hexafluoride (SF₆)"
+        ],
+        "answer": 3,
+        "explanation": "SF₆ has the highest global warming potential per molecule among common greenhouse gases."
+    },
+    {
+        "question": "What is the full form of IPCC?",
+        "options": [
+            "International Panel on Climate Control",
+            "Intergovernmental Panel on Climate Change",
+            "International Partnership for Climate Conservation",
+            "Institute for Planetary Climate Change"
+        ],
+        "answer": 1,
+        "explanation": "IPCC stands for Intergovernmental Panel on Climate Change."
+    },
+    {
+        "question": "Which gas is primarily responsible for the greenhouse effect on Earth?",
+        "options": [
+            "Oxygen",
+            "Nitrogen",
+            "Carbon dioxide",
+            "Hydrogen"
+        ],
+        "answer": 2,
+        "explanation": "Carbon dioxide is the main greenhouse gas responsible for trapping heat."
+    },
+    {
+        "question": "What term describes the surgical removal of carbon dioxide from the atmosphere?",
+        "options": [
+            "Carbon capturing",
+            "Carbon sequestration",
+            "Carbon offsetting",
+            "Carbon trading"
+        ],
+        "answer": 1,
+        "explanation": "Carbon sequestration involves capturing and storing atmospheric CO₂."
+    },
+    {
+        "question": "Which international treaty aims to phase out ozone-depleting substances?",
+        "options": [
+            "Kyoto Protocol",
+            "Montreal Protocol",
+            "Paris Agreement",
+            "Geneva Convention"
+        ],
+        "answer": 1,
+        "explanation": "The Montreal Protocol targets substances that deplete the ozone layer."
+    },
+    {
+        "question": "Which Indian mission is associated with solar energy promotion?",
+        "options": [
+            "National Solar Mission",
+            "National Water Mission",
+            "National Electric Mobility Mission",
+            "National Afforestation Mission"
+        ],
+        "answer": 0,
+        "explanation": "The National Solar Mission promotes solar power in India."
+    },
+    {
+        "question": "The term ‘carbon footprint’ refers to:",
+        "options": [
+            "The total greenhouse gases emitted directly and indirectly by an individual or organization",
+            "The mark left by carbon on surfaces",
+            "The amount of carbon found in soil",
+            "The footprint of animals in carbon-rich areas"
+        ],
+        "answer": 0,
+        "explanation": "It quantifies the total carbon emissions caused by an entity."
+    },
+    {
+        "question": "Which of the following contributes most to methane emissions?",
+        "options": [
+            "Rice paddies",
+            "Automobile emissions",
+            "Industrial waste",
+            "Solar energy production"
+        ],
+        "answer": 0,
+        "explanation": "Flooded rice paddies produce methane through anaerobic decomposition."
+    },
+    {
+        "question": "Which renewable energy source harnesses the power of flowing water?",
+        "options": [
+            "Solar",
+            "Wind",
+            "Hydropower",
+            "Geothermal"
+        ],
+        "answer": 2,
+        "explanation": "Hydropower generates electricity using water flow."
+    },
+    {
+        "question": "Which gas traps the most heat in the Earth's atmosphere?",
+        "options": [
+            "Water vapor",
+            "Carbon dioxide",
+            "Methane",
+            "Nitrous oxide"
+        ],
+        "answer": 0,
+        "explanation": "Water vapor is the most abundant and effective greenhouse gas."
+    },
+    {
+        "question": "What does the term ‘climate adaptation’ mean?",
+        "options": [
+            "Reducing greenhouse gas emissions",
+            "Adjusting to changes caused by climate change",
+            "Promoting fossil fuels",
+            "Ignoring climate effects"
+        ],
+        "answer": 1,
+        "explanation": "Adaptation involves coping with the effects of climate change."
+    },
+    {
+        "question": "Which of the following is an example of a carbon sink?",
+        "options": [
+            "Coal mines",
+            "Forests",
+            "Factories",
+            "Vehicles"
+        ],
+        "answer": 1,
+        "explanation": "Forests absorb and store carbon dioxide."
+    },
+    {
+        "question": "Which climate phenomenon is associated with a periodic warming of the central and eastern Pacific Ocean?",
+        "options": [
+            "La Niña",
+            "El Niño",
+            "Monsoon",
+            "Cyclone"
+        ],
+        "answer": 1,
+        "explanation": "El Niño is the warming of Pacific waters affecting weather globally."
+    },
+    {
+        "question": "Which device helps remove carbon dioxide directly from the atmosphere?",
+        "options": [
+            "Carbon capture and storage (CCS)",
+            "Air quality monitor",
+            "Solar panel",
+            "Wind turbine"
+        ],
+        "answer": 0,
+        "explanation": "CCS captures CO₂ emissions for underground storage."
+    },
+    {
+        "question": "Which of the following best describes the ‘Kyoto Protocol’?",
+        "options": [
+            "An international treaty to reduce greenhouse gas emissions",
+            "A treaty to ban nuclear weapons",
+            "An agreement to increase fossil fuel use",
+            "An initiative for ocean cleanup"
+        ],
+        "answer": 0,
+        "explanation": "Kyoto Protocol set legally binding emission targets for developed countries."
+    },
+    {
+        "question": "Which country is the largest emitter of carbon dioxide currently?",
+        "options": [
+            "United States",
+            "China",
+            "India",
+            "Russia"
+        ],
+        "answer": 1,
+        "explanation": "China is the world's top CO₂ emitter."
+    },
+    {
+        "question": "Which of the following is NOT a greenhouse gas?",
+        "options": [
+            "Carbon dioxide",
+            "Methane",
+            "Nitrogen gas",
+            "Ozone"
+        ],
+        "answer": 2,
+        "explanation": "Nitrogen gas makes up most of the atmosphere but does not trap heat."
+    },
+    {
+        "question": "What is the main cause of acid rain?",
+        "options": [
+            "Carbon dioxide emissions",
+            "Sulfur dioxide and nitrogen oxides emissions",
+            "Methane emissions",
+            "Oxygen"
+        ],
+        "answer": 1,
+        "explanation": "SO₂ and NOx combine with water to form acid rain."
+    },
+    {
+        "question": "Which of these is NOT a likely consequence of climate change?",
+        "options": [
+            "Increase in sea levels",
+            "Increased frequency of extreme weather events",
+            "Decrease in global temperatures",
+            "Loss of biodiversity"
+        ],
+        "answer": 2,
+        "explanation": "Climate change causes an increase, not decrease, in temperatures."
+    },
+    {
+        "question": "Which is considered a renewable energy source?",
+        "options": [
+            "Coal",
+            "Natural gas",
+            "Solar power",
+            "Nuclear power"
+        ],
+        "answer": 2,
+        "explanation": "Solar power harnesses energy from the sun, a renewable source."
+    },
+    {
+        "question": "Which international agreement seeks to limit global warming to below 2°C?",
+        "options": [
+            "Montreal Protocol",
+            "Paris Agreement",
+            "Kyoto Protocol",
+            "Geneva Convention"
+        ],
+        "answer": 1,
+        "explanation": "The Paris Agreement aims to keep warming well below 2°C."
+    },
+    {
+        "question": "What is ‘carbon offset’?",
+        "options": [
+            "Planting trees to balance emissions",
+            "Increasing fossil fuel use",
+            "Emitting more greenhouse gases",
+            "Selling fossil fuels"
+        ],
+        "answer": 0,
+        "explanation": "carbon offsetting involves compensating emissions by carbon capture activities."
+    },
+    {
+        "question": "Which ocean process is affected by global warming, leading to coral bleaching?",
+        "options": [
+            "Ocean acidification",
+            "Tsunamis",
+            "Ocean salinity increase",
+            "Ocean currents"
+        ],
+        "answer": 0,
+        "explanation": "Ocean acidification harms coral reefs and marine life."
+    }
+
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

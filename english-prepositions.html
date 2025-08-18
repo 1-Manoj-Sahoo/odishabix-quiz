@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prepositions Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Prepositions</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+    "question": "He hinted _____ some loss of treasure.",
+    "options": ["of", "to", "at", "on"],
+    "answer": 2,
+    "explanation": "The correct phrasal verb is 'hinted at'."
+  },
+  {
+    "question": "She has not read anything ______ Monday.",
+    "options": ["from", "since", "by", "for"],
+    "answer": 1,
+    "explanation": "'Since' is used with a point in past time."
+  },
+  {
+    "question": "Vivek has a strong resemblance ______ his grandfather.",
+    "options": ["with", "to", "from", "about"],
+    "answer": 1,
+    "explanation": "'Resemblance to' is the correct usage."
+  },
+  {
+    "question": "Eggs are sold ______ the dozen.",
+    "options": ["on", "by", "in", "at"],
+    "answer": 1,
+    "explanation": "'By the dozen' is a fixed phrase."
+  },
+  {
+    "question": "You don't need to get upset ______ these little things.",
+    "options": ["in", "about", "at", "to"],
+    "answer": 1,
+    "explanation": "'Upset about' something is correct usage."
+  },
+  {
+    "question": "IREDA has been conferred ______ the Green Urja Award.",
+    "options": ["to", "for", "by", "with"],
+    "answer": 3,
+    "explanation": "'Conferred with' is correct for awards."
+  },
+  {
+    "question": "The decision was made based ______ a thorough analysis of the market data.",
+    "options": ["with", "on", "about", "for"],
+    "answer": 1,
+    "explanation": "'Based on' is the correct phrase."
+  },
+  {
+    "question": "He is suffering ______ an unknown illness.",
+    "options": ["about", "from", "with", "by"],
+    "answer": 1,
+    "explanation": "'Suffering from' is the correct phrase."
+  },
+  {
+    "question": "I listened to the game ______ the radio.",
+    "options": ["at", "on", "with", "by"],
+    "answer": 1,
+    "explanation": "'On the radio' is the correct phrasing."
+  },
+  {
+    "question": "He was sworn _____ as the Chief Minister.",
+    "options": ["in", "to", "at", "with"],
+    "answer": 0,
+    "explanation": "'Sworn in' is the usual phrase."
+  },
+  {
+    "question": "She was looking very upset ______ something.",
+    "options": ["about", "by", "with", "for"],
+    "answer": 0,
+    "explanation": "'Upset about' is the standard preposition."
+  },
+  {
+    "question": "You will find it difficult ______ but later you will get used to wearing a mask.",
+    "options": ["at first", "by force", "on purpose", "with ease"],
+    "answer": 0,
+    "explanation": "'At first' denotes the beginning."
+  },
+  {
+    "question": "He was absent ______ the meeting.",
+    "options": ["in", "from", "by", "to"],
+    "answer": 1,
+    "explanation": "'Absent from' is the correct preposition."
+  },
+  {
+    "question": "She is afraid ______ dogs.",
+    "options": ["of", "from", "at", "by"],
+    "answer": 0,
+    "explanation": "'Afraid of' something is correct."
+  },
+  {
+    "question": "We are travelling ______ the road.",
+    "options": ["through", "on", "by", "with"],
+    "answer": 1,
+    "explanation": "'Travelling on the road' is correct."
+  },
+  {
+    "question": "He walked _____ the riverbank, admiring the view.",
+    "options": ["along", "across", "next", "between"],
+    "answer": 0,
+    "explanation": "'Along the riverbank' is correct usage."
+  },
+  {
+    "question": "I am living ______ my parents.",
+    "options": ["at", "with", "to", "by"],
+    "answer": 1,
+    "explanation": "'Living with' someone is correct."
+  },
+  {
+    "question": "Do not laugh ______ others’ mistakes.",
+    "options": ["on", "at", "over", "after"],
+    "answer": 1,
+    "explanation": "'Laugh at' is the right phrase."
+  },
+  {
+    "question": "He is good ______ mathematics.",
+    "options": ["at", "to", "for", "in"],
+    "answer": 0,
+    "explanation": "'Good at' a subject is correct."
+  },
+  {
+    "question": "Many people are suffering ______ cold and fever.",
+    "options": ["with", "from", "by", "of"],
+    "answer": 1,
+    "explanation": "'Suffer from' is standard."
+  },
+  {
+    "question": "The train will arrive ______ an hour.",
+    "options": ["in", "within", "by", "for"],
+    "answer": 0,
+    "explanation": "'In an hour' means after one hour."
+  },
+  {
+    "question": "He is popular ______ his colleagues.",
+    "options": ["with", "among", "between", "in"],
+    "answer": 1,
+    "explanation": "'Popular among' a group."
+  },
+  {
+    "question": "He turned ______ the offer.",
+    "options": ["over", "off", "down", "up"],
+    "answer": 2,
+    "explanation": "'Turned down' means 'rejected'."
+  },
+  {
+    "question": "Students are prohibited ______ using cell phones in class.",
+    "options": ["to", "with", "from", "by"],
+    "answer": 2,
+    "explanation": "'Prohibited from' is the right phrase."
+  },
+  {
+    "question": "His mother is keen ______ painting.",
+    "options": ["to", "on", "with", "of"],
+    "answer": 1,
+    "explanation": "'Keen on' something."
+  },
+  {
+    "question": "He is honest ______ his dealings.",
+    "options": ["in", "to", "with", "on"],
+    "answer": 0,
+    "explanation": "'Honest in dealings' is standard."
+  },
+  {
+    "question": "The cat is hiding _____ the bed.",
+    "options": ["under", "on", "across", "over"],
+    "answer": 0,
+    "explanation": "'Under the bed' is correct."
+  },
+  {
+    "question": "The answer is ______ page 23.",
+    "options": ["at", "on", "in", "to"],
+    "answer": 1,
+    "explanation": "'On page 23' is how it's used."
+  },
+  {
+    "question": "They participated ______ the cultural festival.",
+    "options": ["with", "on", "in", "by"],
+    "answer": 2,
+    "explanation": "'Participate in' an event."
+  },
+  {
+    "question": "It has been raining ______ morning.",
+    "options": ["from", "for", "since", "by"],
+    "answer": 2,
+    "explanation": "'Since morning'—point of time."
+  },
+  {
+    "question": "He is indifferent ______ praise or criticism.",
+    "options": ["for", "to", "with", "by"],
+    "answer": 1,
+    "explanation": "'Indifferent to' something."
+  },
+  {
+    "question": "She was accused ______ theft.",
+    "options": ["with", "of", "for", "by"],
+    "answer": 1,
+    "explanation": "'Accused of' is correct usage."
+  },
+  {
+    "question": "I congratulated him ______ his success.",
+    "options": ["on", "for", "about", "to"],
+    "answer": 0,
+    "explanation": "'Congratulated on' something."
+  },
+  {
+    "question": "She divided the cake ______ the two children.",
+    "options": ["between", "among", "in", "through"],
+    "answer": 0,
+    "explanation": "'Between' for two, 'among' for more than two."
+  },
+  {
+    "question": "A lot has happened ______ 1980.",
+    "options": ["since", "for", "in", "by"],
+    "answer": 0,
+    "explanation": "'Since 1980' — starting point."
+  },
+  {
+    "question": "They arrived ______ the airport late.",
+    "options": ["on", "at", "to", "in"],
+    "answer": 1,
+    "explanation": "'At the airport' is correct."
+  },
+  {
+    "question": "He is capable ______ doing hard work.",
+    "options": ["of", "for", "in", "with"],
+    "answer": 0,
+    "explanation": "'Capable of' doing something."
+  },
+  {
+    "question": "She is married ______ a government officer.",
+    "options": ["to", "with", "by", "at"],
+    "answer": 0,
+    "explanation": "'Married to' someone."
+  },
+  {
+    "question": "His remarks were contrary ______ my expectations.",
+    "options": ["of", "to", "for", "with"],
+    "answer": 1,
+    "explanation": "'Contrary to' is correct."
+  },
+  {
+    "question": "He is addicted ______ gambling.",
+    "options": ["to", "in", "at", "by"],
+    "answer": 0,
+    "explanation": "'Addicted to' is standard."
+  },
+  {
+    "question": "The students rushed ______ the playground.",
+    "options": ["at", "to", "in", "on"],
+    "answer": 1,
+    "explanation": "'Rushed to' a place."
+  },
+  {
+    "question": "He provided us ______ all the necessary items.",
+    "options": ["by", "with", "at", "to"],
+    "answer": 1,
+    "explanation": "'Provide with' is the correct phrase."
+  },
+  {
+    "question": "He jumped ______ the well.",
+    "options": ["into", "to", "through", "in"],
+    "answer": 0,
+    "explanation": "'Jumped into'—motion inside something."
+  },
+  {
+    "question": "The boy fell ______ his bicycle.",
+    "options": ["off", "from", "on", "by"],
+    "answer": 0,
+    "explanation": "'Fell off' is used for falling from a surface."
+  },
+  {
+    "question": "The hotel is famous ______ its food.",
+    "options": ["by", "of", "for", "on"],
+    "answer": 2,
+    "explanation": "'Famous for' is standard usage."
+  },
+  {
+    "question": "He insisted ______ going there.",
+    "options": ["on", "in", "at", "to"],
+    "answer": 0,
+    "explanation": "'Insist on' is correct."
+  },
+  {
+    "question": "The teacher was satisfied ______ his students’ progress.",
+    "options": ["of", "with", "by", "at"],
+    "answer": 1,
+    "explanation": "'Satisfied with' is correct."
+  },
+  {
+    "question": "She excels ______ studies.",
+    "options": ["at", "to", "from", "for"],
+    "answer": 0,
+    "explanation": "'Excels at' or 'in' both are used, but 'at' for specific skills."
+  },
+  {
+    "question": "I object ______ his proposal.",
+    "options": ["at", "on", "to", "upon"],
+    "answer": 2,
+    "explanation": "'Object to' is correct."
+  },
+  {
+    "question": "She is blessed ______ beauty and wisdom.",
+    "options": ["with", "on", "by", "at"],
+    "answer": 0,
+    "explanation": "'Blessed with' is right."
+  },
+  {
+    "question": "He is proud ______ his achievements.",
+    "options": ["for", "of", "in", "to"],
+    "answer": 1,
+    "explanation": "'Proud of' is correct."
+  },
+  {
+    "question": "The Principal presided ______ the meeting.",
+    "options": ["over", "on", "at", "in"],
+    "answer": 0,
+    "explanation": "'Presided over' is the correct phrase."
+  },
+  {
+    "question": "He abstains ______ smoking.",
+    "options": ["from", "with", "of", "by"],
+    "answer": 0,
+    "explanation": "'Abstain from' something is correct."
+  },
+  {
+    "question": "She was annoyed ______ his behaviour.",
+    "options": ["with", "of", "at", "for"],
+    "answer": 0,
+    "explanation": "'Annoyed with' a person is proper."
+  },
+  {
+    "question": "He is known ______ his honesty.",
+    "options": ["with", "for", "by", "at"],
+    "answer": 1,
+    "explanation": "'Known for' describes a reason for fame."
+  },
+  {
+    "question": "He was accused ______ theft.",
+    "options": ["for", "to", "of", "by"],
+    "answer": 2,
+    "explanation": "'Accused of' is correct usage."
+  },
+  {
+    "question": "This rule applies ______ all students.",
+    "options": ["with", "for", "to", "at"],
+    "answer": 2,
+    "explanation": "'Applies to' is the right phrase."
+  },
+  {
+    "question": "He is dependent ______ his parents.",
+    "options": ["in", "by", "with", "on"],
+    "answer": 3,
+    "explanation": "'Dependent on' someone."
+  },
+  {
+    "question": "She has faith ______ God.",
+    "options": ["in", "with", "to", "at"],
+    "answer": 0,
+    "explanation": "'Faith in' is correct."
+  },
+  {
+    "question": "Pay attention ______ what I am saying.",
+    "options": ["on", "at", "for", "to"],
+    "answer": 3,
+    "explanation": "'Pay attention to' something is correct."
+  },
+  {
+    "question": "He has disposed ______ his old car.",
+    "options": ["of", "off", "from", "with"],
+    "answer": 0,
+    "explanation": "'Dispose of' (to get rid of) is standard."
+  },
+  {
+    "question": "The chair is made ______ wood.",
+    "options": ["from", "with", "of", "by"],
+    "answer": 2,
+    "explanation": "'Made of' used when physical form is preserved."
+  },
+  {
+    "question": "We should refrain ______ bad habits.",
+    "options": ["from", "to", "off", "with"],
+    "answer": 0,
+    "explanation": "'Refrain from' is correct usage."
+  },
+  {
+    "question": "He is incapable ______ telling a lie.",
+    "options": ["from", "of", "with", "at"],
+    "answer": 1,
+    "explanation": "'Incapable of' is correct."
+  },
+  {
+    "question": "The child is fond ______ chocolates.",
+    "options": ["to", "for", "in", "of"],
+    "answer": 3,
+    "explanation": "'Fond of' something."
+  },
+  {
+    "question": "Assert yourself ______ your rights.",
+    "options": ["for", "to", "about", "on"],
+    "answer": 0,
+    "explanation": "'Assert yourself for' is used for standing up."
+  },
+  {
+    "question": "He was succeeded ______ his son.",
+    "options": ["by", "with", "to", "of"],
+    "answer": 0,
+    "explanation": "'Succeeded by' someone."
+  },
+  {
+    "question": "She is endowed ______ intelligence and charm.",
+    "options": ["by", "to", "with", "of"],
+    "answer": 2,
+    "explanation": "'Endowed with' something."
+  },
+  {
+    "question": "The judge was moved ______ pity.",
+    "options": ["with", "by", "from", "to"],
+    "answer": 1,
+    "explanation": "'Moved by' emotion."
+  },
+  {
+    "question": "He is interested ______ music.",
+    "options": ["in", "for", "about", "at"],
+    "answer": 0,
+    "explanation": "'Interested in' is correct."
+  },
+  {
+    "question": "He is junior ______ me by five years.",
+    "options": ["to", "with", "than", "from"],
+    "answer": 0,
+    "explanation": "'Junior to' someone, not 'than.'"
+  },
+  {
+    "question": "She was brought ______ in Delhi.",
+    "options": ["out", "up", "by", "with"],
+    "answer": 1,
+    "explanation": "'Brought up' means 'raised.'"
+  },
+  {
+    "question": "My mother is angry ______ my behavior.",
+    "options": ["on", "with", "by", "in"],
+    "answer": 1,
+    "explanation": "'Angry with' a person."
+  },
+  {
+    "question": "Ravi deals ______ electronics.",
+    "options": ["on", "with", "in", "at"],
+    "answer": 2,
+    "explanation": "'Deal in' products is correct."
+  },
+  {
+    "question": "The new law is applicable ______ all the citizens.",
+    "options": ["to", "in", "for", "at"],
+    "answer": 0,
+    "explanation": "'Applicable to' something."
+  },
+  {
+    "question": "She was found guilty ______ cheating.",
+    "options": ["on", "of", "with", "for"],
+    "answer": 1,
+    "explanation": "'Guilty of' something."
+  },
+  {
+    "question": "He is confident ______ his success.",
+    "options": ["in", "of", "at", "with"],
+    "answer": 1,
+    "explanation": "'Confident of' is correct."
+  },
+  {
+    "question": "We must abide ______ the rules.",
+    "options": ["with", "for", "by", "to"],
+    "answer": 2,
+    "explanation": "'Abide by' is correct."
+  },
+  {
+    "question": "He keeps himself aloof ______ others.",
+    "options": ["from", "to", "at", "of"],
+    "answer": 0,
+    "explanation": "'Aloof from' is standard."
+  },
+  {
+    "question": "She boasts ______ her achievements.",
+    "options": ["at", "of", "about", "with"],
+    "answer": 1,
+    "explanation": "'Boasts of' is used with achievements."
+  },
+  {
+    "question": "The manager is answerable ______ the director.",
+    "options": ["to", "for", "about", "by"],
+    "answer": 0,
+    "explanation": "'Answerable to' a person."
+  },
+  {
+    "question": "I am anxious ______ her safety.",
+    "options": ["about", "with", "for", "at"],
+    "answer": 0,
+    "explanation": "'Anxious about' someone."
+  },
+  {
+    "question": "We are dependent ______ our parents for everything.",
+    "options": ["on", "in", "of", "at"],
+    "answer": 0,
+    "explanation": "'Dependent on' someone."
+  },
+  {
+    "question": "He was jealous ______ his brother’s success.",
+    "options": ["at", "by", "of", "with"],
+    "answer": 2,
+    "explanation": "'Jealous of' is standard."
+  },
+  {
+    "question": "We should adhere ______ our principles.",
+    "options": ["in", "at", "to", "by"],
+    "answer": 2,
+    "explanation": "'Adhere to' something."
+  },
+  {
+    "question": "The document was signed ______ all parties.",
+    "options": ["by", "with", "of", "from"],
+    "answer": 0,
+    "explanation": "'Signed by' is used for signatories."
+  },
+  {
+    "question": "You should not run ______ the traffic.",
+    "options": ["in", "across", "beside", "for"],
+    "answer": 1,
+    "explanation": "'Run across' means to cross."
+  },
+  {
+    "question": "He is absorbed ______ work.",
+    "options": ["at", "on", "in", "with"],
+    "answer": 2,
+    "explanation": "'Absorbed in' is correct."
+  },
+  {
+    "question": "They accused him ______ stealing the money.",
+    "options": ["to", "for", "about", "of"],
+    "answer": 3,
+    "explanation": "'Accused of' something."
+  },
+  {
+    "question": "Our train was delayed ______ heavy fog.",
+    "options": ["for", "because", "due to", "of"],
+    "answer": 2,
+    "explanation": "'Delayed due to' something."
+  },
+  {
+    "question": "He tried to adjust ______ the new environment.",
+    "options": ["with", "to", "for", "at"],
+    "answer": 1,
+    "explanation": "'Adjust to' is correct."
+  },
+  {
+    "question": "The teacher is angry ______ the students.",
+    "options": ["at", "with", "for", "to"],
+    "answer": 1,
+    "explanation": "'Angry with' people."
+  },
+  {
+    "question": "The village is famous ______ its handicrafts.",
+    "options": ["on", "for", "in", "by"],
+    "answer": 1,
+    "explanation": "'Famous for' is correct."
+  },
+  {
+    "question": "He is expert ______ solving problems.",
+    "options": ["at", "on", "of", "to"],
+    "answer": 0,
+    "explanation": "'Expert at' something."
+  },
+  {
+    "question": "He was blind ______ his own faults.",
+    "options": ["of", "to", "at", "for"],
+    "answer": 1,
+    "explanation": "'Blind to' something."
+  },
+  {
+    "question": "He was deprived ______ his rights.",
+    "options": ["from", "at", "in", "of"],
+    "answer": 3,
+    "explanation": "'Deprived of' something."
+  },
+  {
+    "question": "He succeeded ______ passing the exam.",
+    "options": ["in", "at", "on", "to"],
+    "answer": 0,
+    "explanation": "'Succeeded in' is correct."
+  },
+  {
+    "question": "I have full faith ______ your abilities.",
+    "options": ["at", "in", "with", "on"],
+    "answer": 1,
+    "explanation": "'Faith in' is right."
+  },
+  {
+    "question": "She is allergic ______ dust.",
+    "options": ["to", "with", "for", "of"],
+    "answer": 0,
+    "explanation": "'Allergic to' is the correct phrase."
+  },
+  {
+    "question": "He disposed ______ his old furniture.",
+    "options": ["with", "about", "of", "to"],
+    "answer": 2,
+    "explanation": "'Dispose of' is correct."
+  },
+  {
+    "question": "He congratulated me ______ my success.",
+    "options": ["with", "by", "to", "on"],
+    "answer": 3,
+    "explanation": "'Congratulated on' is correct."
+  },
+  {
+    "question": "The manager insisted ______ immediate action.",
+    "options": ["for", "on", "at", "by"],
+    "answer": 1,
+    "explanation": "'Insist on' something is correct."
+  },
+  {
+    "question": "The road is blocked ______ a fallen tree.",
+    "options": ["by", "with", "for", "at"],
+    "answer": 0,
+    "explanation": "'Blocked by' is the right phrase."
+  },
+  {
+    "question": "He is indifferent ______ their complaints.",
+    "options": ["to", "with", "about", "on"],
+    "answer": 0,
+    "explanation": "'Indifferent to' is correct."
+  },
+  {
+    "question": "They congratulated her ______ her success.",
+    "options": ["on", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Congratulated on' is standard."
+  },
+  {
+    "question": "The manager is responsible ______ financial losses.",
+    "options": ["for", "with", "to", "by"],
+    "answer": 0,
+    "explanation": "'Responsible for' is correct."
+  },
+  {
+    "question": "He was absent ______ the meeting.",
+    "options": ["from", "in", "on", "at"],
+    "answer": 0,
+    "explanation": "'Absent from' is correct."
+  },
+  {
+    "question": "She is afraid ______ dogs.",
+    "options": ["of", "from", "about", "at"],
+    "answer": 0,
+    "explanation": "'Afraid of' something is standard usage."
+  },
+  {
+    "question": "The train arrived ______ time.",
+    "options": ["on", "at", "in", "by"],
+    "answer": 1,
+    "explanation": "'Arrived at time' means on time."
+  },
+  {
+    "question": "They succeeded ______ their efforts.",
+    "options": ["in", "on", "at", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' is the correct phrase."
+  },
+  {
+    "question": "She is married ______ a doctor.",
+    "options": ["to", "with", "by", "at"],
+    "answer": 0,
+    "explanation": "'Married to' someone is correct."
+  },
+  {
+    "question": "Please abstain ______ smoking in closed places.",
+    "options": ["from", "of", "with", "by"],
+    "answer": 0,
+    "explanation": "'Abstain from' is correct."
+  },
+  {
+    "question": "He is capable ______ managing the entire project.",
+    "options": ["of", "for", "to", "with"],
+    "answer": 0,
+    "explanation": "'Capable of' is the right phrase."
+  },
+  {
+    "question": "Stop blaming me ______ your failure.",
+    "options": ["of", "for", "about", "on"],
+    "answer": 1,
+    "explanation": "'Blaming for' something is correct."
+  },
+  {
+    "question": "The children are fond ______ playing outdoors.",
+    "options": ["in", "for", "of", "to"],
+    "answer": 2,
+    "explanation": "'Fond of' something is correct."
+  },
+  {
+    "question": "The new policy is applicable ______ all employees.",
+    "options": ["to", "for", "at", "in"],
+    "answer": 0,
+    "explanation": "'Applicable to' something."
+  },
+  {
+    "question": "She was grateful ______ their help.",
+    "options": ["to", "for", "with", "of"],
+    "answer": 1,
+    "explanation": "'Grateful for' something."
+  },
+  {
+    "question": "He blamed the accident ______ bad weather.",
+    "options": ["for", "on", "at", "with"],
+    "answer": 1,
+    "explanation": "'Blamed on' something."
+  },
+  {
+    "question": "The law applies ______ all citizens equally.",
+    "options": ["to", "on", "for", "at"],
+    "answer": 0,
+    "explanation": "'Applies to' is right."
+  },
+  {
+    "question": "He accused me ______ stealing his money.",
+    "options": ["for", "of", "with", "by"],
+    "answer": 1,
+    "explanation": "'Accused of' is correct."
+  },
+  {
+    "question": "She is jealous ______ her sister's achievements.",
+    "options": ["of", "at", "for", "by"],
+    "answer": 0,
+    "explanation": "'Jealous of' something."
+  },
+  {
+    "question": "The book is divided ______ five sections.",
+    "options": ["into", "in", "by", "to"],
+    "answer": 0,
+    "explanation": "'Divided into' parts."
+  },
+  {
+    "question": "We congratulated her ______ winning the prize.",
+    "options": ["on", "for", "at", "to"],
+    "answer": 0,
+    "explanation": "'Congratulated on' is correct."
+  },
+  {
+    "question": "He specialized ______ computer science.",
+    "options": ["in", "on", "at", "for"],
+    "answer": 0,
+    "explanation": "'Specialized in' a field."
+  },
+  {
+    "question": "She succeeded ______ climbing the mountain.",
+    "options": ["in", "at", "on", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' is standard."
+  },
+  {
+    "question": "The flowers are arranged ______ the vase.",
+    "options": ["in", "on", "at", "by"],
+    "answer": 0,
+    "explanation": "'Arranged in' a container."
+  },
+  {
+    "question": "He is keen ______ learning new skills.",
+    "options": ["on", "at", "in", "for"],
+    "answer": 0,
+    "explanation": "'Keen on' something."
+  },
+  {
+    "question": "They are responsible ______ the accident.",
+    "options": ["for", "to", "with", "at"],
+    "answer": 0,
+    "explanation": "'Responsible for' something."
+  },
+  {
+    "question": "The children depend ______ their parents.",
+    "options": ["on", "in", "with", "at"],
+    "answer": 0,
+    "explanation": "'Dependent on' is correct."
+  },
+  {
+    "question": "She is very talented ______ singing.",
+    "options": ["at", "in", "on", "for"],
+    "answer": 0,
+    "explanation": "'Talented at' is used for skills."
+  },
+  {
+    "question": "He reacts ______ criticism positively.",
+    "options": ["on", "to", "at", "for"],
+    "answer": 1,
+    "explanation": "'React to' something."
+  },
+  {
+    "question": "She is tired ______ her long journey.",
+    "options": ["of", "from", "with", "by"],
+    "answer": 0,
+    "explanation": "'Tired of' something."
+  },
+  {
+    "question": "The plane landed ______ the airport on time.",
+    "options": ["at", "on", "in", "by"],
+    "answer": 0,
+    "explanation": "'Landed at' a place."
+  },
+  {
+    "question": "He was proud ______ winning the award.",
+    "options": ["of", "at", "for", "on"],
+    "answer": 0,
+    "explanation": "'Proud of' something."
+  },
+  {
+    "question": "She apologized ______ her mistake.",
+    "options": ["for", "with", "to", "at"],
+    "answer": 0,
+    "explanation": "'Apologized for' something."
+  },
+  {
+    "question": "He committed himself ______ the project.",
+    "options": ["to", "for", "at", "with"],
+    "answer": 0,
+    "explanation": "'Committed to' something."
+  },
+  {
+    "question": "The house is situated ______ the riverbank.",
+    "options": ["on", "by", "at", "in"],
+    "answer": 0,
+    "explanation": "'Situated on' something."
+  },
+  {
+    "question": "She succeeded ______ convincing her parents.",
+    "options": ["in", "at", "on", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' is proper."
+  },
+  {
+    "question": "He congratulated me ______ my promotion.",
+    "options": ["on", "at", "for", "to"],
+    "answer": 0,
+    "explanation": "'Congratulated on' is correct."
+  },
+  {
+    "question": "He was punished ______ breaking the rules.",
+    "options": ["for", "with", "by", "at"],
+    "answer": 0,
+    "explanation": "'Punished for' something."
+  },
+  {
+    "question": "She is grateful ______ your support.",
+    "options": ["for", "to", "with", "about"],
+    "answer": 0,
+    "explanation": "'Grateful for' something."
+  },
+  {
+    "question": "He is known ______ his generosity.",
+    "options": ["by", "for", "with", "at"],
+    "answer": 1,
+    "explanation": "'Known for' something."
+  },
+  {
+    "question": "The teacher is proud ______ his students.",
+    "options": ["of", "by", "at", "for"],
+    "answer": 0,
+    "explanation": "'Proud of' someone."
+  },
+  {
+    "question": "She specializes ______ international law.",
+    "options": ["in", "on", "at", "with"],
+    "answer": 0,
+    "explanation": "'Specialized in' a subject."
+  },
+  {
+    "question": "He is annoyed ______ the delay in delivery.",
+    "options": ["at", "with", "by", "to"],
+    "answer": 1,
+    "explanation": "'Annoyed with' refers to being irritated by something or someone."
+  },
+  {
+    "question": "They decided to collaborate ______ the new project.",
+    "options": ["with", "for", "to", "at"],
+    "answer": 0,
+    "explanation": "'Collaborate with' is the correct form when working together."
+  },
+  {
+    "question": "The manager is responsible ______ the outcome.",
+    "options": ["for", "to", "with", "at"],
+    "answer": 0,
+    "explanation": "'Responsible for' implies accountability."
+  },
+  {
+    "question": "She is skilled ______ problem-solving.",
+    "options": ["in", "at", "on", "for"],
+    "answer": 1,
+    "explanation": "'Skilled at' is the correct phrase."
+  },
+  {
+    "question": "The treaty is applicable ______ all member countries.",
+    "options": ["to", "in", "on", "at"],
+    "answer": 0,
+    "explanation": "'Applicable to' signifies relevance."
+  },
+  {
+    "question": "The children were excited ______ the trip.",
+    "options": ["about", "at", "with", "by"],
+    "answer": 0,
+    "explanation": "'Excited about' refers to enthusiasm."
+  },
+  {
+    "question": "The teacher was impressed ______ the students' performance.",
+    "options": ["with", "by", "at", "of"],
+    "answer": 1,
+    "explanation": "'Impressed by' refers to admiration."
+  },
+  {
+    "question": "She is enthusiastic ______ taking part in the competition.",
+    "options": ["about", "of", "for", "to"],
+    "answer": 0,
+    "explanation": "'Enthusiastic about' indicates eagerness."
+  },
+  {
+    "question": "The company is committed ______ providing high-quality services.",
+    "options": ["to", "for", "in", "with"],
+    "answer": 0,
+    "explanation": "'Committed to' shows dedication."
+  },
+  {
+    "question": "He was tired ______ working all night.",
+    "options": ["from", "of", "with", "by"],
+    "answer": 0,
+    "explanation": "'Tired from' indicates the cause of fatigue."
+  },
+  {
+    "question": "The students are proud ______ their achievements.",
+    "options": ["of", "for", "about", "with"],
+    "answer": 0,
+    "explanation": "'Proud of' shows possession of pride."
+  },
+  {
+    "question": "She apologized ______ being late.",
+    "options": ["for", "to", "with", "about"],
+    "answer": 0,
+    "explanation": "'Apologized for' refers to the reason for apology."
+  },
+  {
+    "question": "He is indifferent ______ criticism.",
+    "options": ["to", "from", "with", "about"],
+    "answer": 0,
+    "explanation": "'Indifferent to' means showing no concern."
+  },
+  {
+    "question": "He insisted ______ paying the bill himself.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Insist on' is the correct phrase."
+  },
+  {
+    "question": "The book consists ______ ten chapters.",
+    "options": ["of", "with", "on", "about"],
+    "answer": 0,
+    "explanation": "'Consists of' indicates composition."
+  },
+  {
+    "question": "She is addicted ______ chocolate.",
+    "options": ["to", "with", "at", "for"],
+    "answer": 0,
+    "explanation": "'Addicted to' is the correct phrase."
+  },
+  {
+    "question": "They were engaged ______ a community project.",
+    "options": ["in", "on", "to", "at"],
+    "answer": 0,
+    "explanation": "'Engaged in' refers to involvement."
+  },
+  {
+    "question": "He consented ______ the proposal.",
+    "options": ["to", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Consent to' means agreement."
+  },
+  {
+    "question": "She succeeded ______ solving the complex problem.",
+    "options": ["in", "at", "on", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' is used with achievements."
+  },
+  {
+    "question": "We depend ______ public transport for commuting.",
+    "options": ["on", "with", "at", "in"],
+    "answer": 0,
+    "explanation": "'Depend on' shows reliance."
+  },
+  {
+    "question": "He was disappointed ______ the results.",
+    "options": ["with", "by", "at", "of"],
+    "answer": 0,
+    "explanation": "'Disappointed with' something is correct."
+  },
+  {
+    "question": "She was promoted ______ manager.",
+    "options": ["to", "for", "at", "in"],
+    "answer": 0,
+    "explanation": "'Promoted to' is used for job positions."
+  },
+  {
+    "question": "He is famous ______ his novel.",
+    "options": ["for", "with", "of", "at"],
+    "answer": 0,
+    "explanation": "'Famous for' something."
+  },
+  {
+    "question": "She excelled ______ academics and sports.",
+    "options": ["in", "at", "on", "for"],
+    "answer": 1,
+    "explanation": "'Excel at' is usually preferred."
+  },
+  {
+    "question": "He is capable ______ handling the project alone.",
+    "options": ["of", "for", "to", "with"],
+    "answer": 0,
+    "explanation": "'Capable of' is the correct phrase."
+  },
+  {
+    "question": "The manager emphasized ______ teamwork.",
+    "options": ["on", "at", "to", "with"],
+    "answer": 0,
+    "explanation": "'Emphasize on' is the right phrase."
+  },
+  {
+    "question": "She was shocked ______ the news.",
+    "options": ["by", "with", "at", "about"],
+    "answer": 0,
+    "explanation": "'Shocked by' is the correct usage."
+  },
+  {
+    "question": "He was blamed ______ the accident.",
+    "options": ["for", "with", "on", "at"],
+    "answer": 0,
+    "explanation": "'Blamed for' something is correct."
+  },
+  {
+    "question": "They were accused ______ cheating.",
+    "options": ["of", "for", "with", "by"],
+    "answer": 0,
+    "explanation": "'Accused of' is standard."
+  },
+  {
+    "question": "We should abide ______ the rules.",
+    "options": ["by", "with", "to", "for"],
+    "answer": 0,
+    "explanation": "'Abide by' is the correct phrase."
+  },
+  {
+    "question": "He congratulated her ______ her performance.",
+    "options": ["on", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Congratulated on' something."
+  },
+  {
+    "question": "We are proud ______ our achievements.",
+    "options": ["of", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Proud of' something."
+  },
+  {
+    "question": "She specializes ______ law.",
+    "options": ["in", "at", "on", "for"],
+    "answer": 0,
+    "explanation": "'Specialized in' is correct."
+  },
+  {
+    "question": "The company is known ______ excellent service.",
+    "options": ["for", "with", "at", "by"],
+    "answer": 0,
+    "explanation": "'Known for' something."
+  },
+  {
+    "question": "He takes care ______ his younger brother.",
+    "options": ["of", "for", "with", "about"],
+    "answer": 0,
+    "explanation": "'Take care of' is proper."
+  },
+  {
+    "question": "She insisted ______ paying the bill.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Insist on' is the correct phrase."
+  },
+  {
+    "question": "The teacher was satisfied ______ the students’ progress.",
+    "options": ["with", "by", "of", "for"],
+    "answer": 0,
+    "explanation": "'Satisfied with' something."
+  },
+  {
+    "question": "He is engaged ______ important work.",
+    "options": ["in", "on", "at", "to"],
+    "answer": 0,
+    "explanation": "'Engaged in' something."
+  },
+  {
+    "question": "She is allergic ______ pollen.",
+    "options": ["to", "with", "for", "of"],
+    "answer": 0,
+    "explanation": "'Allergic to' something."
+  },
+  {
+    "question": "The baby is fond ______ playing with toys.",
+    "options": ["of", "for", "to", "in"],
+    "answer": 0,
+    "explanation": "'Fond of' is correct."
+  },
+  {
+    "question": "They were delighted ______ the news.",
+    "options": ["with", "by", "at", "to"],
+    "answer": 0,
+    "explanation": "'Delighted with' something."
+  },
+  {
+    "question": "We depend ______ our parents for support.",
+    "options": ["on", "at", "for", "in"],
+    "answer": 0,
+    "explanation": "'Depend on' is correct."
+  },
+  {
+    "question": "He was promoted ______ the post of manager.",
+    "options": ["to", "for", "at", "in"],
+    "answer": 0,
+    "explanation": "'Promoted to' position."
+  },
+  {
+    "question": "She is proud ______ her cultural heritage.",
+    "options": ["of", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Proud of' something."
+  },
+  {
+    "question": "The child is afraid ______ dark.",
+    "options": ["of", "from", "with", "at"],
+    "answer": 0,
+    "explanation": "'Afraid of' something."
+  },
+   {
+    "question": "He is aware ______ the consequences of his actions.",
+    "options": ["of", "to", "about", "with"],
+    "answer": 0,
+    "explanation": "'Aware of' is the correct phrase."
+  },
+  {
+    "question": "She blamed him ______ the mistake.",
+    "options": ["of", "for", "with", "at"],
+    "answer": 1,
+    "explanation": "'Blamed for' something is correct."
+  },
+  {
+    "question": "The store is located ______ the main street.",
+    "options": ["on", "at", "in", "by"],
+    "answer": 0,
+    "explanation": "'Located on' a street."
+  },
+  {
+    "question": "He succeeded ______ convincing the board.",
+    "options": ["in", "at", "to", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' is correct."
+  },
+  {
+    "question": "She is sorry ______ the inconvenience caused.",
+    "options": ["for", "about", "of", "at"],
+    "answer": 0,
+    "explanation": "'Sorry for' something."
+  },
+  {
+    "question": "They were accused ______ vandalism.",
+    "options": ["of", "for", "by", "with"],
+    "answer": 0,
+    "explanation": "'Accused of' something."
+  },
+  {
+    "question": "He is incapable ______ handling pressure.",
+    "options": ["of", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Incapable of' something."
+  },
+  {
+    "question": "The child is scared ______ loud noises.",
+    "options": ["of", "from", "at", "by"],
+    "answer": 0,
+    "explanation": "'Scared of' is correct."
+  },
+  {
+    "question": "He is famous ______ his role in the film.",
+    "options": ["for", "by", "to", "with"],
+    "answer": 0,
+    "explanation": "'Famous for' something."
+  },
+  {
+    "question": "We believe ______ your abilities.",
+    "options": ["in", "on", "at", "to"],
+    "answer": 0,
+    "explanation": "'Believe in' is correct."
+  },
+  {
+    "question": "She congratulated me ______ my success.",
+    "options": ["on", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Congratulated on' is used."
+  },
+  {
+    "question": "He was disappointed ______ the outcome.",
+    "options": ["with", "by", "at", "in"],
+    "answer": 0,
+    "explanation": "'Disappointed with' is correct."
+  },
+  {
+    "question": "They specialize ______ environmental issues.",
+    "options": ["in", "for", "on", "at"],
+    "answer": 0,
+    "explanation": "'Specialize in' something."
+  },
+  {
+    "question": "She was tired ______ waiting for hours.",
+    "options": ["of", "from", "with", "at"],
+    "answer": 0,
+    "explanation": "'Tired of' is correct."
+  },
+  {
+    "question": "He is good ______ playing the piano.",
+    "options": ["at", "in", "on", "for"],
+    "answer": 0,
+    "explanation": "'Good at' something."
+  },
+  {
+    "question": "She insisted ______ paying the bill herself.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Insist on' is the right phrase."
+  },
+  {
+    "question": "He is allergic ______ nuts.",
+    "options": ["to", "with", "for", "at"],
+    "answer": 0,
+    "explanation": "'Allergic to' something."
+  },
+  {
+    "question": "The team is engaged ______ the project.",
+    "options": ["in", "on", "at", "with"],
+    "answer": 0,
+    "explanation": "'Engaged in' something."
+  },
+  {
+    "question": "She was absent ______ the meeting yesterday.",
+    "options": ["from", "in", "on", "at"],
+    "answer": 0,
+    "explanation": "'Absent from' is correct."
+  },
+  {
+    "question": "He apologized ______ his rude behavior.",
+    "options": ["for", "to", "with", "about"],
+    "answer": 0,
+    "explanation": "'Apologized for' something."
+  },
+  {
+    "question": "The manager is responsible ______ the project.",
+    "options": ["for", "to", "at", "with"],
+    "answer": 0,
+    "explanation": "'Responsible for' something."
+  },
+  {
+    "question": "The children depend ______ their parents.",
+    "options": ["on", "with", "at", "in"],
+    "answer": 0,
+    "explanation": "'Depend on' someone."
+  },
+  {
+    "question": "She is proud ______ her cultural heritage.",
+    "options": ["of", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Proud of' something."
+  },
+  {
+    "question": "He is capable ______ completing the task alone.",
+    "options": ["of", "for", "in", "to"],
+    "answer": 0,
+    "explanation": "'Capable of' something."
+  },
+  {
+    "question": "The teacher is satisfied ______ the results.",
+    "options": ["with", "by", "at", "in"],
+    "answer": 0,
+    "explanation": "'Satisfied with' something."
+  },
+  {
+    "question": "They accused him ______ theft.",
+    "options": ["of", "for", "by", "with"],
+    "answer": 0,
+    "explanation": "'Accused of' something."
+  },
+  {
+    "question": "He is interested ______ learning new languages.",
+    "options": ["in", "on", "at", "for"],
+    "answer": 0,
+    "explanation": "'Interested in' something."
+  },
+  {
+    "question": "She congratulated me ______ my achievement.",
+    "options": ["on", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Congratulated on' something."
+  },
+  {
+    "question": "He refrained ______ making any comments.",
+    "options": ["from", "of", "with", "on"],
+    "answer": 0,
+    "explanation": "'Refrain from' doing something."
+  },
+  {
+    "question": "The manager was impressed ______ the report.",
+    "options": ["with", "by", "at", "of"],
+    "answer": 1,
+    "explanation": "'Impressed by' something."
+  },
+  {
+    "question": "We look forward ______ your visit.",
+    "options": ["to", "for", "at", "in"],
+    "answer": 0,
+    "explanation": "'Look forward to' something."
+  },
+  {
+    "question": "She is afraid ______ spiders.",
+    "options": ["of", "from", "at", "with"],
+    "answer": 0,
+    "explanation": "'Afraid of' something."
+  },
+  {
+    "question": "The company specializes ______ mobile applications.",
+    "options": ["in", "on", "at", "for"],
+    "answer": 0,
+    "explanation": "'Specializes in' something."
+  },
+  {
+    "question": "He succeeded ______ passing the exam.",
+    "options": ["in", "at", "with", "on"],
+    "answer": 0,
+    "explanation": "'Succeeded in' something."
+  },
+  {
+    "question": "The children are fond ______ cartoons.",
+    "options": ["of", "for", "to", "in"],
+    "answer": 0,
+    "explanation": "'Fond of' something."
+  },
+  {
+    "question": "She insisted ______ paying the bill.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Insist on' something."
+  },
+  {
+    "question": "He is responsible ______ the accident.",
+    "options": ["for", "to", "with", "at"],
+    "answer": 0,
+    "explanation": "'Responsible for' something."
+  },
+  {
+    "question": "She apologized ______ the delay.",
+    "options": ["for", "about", "to", "with"],
+    "answer": 0,
+    "explanation": "'Apologized for' something."
+  },
+  {
+    "question": "The teacher was angry ______ the students.",
+    "options": ["with", "at", "for", "about"],
+    "answer": 0,
+    "explanation": "'Angry with' someone."
+  },
+  {
+    "question": "He lives ______ his parents.",
+    "options": ["with", "at", "to", "by"],
+    "answer": 0,
+    "explanation": "'Lives with' someone."
+  },
+  {
+    "question": "We are grateful ______ his help.",
+    "options": ["for", "to", "with", "about"],
+    "answer": 0,
+    "explanation": "'Grateful for' something."
+  },
+  {
+    "question": "She was shocked ______ the news.",
+    "options": ["at", "by", "with", "about"],
+    "answer": 1,
+    "explanation": "'Shocked by' something."
+  },
+  {
+    "question": "The success of the project hinges ______ effective collaboration between departments.",
+    "options": ["on", "upon", "at", "in"],
+    "answer": 1,
+    "explanation": "'Hinges upon' is a formal phrase meaning depends on."
+  },
+  {
+    "question": "The treaty was ratified ______ significant opposition from several member states.",
+    "options": ["in spite of", "because of", "due to", "on account of"],
+    "answer": 0,
+    "explanation": "'In spite of' expresses contrast despite opposition."
+  },
+  {
+    "question": "He was acquitted ______ the charges due to lack of evidence.",
+    "options": ["from", "of", "on", "for"],
+    "answer": 1,
+    "explanation": "'Acquitted of' is the correct legal phrase."
+  },
+  {
+    "question": "The intricate mechanism operates ______ the principle of leverage.",
+    "options": ["in", "on", "by", "upon"],
+    "answer": 2,
+    "explanation": "'Operates by' refers to the method or principle."
+  },
+  {
+    "question": "She was commended ______ her exemplary leadership during the crisis.",
+    "options": ["for", "on", "with", "by"],
+    "answer": 0,
+    "explanation": "'Commended for' is the appropriate phrase."
+  },
+  {
+    "question": "The law was enacted ______ the purpose of safeguarding consumer rights.",
+    "options": ["for", "with", "to", "by"],
+    "answer": 1,
+    "explanation": "'With the purpose of' indicates intention."
+  },
+  {
+    "question": "He expressed his dissent ______ the proposed amendments to the constitution.",
+    "options": ["against", "to", "on", "with"],
+    "answer": 0,
+    "explanation": "'Dissent against' is the correct usage."
+  },
+  {
+    "question": "The negotiations broke down ______ irreconcilable differences between the parties.",
+    "options": ["due to", "because", "because of", "owing to"],
+    "answer": 3,
+    "explanation": "'Owing to' is a formal way of saying because of."
+  },
+  {
+    "question": "Investors are buoyed ______ recent positive earnings reports.",
+    "options": ["by", "with", "at", "on"],
+    "answer": 0,
+    "explanation": "'Buoyed by' means supported or encouraged by something."
+  },
+  {
+    "question": "The committee deliberated ______ the implications of the new policy for several hours.",
+    "options": ["on", "upon", "about", "over"],
+    "answer": 1,
+    "explanation": "'Deliberated upon' is a formal phrase meaning carefully considered."
+  },
+  {
+    "question": "He was rebuked ______ neglecting his duties as a public servant.",
+    "options": ["for", "on", "about", "with"],
+    "answer": 0,
+    "explanation": "'Rebuked for' indicates scolding for something."
+  },
+  {
+    "question": "The success of the initiative rests ______ widespread community support.",
+    "options": ["on", "upon", "at", "in"],
+    "answer": 1,
+    "explanation": "'Rests upon' means depends on."
+  },
+  {
+    "question": "The policy was criticized ______ failing to address the root causes of the issue.",
+    "options": ["for", "of", "on", "about"],
+    "answer": 0,
+    "explanation": "'Criticized for' something is the correct structure."
+  },
+  {
+    "question": "The scientists concurred ______ the need for more comprehensive research.",
+    "options": ["on", "upon", "with", "about"],
+    "answer": 2,
+    "explanation": "'Concur with' means agree with."
+  },
+  {
+    "question": "The company’s fortunes surged ______ an unexpected surge in demand.",
+    "options": ["due to", "because of", "by", "on account of"],
+    "answer": 3,
+    "explanation": "'On account of' means because of, often used formally."
+  },
+  {
+    "question": "The ambassador was charged ______ strengthening diplomatic ties between countries.",
+    "options": ["with", "for", "of", "to"],
+    "answer": 0,
+    "explanation": "'Charged with' means assigned responsibility."
+  },
+  {
+    "question": "The legislation came into effect ______ January 1st.",
+    "options": ["from", "on", "since", "by"],
+    "answer": 1,
+    "explanation": "'On January 1st' is the correct temporal phrase."
+  },
+  {
+    "question": "The proposal was met ______ widespread skepticism from experts.",
+    "options": ["with", "by", "at", "on"],
+    "answer": 0,
+    "explanation": "'Met with' an emotion or reaction."
+  },
+  {
+    "question": "The report sheds light ______ the underlying causes of the conflict.",
+    "options": ["on", "upon", "over", "about"],
+    "answer": 0,
+    "explanation": "'Sheds light on' means explains or reveals."
+  },
+  {
+    "question": "The project was hampered ______ insufficient funding and logistical issues.",
+    "options": ["by", "with", "due to", "because of"],
+    "answer": 0,
+    "explanation": "'Hampered by' difficulties is correct."
+  },
+  {
+    "question": "The CEO is accountable ______ the company’s financial performance.",
+    "options": ["for", "to", "with", "about"],
+    "answer": 0,
+    "explanation": "'Accountable for' is a phrase showing responsibility."
+  },
+  {
+    "question": "She is adept ______ negotiating multi-million-dollar contracts.",
+    "options": ["at", "in", "on", "for"],
+    "answer": 0,
+    "explanation": "'Adept at' means skilled at."
+  },
+  {
+    "question": "The festival is held annually ______ the first week of December.",
+    "options": ["in", "on", "at", "by"],
+    "answer": 0,
+    "explanation": "'In the first week' indicates the time period."
+  },
+  {
+    "question": "The candidate was disqualified ______ violating the election rules.",
+    "options": ["for", "on", "due to", "because of"],
+    "answer": 0,
+    "explanation": "'Disqualified for' breaking rules."
+  },
+  {
+    "question": "He refrained ______ commenting on the ongoing investigation.",
+    "options": ["from", "to", "of", "with"],
+    "answer": 0,
+    "explanation": "'Refrain from' means abstain."
+  },
+  {
+    "question": "Diplomatic relations were strained ______ territorial disputes.",
+    "options": ["because of", "due to", "on account of", "owing to"],
+    "answer": 3,
+    "explanation": "'Owing to' is formal and correct here."
+  },
+  {
+    "question": "The manager instructed the team to adhere ______ the guidelines.",
+    "options": ["to", "with", "on", "by"],
+    "answer": 0,
+    "explanation": "'Adhere to' means follow."
+  },
+  {
+    "question": "She was overwhelmed ______ the support she received.",
+    "options": ["by", "with", "at", "about"],
+    "answer": 1,
+    "explanation": "'Overwhelmed with' emotion or support."
+  },
+  {
+    "question": "The department is gearing up ______ the launch of the new product.",
+    "options": ["for", "to", "with", "on"],
+    "answer": 0,
+    "explanation": "'Gearing up for' means preparing."
+  },
+  {
+    "question": "Accusations were leveled ______ the company regarding environmental violations.",
+    "options": ["against", "towards", "to", "at"],
+    "answer": 0,
+    "explanation": "'Leveled against' means directed at."
+  },
+  {
+    "question": "The report is based ______ extensive field research conducted over two years.",
+    "options": ["on", "upon", "in", "at"],
+    "answer": 0,
+    "explanation": "'Based on' facts or research."
+  },
+  {
+    "question": "She was lauded ______ her contributions to the scientific community.",
+    "options": ["for", "on", "with", "by"],
+    "answer": 0,
+    "explanation": "'Lauded for' means praised for."
+  },
+  {
+    "question": "The minister was criticized ______ failing to address the issue adequately.",
+    "options": ["for", "of", "about", "at"],
+    "answer": 0,
+    "explanation": "'Criticized for' something."
+  },
+  {
+    "question": "The team was commended ______ their swift and effective response.",
+    "options": ["for", "with", "at", "on"],
+    "answer": 0,
+    "explanation": "'Commended for' is appropriate."
+  },
+  {
+    "question": "They acquiesced ______ the terms proposed by the committee.",
+    "options": ["to", "with", "in", "at"],
+    "answer": 0,
+    "explanation": "'Acquiesced to' means accepted reluctantly."
+  },
+  {
+    "question": "The new regulations came into force ______ April 1st.",
+    "options": ["from", "on", "since", "by"],
+    "answer": 1,
+    "explanation": "'On April 1st' is correct."
+  },
+  {
+    "question": "The negotiations culminated ______ a historic agreement.",
+    "options": ["in", "on", "at", "with"],
+    "answer": 0,
+    "explanation": "'Culminated in' means ended with."
+  },
+  {
+    "question": "The scientist hypothesized ______ a direct correlation between the variables.",
+    "options": ["about", "of", "on", "in"],
+    "answer": 2,
+    "explanation": "'Hypothesized on' or simply 'Hypothesized' with 'that' clause is more common, but 'on' fits here for preposition."
+  },
+  {
+    "question": "The government was pressured ______ immediate reforms.",
+    "options": ["for", "to", "into", "by"],
+    "answer": 2,
+    "explanation": "'Pressured into' means forced to do."
+  },
+  {
+    "question": "The committee is tasked ______ reviewing the new policies.",
+    "options": ["with", "to", "for", "of"],
+    "answer": 0,
+    "explanation": "'Tasked with' is appropriate."
+  },
+  {
+    "question": "The legislation was enacted ______ the intention of promoting equality.",
+    "options": ["with", "for", "to", "in"],
+    "answer": 0,
+    "explanation": "'With the intention of' shows purpose."
+  },
+  {
+    "question": "She has a penchant ______ classical music.",
+    "options": ["for", "about", "to", "with"],
+    "answer": 0,
+    "explanation": "'Penchant for' means a strong liking."
+  },
+   {
+    "question": "The final decision rests ______ the discretion of the board.",
+    "options": ["on", "upon", "in", "at"],
+    "answer": 1,
+    "explanation": "'Rests upon' indicates dependence or authority."
+  },
+  {
+    "question": "They decided ______ a joint venture despite initial disagreements.",
+    "options": ["on", "upon", "at", "in"],
+    "answer": 0,
+    "explanation": "'Decided on' means chosen after consideration."
+  },
+  {
+    "question": "The findings were consistent ______ earlier studies conducted internationally.",
+    "options": ["with", "to", "by", "of"],
+    "answer": 0,
+    "explanation": "'Consistent with' means in agreement or harmony."
+  },
+  {
+    "question": "The policy aims to curb emissions ______ the transportation sector.",
+    "options": ["in", "of", "from", "at"],
+    "answer": 2,
+    "explanation": "'Emissions from' a sector is correct."
+  },
+  {
+    "question": "The government was lauded ______ its swift response to the crisis.",
+    "options": ["for", "by", "with", "at"],
+    "answer": 0,
+    "explanation": "'Lauded for' means praised for."
+  },
+  {
+    "question": "The treaty was signed ______ mutual consent of both parties.",
+    "options": ["by", "with", "under", "upon"],
+    "answer": 2,
+    "explanation": "'Under mutual consent' indicates agreement."
+  },
+  {
+    "question": "The project is geared ______ improving healthcare accessibility.",
+    "options": ["towards", "for", "to", "on"],
+    "answer": 0,
+    "explanation": "'Geared towards' means directed or designed for."
+  },
+  {
+    "question": "The court ruled ______ the defendant in the unfair dismissal case.",
+    "options": ["in favour of", "against", "on behalf of", "with"],
+    "answer": 0,
+    "explanation": "'In favour of' means supporting."
+  },
+  {
+    "question": "They were commended ______ their dedication and hard work.",
+    "options": ["for", "with", "at", "on"],
+    "answer": 0,
+    "explanation": "'Commended for' something."
+  },
+  {
+    "question": "The delegates conferred ______ the agenda before making a decision.",
+    "options": ["about", "on", "upon", "over"],
+    "answer": 2,
+    "explanation": "'Conferred upon' means discussed formally."
+  },
+  {
+    "question": "The budget was allocated ______ education and infrastructure development.",
+    "options": ["for", "to", "in", "at"],
+    "answer": 1,
+    "explanation": "'Allocated to' means assigned for purpose."
+  },
+  {
+    "question": "She was reprimanded ______ violating company policies.",
+    "options": ["for", "by", "with", "at"],
+    "answer": 0,
+    "explanation": "'Reprimanded for' is correct."
+  },
+  {
+    "question": "The proposal was rejected ______ a lack of feasibility.",
+    "options": ["due to", "because of", "on account of", "owing to"],
+    "answer": 3,
+    "explanation": "'Owing to' is a formal synonym for because of."
+  },
+  {
+    "question": "They acquiesced ______ the demands after prolonged negotiations.",
+    "options": ["to", "with", "in", "at"],
+    "answer": 0,
+    "explanation": "'Acquiesced to' means agreed reluctantly."
+  },
+  {
+    "question": "She exerted pressure ______ the council to implement reforms.",
+    "options": ["on", "upon", "to", "for"],
+    "answer": 0,
+    "explanation": "'Exerted pressure on' means applied influence."
+  },
+  {
+    "question": "The negotiations culminated ______ a landmark agreement.",
+    "options": ["in", "on", "at", "with"],
+    "answer": 0,
+    "explanation": "'Culminated in' indicates resulted in."
+  },
+  {
+    "question": "The evidence was inconclusive ______ the suspect’s involvement.",
+    "options": ["about", "of", "on", "in"],
+    "answer": 2,
+    "explanation": "'Inconclusive on' means no definite conclusion."
+  },
+  {
+    "question": "She was elated ______ the news of the award.",
+    "options": ["with", "by", "at", "about"],
+    "answer": 0,
+    "explanation": "'Elated with' means very happy about."
+  },
+  {
+    "question": "The government undertook measures ______ improving public transportation.",
+    "options": ["for", "towards", "to", "with"],
+    "answer": 2,
+    "explanation": "'Undertook measures to' means actions aimed at."
+  },
+  {
+    "question": "The academic paper was lauded ______ its innovative approach.",
+    "options": ["for", "on", "with", "by"],
+    "answer": 0,
+    "explanation": "'Lauded for' means praised for."
+  },
+  {
+    "question": "They protested ______ the unfair treatment by the authorities.",
+    "options": ["against", "towards", "on", "for"],
+    "answer": 0,
+    "explanation": "'Protested against' something."
+  },
+  {
+    "question": "The delegate was tasked ______ drafting the new guidelines.",
+    "options": ["with", "to", "for", "of"],
+    "answer": 0,
+    "explanation": "'Tasked with' means assigned."
+  },
+  {
+    "question": "The legislation was enacted ______ the aim of protecting endangered species.",
+    "options": ["with", "for", "to", "in"],
+    "answer": 0,
+    "explanation": "'With the aim of' indicates purpose."
+  },
+  {
+    "question": "The committee sifted ______ the evidence for inconsistencies.",
+    "options": ["through", "over", "among", "across"],
+    "answer": 0,
+    "explanation": "'Sifted through' means examined carefully."
+  },
+  {
+    "question": "He acted ______ his own volition without consulting the team.",
+    "options": ["of", "on", "with", "by"],
+    "answer": 1,
+    "explanation": "'Acted on his own volition' means by his own choice."
+  },
+  {
+    "question": "The policy was put into effect ______ immediate implementation.",
+    "options": ["with", "by", "for", "in"],
+    "answer": 0,
+    "explanation": "'With immediate implementation' indicates how it was executed."
+  },
+  {
+    "question": "The president addressed the nation ______ the ongoing crisis.",
+    "options": ["on", "about", "regarding", "concerning"],
+    "answer": 2,
+    "explanation": "'Regarding' is used for formal subjects."
+  },
+  {
+    "question": "Her performance is unparalleled ______ the history of the competition.",
+    "options": ["in", "within", "throughout", "among"],
+    "answer": 2,
+    "explanation": "'Unparalleled throughout' means over the entire period."
+  },
+  {
+    "question": "Delegates were urged to abide ______ the code of conduct.",
+    "options": ["by", "with", "to", "for"],
+    "answer": 0,
+    "explanation": "'Abide by' means to follow."
+  },
+  {
+    "question": "The report underscores the need to combat corruption ______ all levels.",
+    "options": ["at", "in", "on", "for"],
+    "answer": 0,
+    "explanation": "'At all levels' is the conventional phrase."
+  },
+  {
+    "question": "The minister was impeached ______ allegations of misconduct.",
+    "options": ["on", "under", "for", "because of"],
+    "answer": 2,
+    "explanation": "'Impeached for' something."
+  },
+  {
+    "question": "They were engrossed ______ the complexities of the negotiation process.",
+    "options": ["in", "with", "on", "at"],
+    "answer": 0,
+    "explanation": "'Engrossed in' means deeply involved."
+  },
+  {
+    "question": "The court ruled ______ favor of the plaintiff.",
+    "options": ["in", "on", "upon", "for"],
+    "answer": 0,
+    "explanation": "'Ruled in favor of' is the standard phrase."
+  },
+  {
+    "question": "The economy grew steadily ______ the fiscal year.",
+    "options": ["throughout", "during", "across", "over"],
+    "answer": 0,
+    "explanation": "'Throughout' means during the entire period."
+  },
+  {
+    "question": "He was reprimanded ______ repeated breaches of protocol.",
+    "options": ["for", "by", "with", "at"],
+    "answer": 0,
+    "explanation": "'Reprimanded for' is correct."
+  },
+  {
+    "question": "He was committed ______ the cause of environmental conservation.",
+    "options": ["to", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Committed to' means dedicated or devoted to something. Here, 'to' shows the object of commitment."
+  },
+  {
+    "question": "She is known ______ her honesty and integrity.",
+    "options": ["for", "of", "to", "about"],
+    "answer": 0,
+    "explanation": "'Known for' means recognized because of something. 'For' indicates the reason or cause."
+  },
+  {
+    "question": "The team is responsible ______ ensuring the project's success.",
+    "options": ["for", "to", "with", "of"],
+    "answer": 0,
+    "explanation": "'Responsible for' shows accountability. 'For' indicates the matter or activity one is responsible for."
+  },
+  {
+    "question": "He is afraid ______ spiders and insects.",
+    "options": ["of", "with", "to", "at"],
+    "answer": 0,
+    "explanation": "'Afraid of' means feeling fear or anxiety. 'Of' points to the cause of fear."
+  },
+  {
+    "question": "They congratulated her ______ winning the competition.",
+    "options": ["on", "for", "at", "to"],
+    "answer": 0,
+    "explanation": "'Congratulated on' is used to express praise for an accomplishment. 'On' indicates the basis of congratulations."
+  },
+  {
+    "question": "He insisted ______ paying the bill himself.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Insist on' means to demand or assert strongly. 'On' introduces the matter insisted upon."
+  },
+  {
+    "question": "She dealt ______ the matter with great tact.",
+    "options": ["with", "for", "in", "at"],
+    "answer": 0,
+    "explanation": "'Deal with' means to manage or handle. 'With' introduces the object."
+  },
+  {
+    "question": "The results depend ______ various factors.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Depend on' means to be influenced or determined by. 'On' introduces the condition or influencing factors."
+  },
+  {
+    "question": "He was accused ______ theft by the police.",
+    "options": ["of", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Accused of' indicates blame or charge for something. 'Of' links to the crime charged."
+  },
+  {
+    "question": "She refrained ______ making any comments during the meeting.",
+    "options": ["from", "of", "to", "about"],
+    "answer": 0,
+    "explanation": "'Refrain from' means to stop oneself from doing something. 'From' shows the action avoided."
+  },
+  {
+    "question": "He succeeded ______ convincing the committee.",
+    "options": ["in", "at", "on", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' means achieved success in something. 'In' introduces the area of success."
+  },
+  {
+    "question": "She is capable ______ handling difficult situations.",
+    "options": ["of", "for", "to", "with"],
+    "answer": 0,
+    "explanation": "'Capable of' expresses ability. 'Of' introduces the task or action."
+  },
+  {
+    "question": "The child is fond ______ playing outdoor games.",
+    "options": ["of", "for", "to", "with"],
+    "answer": 0,
+    "explanation": "'Fond of' means having affection or liking for something. 'Of' points to the object liked."
+  },
+  {
+    "question": "The manager was pleased ______ the team's performance.",
+    "options": ["with", "at", "by", "to"],
+    "answer": 0,
+    "explanation": "'Pleased with' means happy about something. 'With' introduces the cause of pleasure."
+  },
+  {
+    "question": "The hotel is famous ______ its luxurious amenities.",
+    "options": ["for", "of", "by", "in"],
+    "answer": 0,
+    "explanation": "'Famous for' means widely known because of something. 'For' indicates the reason."
+  },
+  {
+    "question": "He was charged ______ embezzlement.",
+    "options": ["with", "of", "for", "to"],
+    "answer": 0,
+    "explanation": "'Charged with' means formally accused of a crime. 'With' links to the offense."
+  },
+  {
+    "question": "The speaker referred ______ the recent scientific study.",
+    "options": ["to", "about", "with", "on"],
+    "answer": 0,
+    "explanation": "'Refer to' means to mention or allude to. 'To' introduces the reference."
+  },
+  {
+    "question": "He is grateful ______ all the help he received.",
+    "options": ["for", "to", "with", "at"],
+    "answer": 0,
+    "explanation": "'Grateful for' expresses thankfulness. 'For' points to the cause."
+  },
+  {
+    "question": "The country is dependent ______ imports for many essential goods.",
+    "options": ["on", "in", "at", "to"],
+    "answer": 0,
+    "explanation": "'Dependent on' means relying on something. 'On' introduces the source."
+  },
+  {
+    "question": "She is involved ______ several charitable organizations.",
+    "options": ["in", "at", "on", "with"],
+    "answer": 0,
+    "explanation": "'Involved in' means engaged or participating. 'In' introduces the area."
+  },
+  {
+    "question": "They are keen ______ launching the new product by next quarter.",
+    "options": ["on", "at", "in", "for"],
+    "answer": 0,
+    "explanation": "'Keen on' signifies enthusiasm. 'On' introduces the interest."
+  },
+  {
+    "question": "He objected ______ the terms of the contract.",
+    "options": ["to", "for", "at", "with"],
+    "answer": 0,
+    "explanation": "'Object to' means to express disapproval. 'To' shows the subject of objection."
+  },
+  {
+    "question": "She insisted ______ paying for the meal herself.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Insist on' means firmly demand. 'On' introduces the insisted action."
+  },
+  {
+    "question": "The decision was based ______ sound scientific evidence.",
+    "options": ["on", "upon", "in", "at"],
+    "answer": 0,
+    "explanation": "'Based on' indicates foundation or reason. 'On' introduces the basis."
+  },
+  {
+    "question": "The party was celebrated ______ great enthusiasm.",
+    "options": ["with", "by", "at", "on"],
+    "answer": 0,
+    "explanation": "'With' expresses manner or accompaniment."
+  },
+  {
+    "question": "The teacher congratulated the students ______ their excellent results.",
+    "options": ["on", "for", "at", "with"],
+    "answer": 0,
+    "explanation": "'Congratulated on' refers to acknowledging an achievement."
+  },
+  {
+    "question": "He was sentenced ______ five years in prison.",
+    "options": ["to", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Sentenced to' indicates the punishment given."
+  },
+  {
+    "question": "The results were consistent ______ our initial predictions.",
+    "options": ["with", "to", "on", "in"],
+    "answer": 0,
+    "explanation": "'Consistent with' means compatible or in agreement."
+  },
+  {
+    "question": "The company specializes ______ renewable energy solutions.",
+    "options": ["in", "at", "on", "for"],
+    "answer": 0,
+    "explanation": "'Specializes in' means to focus on a particular area."
+  },
+  {
+    "question": "The project failed ______ lack of proper planning.",
+    "options": ["because of", "due to", "for", "on account of"],
+    "answer": 1,
+    "explanation": "'Due to' indicates cause or reason."
+  },
+  {
+    "question": "He reacted ______ the criticism with remarkable calmness.",
+    "options": ["to", "on", "for", "at"],
+    "answer": 0,
+    "explanation": "'React to' introduces the stimulus or cause."
+  },
+  {
+    "question": "They succeeded ______ overcoming all obstacles.",
+    "options": ["in", "at", "on", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' means accomplished the task."
+  },
+  {
+    "question": "The manager was pleased ______ the project's progress.",
+    "options": ["with", "about", "at", "by"],
+    "answer": 0,
+    "explanation": "'Pleased with' shows satisfaction."
+  },
+  {
+    "question": "She was promoted ______ the position of senior manager.",
+    "options": ["to", "for", "at", "by"],
+    "answer": 0,
+    "explanation": "'Promoted to' indicates advancement."
+  },
+  {
+    "question": "He apologized ______ the inconvenience caused by the delay.",
+    "options": ["for", "to", "at", "about"],
+    "answer": 0,
+    "explanation": "'Apologized for' introduces the reason."
+  },
+  {
+    "question": "The company is committed ______ reducing its carbon footprint.",
+    "options": ["to", "for", "in", "with"],
+    "answer": 0,
+    "explanation": "'Committed to' shows dedication."
+  },
+  {
+    "question": "She is good ______ solving complex problems.",
+    "options": ["at", "in", "on", "for"],
+    "answer": 0,
+    "explanation": "'Good at' is used for skills."
+  },
+  {
+    "question": "The child is interested ______ dinosaurs and prehistoric animals.",
+    "options": ["in", "about", "on", "to"],
+    "answer": 0,
+    "explanation": "'Interested in' means showing curiosity."
+  },
+  {
+    "question": "He depends ______ his team for support.",
+    "options": ["on", "in", "at", "with"],
+    "answer": 0,
+    "explanation": "'Depends on' is used for reliance."
+  },
+  {
+    "question": "The court ruled ______ favor of the defendant.",
+    "options": ["in", "on", "to", "with"],
+    "answer": 0,
+    "explanation": "'Ruled in favor of' means decided supporting."
+  },
+  {
+    "question": "He was indifferent ______ the criticism he received.",
+    "options": ["to", "at", "for", "with"],
+    "answer": 0,
+    "explanation": "'Indifferent to' means showing no interest or concern. 'To' introduces the object of indifference."
+  },
+  {
+    "question": "The artist is renowned ______ his innovative techniques.",
+    "options": ["for", "of", "by", "with"],
+    "answer": 0,
+    "explanation": "'Renowned for' means known especially for something. 'For' indicates the reason for renown."
+  },
+  {
+    "question": "The government is aiming ______ reducing pollution levels by 2030.",
+    "options": ["at", "for", "to", "on"],
+    "answer": 0,
+    "explanation": "'Aiming at' means directing efforts towards a goal. 'At' introduces the target."
+  },
+  {
+    "question": "He was charged ______ fraud after the investigation.",
+    "options": ["with", "for", "of", "by"],
+    "answer": 0,
+    "explanation": "'Charged with' means formally accused of a crime. 'With' links to the offense."
+  },
+  {
+    "question": "The company's profits depend largely ______ consumer demand.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Depend on' shows reliance or conditioning on something."
+  },
+  {
+    "question": "She is committed ______ improving educational standards.",
+    "options": ["to", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Committed to' means devoted to a cause or task."
+  },
+  {
+    "question": "The students were engaged ______ a range of extracurricular activities.",
+    "options": ["in", "on", "at", "with"],
+    "answer": 0,
+    "explanation": "'Engaged in' means involved in an activity."
+  },
+  {
+    "question": "He objected ______ the proposal citing financial concerns.",
+    "options": ["to", "at", "for", "about"],
+    "answer": 0,
+    "explanation": "'Object to' means to express opposition."
+  },
+  {
+    "question": "She apologized ______ the delay in response.",
+    "options": ["for", "to", "at", "about"],
+    "answer": 0,
+    "explanation": "'Apologized for' denotes the reason for the apology."
+  },
+  {
+    "question": "The company specializes ______ high-tech manufacturing.",
+    "options": ["in", "on", "at", "for"],
+    "answer": 0,
+    "explanation": "'Specializes in' means to focus on a particular field."
+  },
+  {
+    "question": "The results were consistent ______ the hypothesis.",
+    "options": ["with", "to", "on", "in"],
+    "answer": 0,
+    "explanation": "'Consistent with' means in agreement with."
+  },
+  {
+    "question": "The minister was pleased ______ the positive developments.",
+    "options": ["with", "in", "at", "by"],
+    "answer": 0,
+    "explanation": "'Pleased with' indicates satisfaction."
+  },
+  {
+    "question": "He was promoted ______ senior manager last month.",
+    "options": ["to", "for", "at", "by"],
+    "answer": 0,
+    "explanation": "'Promoted to' shows advancement to a position."
+  },
+  {
+    "question": "The team congratulated their coach ______ winning the championship.",
+    "options": ["on", "for", "at", "with"],
+    "answer": 0,
+    "explanation": "'Congratulated on' is the proper phrase for success."
+  },
+  {
+    "question": "She was tired ______ the continuous workload.",
+    "options": ["of", "from", "with", "at"],
+    "answer": 0,
+    "explanation": "'Tired of' means weary or fed up with something."
+  },
+  {
+    "question": "The child is fascinated ______ astronomy and space science.",
+    "options": ["by", "with", "in", "at"],
+    "answer": 0,
+    "explanation": "'Fascinated by' means deeply interested or attracted."
+  },
+  {
+    "question": "He succeeded ______ passing the difficult exam.",
+    "options": ["in", "at", "on", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' indicates accomplishment."
+  },
+  {
+    "question": "She is fond ______ classical music and literature.",
+    "options": ["of", "for", "in", "to"],
+    "answer": 0,
+    "explanation": "'Fond of' means having affection or liking."
+  },
+  {
+    "question": "The manager was satisfied ______ the team's performance.",
+    "options": ["with", "at", "by", "for"],
+    "answer": 0,
+    "explanation": "'Satisfied with' indicates contentment."
+  },
+  {
+    "question": "He is allergic ______ pollen and dust particles.",
+    "options": ["to", "with", "at", "for"],
+    "answer": 0,
+    "explanation": "'Allergic to' means having a reaction caused by."
+  },
+  {
+    "question": "They are dependent ______ external funding for their research.",
+    "options": ["on", "in", "at", "for"],
+    "answer": 0,
+    "explanation": "'Dependent on' means relying on something."
+  },
+  {
+    "question": "She insisted ______ taking full responsibility for the project's failure.",
+    "options": ["on", "at", "in", "for"],
+    "answer": 0,
+    "explanation": "'Insisted on' means firmly demanded or stated."
+  },
+  {
+    "question": "The candidates must adhere ______ the guidelines provided.",
+    "options": ["to", "with", "by", "for"],
+    "answer": 0,
+    "explanation": "'Adhere to' means to follow or comply with."
+  },
+  {
+    "question": "He acted ______ his conscience during the difficult situation.",
+    "options": ["on", "in", "to", "with"],
+    "answer": 0,
+    "explanation": "'Acted on' means to take action based on something."
+  },
+  {
+    "question": "The proposal was met ______ widespread approval.",
+    "options": ["with", "by", "at", "in"],
+    "answer": 0,
+    "explanation": "'Met with' means received or encountered."
+  },
+  {
+    "question": "The economy suffered ______ the recent downturn in global markets.",
+    "options": ["from", "by", "at", "for"],
+    "answer": 0,
+    "explanation": "'Suffered from' means harmed or negatively affected."
+  },
+  {
+    "question": "The committee is charged ______ investigating the allegations.",
+    "options": ["with", "of", "for", "by"],
+    "answer": 0,
+    "explanation": "'Charged with' means officially assigned a task."
+  },
+  {
+    "question": "The teacher was angry ______ the students’ disruptive behavior.",
+    "options": ["with", "at", "about", "for"],
+    "answer": 0,
+    "explanation": "'Angry with' refers to feeling upset towards someone."
+  },
+  {
+    "question": "The report focuses ______ the impact of climate change on agriculture.",
+    "options": ["on", "upon", "about", "in"],
+    "answer": 0,
+    "explanation": "'Focuses on' means to pay attention to."
+  },
+  {
+    "question": "The politician was criticized ______ making unrealistic promises.",
+    "options": ["for", "of", "about", "at"],
+    "answer": 0,
+    "explanation": "'Criticized for' means blamed for something."
+  },
+  {
+    "question": "The company is capable ______ producing high-quality products.",
+    "options": ["of", "for", "to", "with"],
+    "answer": 0,
+    "explanation": "'Capable of' means having the ability."
+  },
+  {
+    "question": "She confessed ______ having committed the offense.",
+    "options": ["to", "with", "of", "for"],
+    "answer": 0,
+    "explanation": "'Confessed to' means admitted to doing something."
+  },
+  {
+    "question": "The CEO is accountable ______ the company’s performance.",
+    "options": ["for", "to", "with", "about"],
+    "answer": 0,
+    "explanation": "'Accountable for' means responsible for."
+  },
+  {
+    "question": "They congratulated the winners ______ their achievements.",
+    "options": ["on", "for", "with", "at"],
+    "answer": 0,
+    "explanation": "'Congratulated on' acknowledges success or accomplishment."
+  },
+  {
+    "question": "The students are engaged ______ various scientific projects.",
+    "options": ["in", "on", "at", "with"],
+    "answer": 0,
+    "explanation": "'Engaged in' means involved in."
+  },
+  {
+    "question": "The manager is satisfied ______ the progress made so far.",
+    "options": ["with", "by", "at", "in"],
+    "answer": 0,
+    "explanation": "'Satisfied with' means content or pleased with."
+  },
+  {
+    "question": "He was exempted ______ the final exam due to illness.",
+    "options": ["from", "of", "for", "by"],
+    "answer": 0,
+    "explanation": "'Exempted from' means freed or excused from."
+  },
+  {
+    "question": "The report was based ______ extensive research conducted globally.",
+    "options": ["on", "upon", "in", "at"],
+    "answer": 0,
+    "explanation": "'Based on' denotes the foundation for something."
+  },
+  {
+    "question": "The team succeeded ______ completing the project ahead of schedule.",
+    "options": ["in", "at", "on", "with"],
+    "answer": 0,
+    "explanation": "'Succeeded in' means accomplished."
+  },
+  {
+    "question": "She is jealous ______ her colleague’s success.",
+    "options": ["of", "at", "with", "by"],
+    "answer": 0,
+    "explanation": "'Jealous of' means feeling envy or resentment."
+  }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

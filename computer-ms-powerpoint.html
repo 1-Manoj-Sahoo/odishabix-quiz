@@ -1,0 +1,2979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MS PowerPoint Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">MS PowerPoint</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+ {
+        "question": "Which key starts a PowerPoint slideshow from the first slide?",
+        "options": ["F5", "Shift+F5", "Ctrl+P", "Alt+Tab"],
+        "answer": 0,
+        "explanation": "The F5 key starts the presentation from the first slide in PowerPoint."
+    },
+    {
+        "question": "How to apply the same font type, size, and color to titles across all slides?",
+        "options": ["Use Slide Master", "Change each slide title individually", "Use Format Painter", "Apply font changes in Normal view"],
+        "answer": 0,
+        "explanation": "Using Slide Master, changes to fonts apply to all slide titles automatically."
+    },
+    {
+        "question": "What is the keyboard shortcut to redo an action in PowerPoint?",
+        "options": ["Ctrl+Y", "Ctrl+Z", "Ctrl+P", "Ctrl+S"],
+        "answer": 0,
+        "explanation": "Ctrl+Y performs the Redo action, reversing the Undo command in PowerPoint."
+    },
+    {
+        "question": "In PowerPoint, what are the dotted areas in an empty slide called?",
+        "options": ["Placeholders", "Text Boxes", "Frames", "Content Boxes"],
+        "answer": 0,
+        "explanation": "Placeholders are designated areas on slides for content insertion in PowerPoint."
+    },
+    {
+        "question": "Which of the following is NOT a PowerPoint view?",
+        "options": ["Slide Show View", "Normal View", "Extreme Animation View", "Outline View"],
+        "answer": 2,
+        "explanation": "Extreme Animation View is not a valid PowerPoint view mode."
+    },
+    {
+        "question": "What happens when you press Ctrl + N in PowerPoint?",
+        "options": ["Adds a new slide", "Opens a new presentation", "Saves the presentation", "Closes PowerPoint"],
+        "answer": 1,
+        "explanation": "Ctrl + N creates a new PowerPoint presentation, not a new slide."
+    },
+    {
+        "question": "Which key combination inserts a new slide in PowerPoint?",
+        "options": ["Ctrl + F", "Ctrl + O", "Ctrl + M", "Ctrl + N"],
+        "answer": 2,
+        "explanation": "Ctrl + M inserts a new slide into the current presentation."
+    },
+    {
+        "question": "What is the default slide orientation in PowerPoint?",
+        "options": ["Landscape", "Portrait", "Vertical", "Horizontal"],
+        "answer": 0,
+        "explanation": "Landscape orientation is the default for PowerPoint slides."
+    },
+    {
+        "question": "Where in PowerPoint can you insert Text Box, Picture, or Chart?",
+        "options": ["Insert Tab", "View Tab", "Home Tab", "Edit Tab"],
+        "answer": 0,
+        "explanation": "The Insert tab contains options to add text boxes, pictures, and charts to slides."
+    },
+    {
+        "question": "Which shortcut can you use to start a slideshow from the current slide?",
+        "options": ["F5", "Shift+F5", "Ctrl+P", "Alt+F5"],
+        "answer": 1,
+        "explanation": "Shift+F5 starts the slideshow from the current slide."
+    },
+	 {
+        "question": "Which tab in PowerPoint contains the Slide Master option?",
+        "options": ["Design", "View", "Insert", "Home"],
+        "answer": 1,
+        "explanation": "The Slide Master option is located in the View tab."
+    },
+    {
+        "question": "Which view in PowerPoint is used to see all slides in a miniature view?",
+        "options": ["Slide Sorter", "Normal", "Outline", "Reading View"],
+        "answer": 0,
+        "explanation": "Slide Sorter view displays all slides in thumbnail form for rearranging easily."
+    },
+    {
+        "question": "What is the default extension for a PowerPoint 2016 presentation?",
+        "options": [".ppt", ".pptx", ".pps", ".pptm"],
+        "answer": 1,
+        "explanation": "From PowerPoint 2007 onwards, .pptx is the default format for presentations."
+    },
+    {
+        "question": "Which shortcut key is used to save a presentation?",
+        "options": ["Ctrl+S", "Ctrl+P", "Ctrl+Shift+S", "Alt+S"],
+        "answer": 0,
+        "explanation": "Ctrl+S is the shortcut to save the current presentation."
+    },
+    {
+        "question": "Which feature in PowerPoint checks your spelling errors?",
+        "options": ["Spelling & Grammar", "Proofing", "Text Check", "Language Tool"],
+        "answer": 0,
+        "explanation": "The Spelling & Grammar feature checks and corrects spelling mistakes."
+    },
+    {
+        "question": "What is the function of Slide Master in PowerPoint?",
+        "options": [
+            "Controls overall design and layout of slides",
+            "Adds animations",
+            "Shows slide order",
+            "Sets print options"
+        ],
+        "answer": 0,
+        "explanation": "Slide Master controls themes, layouts, colors, and fonts for all slides."
+    },
+    {
+        "question": "Which transition effect makes one slide appear to push another off the screen?",
+        "options": ["Push", "Wipe", "Split", "Fade"],
+        "answer": 0,
+        "explanation": "The Push transition moves the new slide in and pushes the current slide away."
+    },
+    {
+        "question": "Which key deletes the selected slide in PowerPoint?",
+        "options": ["Delete", "Backspace", "Ctrl+D", "Shift+Delete"],
+        "answer": 0,
+        "explanation": "Pressing Delete removes the selected slide."
+    },
+    {
+        "question": "Which menu option is used to change the background style of a slide?",
+        "options": ["Design -> Format Background", "View -> Background", "Insert -> Background", "Home -> Styles"],
+        "answer": 0,
+        "explanation": "The Format Background option is under the Design tab."
+    },
+    {
+        "question": "What is the use of the Rehearse Timings feature?",
+        "options": [
+            "To practice and record slide timings for a presentation",
+            "To review animations",
+            "To edit notes pages",
+            "To preview design changes"
+        ],
+        "answer": 0,
+        "explanation": "Rehearse Timings records the time you take on each slide."
+    },
+    {
+        "question": "Which view is best for adding speaker notes?",
+        "options": ["Normal View", "Slide Sorter", "Notes Page View", "Outline View"],
+        "answer": 2,
+        "explanation": "Notes Page View allows adding and editing speaker notes with the slide."
+    },
+    {
+        "question": "Which of these is NOT a valid slide layout in PowerPoint?",
+        "options": ["Title Slide", "Comparison", "Gallery", "Blank"],
+        "answer": 2,
+        "explanation": "Gallery is not an inbuilt PowerPoint layout option."
+    },
+    {
+        "question": "In which tab will you find animation effects?",
+        "options": ["Animations", "Transitions", "Design", "View"],
+        "answer": 0,
+        "explanation": "All animation controls are under the Animations tab."
+    },
+    {
+        "question": "Which file format is used to save a slideshow that opens directly in presentation mode?",
+        "options": [".pptx", ".ppsx", ".pptm", ".pdf"],
+        "answer": 1,
+        "explanation": ".ppsx files open directly in slideshow view."
+    },
+    {
+        "question": "What happens if you press Ctrl+M in PowerPoint?",
+        "options": ["Inserts a new slide", "Opens Slide Master", "Duplicates a slide", "Adds a new note"],
+        "answer": 0,
+        "explanation": "Ctrl+M inserts a new slide in the presentation."
+    },
+    {
+        "question": "The Slide Sorter view is mainly used for?",
+        "options": [
+            "Adding animations",
+            "Changing slide sequence",
+            "Editing speaker notes",
+            "Formatting slides"
+        ],
+        "answer": 1,
+        "explanation": "Slide Sorter view allows you to rearrange slides easily."
+    },
+    {
+        "question": "Which key combination groups selected objects in PowerPoint?",
+        "options": ["Ctrl+G", "Ctrl+Shift+G", "Alt+G", "Ctrl+Alt+G"],
+        "answer": 0,
+        "explanation": "Ctrl+G groups the selected objects together."
+    },
+    {
+        "question": "Which PowerPoint view is used for adding text in outline form?",
+        "options": ["Outline View", "Normal View", "Slide Sorter", "Reading View"],
+        "answer": 0,
+        "explanation": "Outline View displays slide text in outline structure without graphics."
+    },
+    {
+        "question": "Which shortcut key is used to print the presentation?",
+        "options": ["Ctrl+Shift+P", "Ctrl+P", "Alt+P", "Ctrl+Alt+P"],
+        "answer": 1,
+        "explanation": "Ctrl+P opens the print dialog in PowerPoint."
+    },
+    {
+        "question": "What does the PowerPoint 'Handout Master' do?",
+        "options": [
+            "Controls the layout and look of printed handouts",
+            "Adds header and footer",
+            "Manages slide order",
+            "Edits notes pages"
+        ],
+        "answer": 0,
+        "explanation": "Handout Master changes the layout/design of printed audience handouts."
+    },
+    {
+        "question": "Which can be imported into PowerPoint slides?",
+        "options": ["Word Outline", "Excel Chart", "Both 1 and 2", "None"],
+        "answer": 2,
+        "explanation": "You can import content from Word outlines and Excel charts."
+    },
+    {
+        "question": "What is the default aspect ratio for slides in PowerPoint 2013 and later?",
+        "options": ["4:3", "16:9", "16:10", "3:2"],
+        "answer": 1,
+        "explanation": "Default slide aspect ratio is 16:9 in PowerPoint 2013 and later."
+    },
+    {
+        "question": "Which animation effect makes text appear one letter at a time?",
+        "options": ["Appear", "Typewriter", "Fade", "Wipe"],
+        "answer": 1,
+        "explanation": "The Typewriter effect reveals text letter-by-letter."
+    },
+    {
+        "question": "In Notes Master, you can format?",
+        "options": ["Notes text", "Slide images", "Header & footer", "All of these"],
+        "answer": 3,
+        "explanation": "Notes Master allows formatting of notes text, slide images, and headers/footers."
+    },
+    {
+        "question": "Which file format supports macros in PowerPoint?",
+        "options": [".pptm", ".pptx", ".ppsx", ".pdf"],
+        "answer": 0,
+        "explanation": ".pptm supports macro-enabled PowerPoint presentations."
+    },
+    {
+        "question": "Which button resets changes to a slide layout to the default?",
+        "options": ["Reset", "Default", "Revert", "Original"],
+        "answer": 0,
+        "explanation": "The Reset button restores default slide layout formatting."
+    },
+    {
+        "question": "Which feature controls the entrance and exit of elements on a slide?",
+        "options": ["Transitions", "Animations", "Themes", "Layouts"],
+        "answer": 1,
+        "explanation": "Animations are used for individual elements on slides."
+    },
+    {
+        "question": "Which slide layout is used for adding a chart?",
+        "options": ["Title and Content", "Chart Only", "Comparison", "Blank"],
+        "answer": 0,
+        "explanation": "Title and Content layout allows inserting charts along with a title."
+    },
+    {
+        "question": "Which command duplicates the selected slide?",
+        "options": ["Ctrl+M", "Ctrl+D", "Alt+D", "Shift+M"],
+        "answer": 1,
+        "explanation": "Ctrl+D duplicates the selected slide."
+    },
+    {
+        "question": "The Reading View in PowerPoint is used for?",
+        "options": ["Editing slides", "Viewing slideshow in window", "Organizing slides", "Printing handouts"],
+        "answer": 1,
+        "explanation": "Reading View shows the slideshow in a window without full screen."
+    },
+    {
+        "question": "Which shortcut key creates a new presentation?",
+        "options": ["Ctrl+M", "Ctrl+N", "Ctrl+P", "Ctrl+Shift+N"],
+        "answer": 1,
+        "explanation": "Ctrl+N starts a new presentation."
+    },
+    {
+        "question": "In PowerPoint, 'Custom Shows' are used to?",
+        "options": [
+            "Create a subset of slides for a specific audience",
+            "Add special effects",
+            "Format slides",
+            "Protect slides"
+        ],
+        "answer": 0,
+        "explanation": "Custom Shows present only selected slides for specific purposes."
+    },
+    {
+        "question": "Which slide view is best for timing rehearsals?",
+        "options": ["Slide Show View", "Notes Page", "Slide Sorter", "Outline View"],
+        "answer": 0,
+        "explanation": "Slide Show View is used to rehearse and check presentation timings."
+    },
+    {
+        "question": "Which feature in PowerPoint can merge shapes together?",
+        "options": ["Shape Format -> Merge Shapes", "Insert -> Shapes", "Drawing Tools -> Group", "Format Painter"],
+        "answer": 0,
+        "explanation": "Merge Shapes can combine, subtract, intersect, or union shapes."
+    },
+    {
+        "question": "Which tab contains the option to record a slideshow?",
+        "options": ["Slide Show", "View", "Review", "Transitions"],
+        "answer": 0,
+        "explanation": "Record Slide Show is located under the Slide Show tab."
+    },
+    {
+        "question": "What is the function of the Zoom feature in PowerPoint?",
+        "options": [
+            "Enlarge or reduce slide view",
+            "Move between slides quickly",
+            "Add zoom animation to objects",
+            "Adjust text size"
+        ],
+        "answer": 0,
+        "explanation": "Zoom changes the magnification of the slide view."
+    },
+    {
+        "question": "In Slide Master, the top slide represents?",
+        "options": ["Title Slide only", "Theme Master", "Layout Master", "Design Pattern"],
+        "answer": 1,
+        "explanation": "The top slide in Slide Master is the master that defines the theme for all layouts."
+    },
+    {
+        "question": "Which view displays slide notes along with the slide content?",
+        "options": ["Notes Page View", "Slide Sorter", "Outline View", "Normal View"],
+        "answer": 0,
+        "explanation": "Notes Page View shows each slide with its speaker notes."
+    },
+    {
+        "question": "Which PowerPoint view does NOT allow editing of slide content?",
+        "options": ["Slide Show View", "Normal View", "Outline View", "Notes Page View"],
+        "answer": 0,
+        "explanation": "In Slide Show View, slides are presented and cannot be edited."
+    },
+    {
+        "question": "What does the 'Hide Slide' option do?",
+        "options": [
+            "Removes the slide permanently",
+            "Hides the slide in Slide Sorter",
+            "Skips the slide during Slide Show",
+            "Locks the slide"
+        ],
+        "answer": 2,
+        "explanation": "Hide Slide keeps the slide in the file but omits it during the presentation."
+    },
+    {
+        "question": "Which transition makes the next slide gradually replace the current one?",
+        "options": ["Fade", "Push", "Split", "Wipe"],
+        "answer": 0,
+        "explanation": "The Fade transition gradually dissolves one slide into the next."
+    },
+    {
+        "question": "Where can you apply a theme to all slides?",
+        "options": ["Design Tab", "View Tab", "Home Tab", "Insert Tab"],
+        "answer": 0,
+        "explanation": "Themes are applied from the Design tab."
+    },
+    {
+        "question": "Which printing option includes multiple slides per page for handouts?",
+        "options": ["Full Page Slides", "Handouts", "Notes Pages", "Outline"],
+        "answer": 1,
+        "explanation": "The Handouts option prints several slides on one page."
+    },
+    {
+        "question": "Which feature lets you add movement to text and objects?",
+        "options": ["Animation", "Transition", "Design Idea", "Theme"],
+        "answer": 0,
+        "explanation": "Animation adds motion effects to text and objects on a slide."
+    },
+	{
+        "question": "Which PowerPoint feature changes the design of all slides at once?",
+        "options": ["Theme", "Layout", "Animation", "Transition"],
+        "answer": 0,
+        "explanation": "Applying a Theme changes the overall design for all slides instantly."
+    },
+    {
+        "question": "What does the ‘Reset’ button on the Home tab do to a slide?",
+        "options": ["Deletes the slide", "Resets the slide layout to default", "Removes animations", "Clears content"],
+        "answer": 1,
+        "explanation": "The Reset button restores the original layout formatting applied from the Slide Master."
+    },
+    {
+        "question": "Which of these is NOT an animation category in PowerPoint?",
+        "options": ["Entrance", "Emphasis", "Exit", "Default"],
+        "answer": 3,
+        "explanation": "Default is not an animation type; main types are Entrance, Emphasis, and Exit."
+    },
+    {
+        "question": "In PowerPoint, the default slide size is?",
+        "options": ["4:3", "16:9", "16:10", "3:2"],
+        "answer": 1,
+        "explanation": "From PowerPoint 2013 onwards, 16:9 is the default aspect ratio."
+    },
+    {
+        "question": "What will pressing B during a slide show do?",
+        "options": ["Shows black screen", "Goes back one slide", "Ends the slideshow", "Shows blank white screen"],
+        "answer": 0,
+        "explanation": "Pressing 'B' shows a black screen temporarily during a presentation."
+    },
+    {
+        "question": "Which feature allows creating a self-running presentation?",
+        "options": ["Kiosk Mode", "Slide Sorter", "Animation Pane", "Slide Show View"],
+        "answer": 0,
+        "explanation": "Kiosk Mode runs slides automatically with set timings."
+    },
+    {
+        "question": "Which PowerPoint printing layout prints one slide per page?",
+        "options": ["Handouts", "Full Page Slides", "Notes Pages", "Outline"],
+        "answer": 1,
+        "explanation": "Full Page Slides prints exactly one slide on each page."
+    },
+    {
+        "question": "Which PowerPoint feature can you use to record your narration?",
+        "options": ["Record Slideshow", "Slide Master", "Notes Pane", "Animation Pane"],
+        "answer": 0,
+        "explanation": "Record Slideshow captures voice narration and slide timings."
+    },
+    {
+        "question": "In PowerPoint, which key moves to the next slide during a slideshow?",
+        "options": ["Enter", "N", "Right Arrow", "All of the above"],
+        "answer": 3,
+        "explanation": "Pressing Enter, N, or Right Arrow advances to the next slide."
+    },
+    {
+        "question": "Which of the following is a motion path animation?",
+        "options": ["Fly In", "Spin", "Custom Path", "Fade"],
+        "answer": 2,
+        "explanation": "Custom Path allows you to draw a path along which an object moves."
+    },
+    {
+        "question": "What is the shortcut to duplicate an object on a slide?",
+        "options": ["Ctrl+D", "Ctrl+Shift+D", "Alt+D", "Ctrl+C then Ctrl+V"],
+        "answer": 0,
+        "explanation": "Ctrl+D duplicates the selected object directly."
+    },
+    {
+        "question": "Which PowerPoint file format can be opened in video players?",
+        "options": [".pptx", ".mp4", ".ppsx", ".pptm"],
+        "answer": 1,
+        "explanation": "PowerPoint presentations can be exported to .mp4 to play in video players."
+    },
+    {
+        "question": "In PowerPoint, the Animation Pane is used for?",
+        "options": ["Managing slide transitions", "Arranging animation order and timing", "Creating slide layouts", "Editing master slides"],
+        "answer": 1,
+        "explanation": "Animation Pane helps control the sequence and timing of all animations on a slide."
+    },
+    {
+        "question": "Which shortcut closes the active presentation?",
+        "options": ["Ctrl+W", "Ctrl+Q", "Ctrl+End", "Alt+F4"],
+        "answer": 0,
+        "explanation": "Ctrl+W closes the active document but keeps PowerPoint open."
+    },
+    {
+        "question": "Which effect appears between two slides for smooth visual change?",
+        "options": ["Animation", "Transition", "Layout", "Theme"],
+        "answer": 1,
+        "explanation": "Transitions control how one slide changes to the next."
+    },
+    {
+        "question": "Which pane allows you to see slide thumbnails for easy navigation?",
+        "options": ["Slides Pane", "Notes Pane", "Outline Pane", "Animation Pane"],
+        "answer": 0,
+        "explanation": "Slides Pane shows miniatures of slides for quick switching."
+    },
+    {
+        "question": "Which view displays all slides in miniature form for easy rearrangement?",
+        "options": ["Slide Sorter", "Normal View", "Outline View", "Notes Page"],
+        "answer": 0,
+        "explanation": "Slide Sorter view is used for reordering slides."
+    },
+    {
+        "question": "In Slide Master, changes affect?",
+        "options": ["Only current slide", "Selected slides", "All slides using that layout", "Printing only"],
+        "answer": 2,
+        "explanation": "Changes in a Slide Master layout affect all slides using that layout."
+    },
+    {
+        "question": "Which transition gradually removes the current slide and brings the next slide?",
+        "options": ["Fade", "Push", "Wipe", "Morph"],
+        "answer": 0,
+        "explanation": "The Fade transition dissolves one slide into the next."
+    },
+    {
+        "question": "What does the Morph transition do?",
+        "options": ["Changes theme", "Smoothly animates movement and transformation between slides", "Randomizes animations", "Creates outline view"],
+        "answer": 1,
+        "explanation": "Morph creates smooth transformations between slides' objects."
+    },
+    {
+        "question": "Which key displays a white screen during a slideshow?",
+        "options": ["W", "B", "Esc", "Spacebar"],
+        "answer": 0,
+        "explanation": "Pressing 'W' replaces the slide temporarily with a white screen."
+    },
+    {
+        "question": "In which tab do you find the Slide Layout option?",
+        "options": ["Home", "Insert", "View", "Review"],
+        "answer": 0,
+        "explanation": "The Home tab contains the Slide Layout command."
+    },
+    {
+        "question": "To draw a perfect circle, what key should you hold while drawing?",
+        "options": ["Shift", "Ctrl", "Alt", "Tab"],
+        "answer": 0,
+        "explanation": "Holding Shift while drawing shapes constrains proportions."
+    },
+    {
+        "question": "Which file type cannot contain macros?",
+        "options": [".pptx", ".pptm", ".ppsx", ".ppsm"],
+        "answer": 0,
+        "explanation": ".pptx format does not support macros."
+    },
+    {
+        "question": "What is the function of the Slide Show tab?",
+        "options": ["Modify animations", "Set transitions", "Control how the presentation is displayed", "Design slide layout"],
+        "answer": 2,
+        "explanation": "The Slide Show tab controls playback, timings, and narration settings."
+    },
+    {
+        "question": "Which PowerPoint tool aligns multiple objects evenly?",
+        "options": ["Arrange -> Align", "Merge Shapes", "SmartArt", "Grouping"],
+        "answer": 0,
+        "explanation": "Align ensures objects are spaced and positioned evenly."
+    },
+    {
+        "question": "In Presenter View, one monitor shows?",
+        "options": ["Audience slides", "Notes and tools for the presenter", "Animations only", "Transition effects"],
+        "answer": 1,
+        "explanation": "Presenter View displays notes, upcoming slides, and timing controls."
+    },
+    {
+        "question": "What is the shortcut to create a new slide after the selected one?",
+        "options": ["Ctrl+N", "Ctrl+M", "Ctrl+D", "Shift+M"],
+        "answer": 1,
+        "explanation": "Ctrl+M inserts a new slide after the current selection."
+    },
+    {
+        "question": "Which feature in PowerPoint changes the overall color scheme of a presentation?",
+        "options": ["Themes", "Transitions", "Animations", "Layouts"],
+        "answer": 0,
+        "explanation": "Themes control the presentation's colors, fonts, and effects."
+    },
+    {
+        "question": "Where can you insert a footer in all slides at once?",
+        "options": ["Insert -> Header & Footer", "View -> Slide Master", "Home -> Footer", "Design -> Footer"],
+        "answer": 0,
+        "explanation": "Insert tab -> Header & Footer allows adding footers to all slides."
+    },
+    {
+        "question": "In PowerPoint, how do you keep an object’s proportions intact while resizing?",
+        "options": ["Hold Shift key", "Hold Alt key", "Hold Ctrl key", "Hold Tab key"],
+        "answer": 0,
+        "explanation": "Holding Shift keeps the aspect ratio constant when resizing."
+    },
+    {
+        "question": "Which feature lets you insert a ready-made diagram?",
+        "options": ["SmartArt", "ClipArt", "Shape", "Icon"],
+        "answer": 0,
+        "explanation": "SmartArt provides pre-designed diagram structures."
+    },
+    {
+        "question": "Which PowerPoint view helps in preparing printed handouts?",
+        "options": ["Handout Master", "Notes Page", "Slide Sorter", "Outline View"],
+        "answer": 0,
+        "explanation": "Handout Master sets up the design and layout for printed handouts."
+    },
+    {
+        "question": "What is the use of the Ctrl+Shift+C shortcut?",
+        "options": ["Copy formatting", "Copy text", "Copy slide", "Copy picture"],
+        "answer": 0,
+        "explanation": "Ctrl+Shift+C copies the formatting of the selected object or text."
+    },
+    {
+        "question": "What does Ctrl+Shift+V do in PowerPoint?",
+        "options": ["Paste slide", "Paste formatting", "Paste object", "Paste text only"],
+        "answer": 1,
+        "explanation": "Ctrl+Shift+V pastes the copied formatting."
+    },
+    {
+        "question": "Which feature lets you reuse slides from another presentation?",
+        "options": ["Insert -> Reuse Slides", "File -> Import", "Insert -> Object", "Insert -> Slide Master"],
+        "answer": 0,
+        "explanation": "Reuse Slides lets you import slides from an existing presentation."
+    },
+    {
+        "question": "Which alignment option positions text evenly between margins?",
+        "options": ["Left Align", "Right Align", "Justify", "Center Align"],
+        "answer": 2,
+        "explanation": "Justify aligns text evenly along both left and right margins."
+    },
+    {
+        "question": "What is the shortcut to exit the slideshow instantly?",
+        "options": ["Esc", "Ctrl+Break", "Alt+F4", "All of these"],
+        "answer": 3,
+        "explanation": "Esc, Ctrl+Break, and Alt+F4 can end a slideshow immediately."
+    },
+    {
+        "question": "Which tool turns bullet points into a graphic?",
+        "options": ["SmartArt", "WordArt", "Shape", "Icon"],
+        "answer": 0,
+        "explanation": "SmartArt can convert bulleted text into a diagram."
+    },
+    {
+        "question": "How can you change the order of animations for objects?",
+        "options": ["Animation Pane", "Slide Sorter", "Transitions Pane", "Format Tab"],
+        "answer": 0,
+        "explanation": "Animation Pane lets you reorder animations for objects on the slide."
+    },
+    {
+        "question": "Which shortcut displays the print preview window?",
+        "options": ["Alt+F2", "Ctrl+P", "Shift+P", "Ctrl+Shift+P"],
+        "answer": 1,
+        "explanation": "Ctrl+P opens the print dialog with a preview of the slides."
+    },
+	 {
+        "question": "Which PowerPoint command allows you to change the shape of a picture?",
+        "options": ["Crop to Shape", "Change Picture", "Reset Picture", "Picture Layout"],
+        "answer": 0,
+        "explanation": "Crop to Shape allows you to trim a picture into a specific shape."
+    },
+    {
+        "question": "Which option allows you to insert a video from your computer into a slide?",
+        "options": ["Insert -> Media -> Video on My PC", "Insert -> Shapes -> Video", "Home -> Video", "View -> Video"],
+        "answer": 0,
+        "explanation": "You can insert a video via Insert tab -> Media group -> Video on My PC."
+    },
+    {
+        "question": "What is the keyboard shortcut to open the 'Format Background' pane?",
+        "options": ["Alt+G+F", "Alt+F10", "Shift+F5", "Ctrl+Shift+F"],
+        "answer": 0,
+        "explanation": "Pressing Alt+G followed by F opens the Format Background pane."
+    },
+    {
+        "question": "Which view is best for viewing slide content without distracting interface elements?",
+        "options": ["Reading View", "Slide Show View", "Outline View", "Slide Sorter"],
+        "answer": 0,
+        "explanation": "Reading View displays the presentation in a window without full-screen mode."
+    },
+    {
+        "question": "Which type of animation moves an object off the slide?",
+        "options": ["Entrance", "Exit", "Emphasis", "Motion Path"],
+        "answer": 1,
+        "explanation": "Exit animations move objects out of the slide area."
+    },
+    {
+        "question": "Which command replaces an existing image with another while keeping formatting?",
+        "options": ["Change Picture", "Replace Image", "Update Media", "Swap Picture"],
+        "answer": 0,
+        "explanation": "Change Picture swaps the image while preserving the size and formatting."
+    },
+    {
+        "question": "Where can you set custom slide sizes?",
+        "options": ["Design -> Slide Size", "View -> Slide Master", "File -> Options", "Insert -> Layout"],
+        "answer": 0,
+        "explanation": "Design tab -> Slide Size allows setting custom dimensions."
+    },
+    {
+        "question": "Which transition effect uses a three-dimensional cube rotation?",
+        "options": ["Cube", "Push", "Flip", "Gallery"],
+        "answer": 0,
+        "explanation": "The Cube transition turns the slides as a 3D cube."
+    },
+    {
+        "question": "Which pane allows editing the textual content of slides without graphics?",
+        "options": ["Outline View", "Notes Pane", "Slides Pane", "Animation Pane"],
+        "answer": 0,
+        "explanation": "Outline View focuses only on the text content of the slides."
+    },
+    {
+        "question": "Which PowerPoint option is used to compress images to reduce file size?",
+        "options": ["Picture Tools -> Compress Pictures", "File -> Reduce Size", "Format -> Small Picture", "Tools -> Image Shrink"],
+        "answer": 0,
+        "explanation": "Compress Pictures in Picture Tools reduces image resolution and size."
+    },
+    {
+        "question": "Which shortcut key starts the slideshow from the current slide?",
+        "options": ["F5", "Shift+F5", "Ctrl+F5", "Alt+F5"],
+        "answer": 1,
+        "explanation": "Shift+F5 starts the presentation from the current slide."
+    },
+    {
+        "question": "Which option lets you add movement along a predefined curve or line?",
+        "options": ["Motion Path Animation", "Transition Path", "Guide Animation", "Custom Transition"],
+        "answer": 0,
+        "explanation": "Motion Path animates movement along a shape, line, or custom path."
+    },
+    {
+        "question": "Which file type is best for sharing a read-only PowerPoint presentation?",
+        "options": [".ppsx", ".pptx", ".pptm", ".pdf"],
+        "answer": 3,
+        "explanation": "Exporting as a PDF preserves layout and makes it read-only."
+    },
+    {
+        "question": "Which PowerPoint view is best for reordering animations?",
+        "options": ["Animation Pane", "Slide Sorter", "Outline View", "Reading View"],
+        "answer": 0,
+        "explanation": "Animation Pane shows all animations and allows reordering them."
+    },
+    {
+        "question": "What does the 'Advance Slide' setting under Transitions do?",
+        "options": ["Sets animation speed", "Determines when the slide changes", "Controls entrance effects", "Adjusts timing for objects"],
+        "answer": 1,
+        "explanation": "Advance Slide sets manual click or timed progression to the next slide."
+    },
+    {
+        "question": "Which feature allows creating a presentation by importing a Word document?",
+        "options": ["Insert Outline", "Slide from File", "Import Document", "Reuse Slides"],
+        "answer": 0,
+        "explanation": "Insert Outline imports headings from Word as slides."
+    },
+    {
+        "question": "Where can you add a hyperlink to another slide or external website?",
+        "options": ["Insert -> Link", "Home -> Link", "View -> Hyperlink", "Format -> Link"],
+        "answer": 0,
+        "explanation": "Insert tab's Link option inserts hyperlinks to slides, documents, or websites."
+    },
+    {
+        "question": "Which formatting option adjusts text spacing automatically to fit in a text box?",
+        "options": ["AutoFit", "Wrap Text", "Shrink to Fit", "Condense Text"],
+        "answer": 0,
+        "explanation": "AutoFit reduces text size or adjusts spacing to fit in the textbox."
+    },
+    {
+        "question": "Which button reverses the last change in PowerPoint?",
+        "options": ["Undo", "Redo", "Reset", "Back"],
+        "answer": 0,
+        "explanation": "Undo reverses the most recent action performed."
+    },
+    {
+        "question": "Which slide show option allows looping until stopped manually?",
+        "options": ["Loop continuously until Esc", "Kiosk mode", "Rehearsed timings", "Reading view"],
+        "answer": 0,
+        "explanation": "Loop continuously until Esc replays the presentation until manually ended."
+    },
+    {
+        "question": "Which feature automatically adjusts object alignment guides?",
+        "options": ["Smart Guides", "Snap to Grid", "Arrange", "Guide Alignment"],
+        "answer": 0,
+        "explanation": "Smart Guides appear when objects are aligned to each other."
+    },
+    {
+        "question": "Which tab contains the Reuse Slides option?",
+        "options": ["Insert", "Home", "Design", "File"],
+        "answer": 0,
+        "explanation": "Insert tab -> Reuse Slides imports slides from another presentation."
+    },
+    {
+        "question": "Which animation effect type is 'Zoom'?",
+        "options": ["Entrance", "Exit", "Emphasis", "Motion Path"],
+        "answer": 0,
+        "explanation": "Zoom is an Entrance animation effect."
+    },
+    {
+        "question": "What does the Slide Master NOT control?",
+        "options": ["Theme", "Layout", "Transitions", "Fonts"],
+        "answer": 2,
+        "explanation": "Slide Master controls theme, layouts, and fonts but not transitions."
+    },
+    {
+        "question": "What is the function of the Selection Pane?",
+        "options": ["List and manage all objects on a slide", "Arrange slides", "Select all slides", "Rename presentation"],
+        "answer": 0,
+        "explanation": "The Selection Pane lists all objects, allowing you to hide, rename, or reorder them."
+    },
+    {
+        "question": "Where can you hide a slide temporarily?",
+        "options": ["Right-click slide -> Hide Slide", "Slide Master", "Slide Layout", "Slide Transition Pane"],
+        "answer": 0,
+        "explanation": "Right-click the slide thumbnail and select Hide Slide to skip it during a slideshow."
+    },
+    {
+        "question": "Which key combination is used to group objects?",
+        "options": ["Ctrl+G", "Ctrl+Shift+G", "Alt+G", "Ctrl+H"],
+        "answer": 0,
+        "explanation": "Ctrl+G groups selected objects together."
+    },
+    {
+        "question": "Which playback option will cause video to play automatically during a slideshow?",
+        "options": ["Start Automatically", "Start On Click", "Play in Sequence", "Start With Previous"],
+        "answer": 0,
+        "explanation": "Setting Start Automatically plays the video without a click."
+    },
+    {
+        "question": "What is the shortcut to duplicate a slide?",
+        "options": ["Ctrl+D", "Ctrl+Shift+D", "Alt+D", "Ctrl+M"],
+        "answer": 0,
+        "explanation": "Ctrl+D duplicates the currently selected slide."
+    },
+    {
+        "question": "Which tab has the option to insert a SmartArt graphic?",
+        "options": ["Insert", "Home", "Design", "Format"],
+        "answer": 0,
+        "explanation": "Insert tab -> SmartArt inserts predefined graphic layouts."
+    },
+    {
+        "question": "Which printing layout includes speaker notes below slides?",
+        "options": ["Notes Pages", "Handouts", "Full Page", "Outline"],
+        "answer": 0,
+        "explanation": "Notes Pages print the slide along with accompanying speaker notes."
+    },
+    {
+        "question": "Which Slide Show setup option is suited for unattended presentations?",
+        "options": ["Browsed at a kiosk", "Presented by a speaker", "Browsed by an individual", "Loop with narrations"],
+        "answer": 0,
+        "explanation": "Browsed at a kiosk automatically runs and loops without user input."
+    },
+    {
+        "question": "In morph transition, the objects to morph must?",
+        "options": ["Have the same name", "Be the same color", "Be grouped", "Be images only"],
+        "answer": 0,
+        "explanation": "Objects must have the same name in Selection Pane to morph smoothly."
+    },
+    {
+        "question": "Which tool helps align shapes exactly relative to each other?",
+        "options": ["Align Tool", "Snap Tool", "Arrange Tool", "Position Tool"],
+        "answer": 0,
+        "explanation": "Align Tool positions shapes precisely relative to each other or the slide."
+    },
+    {
+        "question": "The Slide Zoom feature is found in which tab?",
+        "options": ["Insert", "View", "Design", "Slide Show"],
+        "answer": 0,
+        "explanation": "Insert tab contains the Slide Zoom option for navigation."
+    },
+    {
+        "question": "Which option in PowerPoint lets you replace all fonts in the presentation?",
+        "options": ["Replace Fonts", "Font Manager", "Theme Fonts", "Text Update"],
+        "answer": 0,
+        "explanation": "Replace Fonts changes all instances of a font to another font."
+    },
+    {
+        "question": "In which view can you set transition effects for all slides at once?",
+        "options": ["Slide Sorter", "Normal", "Outline", "Notes Page"],
+        "answer": 0,
+        "explanation": "Slide Sorter lets you select all slides and apply a transition."
+    },
+    {
+        "question": "Which object type can be animated in PowerPoint?",
+        "options": ["Text", "Shapes", "Pictures", "All of these"],
+        "answer": 3,
+        "explanation": "PowerPoint animations can be applied to any object, including text, shapes, and pictures."
+    },
+    {
+        "question": "Which shortcut pastes copied formatting?",
+        "options": ["Ctrl+Shift+V", "Ctrl+V", "Ctrl+P", "Ctrl+Alt+V"],
+        "answer": 0,
+        "explanation": "Ctrl+Shift+V pastes copied formatting from another object."
+    },
+    {
+        "question": "Where is the Slide Number option located?",
+        "options": ["Insert Tab", "View Tab", "Design Tab", "Home Tab"],
+        "answer": 0,
+        "explanation": "You can insert slide numbers from the Insert Tab."
+    },
+	 {
+        "question": "Which option in PowerPoint allows you to change the alignment of text inside a shape?",
+        "options": ["Shape Format -> Align Text", "Home -> Paragraph -> Align", "Insert -> Text -> Align", "View -> Align Text"],
+        "answer": 0,
+        "explanation": "The Align Text option under Shape Format allows vertical and horizontal text alignment."
+    },
+    {
+        "question": "Which feature lets you insert an image from an online source?",
+        "options": ["Insert -> Online Pictures", "Insert -> Shapes", "Design -> Picture", "View -> Picture Gallery"],
+        "answer": 0,
+        "explanation": "Online Pictures in the Insert tab lets you search and insert images from online sources."
+    },
+    {
+        "question": "What is the default slide layout when adding a new slide?",
+        "options": ["Blank", "Title and Content", "Title Only", "Comparison"],
+        "answer": 1,
+        "explanation": "By default, a new slide uses the Title and Content layout."
+    },
+    {
+        "question": "Which type of transition provides a page-turn effect?",
+        "options": ["Curtains", "Page Curl", "Wipe", "Flip"],
+        "answer": 1,
+        "explanation": "Page Curl transition simulates turning a page in PowerPoint."
+    },
+    {
+        "question": "What is the shortcut to insert a new comment in PowerPoint?",
+        "options": ["Ctrl+Alt+N", "Ctrl+Shift+M", "Ctrl+M", "Ctrl+N"],
+        "answer": 0,
+        "explanation": "Ctrl+Alt+N inserts a new comment in the current slide."
+    },
+    {
+        "question": "Which PowerPoint view focuses on arranging slide sequence without editing content?",
+        "options": ["Slide Sorter View", "Normal View", "Reading View", "Outline View"],
+        "answer": 0,
+        "explanation": "Slide Sorter View shows small previews of each slide for easy arrangement."
+    },
+    {
+        "question": "Which prebuilt tool allows quick conversion of slide text into graphical layouts?",
+        "options": ["SmartArt", "WordArt", "Chart", "Shapes"],
+        "answer": 0,
+        "explanation": "SmartArt quickly converts lists or bullet points into diagrams."
+    },
+    {
+        "question": "How can you hide all guides on a PowerPoint slide?",
+        "options": ["View -> Show -> Uncheck Guides", "Insert -> Guides -> Remove", "Home -> Layout -> Hide Guides", "Format -> Hide Guides"],
+        "answer": 0,
+        "explanation": "Unchecking Guides under View -> Show removes guide lines from display."
+    },
+    {
+        "question": "Which option automatically aligns objects to grid lines?",
+        "options": ["Snap to Grid", "Smart Guides", "Arrange Objects", "Object Lock"],
+        "answer": 0,
+        "explanation": "Snap to Grid snaps objects to the nearest grid lines when moving."
+    },
+    {
+        "question": "Which PowerPoint tool is used to combine multiple shapes into one?",
+        "options": ["Merge Shapes", "Group", "Align Shapes", "Shape Format Painter"],
+        "answer": 0,
+        "explanation": "Merge Shapes allows combining, unioning, subtracting, or intersecting shapes."
+    },
+    {
+        "question": "Which file format exports a presentation for viewing in older versions of PowerPoint?",
+        "options": [".ppt", ".pptx", ".pps", ".potx"],
+        "answer": 0,
+        "explanation": ".ppt is the format used by older versions before PowerPoint 2007."
+    },
+    {
+        "question": "What is the keyboard shortcut for opening the Slide Master view?",
+        "options": ["Alt+W+M", "Alt+V+M", "Ctrl+Shift+M", "Alt+W+S"],
+        "answer": 0,
+        "explanation": "Alt+W then M opens Slide Master view."
+    },
+    {
+        "question": "When an object is animated to 'Fly In', from which default direction does it appear?",
+        "options": ["Bottom", "Top", "Left", "Right"],
+        "answer": 0,
+        "explanation": "By default, Fly In animations enter from the bottom."
+    },
+    {
+        "question": "In which view can you enter slide titles and bullet points as an outline?",
+        "options": ["Outline View", "Notes Master", "Handout Master", "Slide Sorter"],
+        "answer": 0,
+        "explanation": "Outline View lets you work with the presentation’s text content in outline form."
+    },
+    {
+        "question": "Which printing option prints only the text from the slides?",
+        "options": ["Outline", "Notes Pages", "Full Page Slides", "Handouts"],
+        "answer": 0,
+        "explanation": "Outline prints only the textual content of slides without graphics."
+    },
+    {
+        "question": "Which menu option allows you to insert a table into a slide?",
+        "options": ["Insert -> Table", "Design -> Table", "Home -> Table", "Layout -> Table"],
+        "answer": 0,
+        "explanation": "Insert -> Table allows adding tables to a slide."
+    },
+    {
+        "question": "What does pressing the 'N' key do during a PowerPoint slideshow?",
+        "options": ["Advances to next slide", "Returns to previous slide", "Starts slideshow", "Hides slide"],
+        "answer": 0,
+        "explanation": "'N' moves to the next slide during the presentation."
+    },
+    {
+        "question": "Which tag identifies a slide with hidden content in Slide Sorter view?",
+        "options": ["Slashed slide number", "Dimmed slide thumbnail", "Red X mark", "Slide outline only"],
+        "answer": 1,
+        "explanation": "Hidden slides appear dimmed in Slide Sorter."
+    },
+    {
+        "question": "Which setting in Record Slideshow allows recording only timings without narration?",
+        "options": ["Record slide timings", "Record narration only", "Record animations", "Rehearse Timings"],
+        "answer": 0,
+        "explanation": "You can choose to record only timings for each slide without voice."
+    },
+    {
+        "question": "Which button removes all animations from the selected object?",
+        "options": ["None", "Remove", "Clear Animations", "Reset Object"],
+        "answer": 2,
+        "explanation": "Clear Animations removes all animation effects from the object."
+    },
+    {
+        "question": "Which are the default colors applied when inserting a table?",
+        "options": ["Theme colors", "Standard palette", "Gray fill", "No fill"],
+        "answer": 0,
+        "explanation": "Tables adopt Theme colors by default in PowerPoint."
+    },
+    {
+        "question": "Which feature allows linking Excel charts that update automatically in PowerPoint?",
+        "options": ["Paste Link", "Embed Chart", "Insert Image", "Chart Screenshot"],
+        "answer": 0,
+        "explanation": "Paste Link links charts from Excel to update when the source changes."
+    },
+    {
+        "question": "Which alignment quickly matches shape sizes and distribution evenly?",
+        "options": ["Distribute Horizontally/Vertically", "Group", "Arrange", "Fit to Slide"],
+        "answer": 0,
+        "explanation": "Distribute options make gaps between objects equal."
+    },
+    {
+        "question": "What does the Alt+Shift+Left Arrow shortcut do in Outline View?",
+        "options": ["Decreases indent", "Increases indent", "Moves slide up", "Moves slide down"],
+        "answer": 0,
+        "explanation": "Alt+Shift+Left Arrow reduces the indent level of text."
+    },
+    {
+        "question": "Which pane displays speaker notes associated with the current slide?",
+        "options": ["Notes Pane", "Slide Pane", "Outline Pane", "Details Pane"],
+        "answer": 0,
+        "explanation": "The Notes Pane below the slide allows adding presenter notes."
+    },
+    {
+        "question": "Which transition effect zooms into a slide from the center?",
+        "options": ["Zoom", "Grow", "Pulse", "Fade"],
+        "answer": 0,
+        "explanation": "Zoom transition enlarges the new slide from the center."
+    },
+    {
+        "question": "Which feature in PowerPoint 365 allows live subtitles during a presentation?",
+        "options": ["Always Use Subtitles", "Live Captions & Subtitles", "Auto Captions", "Speech Notes"],
+        "answer": 1,
+        "explanation": "Live Captions & Subtitles provides real-time captions during slideshows."
+    },
+    {
+        "question": "Which toolbar option changes bullet styles in text?",
+        "options": ["Paragraph -> Bullets", "Format -> Bullets", "Insert -> Bullets", "Home -> Layout"],
+        "answer": 0,
+        "explanation": "Paragraph group on Home tab controls bullets and numbering."
+    },
+    {
+        "question": "What does F1 display in PowerPoint?",
+        "options": ["Help", "Start slideshow", "Print preview", "Outline View"],
+        "answer": 0,
+        "explanation": "F1 opens PowerPoint Help."
+    },
+    {
+        "question": "Which button brings back previously deleted text or actions?",
+        "options": ["Undo", "Redo", "Repeat", "Recover"],
+        "answer": 1,
+        "explanation": "Redo reverses an Undo action."
+    },
+    {
+        "question": "Which slide element usually contains the title text?",
+        "options": ["Title Placeholder", "Content Placeholder", "Notes Placeholder", "Text Box"],
+        "answer": 0,
+        "explanation": "Title Placeholder is specifically designed for the main heading of the slide."
+    },
+    {
+        "question": "Which graphic file format supports transparent backgrounds in PowerPoint?",
+        "options": ["JPEG", "GIF", "BMP", "PNG"],
+        "answer": 3,
+        "explanation": "PNG supports high-quality images with transparency."
+    },
+    {
+        "question": "Which shortcut groups selected objects together?",
+        "options": ["Ctrl+G", "Ctrl+Shift+G", "Alt+G", "Ctrl+Alt+G"],
+        "answer": 0,
+        "explanation": "Ctrl+G groups the selected items."
+    },
+    {
+        "question": "Which font type is generally safest for presentations?",
+        "options": ["Decorative Fonts", "Serif Fonts", "Sans Serif Fonts", "Script Fonts"],
+        "answer": 2,
+        "explanation": "Sans Serif fonts are clean and easy to read in slides."
+    },
+    {
+        "question": "Which slide layout contains only a title and a large space for content?",
+        "options": ["Title and Content", "Title Only", "Blank", "Content Only"],
+        "answer": 0,
+        "explanation": "Title and Content layout provides space for heading and content placeholder."
+    },
+    {
+        "question": "Which key advances animations step-by-step in slideshow mode?",
+        "options": ["Spacebar", "Right Arrow", "Enter", "All of these"],
+        "answer": 3,
+        "explanation": "Animations can advance with Spacebar, Right Arrow, or Enter."
+    },
+    {
+        "question": "Which shape effect adds a shadow behind the shape?",
+        "options": ["Glow", "Shadow", "Reflection", "3-D Format"],
+        "answer": 1,
+        "explanation": "Shadow effect creates a drop shadow for the shape."
+    },
+    {
+        "question": "What does the Slide Sorter NOT allow you to do?",
+        "options": ["Change slide order", "Apply transitions", "Edit detailed content", "Select multiple slides"],
+        "answer": 2,
+        "explanation": "Slide Sorter does not allow detailed content editing."
+    },
+	 {
+        "question": "Which feature allows you to create a sequence of slides that loop back to the start after the last slide?",
+        "options": ["Loop continuously until Esc", "Kiosk mode", "Custom Show", "Rehearse Timings"],
+        "answer": 0,
+        "explanation": "Loop continuously until Esc makes the slideshow loop repeatedly until the ESC key is pressed."
+    },
+    {
+        "question": "What does the 'Eyedropper' tool in PowerPoint do?",
+        "options": ["Fills shapes with patterns", "Picks up and applies a color from any part of the screen", "Adjusts brightness", "Removes background"],
+        "answer": 1,
+        "explanation": "The Eyedropper tool allows you to pick an exact color from anywhere in the presentation or screen."
+    },
+    {
+        "question": "Which keyboard shortcut opens the Presenter View directly?",
+        "options": ["Alt+F5", "F5", "Shift+F5", "Ctrl+F5"],
+        "answer": 0,
+        "explanation": "Alt+F5 starts the slide show in Presenter View mode."
+    },
+    {
+        "question": "Which type of animation emphasizes an object already on a slide without moving it off-screen?",
+        "options": ["Emphasis", "Entrance", "Exit", "Transition"],
+        "answer": 0,
+        "explanation": "Emphasis animations highlight an object by changing its color, size, or effect without removing it."
+    },
+    {
+        "question": "Where can you find the 'Remove Background' tool for pictures?",
+        "options": ["Picture Format tab", "Design tab", "Slide Show tab", "Home tab"],
+        "answer": 0,
+        "explanation": "The Remove Background tool is available in the Picture Format tab."
+    },
+    {
+        "question": "What is the default slide orientation in PowerPoint presentations?",
+        "options": ["Portrait", "Landscape", "Square", "Custom"],
+        "answer": 1,
+        "explanation": "PowerPoint uses Landscape orientation by default."
+    },
+    {
+        "question": "Which view is best for editing the order and addition of slides with minimal detailing?",
+        "options": ["Outline View", "Slide Sorter View", "Reading View", "Normal View"],
+        "answer": 1,
+        "explanation": "Slide Sorter view is designed primarily for rearranging and organizing slides."
+    },
+    {
+        "question": "Which file extension is used for macro-enabled PowerPoint presentations?",
+        "options": [".pptx", ".pptm", ".ppsx", ".ppsm"],
+        "answer": 1,
+        "explanation": ".pptm is used for files that contain VBA Macros."
+    },
+    {
+        "question": "Which pane displays mini-thumbnails of slides vertically for navigation?",
+        "options": ["Slides Pane", "Notes Pane", "Outline Pane", "Selection Pane"],
+        "answer": 0,
+        "explanation": "The Slides pane shows thumbnails to navigate between slides."
+    },
+    {
+        "question": "Which command lets you link text or an object to another slide, document, or web page?",
+        "options": ["Insert Hyperlink", "Insert Action", "Insert Object", "Insert Note"],
+        "answer": 0,
+        "explanation": "Insert Hyperlink connects the selected text/object to another location."
+    },
+    {
+        "question": "Which shortcut deletes the selected text box, image, or shape?",
+        "options": ["Delete key", "Backspace", "Ctrl+D", "Shift+Delete"],
+        "answer": 0,
+        "explanation": "The Delete key removes the selected element from the slide."
+    },
+    {
+        "question": "What can be inserted via the 'Insert Object' feature?",
+        "options": ["Embedded Excel Worksheet", "PDF Document", "Word Document", "All of these"],
+        "answer": 3,
+        "explanation": "'Insert Object' can embed external documents like Excel sheets, Word docs, and PDFs."
+    },
+    {
+        "question": "Which slide show option is best for a self-running presentation with no manual control?",
+        "options": ["Browsed at a kiosk", "Loop until Esc", "Manual presentation", "Custom Show"],
+        "answer": 0,
+        "explanation": "Kiosk mode is used for unattended, self-running presentations."
+    },
+    {
+        "question": "Which background option allows using a gradient fill?",
+        "options": ["Format Background", "Design Variants", "Picture Tools", "Theme Colors"],
+        "answer": 0,
+        "explanation": "Format Background includes gradient fill, solid fill, and picture fill settings."
+    },
+    {
+        "question": "Which transition effect simulates one slide turning over to reveal the next?",
+        "options": ["Page Curl", "Flip", "Morph", "Push"],
+        "answer": 0,
+        "explanation": "Page Curl transition gives the look of turning a page."
+    },
+    {
+        "question": "What is the function of the 'Animation Painter' tool?",
+        "options": ["Applies the same animation settings from one object to another", "Copies slide transitions", "Duplicates an object", "Replays animations"],
+        "answer": 0,
+        "explanation": "Animation Painter copies animation effects from one object to another."
+    },
+    {
+        "question": "Which tab contains the option to adjust slide size and orientation?",
+        "options": ["Design tab", "View tab", "Insert tab", "File tab"],
+        "answer": 0,
+        "explanation": "Adjust slide size and orientation in the Design tab."
+    },
+    {
+        "question": "Which presenter tool shows the time spent on the current slide?",
+        "options": ["Presenter View", "Notes Page", "Slide Sorter", "Animation Pane"],
+        "answer": 0,
+        "explanation": "Presenter View displays slide notes, timers, and upcoming slides."
+    },
+    {
+        "question": "What does the 'Send to Back' option do?",
+        "options": ["Brings object forward", "Hides object", "Moves object behind others", "Deletes object"],
+        "answer": 2,
+        "explanation": "'Send to Back' moves the selected object behind all others on the slide."
+    },
+    {
+        "question": "In outline view, which shortcut increases the text indent level?",
+        "options": ["Tab", "Shift+Tab", "Alt+Tab", "Ctrl+M"],
+        "answer": 0,
+        "explanation": "Pressing Tab increases the indent level in Outline View."
+    },
+    {
+        "question": "Which image format does NOT support transparent background in PowerPoint?",
+        "options": ["PNG", "GIF", "JPEG", "BMP"],
+        "answer": 2,
+        "explanation": "JPEG does not support transparency."
+    },
+    {
+        "question": "Which slide layout contains placeholders for both text and content side-by-side?",
+        "options": ["Comparison", "Two Content", "Title and Content", "Blank"],
+        "answer": 1,
+        "explanation": "Two Content layout contains placeholders for text and a second content block."
+    },
+    {
+        "question": "What is the shortcut to apply bold formatting to selected text?",
+        "options": ["Ctrl+B", "Ctrl+I", "Ctrl+U", "Ctrl+Shift+B"],
+        "answer": 0,
+        "explanation": "Ctrl+B toggles bold formatting."
+    },
+    {
+        "question": "Which feature lets you manually control how and when objects appear in a presentation?",
+        "options": ["Custom Animation", "Transition Timing", "Rehearse Timings", "Design Ideas"],
+        "answer": 0,
+        "explanation": "Custom Animation lets you control the sequence, trigger, and timing of animations."
+    },
+    {
+        "question": "In Slide Master, where do you make layout changes that affect all slides?",
+        "options": ["Top Master Slide", "Any Layout Slide", "Notes Master", "Handout Master"],
+        "answer": 0,
+        "explanation": "The top slide in Slide Master controls global layout properties."
+    },
+    {
+        "question": "Which action changes the font for all slides at once?",
+        "options": ["Replace Fonts feature", "Apply Style", "Edit each slide", "Change Theme Color"],
+        "answer": 0,
+        "explanation": "Replace Fonts changes all instances of a font throughout the presentation."
+    },
+    {
+        "question": "Which menu contains the 'Header & Footer' option for slides?",
+        "options": ["Insert menu", "View menu", "Design menu", "Home menu"],
+        "answer": 0,
+        "explanation": "'Header & Footer' is in the Insert tab to add text to slides or notes."
+    },
+    {
+        "question": "When printing, which layout shows slides with accompanying notes?",
+        "options": ["Notes Pages", "Full Page Slides", "Handouts", "Outline"],
+        "answer": 0,
+        "explanation": "Notes Pages layout prints the slide along with its speaker notes."
+    },
+    {
+        "question": "What happens if you press Esc during a slideshow?",
+        "options": ["Pauses slideshow", "Ends slideshow", "Starts recording", "Hides current slide"],
+        "answer": 1,
+        "explanation": "Esc immediately ends the slideshow."
+    },
+    {
+        "question": "The 'Format Painter' tool is used for?",
+        "options": ["Copying slide content", "Copying formatting from one object to another", "Duplicating animation", "Replacing images"],
+        "answer": 1,
+        "explanation": "Format Painter transfers formatting between objects."
+    },
+    {
+        "question": "Which view displays thumbnails along with a large view of the active slide and notes?",
+        "options": ["Normal View", "Slide Sorter", "Outline View", "Reading View"],
+        "answer": 0,
+        "explanation": "Normal View shows the currently selected slide, notes pane, and slide thumbnails."
+    },
+    {
+        "question": "Which is NOT a built-in view mode in PowerPoint?",
+        "options": ["Slide Sorter", "Handout View", "Slide Show View", "Notes Page View"],
+        "answer": 1,
+        "explanation": "Handout View does not exist as a separate editing view; it's a print option."
+    },
+    {
+        "question": "What does the 'Crop' tool do?",
+        "options": ["Changes object shape", "Cuts edges off an image", "Resizes slide", "Removes background"],
+        "answer": 1,
+        "explanation": "Crop trims edges of a picture or shape."
+    },
+    {
+        "question": "Where is the 'Notes Master' found?",
+        "options": ["View tab", "Insert tab", "Design tab", "File tab"],
+        "answer": 0,
+        "explanation": "Notes Master is accessible from the View tab."
+    },
+    {
+        "question": "Which transition allows applying the same effect to multiple slides quickly?",
+        "options": ["Apply To All", "Match Transition", "Multi-Transition", "Group Transition"],
+        "answer": 0,
+        "explanation": "'Apply To All' applies the selected transition to every slide."
+    },
+    {
+        "question": "In Presenter View, what is shown on the audience's screen?",
+        "options": ["Only the current slide", "Presenter notes", "Timer", "Upcoming slides"],
+        "answer": 0,
+        "explanation": "The audience sees only the active slide, while presenter sees notes and tools."
+    },
+    {
+        "question": "What is the function of 'Section' in PowerPoint?",
+        "options": ["Group slides into categories", "Create extra slide layouts", "Insert transitions", "Apply animations"],
+        "answer": 0,
+        "explanation": "Sections help organize slides into groups for management."
+    },
+    {
+        "question": "What does the Slide Master NOT control?",
+        "options": ["Theme colors", "Font styles", "Transition effects", "Background styles"],
+        "answer": 2,
+        "explanation": "Transition effects are set separately and not by Slide Master."
+    },
+    {
+        "question": "Which printing option displays multiple slides on each page?",
+        "options": ["Handouts", "Notes Pages", "Outline", "Full Page Slides"],
+        "answer": 0,
+        "explanation": "Handouts print several slide thumbnails on one page."
+    },
+    {
+        "question": "What is the shortcut to open the Print dialog quickly?",
+        "options": ["Ctrl+P", "Ctrl+Shift+P", "Alt+P", "F12"],
+        "answer": 0,
+        "explanation": "Ctrl+P opens the print dialog directly."
+    },
+	 {
+        "question": "What will pressing Ctrl+Shift+C do in PowerPoint?",
+        "options": ["Copy text", "Copy formatting", "Copy slide", "Copy animation"],
+        "answer": 1,
+        "explanation": "Ctrl+Shift+C copies the formatting from the selected text or object."
+    },
+    {
+        "question": "Where can you find the 'Replace Fonts' option in PowerPoint?",
+        "options": ["Home -> Fonts", "Design -> Variants", "Format -> Fonts", "View -> Fonts"],
+        "answer": 1,
+        "explanation": "Design tab -> Variants contains the Replace Fonts option."
+    },
+    {
+        "question": "Which feature turns bullet points into a visual diagram?",
+        "options": ["SmartArt", "WordArt", "Chart", "Icon"],
+        "answer": 0,
+        "explanation": "SmartArt converts bullet points into graphical visualizations."
+    },
+    {
+        "question": "What is the default view when you open PowerPoint?",
+        "options": ["Normal View", "Slide Sorter", "Reading View", "Outline View"],
+        "answer": 0,
+        "explanation": "PowerPoint opens in Normal View by default."
+    },
+    {
+        "question": "Which ribbon contains the Slide Master button?",
+        "options": ["View", "Home", "Design", "Insert"],
+        "answer": 0,
+        "explanation": "The Slide Master button is in the View tab."
+    },
+    {
+        "question": "In PowerPoint, which shortcut creates a duplicate of the current slide?",
+        "options": ["Ctrl+M", "Ctrl+D", "Ctrl+N", "Ctrl+Shift+D"],
+        "answer": 1,
+        "explanation": "Ctrl+D duplicates the currently selected slide."
+    },
+    {
+        "question": "Which image insertion method ensures the image is automatically linked to the original file?",
+        "options": ["Insert -> Picture -> Link to File", "Paste", "Drag & Drop", "Copy from browser"],
+        "answer": 0,
+        "explanation": "'Link to File' links the image so updates in the original file reflect in PowerPoint."
+    },
+    {
+        "question": "What is the default slide layout when creating a new presentation?",
+        "options": ["Blank", "Title Slide", "Title and Content", "Comparison"],
+        "answer": 1,
+        "explanation": "The default first slide layout is a Title Slide."
+    },
+    {
+        "question": "Which keyboard shortcut starts the slideshow from the beginning?",
+        "options": ["F5", "Shift+F5", "Ctrl+F5", "Alt+F5"],
+        "answer": 0,
+        "explanation": "F5 starts the slideshow from the first slide."
+    },
+    {
+        "question": "Which PowerPoint view is best for editing speaker notes?",
+        "options": ["Notes Page", "Normal", "Slide Sorter", "Outline"],
+        "answer": 0,
+        "explanation": "Notes Page view is dedicated to editing speaker notes."
+    },
+    {
+        "question": "In Slide Sorter view, can you apply a transition to multiple selected slides at once?",
+        "options": ["Yes", "No", "Only in Normal View", "Only in Reading View"],
+        "answer": 0,
+        "explanation": "You can apply the same transition to multiple selected slides in Slide Sorter."
+    },
+    {
+        "question": "What does pressing 'W' do during a presentation?",
+        "options": ["Changes slide background to white temporarily", "Switches to next slide", "Pauses the slideshow", "Ends the slideshow"],
+        "answer": 0,
+        "explanation": "'W' shows a white screen during the slideshow."
+    },
+    {
+        "question": "What is the purpose of 'Rehearse Timings'?",
+        "options": ["Practice timing of slides for a presentation", "Adjust animation durations", "Preview slide transitions", "Check font sizes"],
+        "answer": 0,
+        "explanation": "Rehearse Timings records time taken per slide for automated playback."
+    },
+    {
+        "question": "Which feature allows zooming into slide sections during slideshow?",
+        "options": ["Zoom Tool", "Slide Zoom", "Section Zoom", "Summary Zoom"],
+        "answer": 1,
+        "explanation": "Slide Zoom lets you zoom into selected slide sections in the presentation."
+    },
+    {
+        "question": "Which file format is for saving theme templates?",
+        "options": [".thmx", ".pptx", ".potx", ".ppsm"],
+        "answer": 0,
+        "explanation": ".thmx files store theme templates."
+    },
+    {
+        "question": "Which chart type would best display data changes over time?",
+        "options": ["Line Chart", "Pie Chart", "Doughnut Chart", "Bar Chart"],
+        "answer": 0,
+        "explanation": "A Line Chart is ideal to show changes in data over time."
+    },
+    {
+        "question": "Which menu option provides access to Slide Show setup?",
+        "options": ["Slide Show tab", "View tab", "Transitions tab", "Design tab"],
+        "answer": 0,
+        "explanation": "The Slide Show tab contains settings to configure the presentation playback."
+    },
+    {
+        "question": "What is the function of Slide Sections in PowerPoint?",
+        "options": ["Group slides for organization", "Hide slides", "Lock slides", "Delete slides"],
+        "answer": 0,
+        "explanation": "Sections allow logical grouping of slides for easier organization."
+    },
+    {
+        "question": "Which printing layout produces a printed copy with small slide thumbnails and notes below?",
+        "options": ["Notes Pages", "Handouts", "Outline", "Full Page Slides"],
+        "answer": 0,
+        "explanation": "Notes Pages prints the slide with space for speaker notes."
+    },
+    {
+        "question": "How can you add a new slide quickly using the keyboard?",
+        "options": ["Ctrl+M", "Ctrl+N", "Ctrl+Shift+N", "Alt+M"],
+        "answer": 0,
+        "explanation": "Ctrl+M inserts a new slide after the selected one."
+    },
+    {
+        "question": "What is Morph transition mainly used for?",
+        "options": ["Smoothly animate object movement", "Apply preset animation", "Add sound effects", "Change text font"],
+        "answer": 0,
+        "explanation": "Morph transition smoothly animates position, size, and shape changes."
+    },
+    {
+        "question": "Which PowerPoint option hides a selected slide during the presentation?",
+        "options": ["Hide Slide", "Remove Slide", "Skip Slide", "Delete Slide"],
+        "answer": 0,
+        "explanation": "Hide Slide keeps the slide but skips it in slideshow mode."
+    },
+    {
+        "question": "What does the 'Slide Master' NOT control?",
+        "options": ["Theme colors", "Fonts", "Transitions", "Background styles"],
+        "answer": 2,
+        "explanation": "Transitions are applied separately, not controlled by Slide Master."
+    },
+    {
+        "question": "Which Slide Show setup type is best for a presentation running automatically at a trade show?",
+        "options": ["Browsed at a kiosk", "Presented by a speaker", "Browsed by an individual", "Printed handouts"],
+        "answer": 0,
+        "explanation": "Browsed at a kiosk mode changes slides automatically without manual control."
+    },
+    {
+        "question": "Where can you find the option to add slide numbers?",
+        "options": ["Insert -> Header & Footer", "Design -> Header & Footer", "Home -> Slide", "View -> Master Slide"],
+        "answer": 0,
+        "explanation": "Insert tab has Header & Footer to add slide numbers."
+    },
+    {
+        "question": "Which PowerPoint feature changes the appearance of all slides in one action?",
+        "options": ["Theme", "Layout", "Transition", "Format Background"],
+        "answer": 0,
+        "explanation": "Applying a Theme changes colors, fonts, and effects across all slides."
+    },
+    {
+        "question": "How to ensure a chart updates in PowerPoint when its Excel source updates?",
+        "options": ["Paste Link", "Embed Chart", "Insert Picture", "Static Copy"],
+        "answer": 0,
+        "explanation": "Paste Link connects the chart to Excel so updates are reflected automatically."
+    },
+    {
+        "question": "Which command will align multiple objects along their top edges?",
+        "options": ["Align Top", "Align Middle", "Align Center", "Align Upper"],
+        "answer": 0,
+        "explanation": "Align Top positions all selected objects along the topmost object's edge."
+    },
+    {
+        "question": "Which PowerPoint element is designed for adding brief descriptions or references?",
+        "options": ["Footer", "Textbox", "Placeholder", "Notes"],
+        "answer": 3,
+        "explanation": "Notes allow adding presenter-specific extra text for reference."
+    },
+    {
+        "question": "The 'Replace Fonts' command is useful for?",
+        "options": ["Changing all occurrences of one font to another", "Replacing slide content", "Replacing animations", "Replacing colors"],
+        "answer": 0,
+        "explanation": "Replace Fonts changes a font across the entire presentation in one step."
+    },
+    {
+        "question": "Which type of chart is best for comparing proportions?",
+        "options": ["Pie Chart", "Line Chart", "Bar Chart", "Scatter Chart"],
+        "answer": 0,
+        "explanation": "Pie Charts are ideal for showing proportions of a whole."
+    },
+    {
+        "question": "Which keyboard shortcut applies italic formatting?",
+        "options": ["Ctrl+B", "Ctrl+I", "Ctrl+U", "Ctrl+Shift+I"],
+        "answer": 1,
+        "explanation": "Ctrl+I toggles italic formatting."
+    },
+    {
+        "question": "Where is 'Format Background' located?",
+        "options": ["Design tab", "View tab", "Insert tab", "File menu"],
+        "answer": 0,
+        "explanation": "Format Background is found at the right end of the Design tab."
+    },
+    {
+        "question": "Which graphic format is recommended to maintain image transparency?",
+        "options": ["PNG", "JPEG", "BMP", "TIFF"],
+        "answer": 0,
+        "explanation": "PNG maintains high quality and supports transparency."
+    },
+    {
+        "question": "Which view allows seeing multiple slides on screen for rearranging?",
+        "options": ["Slide Sorter View", "Normal View", "Reading View", "Outline View"],
+        "answer": 0,
+        "explanation": "Slide Sorter view shows thumbnail images for reordering slides."
+    },
+    {
+        "question": "What does pressing the 'B' key do in slideshow mode?",
+        "options": ["Shows blank black screen", "Shows blank white screen", "Ends presentation", "Goes back one slide"],
+        "answer": 0,
+        "explanation": "'B' key shows a blank black screen to pause attention on visuals."
+    },
+    {
+        "question": "What is a 'Custom Show' used for?",
+        "options": ["Creating different presentations from the same set of slides", "Adding animations", "Changing layouts", "Printing slides"],
+        "answer": 0,
+        "explanation": "Custom Show lets you present only a subset of slides for a specific audience."
+    },
+    {
+        "question": "Which pane lists all slide titles and text in an outline format?",
+        "options": ["Outline Pane", "Slide Pane", "Notes Pane", "Animation Pane"],
+        "answer": 0,
+        "explanation": "Outline Pane shows the slide titles and main text in outline form."
+    },
+    {
+        "question": "Where can you find the 'Hide Slide' option?",
+        "options": ["Right-click slide thumbnail", "Slide Show tab", "Review tab", "Design tab"],
+        "answer": 0,
+        "explanation": "Right-click on the slide thumbnail in the left pane to hide it."
+    },
+    {
+        "question": "What is the function of 'Apply to All' in the Transitions tab?",
+        "options": ["Apply the current transition to all slides", "Apply layout changes", "Apply same font", "Apply background color"],
+        "answer": 0,
+        "explanation": "'Apply to All' assigns the selected transition to every slide."
+    },
+	 {
+        "question": "Which shortcut key allows you to group selected objects in PowerPoint?",
+        "options": ["Ctrl+G", "Ctrl+Shift+G", "Ctrl+Alt+G", "Alt+G"],
+        "answer": 0,
+        "explanation": "Ctrl+G groups selected objects together so they can be moved or resized as one."
+    },
+    {
+        "question": "Which file format is best for sending a slideshow that runs automatically when opened?",
+        "options": [".pptx", ".ppsx", ".pptm", ".pdf"],
+        "answer": 1,
+        "explanation": ".ppsx opens directly in slideshow mode instead of edit mode."
+    },
+    {
+        "question": "Where is the 'Animation Pane' located in PowerPoint?",
+        "options": ["Animations Tab", "Transitions Tab", "Design Tab", "Insert Tab"],
+        "answer": 0,
+        "explanation": "The Animation Pane button is in the Animations tab and is used to manage animation sequencing."
+    },
+    {
+        "question": "Which view displays slides as thumbnails for easy rearranging?",
+        "options": ["Slide Sorter View", "Reading View", "Outline View", "Normal View"],
+        "answer": 0,
+        "explanation": "Slide Sorter View displays miniature versions of slides for quick reordering."
+    },
+    {
+        "question": "What does the Slide Master NOT control?",
+        "options": ["Theme Colors", "Fonts", "Transitions", "Background Styles"],
+        "answer": 2,
+        "explanation": "Slide Master cannot control slide transition effects; these are set separately."
+    },
+    {
+        "question": "Which tab contains the 'Slide Zoom' feature?",
+        "options": ["Insert", "Design", "View", "Slide Show"],
+        "answer": 0,
+        "explanation": "The Insert tab has the Slide Zoom feature for zooming into specific slides."
+    },
+    {
+        "question": "Which function does the 'Section' tool perform in PowerPoint?",
+        "options": ["Groups slides into named categories", "Deletes slides", "Hides slides", "Changes layout"],
+        "answer": 0,
+        "explanation": "The Section feature groups slides in a named category for better organization."
+    },
+    {
+        "question": "Which PowerPoint view hides most interface elements for easy reading?",
+        "options": ["Reading View", "Outline View", "Slide Show View", "Slide Sorter"],
+        "answer": 0,
+        "explanation": "Reading View hides toolbars for distraction-free viewing within the PowerPoint window."
+    },
+    {
+        "question": "Which shortcut key starts a presentation from the current slide?",
+        "options": ["F5", "Shift+F5", "Ctrl+F5", "Alt+F5"],
+        "answer": 1,
+        "explanation": "Shift+F5 starts the slideshow from the currently selected slide."
+    },
+    {
+        "question": "What does the 'Format Painter' tool do?",
+        "options": ["Copies animations", "Copies formatting from one object to another", "Copies entire slide", "Copies slide layout"],
+        "answer": 1,
+        "explanation": "Format Painter transfers formatting styles between objects or text."
+    },
+    {
+        "question": "Which background type allows you to use an image as the slide background?",
+        "options": ["Picture or Texture Fill", "Gradient Fill", "Pattern Fill", "Solid Fill"],
+        "answer": 0,
+        "explanation": "Picture or Texture fill allows you to insert images for slide backgrounds."
+    },
+    {
+        "question": "Which printing option displays only the text of each slide without graphics?",
+        "options": ["Outline", "Notes Pages", "Full Page Slides", "Handouts"],
+        "answer": 0,
+        "explanation": "The Outline printing option prints slides' text in outline format."
+    },
+    {
+        "question": "Which placeholder type contains instructions to insert charts, tables, and media?",
+        "options": ["Content Placeholder", "Text Placeholder", "Title Placeholder", "Notes Placeholder"],
+        "answer": 0,
+        "explanation": "Content placeholders are multi-purpose and allow inserting charts, images, media, or text."
+    },
+    {
+        "question": "Which PowerPoint feature can be used to align multiple objects evenly?",
+        "options": ["Align Tool", "Snap to Shape", "Position Tool", "Arrange Tool"],
+        "answer": 0,
+        "explanation": "Align Tool positions objects evenly either horizontally or vertically."
+    },
+    {
+        "question": "What is the function of the 'Hide Slide' option?",
+        "options": ["Deletes slide", "Prevents slides from appearing in a slide show", "Locks slide", "Minimizes slide size"],
+        "answer": 1,
+        "explanation": "Hide Slide excludes it from presentation mode but keeps it in the file."
+    },
+    {
+        "question": "Which tool converts bullet points into a visually appealing diagram?",
+        "options": ["SmartArt", "Chart", "WordArt", "Icon"],
+        "answer": 0,
+        "explanation": "SmartArt is used to transform text lists into creative graphics."
+    },
+    {
+        "question": "Which file extension is used for macro-enabled presentation templates?",
+        "options": [".potx", ".potm", ".pptm", ".ppsx"],
+        "answer": 1,
+        "explanation": ".potm files are macro-enabled PowerPoint template files."
+    },
+    {
+        "question": "Which ribbon contains 'Header & Footer' options?",
+        "options": ["Insert", "View", "Design", "Home"],
+        "answer": 0,
+        "explanation": "Insert -> Header & Footer lets you add dates, slide numbers, and footers."
+    },
+    {
+        "question": "What does Ctrl+Shift+V do in PowerPoint?",
+        "options": ["Pastes formatting only", "Pastes content", "Pastes animations", "Pastes hyperlinks"],
+        "answer": 0,
+        "explanation": "Ctrl+Shift+V pastes the copied formatting onto a selected object or text."
+    },
+    {
+        "question": "Which slide layout is intended for comparing two sets of information?",
+        "options": ["Comparison", "Title and Content", "Blank", "Two Content"],
+        "answer": 0,
+        "explanation": "The Comparison layout has placeholders for parallel sets of content."
+    },
+    {
+        "question": "In Presenter View, the upcoming slide is visible to:",
+        "options": ["Audience", "Presenter", "Both", "No one"],
+        "answer": 1,
+        "explanation": "Only the presenter sees the upcoming slide in Presenter View."
+    },
+    {
+        "question": "Which PowerPoint transition is a 3D effect that turns the slide like a cube?",
+        "options": ["Cube", "Flip", "Gallery", "Switch"],
+        "answer": 0,
+        "explanation": "The Cube transition rotates slides as if they are faces of a cube."
+    },
+    {
+        "question": "Which feature can break text into multiple columns on a slide?",
+        "options": ["Columns command", "Textbox Split", "WordArt", "Split Layout"],
+        "answer": 0,
+        "explanation": "The Columns command formats text into two or more columns."
+    },
+    {
+        "question": "Which action locks an object's position so it can't be accidentally moved?",
+        "options": ["Lock Object", "Group Object", "Snap Object", "Protect Object"],
+        "answer": 0,
+        "explanation": "Lock Object prevents repositioning of that object."
+    },
+    {
+        "question": "Which shape effect creates a reflection of the shape beneath it?",
+        "options": ["Reflection", "Glow", "Shadow", "Bevel"],
+        "answer": 0,
+        "explanation": "Reflection effect creates a mirror image below the shape."
+    },
+    {
+        "question": "What does pressing Esc do during a slideshow?",
+        "options": ["Moves to previous slide", "Ends the slide show", "Minimizes presentation", "Shows help"],
+        "answer": 1,
+        "explanation": "Esc stops the slideshow and returns to editing view."
+    },
+    {
+        "question": "Which graphic type lets you display numerical data visually?",
+        "options": ["Chart", "SmartArt", "WordArt", "Icon"],
+        "answer": 0,
+        "explanation": "Charts represent numeric data in a graphical manner."
+    },
+    {
+        "question": "Which placeholder holds speaker's personal reference notes?",
+        "options": ["Notes Placeholder", "Content Placeholder", "Title Placeholder", "Text Placeholder"],
+        "answer": 0,
+        "explanation": "Notes Placeholder is used for presenter notes."
+    },
+    {
+        "question": "Which theme property changes font style across slides?",
+        "options": ["Theme Fonts", "Theme Colors", "Theme Styles", "Theme Effects"],
+        "answer": 0,
+        "explanation": "Theme Fonts changes the heading and body font uniformly across the presentation."
+    },
+    {
+        "question": "Which option will apply an existing template to a current presentation?",
+        "options": ["Design -> Themes -> Browse for Themes", "File -> Save As -> Template", "View -> Slide Master", "Home -> Layout"],
+        "answer": 0,
+        "explanation": "Browsing for Themes in the Design tab lets you apply different templates."
+    },
+    {
+        "question": "Which tool enables freehand drawing over slides during a slideshow?",
+        "options": ["Pen Tool", "Draw Tool", "Highlight Tool", "Laser Pointer"],
+        "answer": 0,
+        "explanation": "The Pen Tool allows annotating slides with freehand lines."
+    },
+    {
+        "question": "In slide show mode, what does pressing 'E' do when a shape with animation is playing?",
+        "options": ["Erases pen annotations", "Ends animation", "Edits text", "Exports slide"],
+        "answer": 0,
+        "explanation": "Pressing E erases all on-screen annotations during a slide show."
+    },
+    {
+        "question": "Which view helps to set consistent footer and header formatting?",
+        "options": ["Slide Master View", "Normal View", "Notes Page", "Reading View"],
+        "answer": 0,
+        "explanation": "Slide Master View ensures consistent footer and header placement."
+    },
+    {
+        "question": "Which printing mode allows printing only selected slides?",
+        "options": ["Custom Range", "All Slides", "Current Slide", "Handout Master"],
+        "answer": 0,
+        "explanation": "Custom Range in the Print dialog lets you choose specific slides to print."
+    },
+    {
+        "question": "What does the 'Summary Zoom' feature do?",
+        "options": ["Creates a menu-like overview to navigate sections", "Zooms in on one slide", "Magnifies shapes", "Expands notes"],
+        "answer": 0,
+        "explanation": "Summary Zoom provides clickable thumbnails for navigating between sections."
+    },
+    {
+        "question": "Which tab contains the 'Arrange' option for object order adjustment?",
+        "options": ["Home", "Format", "Design", "View"],
+        "answer": 1,
+        "explanation": "Format tab contains Arrange for aligning, ordering, and grouping objects."
+    },
+    {
+        "question": "Which PowerPoint feature suggests design improvements automatically?",
+        "options": ["Design Ideas", "Theme Maker", "Auto Layout", "Smart Layout"],
+        "answer": 0,
+        "explanation": "Design Ideas suggests layouts, images, and formatting based on slide content."
+    },
+    {
+        "question": "In slide show mode, pressing 'H' will:",
+        "options": ["Jump to next hidden slide", "Highlight text", "Hide presentation", "Go to slide with that number"],
+        "answer": 0,
+        "explanation": "'H' plays the next hidden slide."
+    },
+    {
+        "question": "Where can you rename a slide section?",
+        "options": ["Right-click section name in Slide Sorter", "Home Tab", "Insert Tab", "Transitions Tab"],
+        "answer": 0,
+        "explanation": "Right-clicking the section name in Slide Sorter allows renaming."
+    },
+    {
+        "question": "Which monitoring tool shows elapsed presentation time in Presenter View?",
+        "options": ["Timer", "Clock", "Stopwatch", "Elapsed Time"],
+        "answer": 0,
+        "explanation": "Presenter View displays a Timer tracking total time spent."
+    },
+	 {
+        "question": "Which shortcut key in PowerPoint duplicates the selected object?",
+        "options": ["Ctrl+D", "Ctrl+Shift+D", "Alt+D", "Ctrl+Alt+D"],
+        "answer": 0,
+        "explanation": "Ctrl+D makes an exact duplicate of the selected object."
+    },
+    {
+        "question": "Which PowerPoint feature lets you automatically align objects relative to each other?",
+        "options": ["Smart Guides", "Snap to Grid", "Arrange", "Position Tool"],
+        "answer": 0,
+        "explanation": "Smart Guides provide visual assistance for aligning objects."
+    },
+    {
+        "question": "Where can you find the 'Slide Transition' controls?",
+        "options": ["Transitions Tab", "Animations Tab", "Design Tab", "Slide Show Tab"],
+        "answer": 0,
+        "explanation": "Transitions Tab controls the effects between slides."
+    },
+    {
+        "question": "Which file format preserves slideshow animations when sharing?",
+        "options": [".pptx", ".ppsx", ".pdf", ".jpg"],
+        "answer": 1,
+        "explanation": ".ppsx opens directly in slideshow mode and retains animations."
+    },
+    {
+        "question": "Which placeholder is used for inserting the main heading of a slide?",
+        "options": ["Title Placeholder", "Content Placeholder", "Notes Placeholder", "Text Box"],
+        "answer": 0,
+        "explanation": "Title placeholder is dedicated for the main heading text of a slide."
+    },
+    {
+        "question": "What does Ctrl+M do in PowerPoint?",
+        "options": ["Insert new slide", "Open Master View", "Merge slides", "Add comment"],
+        "answer": 0,
+        "explanation": "Ctrl+M inserts a new slide after the selected one."
+    },
+    {
+        "question": "Which PowerPoint feature shows a list of all slide headings and bullet points?",
+        "options": ["Outline View", "Normal View", "Notes Page View", "Slide Sorter"],
+        "answer": 0,
+        "explanation": "Outline View displays the presentation text in outline form."
+    },
+    {
+        "question": "What does the 'Apply to All' button do in the Transitions tab?",
+        "options": ["Applies the current transition effect to all slides", "Changes all fonts", "Resizes all slides", "Applies same color theme"],
+        "answer": 0,
+        "explanation": "It assigns the selected transition to every slide in the presentation."
+    },
+    {
+        "question": "Where can you set up narration for a presentation?",
+        "options": ["Slide Show Tab -> Record Slide Show", "View Tab -> Notes Master", "Insert Tab -> Audio", "Design Tab -> Variants"],
+        "answer": 0,
+        "explanation": "Narration can be recorded using the Record Slide Show option under Slide Show tab."
+    },
+    {
+        "question": "Which image format is best for high-quality transparent images?",
+        "options": ["PNG", "JPEG", "BMP", "GIF"],
+        "answer": 0,
+        "explanation": "PNG provides high quality and supports transparency."
+    },
+    {
+        "question": "What is the effect of using 'Send to Back' on a shape?",
+        "options": ["Hides the shape", "Places the shape behind all other objects", "Deletes the shape", "Locks the shape"],
+        "answer": 1,
+        "explanation": "'Send to Back' pushes the selected object behind all others."
+    },
+    {
+        "question": "Which printing option can print multiple slides on one page?",
+        "options": ["Handouts", "Notes Pages", "Outline", "Full Page Slides"],
+        "answer": 0,
+        "explanation": "Handouts print multiple slide thumbnails per page."
+    },
+    {
+        "question": "Where can you find 'Design Ideas' in PowerPoint?",
+        "options": ["Design Tab", "Insert Tab", "View Tab", "Home Tab"],
+        "answer": 0,
+        "explanation": "'Design Ideas' is found in the Design Tab to suggest slide layouts."
+    },
+    {
+        "question": "Which shortcut starts the slideshow from the beginning?",
+        "options": ["F5", "Shift+F5", "Alt+F5", "Ctrl+F5"],
+        "answer": 0,
+        "explanation": "F5 initiates slideshow mode from the first slide."
+    },
+    {
+        "question": "What does the 'Crop' tool do in PowerPoint?",
+        "options": ["Cuts parts of an image", "Inserts a picture", "Resizes the slide", "Adds a border"],
+        "answer": 0,
+        "explanation": "Crop allows you to trim or cut away parts of an image."
+    },
+    {
+        "question": "Which slide layout is designed to only contain a title?",
+        "options": ["Title Only", "Title and Content", "Blank", "Comparison"],
+        "answer": 0,
+        "explanation": "Title Only provides a placeholder for a title without additional content."
+    },
+    {
+        "question": "What happens when you press 'B' during slideshow?",
+        "options": ["Shows a black screen", "Shows a blank white screen", "Ends the show", "Moves to next slide"],
+        "answer": 0,
+        "explanation": "'B' temporarily switches the slideshow to a black screen."
+    },
+    {
+        "question": "Which tool helps to keep objects aligned and spaced evenly?",
+        "options": ["Align Tool", "Arrange Tool", "Grid Tool", "Guide Tool"],
+        "answer": 0,
+        "explanation": "Align Tool aligns and distributes objects evenly across the slide."
+    },
+    {
+        "question": "What is a 'Custom Show' used for?",
+        "options": ["Selecting only certain slides to present", "Applying a special effect", "Changing slide layout", "Adding hidden notes"],
+        "answer": 0,
+        "explanation": "Custom Show presents a chosen group of slides for a targeted audience."
+    },
+    {
+        "question": "Where is 'Format Background' located in PowerPoint?",
+        "options": ["Design Tab", "View Tab", "Insert Tab", "Slide Show Tab"],
+        "answer": 0,
+        "explanation": "Format Background is found at the rightmost end of the Design tab."
+    },
+    {
+        "question": "Which placeholder is used for inserting speaker notes?",
+        "options": ["Notes Placeholder", "Title Placeholder", "Content Placeholder", "Text Box"],
+        "answer": 0,
+        "explanation": "Notes Placeholder at the bottom allows adding notes for the presenter."
+    },
+    {
+        "question": "What does Ctrl+G do when objects are selected?",
+        "options": ["Groups them", "Ungroups them", "Aligns them", "Duplicates them"],
+        "answer": 0,
+        "explanation": "Ctrl+G combines selected objects into a single grouped object."
+    },
+    {
+        "question": "Which file extension is used for a macro-enabled presentation?",
+        "options": [".pptx", ".pptm", ".ppsx", ".pdf"],
+        "answer": 1,
+        "explanation": ".pptm is the macro-enabled PowerPoint file format."
+    },
+    {
+        "question": "Which command in PowerPoint lets you replace one color in an image with another?",
+        "options": ["Color Replace", "Recolor", "Set Transparent Color", "Adjust Color"],
+        "answer": 2,
+        "explanation": "'Set Transparent Color' replaces a chosen color with transparency."
+    },
+    {
+        "question": "Which Slide Show setup allows automatic looping?",
+        "options": ["Loop continuously until Esc", "Presenter mode", "Manual show", "Custom show"],
+        "answer": 0,
+        "explanation": "Loop continuously until Esc repeats the slideshow until ESC is pressed."
+    },
+    {
+        "question": "What does 'Slide Sorter' view display?",
+        "options": ["Thumbnails of all slides", "Outline format", "Current slide full view", "Notes with slides"],
+        "answer": 0,
+        "explanation": "Slide Sorter shows all slides as thumbnails for arrangement."
+    },
+    {
+        "question": "Which feature allows applying changes to all slides in one place?",
+        "options": ["Slide Master", "Custom Show", "Slide Sorter", "Design Ideas"],
+        "answer": 0,
+        "explanation": "Slide Master controls the overall style and layout of all slides."
+    },
+    {
+        "question": "Which graphic file format does NOT support transparency?",
+        "options": ["JPEG", "PNG", "GIF", "TIFF"],
+        "answer": 0,
+        "explanation": "JPEG does not include transparency data."
+    },
+    {
+        "question": "What is the main use of the Animation Pane?",
+        "options": ["Reorder animations", "Add slide transitions", "Edit notes", "Preview slides"],
+        "answer": 0,
+        "explanation": "Animation Pane lets you view and adjust the sequence and timing of animations."
+    },
+    {
+        "question": "Where is the 'Header & Footer' option found?",
+        "options": ["Insert tab", "Design tab", "View tab", "Home tab"],
+        "answer": 0,
+        "explanation": "Insert -> Header & Footer is used to add headers and footers."
+    },
+    {
+        "question": "Which transition gradually fades one slide into the next?",
+        "options": ["Fade", "Push", "Wipe", "Split"],
+        "answer": 0,
+        "explanation": "Fade transition softly dissolves one slide into another."
+    },
+    {
+        "question": "What does 'Ctrl+Shift+>' do on selected text?",
+        "options": ["Increases font size", "Decreases font size", "Bold text", "Makes text uppercase"],
+        "answer": 0,
+        "explanation": "Ctrl+Shift+> increases the font size by one step."
+    },
+    {
+        "question": "Which pane shows small versions of slides for navigation?",
+        "options": ["Slides Pane", "Notes Pane", "Outline Pane", "Animation Pane"],
+        "answer": 0,
+        "explanation": "Slides Pane shows thumbnails to navigate quickly between slides."
+    },
+    {
+        "question": "Where can you add alt text to an image in PowerPoint?",
+        "options": ["Format Picture -> Alt Text", "Design Tab", "Insert Tab", "Slide Show Tab"],
+        "answer": 0,
+        "explanation": "Alt text for accessibility is added under Format Picture -> Alt Text."
+    },
+    {
+        "question": "Which feature helps to remove the background of an image?",
+        "options": ["Remove Background", "Set Transparent Color", "Recolor", "Image Mask"],
+        "answer": 0,
+        "explanation": "Remove Background isolates and removes the picture's background."
+    },
+    {
+        "question": "How do you keep an object's aspect ratio when resizing?",
+        "options": ["Hold Shift", "Hold Alt", "Hold Ctrl", "Hold Enter"],
+        "answer": 0,
+        "explanation": "Holding Shift maintains proportion while resizing the object."
+    },
+    {
+        "question": "Which view is best for organizing multiple slides quickly?",
+        "options": ["Slide Sorter View", "Outline View", "Reading View", "Normal View"],
+        "answer": 0,
+        "explanation": "Slide Sorter View is best for rearranging multiple slides."
+    },
+    {
+        "question": "Where can 'Replace Picture' be found?",
+        "options": ["Picture Format tab", "Insert tab", "Design tab", "Home tab"],
+        "answer": 0,
+        "explanation": "'Replace Picture' is in the Picture Format tab."
+    },
+    {
+        "question": "Which feature converts hand-drawn shapes into perfect shapes?",
+        "options": ["Ink to Shape", "Draw Shape", "Shape AutoCorrect", "Shape Fix"],
+        "answer": 0,
+        "explanation": "Ink to Shape changes hand-drawn content into accurate shapes."
+    },
+	 {
+        "question": "Which key ends a PowerPoint slideshow immediately?",
+        "options": ["Esc", "Ctrl+E", "End", "Alt+F4"],
+        "answer": 0,
+        "explanation": "Pressing the Esc key stops the slideshow instantly and returns to editing mode."
+    },
+    {
+        "question": "Which file format is used to store PowerPoint theme files?",
+        "options": [".thmx", ".pptx", ".potx", ".ppsm"],
+        "answer": 0,
+        "explanation": ".thmx files contain theme designs for reuse in presentations."
+    },
+    {
+        "question": "Which keyboard shortcut increases the font size of the selected text?",
+        "options": ["Ctrl+Shift+>", "Ctrl+>", "Alt+>", "Shift+>"],
+        "answer": 0,
+        "explanation": "Ctrl+Shift+> increases the font size incrementally."
+    },
+    {
+        "question": "What does the 'Outline View' show?",
+        "options": ["Text content of slides", "Slide thumbnails", "Detailed notes", "Animations"],
+        "answer": 0,
+        "explanation": "Outline View displays only the titles and main text of slides in outline form."
+    },
+    {
+        "question": "Which image file type usually has the smallest file size for photographs?",
+        "options": ["JPEG", "PNG", "BMP", "TIFF"],
+        "answer": 0,
+        "explanation": "JPEG compresses photos efficiently, resulting in smaller file sizes."
+    },
+    {
+        "question": "Which option can you use to apply the same animation timing to multiple objects?",
+        "options": ["Animation Painter", "Copy Animation", "Paste Format", "Duplicate Animation"],
+        "answer": 0,
+        "explanation": "Animation Painter copies animation effects and settings to other objects."
+    },
+    {
+        "question": "During a slideshow, which key temporarily displays a white screen?",
+        "options": ["W", "B", "Spacebar", "Tab"],
+        "answer": 0,
+        "explanation": "Pressing 'W' replaces the slide with a white screen temporarily."
+    },
+    {
+        "question": "In which PowerPoint view can you rearrange sections quickly?",
+        "options": ["Slide Sorter View", "Normal View", "Reading View", "Outline View"],
+        "answer": 0,
+        "explanation": "Slide Sorter lets you drag and rearrange slides and sections easily."
+    },
+    {
+        "question": "Which placeholder is specifically intended for inserting multimedia?",
+        "options": ["Content Placeholder", "Title Placeholder", "Text Placeholder", "Notes Placeholder"],
+        "answer": 0,
+        "explanation": "Content placeholders allow inserting videos, charts, images, and tables."
+    },
+    {
+        "question": "Which printing option uses the least paper?",
+        "options": ["Handouts with multiple slides per page", "Notes Pages", "Full Page Slides", "Outline"],
+        "answer": 0,
+        "explanation": "Handouts with multiple slides per page reduce paper usage significantly."
+    },
+    {
+        "question": "Which type of animation is 'Fade Out'?",
+        "options": ["Exit", "Entrance", "Emphasis", "Motion Path"],
+        "answer": 0,
+        "explanation": "Fade Out is an Exit animation type."
+    },
+    {
+        "question": "Which toolbar can be customized to include frequently used commands?",
+        "options": ["Quick Access Toolbar", "Formatting Toolbar", "Drawing Toolbar", "Status Bar"],
+        "answer": 0,
+        "explanation": "The Quick Access Toolbar can be customized for easy access to commands."
+    },
+    {
+        "question": "What does the Slide Master help you maintain?",
+        "options": ["Consistency of design across all slides", "Automatic transitions", "Audio narration", "Time duration of slides"],
+        "answer": 0,
+        "explanation": "The Slide Master ensures uniform design elements across the presentation."
+    },
+    {
+        "question": "Which PowerPoint view shows each slide with its notes?",
+        "options": ["Notes Page", "Outline", "Slide Sorter", "Normal"],
+        "answer": 0,
+        "explanation": "Notes Page shows the slide and its associated speaker notes."
+    },
+    {
+        "question": "Which transition mimics the slide being pulled like blinds either horizontally or vertically?",
+        "options": ["Blinds", "Checkerboard", "Wipe", "Split"],
+        "answer": 0,
+        "explanation": "The Blinds transition looks like opening or closing blinds."
+    },
+    {
+        "question": "How can you quickly duplicate a slide?",
+        "options": ["Ctrl+D", "Right-click -> Duplicate Slide", "Copy and Paste slide", "All of these"],
+        "answer": 3,
+        "explanation": "All listed methods can duplicate a slide."
+    },
+    {
+        "question": "Which keyboard shortcut opens the 'Insert Hyperlink' dialog box?",
+        "options": ["Ctrl+K", "Ctrl+H", "Ctrl+Shift+K", "Alt+K"],
+        "answer": 0,
+        "explanation": "Ctrl+K opens the Insert Hyperlink dialog."
+    },
+    {
+        "question": "Which type of chart is best for comparing parts to a whole?",
+        "options": ["Pie Chart", "Line Chart", "Scatter Plot", "Column Chart"],
+        "answer": 0,
+        "explanation": "Pie charts represent parts of a whole as slices."
+    },
+    {
+        "question": "What does the 'Selection Pane' allow you to do?",
+        "options": ["Hide or show objects", "Rename objects", "Reorder objects", "All of these"],
+        "answer": 3,
+        "explanation": "The Selection Pane lists objects for hiding, renaming, and reordering."
+    },
+    {
+        "question": "Which shortcut opens the PowerPoint help window?",
+        "options": ["F1", "Ctrl+F1", "Shift+F1", "Alt+F1"],
+        "answer": 0,
+        "explanation": "F1 opens the Help window to assist with PowerPoint's features."
+    },
+    {
+        "question": "Which menu has the option to insert Slide Numbers?",
+        "options": ["Insert Tab", "Design Tab", "View Tab", "Home Tab"],
+        "answer": 0,
+        "explanation": "The Insert tab has the Slide Number option."
+    },
+    {
+        "question": "Which PowerPoint view is best for editing the content placeholder text directly?",
+        "options": ["Normal View", "Slide Sorter View", "Outline View", "Reading View"],
+        "answer": 0,
+        "explanation": "Normal View allows direct editing of placeholders."
+    },
+    {
+        "question": "Which feature helps align an object with the center of a slide?",
+        "options": ["Align Center", "Align Middle", "Align Top", "Distribute Vertically"],
+        "answer": 0,
+        "explanation": "Align Center places the object horizontally in the middle of the slide."
+    },
+    {
+        "question": "Where is the 'Reuse Slides' option located?",
+        "options": ["Insert Tab", "Home Tab", "Design Tab", "View Tab"],
+        "answer": 0,
+        "explanation": "The 'Reuse Slides' button is in the Insert tab."
+    },
+    {
+        "question": "The 'From Current Slide' option starts presentation from:",
+        "options": ["First Slide", "Last Slide", "The active slide", "Selected range of slides"],
+        "answer": 2,
+        "explanation": "It starts the slideshow from the current slide."
+    },
+    {
+        "question": "What does Ctrl+Shift+< do to selected text?",
+        "options": ["Reduces font size", "Increases font size", "Applies bold", "Changes to lowercase"],
+        "answer": 0,
+        "explanation": "Ctrl+Shift+< decreases the font size."
+    },
+    {
+        "question": "Which option in PowerPoint lets you create a navigable menu of slides within a show?",
+        "options": ["Summary Zoom", "Slide Sorter", "Outline View", "Section"],
+        "answer": 0,
+        "explanation": "Summary Zoom creates an interactive menu to access slides non-linearly."
+    },
+    {
+        "question": "Which option in the Slide Show tab allows recording timings?",
+        "options": ["Rehearse Timings", "Record Narration", "Custom Show", "Set Up Show"],
+        "answer": 0,
+        "explanation": "Rehearse Timings records the time spent per slide."
+    },
+    {
+        "question": "Which placeholder type is intended for inserting a chart or table?",
+        "options": ["Content Placeholder", "Text Placeholder", "Title Placeholder", "Notes Placeholder"],
+        "answer": 0,
+        "explanation": "Content Placeholder contains icons to insert charts, images, and tables."
+    },
+    {
+        "question": "Where can you change the aspect ratio of slides?",
+        "options": ["Design Tab -> Slide Size", "View Tab -> Slide Master", "Insert Tab -> Layout", "File Tab -> Options"],
+        "answer": 0,
+        "explanation": "The Design tab's Slide Size option changes width and height proportions."
+    },
+    {
+        "question": "Which PowerPoint feature plays audio when you click an object?",
+        "options": ["Action Settings", "Animations", "Trigger", "Embed Audio"],
+        "answer": 0,
+        "explanation": "Action Settings allow audio to play upon clicking an object."
+    },
+    {
+        "question": "Which shortcut key brings up the New Slide dialog?",
+        "options": ["Ctrl+M", "Ctrl+Shift+M", "Alt+N", "Ctrl+N"],
+        "answer": 0,
+        "explanation": "Ctrl+M adds a new slide, letting you pick a layout."
+    },
+    {
+        "question": "What is the function of the 'Reset' button on the Home tab?",
+        "options": ["Restores a slide to its original layout formatting", "Deletes all content", "Resets PowerPoint settings", "Applies the theme again"],
+        "answer": 0,
+        "explanation": "Reset returns the slide to its original layout formatting."
+    },
+    {
+        "question": "Which type of animation effect is 'Grow/Shrink'?",
+        "options": ["Emphasis", "Entrance", "Exit", "Motion Path"],
+        "answer": 0,
+        "explanation": "Grow/Shrink is an Emphasis effect."
+    },
+    {
+        "question": "What does pressing 'N' do in a slideshow?",
+        "options": ["Moves to the next slide", "Shows notes", "Hides slide", "Ends slideshow"],
+        "answer": 0,
+        "explanation": "Pressing 'N' or Spacebar advances to the next slide."
+    },
+    {
+        "question": "Which command locks an object's size and position?",
+        "options": ["Lock", "Group", "Freeze", "Fix Position"],
+        "answer": 0,
+        "explanation": "The Lock command prevents changes to an object's position and size."
+    },
+    {
+        "question": "Which printing format prints slides as pure text?",
+        "options": ["Outline View", "Notes Pages", "Handouts", "Full Page Slides"],
+        "answer": 0,
+        "explanation": "Printing Outline View prints only textual content."
+    },
+    {
+        "question": "Which tool removes parts of a background from an image?",
+        "options": ["Remove Background", "Crop", "Set Transparent Color", "Image Eraser"],
+        "answer": 0,
+        "explanation": "Remove Background helps erase unwanted elements from a picture."
+    },
+    {
+        "question": "What is the advantage of using sections in PowerPoint?",
+        "options": ["Organize slides logically", "Hide slides", "Apply themes", "Change fonts"],
+        "answer": 0,
+        "explanation": "Sections group related slides to improve organization."
+    },
+    {
+        "question": "Which animation makes text appear one letter at a time?",
+        "options": ["Typewriter", "Fade", "Wipe", "Appear"],
+        "answer": 0,
+        "explanation": "Typewriter effect gives a letter-by-letter text appearance."
+    },
+    {
+        "question": "Which element in Slide Master view affects all slide layouts?",
+        "options": ["Master Slide", "Notes Master", "Handout Master", "Custom Layout"],
+        "answer": 0,
+        "explanation": "The Master Slide controls the default design for all layouts."
+    },
+    {
+        "question": "Which shortcut key helps ungroup objects?",
+        "options": ["Ctrl+Shift+G", "Ctrl+G", "Ctrl+U", "Ctrl+Alt+G"],
+        "answer": 0,
+        "explanation": "Ctrl+Shift+G ungroups selected grouped objects."
+    },
+	  {
+        "question": "Which key starts a PowerPoint presentation from the first slide?",
+        "options": ["F5", "F2", "Ctrl+Shift+F", "Alt+S"],
+        "answer": 0,
+        "explanation": "Pressing F5 starts the slideshow from the beginning."
+    },
+    {
+        "question": "Which shortcut inserts a new slide in the current presentation?",
+        "options": ["Ctrl+M", "Ctrl+N", "Shift+F5", "Ctrl+S"],
+        "answer": 0,
+        "explanation": "Ctrl+M adds a new slide after the selected one."
+    },
+    {
+        "question": "What is the default slide layout for the first slide in a new presentation?",
+        "options": ["Title and Content", "Title Slide", "Blank", "Comparison"],
+        "answer": 1,
+        "explanation": "PowerPoint uses the Title Slide layout by default for the first slide."
+    },
+    {
+        "question": "In which tab is the 'New Slide' button found?",
+        "options": ["Home Tab", "Insert Tab", "Design Tab", "View Tab"],
+        "answer": 0,
+        "explanation": "The Home tab contains the option to insert a new slide."
+    },
+    {
+        "question": "What is the default orientation of presentation slides?",
+        "options": ["Landscape", "Portrait", "Square", "Custom"],
+        "answer": 0,
+        "explanation": "PowerPoint slides are landscape-oriented by default."
+    },
+    {
+        "question": "Which option in the Insert tab is used to add pictures to slides?",
+        "options": ["Picture", "Background", "Design", "Format"],
+        "answer": 0,
+        "explanation": "Insert -> Picture allows you to add images from your computer."
+    },
+    {
+        "question": "Which shortcut saves the current presentation?",
+        "options": ["Ctrl+S", "Ctrl+P", "F5", "Ctrl+Shift+S"],
+        "answer": 0,
+        "explanation": "Ctrl+S saves the active PowerPoint file."
+    },
+    {
+        "question": "Which bar shows the current slide number in PowerPoint?",
+        "options": ["Status Bar", "Title Bar", "Formula Bar", "Menu Bar"],
+        "answer": 0,
+        "explanation": "The Status Bar displays the current slide number and total slides."
+    },
+    {
+        "question": "Which feature applies consistent design across all slides?",
+        "options": ["Theme", "Layout", "Animation", "Transition"],
+        "answer": 0,
+        "explanation": "Themes provide consistent colors, fonts, and styles across slides."
+    },
+    {
+        "question": "Which view is used to see all slides in thumbnail format?",
+        "options": ["Slide Sorter View", "Outline View", "Normal View", "Reading View"],
+        "answer": 0,
+        "explanation": "Slide Sorter View shows all slides as thumbnails for quick arrangement."
+    },
+    {
+        "question": "Which view is used for adding and editing speaker notes?",
+        "options": ["Notes Page View", "Slide Sorter View", "Reading View", "Outline View"],
+        "answer": 0,
+        "explanation": "Notes Page View is specifically for adding/editing presentation notes."
+    },
+    {
+        "question": "Which PowerPoint option inserts a ready-made diagram?",
+        "options": ["SmartArt", "WordArt", "Chart", "Icon"],
+        "answer": 0,
+        "explanation": "SmartArt allows adding pre-designed diagrams and graphics."
+    },
+    {
+        "question": "Which placeholder is for the main heading of a slide?",
+        "options": ["Title Placeholder", "Content Placeholder", "Notes Placeholder", "Text Box"],
+        "answer": 0,
+        "explanation": "The Title placeholder is reserved for the slide heading."
+    },
+    {
+        "question": "What is the shortcut to print a presentation?",
+        "options": ["Ctrl+P", "Ctrl+Shift+P", "Alt+P", "F2"],
+        "answer": 0,
+        "explanation": "Ctrl+P opens the print dialog box."
+    },
+    {
+        "question": "Which menu adds transitions between slides?",
+        "options": ["Transitions Tab", "Animations Tab", "Design Tab", "Insert Tab"],
+        "answer": 0,
+        "explanation": "The Transitions tab provides effects to move from one slide to another."
+    },
+    {
+        "question": "Which command hides a slide during the presentation?",
+        "options": ["Hide Slide", "Remove Slide", "Lock Slide", "Skip Slide"],
+        "answer": 0,
+        "explanation": "The Hide Slide option excludes a slide from showing in slideshow mode."
+    },
+    {
+        "question": "Which keyboard shortcut starts the slideshow from the current slide?",
+        "options": ["Shift+F5", "F5", "Ctrl+F5", "Alt+F5"],
+        "answer": 0,
+        "explanation": "Shift+F5 runs the slideshow starting from the active slide."
+    },
+    {
+        "question": "Which PowerPoint tool copies formatting from one object to another?",
+        "options": ["Format Painter", "Layout Painter", "Animation Painter", "Theme Painter"],
+        "answer": 0,
+        "explanation": "Format Painter duplicates the formatting of text or objects."
+    },
+    {
+        "question": "What does the 'Reset' button do on a slide?",
+        "options": ["Clears animations", "Restores original layout formatting", "Deletes slide", "Resets zoom"],
+        "answer": 1,
+        "explanation": "Reset restores the layout formatting applied from the Slide Master."
+    },
+    {
+        "question": "Which file extension is default for PowerPoint 2016 presentations?",
+        "options": [".ppt", ".pptx", ".pps", ".pdf"],
+        "answer": 1,
+        "explanation": ".pptx is the default file format for PowerPoint 2007 and later."
+    },
+    {
+        "question": "Where can you find the 'Design Ideas' feature?",
+        "options": ["Design Tab", "View Tab", "Insert Tab", "Home Tab"],
+        "answer": 0,
+        "explanation": "Design Ideas is in the Design Tab to suggest slide layouts automatically."
+    },
+    {
+        "question": "Which transition gradually replaces one slide with the next?",
+        "options": ["Fade", "Push", "Split", "Wipe"],
+        "answer": 0,
+        "explanation": "Fade softly blends the current slide into the next."
+    },
+    {
+        "question": "Which placeholder allows inserting charts or media?",
+        "options": ["Content Placeholder", "Title Placeholder", "Text Placeholder", "Notes Placeholder"],
+        "answer": 0,
+        "explanation": "Content Placeholder provides icons for charts, pictures, videos, and more."
+    },
+    {
+        "question": "Which shortcut key closes the active presentation?",
+        "options": ["Ctrl+W", "Ctrl+F4", "Alt+F4", "All of these"],
+        "answer": 3,
+        "explanation": "Ctrl+W, Ctrl+F4, and Alt+F4 can close the current presentation."
+    },
+    {
+        "question": "Which PowerPoint feature rearranges slides easily?",
+        "options": ["Slide Sorter View", "Outline View", "Reading View", "Normal View"],
+        "answer": 0,
+        "explanation": "Slide Sorter View is meant for quickly rearranging slides."
+    },
+    {
+        "question": "What is the default aspect ratio for new slides in recent PowerPoint versions?",
+        "options": ["4:3", "16:9", "3:2", "16:10"],
+        "answer": 1,
+        "explanation": "The 16:9 widescreen ratio is the default in recent versions."
+    },
+    {
+        "question": "Which menu contains the 'Header & Footer' option?",
+        "options": ["Insert Tab", "Home Tab", "View Tab", "Design Tab"],
+        "answer": 0,
+        "explanation": "Insert -> Header & Footer is used to add date, slide numbers, and footers."
+    },
+    {
+        "question": "Which chart type is best to show proportions of a whole?",
+        "options": ["Pie Chart", "Line Chart", "Bar Chart", "Column Chart"],
+        "answer": 0,
+        "explanation": "Pie Charts display proportions as slices of a circle."
+    },
+    {
+        "question": "Which key ends a PowerPoint slideshow?",
+        "options": ["Esc", "F5", "End", "Ctrl+E"],
+        "answer": 0,
+        "explanation": "Press 'Esc' to exit slideshow mode."
+    },
+    {
+        "question": "Which pane lets you add notes for reference while presenting?",
+        "options": ["Notes Pane", "Slides Pane", "Outline Pane", "Animation Pane"],
+        "answer": 0,
+        "explanation": "Notes Pane beneath the slide area is used for speaker notes."
+    },
+    {
+        "question": "Which menu allows changing the slide background style?",
+        "options": ["Design Tab", "Insert Tab", "View Tab", "Home Tab"],
+        "answer": 0,
+        "explanation": "Design Tab contains the option to format the background."
+    },
+    {
+        "question": "Which PowerPoint view allows editing both slide and notes together?",
+        "options": ["Normal View", "Notes Page View", "Slide Sorter", "Reading View"],
+        "answer": 1,
+        "explanation": "Notes Page View shows the slide along with its notes."
+    },
+    {
+        "question": "Which shortcut undoes the last action?",
+        "options": ["Ctrl+Z", "Ctrl+Y", "Ctrl+U", "Ctrl+A"],
+        "answer": 0,
+        "explanation": "Ctrl+Z reverses the most recent change made."
+    },
+    {
+        "question": "Which shortcut redoes an undone action?",
+        "options": ["Ctrl+Y", "Ctrl+Shift+Y", "Ctrl+R", "Ctrl+A"],
+        "answer": 0,
+        "explanation": "Ctrl+Y re-applies the last undone action."
+    },
+    {
+        "question": "Which printing option prints one slide per page?",
+        "options": ["Full Page Slides", "Notes Pages", "Handouts", "Outline View"],
+        "answer": 0,
+        "explanation": "Full Page Slides prints each slide on its own page."
+    },
+    {
+        "question": "Which tab provides options for inserting tables, charts, and SmartArt?",
+        "options": ["Insert Tab", "Home Tab", "Design Tab", "Review Tab"],
+        "answer": 0,
+        "explanation": "The Insert Tab contains tools for adding different content types."
+    },
+    {
+        "question": "Which view is used for adding animation to objects?",
+        "options": ["Normal View", "Slide Sorter View", "Outline View", "Reading View"],
+        "answer": 0,
+        "explanation": "You typically add animations in Normal View."
+    },
+    {
+        "question": "Which pane displays slides as thumbnails?",
+        "options": ["Slides Pane", "Notes Pane", "Outline Pane", "Selection Pane"],
+        "answer": 0,
+        "explanation": "The Slides Pane shows miniature versions of all slides."
+    },
+    {
+        "question": "Which feature adds movement effects to objects on a slide?",
+        "options": ["Animations", "Transitions", "Themes", "Layouts"],
+        "answer": 0,
+        "explanation": "Animations control how objects move and appear on a slide."
+    },
+    {
+        "question": "Which feature controls how slides change from one to the next?",
+        "options": ["Transitions", "Animations", "Themes", "Layouts"],
+        "answer": 0,
+        "explanation": "Transitions define the effect between two slides."
+    },
+    {
+        "question": "Which file format opens directly as a slideshow?",
+        "options": [".ppsx", ".pptx", ".ppt", ".pdf"],
+        "answer": 0,
+        "explanation": ".ppsx opens the file directly in slideshow mode."
+    },
+    {
+        "question": "Which option in the File menu creates a new presentation?",
+        "options": ["New", "Open", "Save", "Close"],
+        "answer": 0,
+        "explanation": "The New command starts a new presentation."
+    },
+    {
+        "question": "What color is applied to misspelled words by default in PowerPoint?",
+        "options": ["Red underline", "Blue underline", "Green underline", "Yellow highlight"],
+        "answer": 0,
+        "explanation": "Misspelled words are underlined in red."
+    },
+    {
+        "question": "Which key combination opens the 'Open File' dialog box?",
+        "options": ["Ctrl+O", "Ctrl+N", "Ctrl+Shift+O", "Alt+O"],
+        "answer": 0,
+        "explanation": "Ctrl+O lets you browse and open an existing presentation."
+    },
+    {
+        "question": "Which command changes bullet style?",
+        "options": ["Home Tab -> Paragraph Group", "Insert Tab -> Bullets", "Design Tab -> Bullets", "View Tab -> Bullets"],
+        "answer": 0,
+        "explanation": "Home Tab -> Paragraph Group contains Bullets and Numbering."
+    },
+	{
+        "question": "Which shortcut opens a new blank PowerPoint presentation?",
+        "options": ["Ctrl+N", "Ctrl+M", "Ctrl+O", "Ctrl+Shift+N"],
+        "answer": 0,
+        "explanation": "Ctrl+N starts a new blank presentation."
+    },
+    {
+        "question": "Which pane in PowerPoint is used to display and manage slides in order?",
+        "options": ["Slides Pane", "Notes Pane", "Outline Pane", "Animation Pane"],
+        "answer": 0,
+        "explanation": "The Slides Pane shows thumbnails for easy navigation and arrangement."
+    },
+    {
+        "question": "What is the function of the 'Title Slide' layout?",
+        "options": ["Holds title and subtitle", "Only holds title", "Holds content only", "Holds notes only"],
+        "answer": 0,
+        "explanation": "The Title Slide layout is used for title and subtitle placeholders."
+    },
+    {
+        "question": "In which menu can you find the 'Slide Number' option?",
+        "options": ["Insert Tab", "Design Tab", "Home Tab", "Layout Tab"],
+        "answer": 0,
+        "explanation": "Insert tab contains the Slide Number option to add numbers to slides."
+    },
+    {
+        "question": "What happens if you press F5 in PowerPoint?",
+        "options": ["Starts slideshow from first slide", "Starts slideshow from current slide", "Opens print dialog", "Opens help"],
+        "answer": 0,
+        "explanation": "F5 starts slideshow from the beginning."
+    },
+    {
+        "question": "Which file extension is for a PowerPoint Show file?",
+        "options": [".ppsx", ".pptx", ".ppt", ".pdf"],
+        "answer": 0,
+        "explanation": ".ppsx files open directly in slideshow mode."
+    },
+    {
+        "question": "Which key moves to the next slide during a slideshow?",
+        "options": ["Right Arrow", "Spacebar", "Enter", "All of these"],
+        "answer": 3,
+        "explanation": "All of these keys advance to the next slide."
+    },
+    {
+        "question": "Where is the option to change slide layout located?",
+        "options": ["Home Tab", "Insert Tab", "Design Tab", "View Tab"],
+        "answer": 0,
+        "explanation": "The Home Tab contains the Layout option for changing slide layouts."
+    },
+    {
+        "question": "Which placeholder is used for inserting text, tables, or charts?",
+        "options": ["Content Placeholder", "Title Placeholder", "Text Placeholder", "Notes Placeholder"],
+        "answer": 0,
+        "explanation": "Content placeholders allow inserting various types of content."
+    },
+    {
+        "question": "Which view is used when you want to see notes alongside your slides?",
+        "options": ["Notes Page View", "Outline View", "Slide Sorter", "Reading View"],
+        "answer": 0,
+        "explanation": "Notes Page View shows slides with their speaker notes."
+    },
+    {
+        "question": "Which feature changes the design of all slides at once?",
+        "options": ["Theme", "Layout", "Transition", "Animation"],
+        "answer": 0,
+        "explanation": "Themes apply consistent design to all slides in the presentation."
+    },
+    {
+        "question": "Which shortcut key opens the Open File dialog?",
+        "options": ["Ctrl+O", "Ctrl+Shift+O", "Ctrl+N", "Ctrl+Shift+N"],
+        "answer": 0,
+        "explanation": "Ctrl+O allows you to browse and open existing presentations."
+    },
+    {
+        "question": "Which button on the Quick Access Toolbar saves the current file?",
+        "options": ["Save", "Undo", "Redo", "Print"],
+        "answer": 0,
+        "explanation": "The Save icon stores current changes to the file."
+    },
+    {
+        "question": "Which view shows slides full screen for presenting?",
+        "options": ["Slide Show View", "Normal View", "Slides Pane", "Outline View"],
+        "answer": 0,
+        "explanation": "Slide Show View expands slides to full screen for presentations."
+    },
+    {
+        "question": "Which tab contains the option to insert a chart?",
+        "options": ["Insert Tab", "Home Tab", "Design Tab", "Animations Tab"],
+        "answer": 0,
+        "explanation": "The Insert Tab contains options to add tables, charts, and SmartArt."
+    },
+    {
+        "question": "Which key ends a slideshow?",
+        "options": ["Esc", "End", "Ctrl+E", "Shift+Esc"],
+        "answer": 0,
+        "explanation": "Pressing Esc exits slideshow mode."
+    },
+    {
+        "question": "Which default aspect ratio is used for new slides in PowerPoint 2019?",
+        "options": ["16:9", "4:3", "16:10", "3:2"],
+        "answer": 0,
+        "explanation": "16:9 widescreen is the default aspect ratio."
+    },
+    {
+        "question": "Which menu contains the 'Format Background' option?",
+        "options": ["Design Tab", "Home Tab", "Insert Tab", "View Tab"],
+        "answer": 0,
+        "explanation": "Design Tab -> Format Background allows slide background formatting."
+    },
+    {
+        "question": "Which command on the Home tab changes bullet styles?",
+        "options": ["Bullets", "Paragraph", "Styles", "Lists"],
+        "answer": 0,
+        "explanation": "The Bullets button in the Paragraph group changes bullet styles."
+    },
+    {
+        "question": "What is the function of the Notes Pane?",
+        "options": ["Add speaker notes", "Show slide thumbnails", "Add animations", "Insert images"],
+        "answer": 0,
+        "explanation": "Notes Pane is for the presenter to add speaking notes for each slide."
+    },
+    {
+        "question": "Which format is used to save PowerPoint templates?",
+        "options": [".potx", ".pptx", ".ppsx", ".thmx"],
+        "answer": 0,
+        "explanation": ".potx is the file extension for presentation templates."
+    },
+    {
+        "question": "Which button undoes the last action?",
+        "options": ["Undo", "Redo", "Reset", "Clear"],
+        "answer": 0,
+        "explanation": "Undo reverses your most recent action."
+    },
+    {
+        "question": "What is the function of the Redo button?",
+        "options": ["Repeats the last undone action", "Undoes last action", "Clears slides", "Starts slideshow"],
+        "answer": 0,
+        "explanation": "Redo repeats the action you just undid."
+    },
+    {
+        "question": "Which shortcut starts a slideshow in Presenter View?",
+        "options": ["Alt+F5", "F5", "Shift+F5", "Ctrl+F5"],
+        "answer": 0,
+        "explanation": "Alt+F5 starts the slideshow in Presenter View."
+    },
+    {
+        "question": "Which menu contains Table insertion?",
+        "options": ["Insert Tab", "Design Tab", "View Tab", "Animations Tab"],
+        "answer": 0,
+        "explanation": "Insert Tab provides the Table option."
+    },
+    {
+        "question": "What does Ctrl+Z do?",
+        "options": ["Undo action", "Redo action", "Zoom in", "Zoom out"],
+        "answer": 0,
+        "explanation": "Ctrl+Z undoes the most recent action taken."
+    },
+    {
+        "question": "Which command applies a design to all slides?",
+        "options": ["Theme", "Layout", "Transition", "Animation"],
+        "answer": 0,
+        "explanation": "A Theme changes the overall look of all slides."
+    },
+    {
+        "question": "Which transition fades one slide into the next?",
+        "options": ["Fade", "Wipe", "Push", "Split"],
+        "answer": 0,
+        "explanation": "Fade transitions gradually replace the current slide with the next."
+    },
+    {
+        "question": "Which shortcut opens the Save As dialog?",
+        "options": ["F12", "Ctrl+S", "Ctrl+Shift+S", "Alt+S"],
+        "answer": 0,
+        "explanation": "Pressing F12 opens Save As to save the file with a new name or format."
+    },
+    {
+        "question": "What is the default slide size in PowerPoint 2016?",
+        "options": ["Widescreen (16:9)", "Standard (4:3)", "Custom", "A4 Page"],
+        "answer": 0,
+        "explanation": "From 2013 onward, the default slide size is 16:9 widescreen."
+    },
+    {
+        "question": "Which pane lets you manage animation order?",
+        "options": ["Animation Pane", "Slides Pane", "Outline Pane", "Notes Pane"],
+        "answer": 0,
+        "explanation": "The Animation Pane controls sequence and timing of animations."
+    },
+    {
+        "question": "Which key combination inserts a hyperlink?",
+        "options": ["Ctrl+K", "Ctrl+H", "Ctrl+Alt+K", "Ctrl+Shift+K"],
+        "answer": 0,
+        "explanation": "Ctrl+K opens the insert hyperlink dialog."
+    },
+    {
+        "question": "Which tab contains the Slide Master option?",
+        "options": ["View Tab", "Design Tab", "Insert Tab", "Home Tab"],
+        "answer": 0,
+        "explanation": "View Tab contains Slide Master to edit the overall slide design."
+    },
+    {
+        "question": "Which file format is used for videos exported from PowerPoint?",
+        "options": [".mp4", ".pptx", ".avi", ".mov"],
+        "answer": 0,
+        "explanation": "PowerPoint exports presentations as .mp4 videos by default."
+    },
+    {
+        "question": "Which view lets you focus only on text content?",
+        "options": ["Outline View", "Notes Page View", "Slide Sorter", "Reading View"],
+        "answer": 0,
+        "explanation": "Outline View displays only slide titles and body text."
+    },
+    {
+        "question": "Which tab allows you to insert SmartArt graphics?",
+        "options": ["Insert Tab", "Home Tab", "Design Tab", "Format Tab"],
+        "answer": 0,
+        "explanation": "Insert Tab -> SmartArt inserts predefined graphic layouts."
+    },
+    {
+        "question": "Which shortcut opens the Find dialog?",
+        "options": ["Ctrl+F", "Ctrl+H", "Ctrl+Shift+F", "F3"],
+        "answer": 0,
+        "explanation": "Ctrl+F opens the Find dialog to search content."
+    },
+    {
+        "question": "Which option in PowerPoint adds movement to objects?",
+        "options": ["Animations", "Transitions", "Themes", "Layouts"],
+        "answer": 0,
+        "explanation": "Animations add motion effects to slide elements."
+    },
+    {
+        "question": "Where can you change the font style for the whole presentation?",
+        "options": ["Design Tab -> Fonts", "Home Tab -> Fonts", "Insert Tab", "View Tab"],
+        "answer": 0,
+        "explanation": "Design Tab -> Fonts changes theme fonts for the entire presentation."
+    },
+    {
+        "question": "Which placeholder holds the main heading text?",
+        "options": ["Title Placeholder", "Content Placeholder", "Notes Placeholder", "Textbox"],
+        "answer": 0,
+        "explanation": "Title Placeholder is specifically for the slide title."
+    }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>
