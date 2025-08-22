@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <title>ODISHABIX - Quiz App</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -228,93 +234,144 @@
     #closeModalBtn:hover {
         color: #ffaa00;
     }
-	.social-icon {
-    font-size: 1.8rem;
-    margin: 0 7px;
-    transition: color 0.3s ease;
-    text-decoration: none;
-    vertical-align: middle;
-	}
-	.social-icon.email i {
-		color: #EA4335; /* Red for Gmail/Email */
-	}
-	.social-icon.whatsapp i {
-		color: #25D366; /* WhatsApp green */
-	}
-	.social-icon.telegram i {
-		color: #229ED9; /* Telegram blue */
-	}
-	.social-icon:hover i {
-		color: #ffaa00; /* Highlight all on hover */
-	}
-		/* Subscription Modal & User Modal */
-	#subscriptionModal, #userModal {
-		display: none;
-		position: fixed;
-		z-index: 1200;
-		left: 0;
-		top: 0;
-		width: 100%;
-		height: 100%;
-		overflow: auto;
-		background-color: rgba(0,0,0,0.7);
-	}
-	#subscriptionModalContent, #userModalContent {
-		background-color: #222;
-		margin: 10% auto;
-		padding: 20px 30px;
-		border-radius: 15px;
-		max-width: 600px;
-		color: #ffcc00;
-		font-size: 1.1rem;
-		line-height: 1.5;
-		position: relative;
-		box-shadow: 0 0 15px #ffcc00;
-	}
-	#subscriptionModalContent h2, #userModalContent h2 {
-		margin-top: 0;
-		text-align: center;
-	}
-	#subscriptionModalContent .plan {
-		background: rgba(255,255,255,0.1);
-		padding: 15px;
-		border-radius: 10px;
-		margin: 10px 0;
-		text-align: center;
-		cursor: pointer;
-	}
-	#subscriptionModalContent .plan.selected {
-		border: 2px solid #ffcc00;
-		box-shadow: 0 0 10px #ffaa00;
-	}
-	#subscriptionModalContent button.buy-btn {
-		background-color: #ffcc00;
-		color: #333;
-		border: none;
-		padding: 8px 15px;
-		margin-top: 10px;
-		border-radius: 5px;
-		font-weight: bold;
-		cursor: pointer;
-	}
-	#subscriptionModalContent button.buy-btn:hover {
-		background-color: #ffaa00;
-	}
-	.closeBtn {
-		position: absolute;
-		top: 10px;
-		right: 15px;
-		color: #ffcc00;
-		font-size: 1.5rem;
-		font-weight: bold;
-		background: none;
-		border: none;
-		cursor: pointer;
-	}
-	.closeBtn:hover {
-		color: #ffaa00;
-	}
+    .social-icon {
+        font-size: 1.8rem;
+        margin: 0 7px;
+        transition: color 0.3s ease;
+        text-decoration: none;
+        vertical-align: middle;
+    }
+    .social-icon.email i {
+        color: #EA4335; /* Red for Gmail/Email */
+    }
+    .social-icon.whatsapp i {
+        color: #25D366; /* WhatsApp green */
+    }
+    .social-icon.telegram i {
+        color: #229ED9; /* Telegram blue */
+    }
+    .social-icon:hover i {
+        color: #ffaa00; /* Highlight all on hover */
+    }
+    /* Subscription Modal & User Modal */
+    #subscriptionModal, #userModal {
+        display: none;
+        position: fixed;
+        z-index: 1200;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.7);
+    }
+    #subscriptionModalContent, #userModalContent {
+        background-color: #222;
+        margin: 10% auto;
+        padding: 20px 30px;
+        border-radius: 15px;
+        max-width: 600px;
+        color: #ffcc00;
+        font-size: 1.1rem;
+        line-height: 1.5;
+        position: relative;
+        box-shadow: 0 0 15px #ffcc00;
+    }
+    #subscriptionModalContent h2, #userModalContent h2 {
+        margin-top: 0;
+        text-align: center;
+    }
+    #subscriptionModalContent .plan {
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+        text-align: center;
+        cursor: pointer;
+    }
+    #subscriptionModalContent .plan.selected {
+        border: 2px solid #ffcc00;
+        box-shadow: 0 0 10px #ffaa00;
+    }
+    #subscriptionModalContent button.buy-btn {
+        background-color: #ffcc00;
+        color: #333;
+        border: none;
+        padding: 8px 15px;
+        margin-top: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    #subscriptionModalContent button.buy-btn:hover {
+        background-color: #ffaa00;
+    }
+    .closeBtn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: #ffcc00;
+        font-size: 1.5rem;
+        font-weight: bold;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    .closeBtn:hover {
+        color: #ffaa00;
+    }
 
+  /* Login Modal */
+  #loginModal {
+      display: none;
+      position: fixed; 
+      z-index: 1300; /* higher than others */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.85);
+  }
+  #loginModalContent {
+      background-color: #222;
+      margin: 15% auto;
+      padding: 20px 30px;
+      border-radius: 15px;
+      max-width: 400px;
+      box-shadow: 0 0 15px #ffcc00;
+      text-align: left;
+      font-size: 1.1rem;
+      user-select: none;
+  }
+  #loginModalContent label {
+      color: #ffcc00;
+      font-weight: bold;
+  }
+  #loginModalContent input {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+  }
+  #loginModalContent button {
+      background-color: #ffcc00;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+  }
+  #loginModalContent button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+  }
+  #recaptcha-container {
+      margin-bottom: 15px;
+  }
 </style>
 </head>
 <body>
@@ -334,62 +391,101 @@
     <button class="menu-item" id="aboutBtn">About Us</button>
     <!-- Social media icons container -->
     <div class="social-media" id="socialMediaIcons" aria-label="Social media contacts">
-		<a href="mailto:odishabix@gmail.com" class="social-icon email" title="Email" aria-label="Email">
-		  <i class="fas fa-envelope"></i>
-		</a>
-		<a href="https://wa.me/7008320927" class="social-icon whatsapp" title="WhatsApp" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-			<i class="fab fa-whatsapp"></i>
-		</a>
-		<a href="https://t.me/odisha_bix" class="social-icon telegram" title="Telegram" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
-			<i class="fab fa-telegram-plane"></i>
-		</a>
-	</div>
+        <a href="mailto:odishabix@gmail.com" class="social-icon email" title="Email" target="_blank" rel="noopener noreferrer" aria-label="Email">
+            <i class="fas fa-envelope"></i>
+        </a>
+        <a href="https://wa.me/7008320927" class="social-icon whatsapp" title="WhatsApp" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="https://t.me/+kZ8bABUTKxFIM2VI" class="social-icon telegram" title="Telegram" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+            <i class="fab fa-telegram-plane"></i>
+        </a>
+    </div>
 </div>
 
-	<!-- Modal for About Us -->
-	<div id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" aria-hidden="true">
-		<div id="aboutModalContent">
-			<button id="closeModalBtn" aria-label="Close About Us modal">&times;</button>
-			<div id="aboutModalText"></div>
-		</div>
-	</div>
+<!-- Login Modal -->
+<div id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-hidden="true">
+  <div id="loginModalContent">
+    <h2 id="loginModalTitle">Login with Phone</h2>
+    <form id="loginForm">
+      <label for="userNameInput">Name:</label><br/>
+      <input type="text" id="userNameInput" name="userName" required placeholder="Enter your name"/><br/>
+      
+      <label for="userPhoneInput">Phone Number:</label><br/>
+      <input type="tel" id="userPhoneInput" name="userPhone" required placeholder="+91xxxxxxxxxx" pattern="^\+\d{10,15}$"/><br/>
 
-	<!-- Subscription Modal -->
-	<div id="subscriptionModal" role="dialog" aria-modal="true" aria-hidden="true">
-		<div id="subscriptionModalContent">
-			<button class="closeBtn" id="closeSubscriptionBtn">&times;</button>
-			<h2>Choose Your Subscription</h2>
-			<div class="plan" data-price="30" data-days="30">
-				<p><strong>₹30</strong> - 31 Days</p>
-				<button class="buy-btn">Buy Now</button>
-			</div>
-			<div class="plan" data-price="150" data-days="180">
-				<p><strong>₹149</strong> - 180 Days</p>
-				<button class="buy-btn">Buy Now</button>
-			</div>
-			<div class="plan" data-price="200" data-days="365">
-				<p><strong>₹199</strong> - 365 Days</p>
-				<button class="buy-btn">Buy Now</button>
-			</div>
-		</div>
-	</div>
+      <div id="recaptcha-container"></div>
 
-	<!-- User Info Modal -->
-	<div id="userModal" role="dialog" aria-modal="true" aria-hidden="true">
-		<div id="userModalContent">
-			<button class="closeBtn" id="closeUserBtn">&times;</button>
-			<h2>Your Information</h2>
-			<p><strong>Name:</strong> Manoj Sahoo</p>
-			<p><strong>Mobile Number:</strong> 9876543210</p>
-			<p><strong>Remaining Subscription:</strong> 25 days left</p>
-		</div>
-	</div>
+      <button id="sendOtpBtn" type="button">Send OTP</button>
+    </form>
 
+    <form id="otpForm" style="display:none; margin-top:15px;">
+      <label for="otpInput">Enter OTP:</label><br/>
+      <input type="text" id="otpInput" name="otp" required placeholder="6-digit OTP" pattern="^\d{6}$"/><br/>
+      <button id="verifyOtpBtn" type="button">Verify OTP</button>
+    </form>
+  </div>
+</div>
 
-	<div class="container" id="topics-container"></div>
+<!-- Modal for About Us -->
+<div id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" aria-hidden="true">
+    <div id="aboutModalContent">
+        <button id="closeModalBtn" aria-label="Close About Us modal">&times;</button>
+        <div id="aboutModalText">
+          Welcome to ODISHABIX, a dedicated platform crafted to empower government job aspirants in Odisha. We understand the unique challenges and aspirations of individuals seeking a career in the state government, and we're committed to providing the most effective and accessible tools to help you succeed.
+          <br><br>
+          At ODISHABIX, our mission is to make government job preparation in Odisha <strong>smarter, more engaging, and ultimately, more achievable</strong>.
+          We believe in the power of focused practice, continuous learning, and staying updated with the latest exam patterns and information relevant to Odisha government examinations.
+        </div>
+    </div>
+</div>
+
+<!-- Subscription Modal -->
+<div id="subscriptionModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div id="subscriptionModalContent">
+        <button class="closeBtn" id="closeSubscriptionBtn">&times;</button>
+        <h2>Choose Your Subscription</h2>
+        <div class="plan" data-price="30" data-days="30">
+            <p><strong>₹29</strong> - 31 Days</p>
+            <button class="buy-btn">Buy Now</button>
+        </div>
+        <div class="plan" data-price="150" data-days="180">
+            <p><strong>₹149</strong> - 180 Days</p>
+            <button class="buy-btn">Buy Now</button>
+        </div>
+        <div class="plan" data-price="200" data-days="365">
+            <p><strong>₹199</strong> - 365 Days</p>
+            <button class="buy-btn">Buy Now</button>
+        </div>
+    </div>
+</div>
+
+<!-- User Info Modal -->
+<div id="userModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div id="userModalContent">
+        <button class="closeBtn" id="closeUserBtn">&times;</button>
+        <h2>Your Information</h2>
+        <p><strong>Name:</strong> </p>
+        <p><strong>Mobile Number:</strong> </p>
+        <p><strong>Remaining Subscription:</strong> 25 days left</p>
+    </div>
+</div>
+
+<div class="container" id="topics-container"></div>
 
 <script>
-    // QUIZ DATA
+    // Firebase config - REPLACE with your actual config
+    const firebaseConfig = {
+    apiKey: "AIzaSyDZEBH979HzIWqGx7d_iLnNpmbOgHtMmno",
+    authDomain: "odishabix-1ff06.firebaseapp.com",
+    projectId: "odishabix-1ff06",
+    storageBucket:   "odishabix-1ff06.firebasestorage.app",
+    messagingSenderId: "622565515561",
+    appId: "1:622565515561:web:335f358e7e089f5a41d738"
+	};
+    firebase.initializeApp(firebaseConfig);
+
+    // Quiz data omitted for brevity; use your existing quizData array here.
     const quizData = [
         {
             title: "Current Affairs",
@@ -502,7 +598,6 @@
         }
     ];
 
-    // Render topics dynamically
     function renderTopics() {
         const container = document.getElementById('topics-container');
         quizData.forEach(topic => {
@@ -524,7 +619,6 @@
         });
     }
 
-    // Convert to slug for URLs
     function slugify(text) {
         return text.toString()
                    .toLowerCase()
@@ -533,7 +627,6 @@
                    .replace(/[^\w\-]+/g, '');
     }
 
-    // Toggle subtopics visibility
     function toggleSubtopics(topicElement) {
         const subtopics = topicElement.querySelector('.subtopics');
         const icon = topicElement.querySelector('.toggle-icon');
@@ -546,7 +639,6 @@
         }
     }
 
-    // Redirect to quiz page
     function startQuiz(event, quizId) {
         event.stopPropagation();
         window.location.href = quizId + ".html";
@@ -590,13 +682,11 @@
     });
 
     aboutBtn.addEventListener('click', () => {
-        // Hide dropdown & social icons
         dropdownMenu.classList.remove('show');
         hamburgerBtn.classList.remove('active');
         hamburgerBtn.setAttribute('aria-expanded', 'false');
         socialMediaIcons.classList.remove('show');
 
-        // Show modal with about text
         aboutModalText.innerHTML = `
           Welcome to ODISHABIX, a dedicated platform crafted to empower government job aspirants in Odisha. We understand the unique challenges and aspirations of individuals seeking a career in the state government, and we're committed to providing the most effective and accessible tools to help you succeed.
           <br><br>
@@ -608,7 +698,6 @@
 
     closeModalBtn.addEventListener('click', hideModal);
 
-    // Close modal if clicked outside of content
     aboutModal.addEventListener('click', e => {
         if (e.target === aboutModal) {
             hideModal();
@@ -624,56 +713,171 @@
         aboutModal.style.display = 'none';
         aboutModal.setAttribute('aria-hidden', 'true');
     }
+
+    // SUBSCRIPTION MODAL HANDLING
+    const subscriptionBtn = document.getElementById('subscriptionBtn');
+    const subscriptionModal = document.getElementById('subscriptionModal');
+    const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
+    const plans = document.querySelectorAll('#subscriptionModalContent .plan');
+
+    subscriptionBtn.addEventListener('click', () => {
+        dropdownMenu.classList.remove('show');
+        hamburgerBtn.classList.remove('active');
+        subscriptionModal.style.display = 'block';
+    });
+
+    closeSubscriptionBtn.addEventListener('click', () => {
+        subscriptionModal.style.display = 'none';
+    });
+
+    plans.forEach(plan => {
+        plan.addEventListener('click', () => {
+            plans.forEach(p => p.classList.remove('selected'));
+            plan.classList.add('selected');
+        });
+        plan.querySelector('.buy-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            plans.forEach(p => p.classList.remove('selected'));
+            plan.classList.add('selected');
+            const price = plan.getAttribute('data-price');
+            const days = plan.getAttribute('data-days');
+            window.location.href = `payment.html?price=${price}&days=${days}`;
+        });
+    });
+
+    // USER INFO MODAL HANDLING
+    const userBtn = document.getElementById('userbtn');
+    const userModal = document.getElementById('userModal');
+    const closeUserBtn = document.getElementById('closeUserBtn');
+
+    userBtn.addEventListener('click', () => {
+        dropdownMenu.classList.remove('show');
+        hamburgerBtn.classList.remove('active');
+        userModal.style.display = 'block';
+    });
+
+    closeUserBtn.addEventListener('click', () => {
+        userModal.style.display = 'none';
+    });
+
+    // Firebase Authentication and Login Modal Logic
+    const loginModal = document.getElementById('loginModal');
+    const loginForm = document.getElementById('loginForm');
+    const otpForm = document.getElementById('otpForm');
+    const sendOtpBtn = document.getElementById('sendOtpBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+
+    let confirmationResult = null;
+
+    // Setup invisible reCAPTCHA
+    const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        size: 'invisible',
+        callback: (response) => {
+            // reCAPTCHA solved, allow OTP send
+            sendOtpHandler();
+        }
+    });
+    recaptchaVerifier.render();
+
+    // Show login modal if no user
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            updateUIAfterLogin();
+            loginModal.style.display = 'none';
+            loginModal.setAttribute('aria-hidden', 'true');
+        } else {
+            loginModal.style.display = 'block';
+            loginModal.setAttribute('aria-hidden', 'false');
+        }
+    });
+
+    sendOtpBtn.addEventListener('click', () => {
+        sendOtpHandler();
+    });
+
+    function sendOtpHandler() {
+        const name = loginForm.userName.value.trim();
+        const phoneNumber = loginForm.userPhone.value.trim();
+
+        if (!name) {
+            alert('Please enter your name.');
+            return;
+        }
+        if (!phoneNumber.match(/^\+\d{10,15}$/)) {
+            alert('Enter phone number in international format, e.g. +919876543210');
+            return;
+        }
+
+        sendOtpBtn.disabled = true;
+
+        firebase.auth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
+            .then(result => {
+                confirmationResult = result;
+                alert('OTP sent to ' + phoneNumber);
+
+                loginForm.style.display = 'none';
+                otpForm.style.display = 'block';
+            })
+            .catch(error => {
+                alert('Error sending OTP: ' + error.message);
+                sendOtpBtn.disabled = false;
+                recaptchaVerifier.render().then(widgetId => {
+                    grecaptcha.reset(widgetId);
+                });
+            });
+    }
+
+    verifyOtpBtn.addEventListener('click', () => {
+        const otp = document.getElementById('otpInput').value.trim();
+        if (!otp.match(/^\d{6}$/)) {
+            alert('Enter a valid 6-digit OTP.');
+            return;
+        }
+        verifyOtp(otp);
+    });
+
+    function verifyOtp(otp) {
+        verificationInProgress(true);
+        confirmationResult.confirm(otp)
+            .then(result => {
+                const user = result.user;
+                const name = loginForm.userName.value.trim();
+
+                user.updateProfile({ displayName: name })
+                    .then(() => {
+                        updateUIAfterLogin();
+                        loginModal.style.display = 'none';
+                        loginModal.setAttribute('aria-hidden', 'true');
+                        verificationInProgress(false);
+                    });
+            })
+            .catch(error => {
+                alert('Incorrect OTP, please try again.');
+                verificationInProgress(false);
+            });
+    }
+
+    function verificationInProgress(isVerifying) {
+        sendOtpBtn.disabled = isVerifying;
+        verifyOtpBtn.disabled = isVerifying;
+        if (isVerifying) verifyOtpBtn.textContent = 'Verifying...';
+        else verifyOtpBtn.textContent = 'Verify OTP';
+    }
+
+    function updateUIAfterLogin() {
+        const user = firebase.auth().currentUser;
+        if (user) {
+            userBtn.textContent = user.displayName || 'User';
+            const phone = user.phoneNumber || '';
+
+            const userModalContentP = document.querySelectorAll('#userModalContent p');
+            userModalContentP[0].innerHTML = `<strong>Name:</strong> ${user.displayName || ''}`;
+            userModalContentP[1].innerHTML = `<strong>Mobile Number:</strong> ${phone}`;
+        }
+    }
 	
-		// SUBSCRIPTION MODAL HANDLING
-	const subscriptionBtn = document.getElementById('subscriptionBtn');
-	const subscriptionModal = document.getElementById('subscriptionModal');
-	const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
-	const plans = document.querySelectorAll('#subscriptionModalContent .plan');
-
-	subscriptionBtn.addEventListener('click', () => {
-		dropdownMenu.classList.remove('show');
-		hamburgerBtn.classList.remove('active');
-		subscriptionModal.style.display = 'block';
-	});
-
-	closeSubscriptionBtn.addEventListener('click', () => {
-		subscriptionModal.style.display = 'none';
-	});
-
-	plans.forEach(plan => {
-		plan.addEventListener('click', () => {
-			plans.forEach(p => p.classList.remove('selected'));
-			plan.classList.add('selected');
-		});
-		plan.querySelector('.buy-btn').addEventListener('click', (e) => {
-			e.stopPropagation();
-			plans.forEach(p => p.classList.remove('selected'));
-			plan.classList.add('selected');
-			const price = plan.getAttribute('data-price');
-			const days = plan.getAttribute('data-days');
-			window.location.href = `payment.html?price=${price}&days=${days}`;
-		});
-	});
-
-	// USER INFO MODAL HANDLING
-	const userBtn = document.getElementById('userbtn');
-	const userModal = document.getElementById('userModal');
-	const closeUserBtn = document.getElementById('closeUserBtn');
-
-	userBtn.addEventListener('click', () => {
-		dropdownMenu.classList.remove('show');
-		hamburgerBtn.classList.remove('active');
-		userModal.style.display = 'block';
-	});
-
-	closeUserBtn.addEventListener('click', () => {
-		userModal.style.display = 'none';
-	});
-
 	
+
 </script>
 </body>
 </html>
-
-
