@@ -38,7 +38,6 @@
         flex-grow: 1;
         user-select: none;
     }
-    /* Hamburger container */
     .hamburger-container {
         position: relative;
         flex-shrink: 0;
@@ -51,14 +50,12 @@
         flex-direction: column;
         justify-content: space-between;
     }
-    /* Hamburger lines */
     .hamburger-line {
         height: 4px;
         background-color: #ffcc00;
         border-radius: 2px;
         transition: all 0.3s ease;
     }
-    /* Transform hamburger lines to X on active */
     .hamburger-container.active .line1 {
         transform: rotate(45deg) translate(5px, 5px);
     }
@@ -68,10 +65,9 @@
     .hamburger-container.active .line3 {
         transform: rotate(-45deg) translate(6px, -6px);
     }
-    /* Dropdown menu */
     .dropdown-menu {
         position: fixed;
-        top: 65px; /* height of header + some margin */
+        top: 65px;
         right: 10px;
         background-color: rgba(0,0,0,0.95);
         border-radius: 10px;
@@ -105,7 +101,6 @@
     .dropdown-menu button.menu-item:hover {
         color: #ffaa00;
     }
-    /* Social media container inside dropdown */
     .social-media {
         margin-top: 10px;
         display: none;
@@ -125,10 +120,9 @@
     .social-icon:hover {
         color: #ffaa00;
     }
-    /* Container margin adjusted for fixed header */
     .container {
         max-width: 1000px;
-        margin: 120px auto 30px; /* push down due to fixed header */
+        margin: 120px auto 30px;
         padding: 20px;
         user-select: none;
     }
@@ -188,70 +182,7 @@
     .rotate {
         transform: rotate(90deg);
     }
-    /* Modal styles */
-    #aboutModal {
-        display: none; /* Hidden by default */
-        position: fixed; 
-        z-index: 1200; /* Above header and dropdown */
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.7);
-    }
-    #aboutModalContent {
-        background-color: #222;
-        margin: 10% auto;
-        padding: 20px 30px;
-        border-radius: 15px;
-        max-width: 600px;
-        color: #ffcc00;
-        font-size: 1.1rem;
-        line-height: 1.5;
-        position: relative;
-        box-shadow: 0 0 15px #ffcc00;
-    }
-    #aboutModalContent strong {
-        font-weight: bold;
-    }
-    #closeModalBtn {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        color: #ffcc00;
-        font-size: 1.5rem;
-        font-weight: bold;
-        background: none;
-        border: none;
-        cursor: pointer;
-        user-select: none;
-        transition: color 0.3s ease;
-    }
-    #closeModalBtn:hover {
-        color: #ffaa00;
-    }
-    .social-icon {
-        font-size: 1.8rem;
-        margin: 0 7px;
-        transition: color 0.3s ease;
-        text-decoration: none;
-        vertical-align: middle;
-    }
-    .social-icon.email i {
-        color: #EA4335; /* Red for Gmail/Email */
-    }
-    .social-icon.whatsapp i {
-        color: #25D366; /* WhatsApp green */
-    }
-    .social-icon.telegram i {
-        color: #229ED9; /* Telegram blue */
-    }
-    .social-icon:hover i {
-        color: #ffaa00; /* Highlight all on hover */
-    }
-    /* Subscription Modal & User Modal */
-    #subscriptionModal, #userModal {
+    #aboutModal, #subscriptionModal, #userModal, #loginModal {
         display: none;
         position: fixed;
         z-index: 1200;
@@ -262,7 +193,7 @@
         overflow: auto;
         background-color: rgba(0,0,0,0.7);
     }
-    #subscriptionModalContent, #userModalContent {
+    #aboutModalContent, #subscriptionModalContent, #userModalContent, #loginModalContent {
         background-color: #222;
         margin: 10% auto;
         padding: 20px 30px;
@@ -274,36 +205,12 @@
         position: relative;
         box-shadow: 0 0 15px #ffcc00;
     }
-    #subscriptionModalContent h2, #userModalContent h2 {
-        margin-top: 0;
-        text-align: center;
+    #loginModalContent {
+        margin: 15% auto;
+        max-width: 400px;
+        text-align: left;
     }
-    #subscriptionModalContent .plan {
-        background: rgba(255,255,255,0.1);
-        padding: 15px;
-        border-radius: 10px;
-        margin: 10px 0;
-        text-align: center;
-        cursor: pointer;
-    }
-    #subscriptionModalContent .plan.selected {
-        border: 2px solid #ffcc00;
-        box-shadow: 0 0 10px #ffaa00;
-    }
-    #subscriptionModalContent button.buy-btn {
-        background-color: #ffcc00;
-        color: #333;
-        border: none;
-        padding: 8px 15px;
-        margin-top: 10px;
-        border-radius: 5px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    #subscriptionModalContent button.buy-btn:hover {
-        background-color: #ffaa00;
-    }
-    .closeBtn {
+    #closeModalBtn, .closeBtn {
         position: absolute;
         top: 10px;
         right: 15px;
@@ -314,31 +221,8 @@
         border: none;
         cursor: pointer;
     }
-    .closeBtn:hover {
+    #closeModalBtn:hover, .closeBtn:hover {
         color: #ffaa00;
-    }
-    /* Login Modal */
-    #loginModal {
-        display: none;
-        position: fixed; 
-        z-index: 1300; /* higher than others */
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.85);
-    }
-    #loginModalContent {
-        background-color: #222;
-        margin: 15% auto;
-        padding: 20px 30px;
-        border-radius: 15px;
-        max-width: 400px;
-        box-shadow: 0 0 15px #ffcc00;
-        text-align: left;
-        font-size: 1.1rem;
-        user-select: none;
     }
     #loginModalContent label {
         color: #ffcc00;
@@ -380,13 +264,11 @@
         <div class="hamburger-line line3"></div>
     </div>
 </header>
-<!-- Dropdown menu with items -->
 <div class="dropdown-menu" id="dropdownMenu" aria-hidden="true">
     <button class="menu-item" id="userbtn">User Name</button>
     <button class="menu-item" id="subscriptionBtn">Subscription</button>
     <button class="menu-item" id="contactsBtn">Contacts</button>
     <button class="menu-item" id="aboutBtn">About Us</button>
-    <!-- Social media icons container -->
     <div class="social-media" id="socialMediaIcons" aria-label="Social media contacts">
         <a href="mailto:odishabix@gmail.com" class="social-icon email" title="Email" target="_blank" rel="noopener noreferrer" aria-label="Email">
             <i class="fas fa-envelope"></i>
@@ -399,7 +281,6 @@
         </a>
     </div>
 </div>
-<!-- Login Modal -->
 <div id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-hidden="true">
   <div id="loginModalContent">
     <h2 id="loginModalTitle">Login with Email</h2>
@@ -410,12 +291,11 @@
       <input type="email" id="userEmailInput" name="userEmail" required placeholder="your@email.com"/><br/>
       <button id="sendOtpBtn" type="button">Send Login Link</button>
     </form>
-    <div id="emailLinkInfo" style="display:none;">
+    <div id="emailLinkInfo" style="display:none; color:#ffcc00; margin-top:10px;">
       A sign-in link has been sent to your email. Please check your inbox and click the link to sign in.
     </div>
   </div>
 </div>
-<!-- Modal for About Us -->
 <div id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" aria-hidden="true">
     <div id="aboutModalContent">
         <button id="closeModalBtn" aria-label="Close About Us modal">&times;</button>
@@ -427,7 +307,6 @@
         </div>
     </div>
 </div>
-<!-- Subscription Modal -->
 <div id="subscriptionModal" role="dialog" aria-modal="true" aria-hidden="true">
     <div id="subscriptionModalContent">
         <button class="closeBtn" id="closeSubscriptionBtn">&times;</button>
@@ -446,7 +325,6 @@
         </div>
     </div>
 </div>
-<!-- User Info Modal -->
 <div id="userModal" role="dialog" aria-modal="true" aria-hidden="true">
     <div id="userModalContent">
         <button class="closeBtn" id="closeUserBtn">&times;</button>
@@ -458,204 +336,208 @@
 </div>
 <div class="container" id="topics-container"></div>
 <script>
-// Firebase config - REPLACE with your actual config
-const firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyDZEBH979HzIWqGx7d_iLnNpmbOgHtMmno",
     authDomain: "odishabix-1ff06.firebaseapp.com",
     projectId: "odishabix-1ff06",
-    storageBucket:   "odishabix-1ff06.firebasestorage.app",
+    storageBucket: "odishabix-1ff06.firebasestorage.app",
     messagingSenderId: "622565515561",
     appId: "1:622565515561:web:335f358e7e089f5a41d738"
-};
-firebase.initializeApp(firebaseConfig);
+  };
+  firebase.initializeApp(firebaseConfig);
 
-// Quiz data unchanged...
-const quizData = [
+  const quizData = [
     {
-        title: "Current Affairs",
-        subtopics: [
-            "Appointment",
-            "Awards and Prizes",
-            "Obituary",
-            "National Affairs",
-            "Odisha CA",
-            "Books and Authors",
-            "Index & Ranking",
-            "International Affairs",
-            "Military Exercises",
-            "Sports",
-            "Govt Schemes",
-            "Governors & Ministers"
-        ]
+      title: "Current Affairs",
+      subtopics: [
+        "Appointment",
+        "Awards and Prizes",
+        "Obituary",
+        "National Affairs",
+        "Odisha CA",
+        "Books and Authors",
+        "Index & Ranking",
+        "International Affairs",
+        "Military Exercises",
+        "Sports",
+        "Govt Schemes",
+        "Governors & Ministers"
+      ]
     },
     {
-        title: "Computer",
-        subtopics: [
-            "MS Word",
-            "MS Excel",
-            "MS PowerPoint",
-            "MS Access",
-            "Internet and Networking",
-            "OS & Emails & Ports",
-            "Abbreviations"
-        ]
+      title: "Computer",
+      subtopics: [
+        "MS Word",
+        "MS Excel",
+        "MS PowerPoint",
+        "MS Access",
+        "Internet and Networking",
+        "OS & Emails & Ports",
+        "Abbreviations"
+      ]
     },
     {
-        title: "History",
-        subtopics: [
-            "Ancient India History",
-            "Ancient Odisha History",
-            "Medieval India History",
-            "Medieval Odisha History",
-            "Modern India History",
-            "Modern Odisha History"
-        ]
+      title: "History",
+      subtopics: [
+        "Ancient India History",
+        "Ancient Odisha History",
+        "Medieval India History",
+        "Medieval Odisha History",
+        "Modern India History",
+        "Modern Odisha History"
+      ]
     },
     {
-        title: "Geography",
-        subtopics: [
-            "World Geography",
-            "Indian Geography",
-            "Odisha Geography"
-        ]
+      title: "Geography",
+      subtopics: [
+        "World Geography",
+        "Indian Geography",
+        "Odisha Geography"
+      ]
     },
     {
-        title: "Polity",
-        subtopics: [
-            "Indian Polity",
-            "Odisha Polity"
-        ]
+      title: "Polity",
+      subtopics: [
+        "Indian Polity",
+        "Odisha Polity"
+      ]
     },
     {
-        title: "Economics",
-        subtopics: [
-            "Indian Economy",
-            "Budget & Finance"
-        ]
+      title: "Economics",
+      subtopics: [
+        "Indian Economy",
+        "Budget & Finance"
+      ]
     },
     {
-        title: "Environment",
-        subtopics: [
-            "Climate Change",
-            "Biodiversity",
-            "Environmental Policies"
-        ]
+      title: "Environment",
+      subtopics: [
+        "Climate Change",
+        "Biodiversity",
+        "Environmental Policies"
+      ]
     },
     {
-        title: "General Science",
-        subtopics: [
-            "Physics",
-            "Chemistry",
-            "Biology"
-        ]
+      title: "General Science",
+      subtopics: [
+        "Physics",
+        "Chemistry",
+        "Biology"
+      ]
     },
     {
-        title: "English",
-        subtopics: [
-            "Error detection",
-            "Sentence improvement",
-            "Direct & Indirect Speech",
-            "Active & Passive Voice",
-            "Idioms",
-            "Phrasal Verbs",
-            "One word Substitution",
-            "Articles",
-            "Prepositions",
-            "Fill in the Blanks"
-        ]
+      title: "English",
+      subtopics: [
+        "Error detection",
+        "Sentence improvement",
+        "Direct & Indirect Speech",
+        "Active & Passive Voice",
+        "Idioms",
+        "Phrasal Verbs",
+        "One word Substitution",
+        "Articles",
+        "Prepositions",
+        "Fill in the Blanks"
+      ]
     },
     {
-        title: "Odia",
-        subtopics: [
-            "ସାଧାରଣ ବ୍ୟାକରଣ",
-            "ପ୍ରତିଶବ୍ଦ",
-            "ବିପରୀତ ଶବ୍ଦ",
-            "ଶୁଦ୍ଧି ଅଶୁଦ୍ଧି",
-            "କ୍ରିୟା",
-            "ସମାସ",
-            "କାରକ ଓ ବିଭକ୍ତି",
-            "ସମୋଚ୍ଚାରିତ ଶବ୍ଦ",
-            "କାଳ",
-            "ରୂଢ଼ି ଓ ଲୋକବାଣୀ",
-            "ସନ୍ଧି"
-        ]
+      title: "Odia",
+      subtopics: [
+        "ସାଧାରଣ ବ୍ୟାକରଣ",
+        "ପ୍ରତିଶବ୍ଦ",
+        "ବିପରୀତ ଶବ୍ଦ",
+        "ଶୁଦ୍ଧି ଅଶୁଦ୍ଧି",
+        "କ୍ରିୟା",
+        "ସମାସ",
+        "କାରକ ଓ ବିଭକ୍ତି",
+        "ସମୋଚ୍ଚାରିତ ଶବ୍ଦ",
+        "କାଳ",
+        "ରୂଢ଼ି ଓ ଲୋକବାଣୀ",
+        "ସନ୍ଧି"
+      ]
     }
-];
-function renderTopics() {
+  ];
+
+  function renderTopics() {
     const container = document.getElementById('topics-container');
     quizData.forEach(topic => {
-        const topicDiv = document.createElement('div');
-        topicDiv.className = 'topic';
-        topicDiv.onclick = function() { toggleSubtopics(topicDiv) };
-        const h2 = document.createElement('h2');
-        h2.innerHTML = `${topic.title} <span class="toggle-icon">▶</span>`;
-        topicDiv.appendChild(h2);
-        const ul = document.createElement('ul');
-        ul.className = 'subtopics';
-        topic.subtopics.forEach(sub => {
-            const li = document.createElement('li');
-            li.innerHTML = `${sub} <button class="start-btn" onclick="startQuiz(event,'${slugify(topic.title)}-${slugify(sub)}')">Start Quiz</button>`;
-            ul.appendChild(li);
-        });
-        topicDiv.appendChild(ul);
-        container.appendChild(topicDiv);
+      const topicDiv = document.createElement('div');
+      topicDiv.className = 'topic';
+      topicDiv.onclick = function() { toggleSubtopics(topicDiv) };
+      const h2 = document.createElement('h2');
+      h2.innerHTML = `${topic.title} <span class="toggle-icon">▶</span>`;
+      topicDiv.appendChild(h2);
+      const ul = document.createElement('ul');
+      ul.className = 'subtopics';
+      topic.subtopics.forEach(sub => {
+        const li = document.createElement('li');
+        li.innerHTML = `${sub} <button class="start-btn" onclick="startQuiz(event,'${slugify(topic.title)}-${slugify(sub)}')">Start Quiz</button>`;
+        ul.appendChild(li);
+      });
+      topicDiv.appendChild(ul);
+      container.appendChild(topicDiv);
     });
-}
-function slugify(text) {
-    return text.toString()
-               .toLowerCase()
-               .trim()
-               .replace(/[\s&]+/g, '-')
-               .replace(/[^\w\-]+/g, '');
-}
-function toggleSubtopics(topicElement) {
+  }
+
+  function slugify(text) {
+    return text.toString().toLowerCase().trim().replace(/[\s&]+/g, '-').replace(/[^\w-]+/g, '');
+  }
+
+  function toggleSubtopics(topicElement) {
     const subtopics = topicElement.querySelector('.subtopics');
     const icon = topicElement.querySelector('.toggle-icon');
     if (subtopics.style.display === 'block') {
-        subtopics.style.display = 'none';
-        icon.classList.remove('rotate');
+      subtopics.style.display = 'none';
+      icon.classList.remove('rotate');
     } else {
-        subtopics.style.display = 'block';
-        icon.classList.add('rotate');
+      subtopics.style.display = 'block';
+      icon.classList.add('rotate');
     }
-}
-function startQuiz(event, quizId) {
+  }
+
+  function startQuiz(event, quizId) {
     event.stopPropagation();
     window.location.href = quizId + ".html";
-}
-renderTopics();
-// Hamburger & dropdown menu handling
-const hamburgerBtn = document.getElementById('hamburgerBtn');
-const dropdownMenu = document.getElementById('dropdownMenu');
-const contactsBtn = document.getElementById('contactsBtn');
-const socialMediaIcons = document.getElementById('socialMediaIcons');
-const aboutBtn = document.getElementById('aboutBtn');
-const aboutModal = document.getElementById('aboutModal');
-const aboutModalText = document.getElementById('aboutModalText');
-const closeModalBtn = document.getElementById('closeModalBtn');
-hamburgerBtn.addEventListener('click', () => {
+  }
+
+  renderTopics();
+
+  // Hamburger & dropdown menu handling
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const dropdownMenu = document.getElementById('dropdownMenu');
+  const contactsBtn = document.getElementById('contactsBtn');
+  const socialMediaIcons = document.getElementById('socialMediaIcons');
+  const aboutBtn = document.getElementById('aboutBtn');
+  const aboutModal = document.getElementById('aboutModal');
+  const aboutModalText = document.getElementById('aboutModalText');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+
+  hamburgerBtn.addEventListener('click', () => {
     const isActive = hamburgerBtn.classList.toggle('active');
     if (isActive) {
-        dropdownMenu.classList.add('show');
-        hamburgerBtn.setAttribute('aria-expanded', 'true');
+      dropdownMenu.classList.add('show');
+      hamburgerBtn.setAttribute('aria-expanded', 'true');
     } else {
-        dropdownMenu.classList.remove('show');
-        hamburgerBtn.setAttribute('aria-expanded', 'false');
-        socialMediaIcons.classList.remove('show');
-        hideModal();
+      dropdownMenu.classList.remove('show');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+      socialMediaIcons.classList.remove('show');
+      hideModal();
     }
-});
-hamburgerBtn.addEventListener('keydown', (e) => {
+  });
+
+  hamburgerBtn.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        hamburgerBtn.click();
+      e.preventDefault();
+      hamburgerBtn.click();
     }
-});
-contactsBtn.addEventListener('click', () => {
+  });
+
+  contactsBtn.addEventListener('click', () => {
     socialMediaIcons.classList.toggle('show');
     hideModal();
-});
-aboutBtn.addEventListener('click', () => {
+  });
+
+  aboutBtn.addEventListener('click', () => {
     dropdownMenu.classList.remove('show');
     hamburgerBtn.classList.remove('active');
     hamburgerBtn.setAttribute('aria-expanded', 'false');
@@ -667,143 +549,159 @@ aboutBtn.addEventListener('click', () => {
       We believe in the power of focused practice, continuous learning, and staying updated with the latest exam patterns and information relevant to Odisha government examinations.
     `;
     showModal();
-});
-closeModalBtn.addEventListener('click', hideModal);
-aboutModal.addEventListener('click', e => {
+  });
+
+  closeModalBtn.addEventListener('click', hideModal);
+  aboutModal.addEventListener('click', e => {
     if (e.target === aboutModal) {
-        hideModal();
+      hideModal();
     }
-});
-function showModal() {
+  });
+
+  function showModal() {
     aboutModal.style.display = 'block';
     aboutModal.setAttribute('aria-hidden', 'false');
-}
-function hideModal() {
+  }
+
+  function hideModal() {
     aboutModal.style.display = 'none';
     aboutModal.setAttribute('aria-hidden', 'true');
-}
-// SUBSCRIPTION MODAL HANDLING
-const subscriptionBtn = document.getElementById('subscriptionBtn');
-const subscriptionModal = document.getElementById('subscriptionModal');
-const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
-const plans = document.querySelectorAll('#subscriptionModalContent .plan');
-subscriptionBtn.addEventListener('click', () => {
+  }
+
+  // Subscription Modal Handling
+  const subscriptionBtn = document.getElementById('subscriptionBtn');
+  const subscriptionModal = document.getElementById('subscriptionModal');
+  const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
+  const plans = document.querySelectorAll('#subscriptionModalContent .plan');
+
+  subscriptionBtn.addEventListener('click', () => {
     dropdownMenu.classList.remove('show');
     hamburgerBtn.classList.remove('active');
     subscriptionModal.style.display = 'block';
-});
-closeSubscriptionBtn.addEventListener('click', () => {
+  });
+
+  closeSubscriptionBtn.addEventListener('click', () => {
     subscriptionModal.style.display = 'none';
-});
-plans.forEach(plan => {
+  });
+
+  plans.forEach(plan => {
     plan.addEventListener('click', () => {
-        plans.forEach(p => p.classList.remove('selected'));
-        plan.classList.add('selected');
+      plans.forEach(p => p.classList.remove('selected'));
+      plan.classList.add('selected');
     });
     plan.querySelector('.buy-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        plans.forEach(p => p.classList.remove('selected'));
-        plan.classList.add('selected');
-        const price = plan.getAttribute('data-price');
-        const days = plan.getAttribute('data-days');
-        window.location.href = `payment.html?price=${price}&days=${days}`;
+      e.stopPropagation();
+      plans.forEach(p => p.classList.remove('selected'));
+      plan.classList.add('selected');
+      const price = plan.getAttribute('data-price');
+      const days = plan.getAttribute('data-days');
+      window.location.href = `payment.html?price=${price}&days=${days}`;
     });
-});
-// USER INFO MODAL HANDLING
-const userBtn = document.getElementById('userbtn');
-const userModal = document.getElementById('userModal');
-const closeUserBtn = document.getElementById('closeUserBtn');
-userBtn.addEventListener('click', () => {
+  });
+
+  // User Info Modal Handling
+  const userBtn = document.getElementById('userbtn');
+  const userModal = document.getElementById('userModal');
+  const closeUserBtn = document.getElementById('closeUserBtn');
+
+  userBtn.addEventListener('click', () => {
     dropdownMenu.classList.remove('show');
     hamburgerBtn.classList.remove('active');
     userModal.style.display = 'block';
-});
-closeUserBtn.addEventListener('click', () => {
+  });
+
+  closeUserBtn.addEventListener('click', () => {
     userModal.style.display = 'none';
-});
+  });
 
-/* ================= EMAIL LINK AUTH FLOW STARTS HERE ==================== */
-const loginModal = document.getElementById('loginModal');
-const loginForm = document.getElementById('loginForm');
-const sendOtpBtn = document.getElementById('sendOtpBtn');
-const emailLinkInfo = document.getElementById('emailLinkInfo');
-const actionCodeSettings = {
-  url: 'https://1-manoj-sahoo.github.io/odishabix-quiz/',  // Your GitHub Pages URL here
-  handleCodeInApp: true
-};
+  /* Email Link Authentication with Display Name Update */
 
-// Show login modal if no user is logged in, skip if processing email link below
-firebase.auth().onAuthStateChanged(user => {
+  const loginModal = document.getElementById('loginModal');
+  const loginForm = document.getElementById('loginForm');
+  const sendOtpBtn = document.getElementById('sendOtpBtn');
+  const emailLinkInfo = document.getElementById('emailLinkInfo');
+
+  const actionCodeSettings = {
+    url: window.location.origin + window.location.pathname,
+    handleCodeInApp: true
+  };
+
+  firebase.auth().onAuthStateChanged(user => {
     if (user) {
-        updateUIAfterLogin();
-        loginModal.style.display = 'none';
-        loginModal.setAttribute('aria-hidden', 'true');
+      updateUIAfterLogin();
+      loginModal.style.display = 'none';
+      loginModal.setAttribute('aria-hidden', 'true');
     } else if (!firebase.auth().isSignInWithEmailLink(window.location.href)) {
-        loginModal.style.display = 'block';
-        loginModal.setAttribute('aria-hidden', 'false');
+      loginModal.style.display = 'block';
+      loginModal.setAttribute('aria-hidden', 'false');
     }
-});
+  });
 
-// Email link sending
-sendOtpBtn.addEventListener('click', () => {
+  sendOtpBtn.addEventListener('click', () => {
     const name = loginForm.userName.value.trim();
     const email = loginForm.userEmail.value.trim();
     if (!name) {
-        alert('Please enter your name.');
-        return;
+      alert('Please enter your name.');
+      return;
     }
     if (!email.match(/^[^@]+@[^@]+\.[^@]+$/)) {
-        alert('Enter a valid email address.');
-        return;
+      alert('Enter a valid email address.');
+      return;
     }
     sendOtpBtn.disabled = true;
     firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
-        .then(() => {
-            emailLinkInfo.style.display = 'block';
-            sendOtpBtn.disabled = false;
-            window.localStorage.setItem('emailForSignIn', email);
-        })
-        .catch(error => {
-            alert('Error sending login link: ' + error.message);
-            sendOtpBtn.disabled = false;
-        });
-});
+      .then(() => {
+        emailLinkInfo.style.display = 'block';
+        sendOtpBtn.disabled = false;
+        window.localStorage.setItem('emailForSignIn', email);
+        window.localStorage.setItem('nameForSignIn', name);
+      })
+      .catch(error => {
+        alert('Error sending login link: ' + error.message);
+        sendOtpBtn.disabled = false;
+      });
+  });
 
-// Handle sign-in via email link
-if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
+  if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
     let email = window.localStorage.getItem('emailForSignIn');
     if (!email) {
-        email = window.prompt('Please provide your email for confirmation');
+      email = window.prompt('Please provide your email for confirmation');
     }
     firebase.auth().signInWithEmailLink(email, window.location.href)
-        .then(result => {
-            // Update Firebase user with name (if not already set)
-            const name = loginForm && loginForm.userName ? loginForm.userName.value.trim() : '';
-            if (name && result.user.displayName !== name) {
-                result.user.updateProfile({ displayName: name });
-            }
-            window.localStorage.removeItem('emailForSignIn');
-            updateUIAfterLogin();
-            loginModal.style.display = 'none';
-            loginModal.setAttribute('aria-hidden', 'true');
-        })
-        .catch(error => {
-            alert('Sign-in error: ' + error.message);
-        });
-}
+      .then(result => {
+        const user = result.user;
+        let name = window.localStorage.getItem('nameForSignIn') || '';
 
-function updateUIAfterLogin() {
+        if (name && user.displayName !== name) {
+          user.updateProfile({ displayName: name }).then(() => {
+            updateUIAfterLogin();
+          });
+        } else {
+          updateUIAfterLogin();
+        }
+
+        window.localStorage.removeItem('emailForSignIn');
+        window.localStorage.removeItem('nameForSignIn');
+        loginModal.style.display = 'none';
+        loginModal.setAttribute('aria-hidden', 'true');
+      })
+      .catch(error => {
+        alert('Sign-in error: ' + error.message);
+      });
+  }
+
+  function updateUIAfterLogin() {
     const user = firebase.auth().currentUser;
     if (user) {
-        userBtn.textContent = user.displayName || 'User';
-        const email = user.email || '';
-        const userModalContentP = document.querySelectorAll('#userModalContent p');
+      userBtn.textContent = user.displayName || 'User';
+      const email = user.email || '';
+      const userModalContentP = document.querySelectorAll('#userModalContent p');
+      if (userModalContentP.length >= 2) {
         userModalContentP[0].innerHTML = `<strong>Name:</strong> ${user.displayName || ''}`;
         userModalContentP[1].innerHTML = `<strong>Email:</strong> ${email}`;
+      }
     }
-}
-/* =================== END EMAIL LINK AUTH LOGIC ======================== */
+  }
 </script>
 </body>
 </html>
-
