@@ -6,6 +6,37 @@
     <title>Computer Abbreviations Quiz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+
+	header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
+    text-align: center;
+    padding: 15px 10px;
+    background-color: rgba(0,0,0,1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+	}
+
+	header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+    letter-spacing: 2px;
+    color: #ffcc00;
+	}
+
+	header h1 .header-link {
+    color: #ffcc00;
+    text-decoration: none;
+    user-select: none;
+	}
+
+	header h1 .header-link:hover,
+	header h1 .header-link:focus {
+     text-decoration: underline;
+	}
         .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
         .correct { background-color: #198754!important; color: white!important; }
         .incorrect { background-color: #dc3545!important; color: white!important; }
@@ -15,6 +46,9 @@
     </style>
 </head>
 <body class="bg-light">
+	<header>
+  		<h1><a href="index.html" class="header-link">ODISHABIX</a></h1>
+	</header>
     <div class="container mt-5 mb-5">
         <div class="card shadow">
             <div class="card-body">
@@ -2162,3 +2196,4 @@ window.showSummary = showSummary;
 </script>
 </body>
 </html>
+
