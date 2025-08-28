@@ -330,6 +330,7 @@
     <button class="menu-item" id="subscriptionBtn">Subscription</button>
     <button class="menu-item" id="contactsBtn">Contacts</button>
     <button class="menu-item" id="aboutBtn">About Us</button>
+	<button class="menu-item" id="logoutBtn">Logout</button>
     <div class="social-media" id="socialMediaIcons" aria-label="Social media contacts">
         <a href="mailto:odishabix@gmail.com" class="social-icon email" title="Email" target="_blank" rel="noopener noreferrer" aria-label="Email">
             <i class="fas fa-envelope"></i>
@@ -674,6 +675,20 @@
   closeUserBtn.addEventListener('click', () => {
     userModal.style.display = 'none';
   });
+	
+	const logoutBtn = document.getElementById('logoutBtn');
+
+		logoutBtn.addEventListener('click', () => 
+		{
+		  firebase.auth().signOut()
+		    .then(() => {
+		      // Optionally, refresh page or redirect to index.html after logout
+		      window.location.href = 'index.html';
+		    })
+		    .catch(error => {
+		      alert('Error logging out: ' + error.message);
+		    });
+		});
 
   /* Email Link Authentication with Display Name Update */
 
@@ -766,3 +781,4 @@
 </script>
 </body>
 </html>
+
