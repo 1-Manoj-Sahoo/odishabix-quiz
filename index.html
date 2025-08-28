@@ -110,15 +110,23 @@
         display: flex;
     }
     .social-icon {
-        color: #ffcc00;
-        font-size: 1.5rem;
-        cursor: pointer;
+        font-size: 1.8rem;
+        margin: 0 7px;
         transition: color 0.3s ease;
-        user-select: none;
         text-decoration: none;
+        vertical-align: middle;
     }
-    .social-icon:hover {
-        color: #ffaa00;
+    .social-icon.email i {
+        color: #EA4335; /* Red for Gmail/Email */
+    }
+    .social-icon.whatsapp i {
+        color: #25D366; /* WhatsApp green */
+    }
+    .social-icon.telegram i {
+        color: #229ED9; /* Telegram blue */
+    }
+    .social-icon:hover i {
+        color: #ffaa00; /* Highlight all on hover */
     }
     .container {
         max-width: 1000px;
@@ -182,7 +190,7 @@
     .rotate {
         transform: rotate(90deg);
     }
-    #aboutModal, #subscriptionModal, #userModal, #loginModal {
+    #aboutModal, #userModal, #loginModal {
         display: none;
         position: fixed;
         z-index: 1200;
@@ -193,7 +201,7 @@
         overflow: auto;
         background-color: rgba(0,0,0,0.7);
     }
-    #aboutModalContent, #subscriptionModalContent, #userModalContent, #loginModalContent {
+    #aboutModalContent, #userModalContent, #loginModalContent {
         background-color: #222;
         margin: 10% auto;
         padding: 20px 30px;
@@ -252,6 +260,59 @@
     #emailLinkInfo {
         margin-top: 10px;
         color: #ffcc00;
+    }
+	/* Subscription Modal & User Modal */
+    #subscriptionModal, #userModal {
+        display: none;
+        position: fixed;
+        z-index: 1200;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.7);
+    }
+    #subscriptionModalContent, #userModalContent {
+        background-color: #222;
+        margin: 10% auto;
+        padding: 20px 30px;
+        border-radius: 15px;
+        max-width: 600px;
+        color: #ffcc00;
+        font-size: 1.1rem;
+        line-height: 1.5;
+        position: relative;
+        box-shadow: 0 0 15px #ffcc00;
+    }
+    #subscriptionModalContent h2, #userModalContent h2 {
+        margin-top: 0;
+        text-align: center;
+    }
+    #subscriptionModalContent .plan {
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+        text-align: center;
+        cursor: pointer;
+    }
+    #subscriptionModalContent .plan.selected {
+        border: 2px solid #ffcc00;
+        box-shadow: 0 0 10px #ffaa00;
+    }
+    #subscriptionModalContent button.buy-btn {
+        background-color: #ffcc00;
+        color: #333;
+        border: none;
+        padding: 8px 15px;
+        margin-top: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    #subscriptionModalContent button.buy-btn:hover {
+        background-color: #ffaa00;
     }
 </style>
 </head>
