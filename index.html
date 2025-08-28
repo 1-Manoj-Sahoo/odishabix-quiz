@@ -5,12 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <title>ODISHABIX - Quiz App</title>
-
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -320,58 +317,58 @@
     .closeBtn:hover {
         color: #ffaa00;
     }
-
-  /* Login Modal */
-  #loginModal {
-      display: none;
-      position: fixed; 
-      z-index: 1300; /* higher than others */
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.85);
-  }
-  #loginModalContent {
-      background-color: #222;
-      margin: 15% auto;
-      padding: 20px 30px;
-      border-radius: 15px;
-      max-width: 400px;
-      box-shadow: 0 0 15px #ffcc00;
-      text-align: left;
-      font-size: 1.1rem;
-      user-select: none;
-  }
-  #loginModalContent label {
-      color: #ffcc00;
-      font-weight: bold;
-  }
-  #loginModalContent input {
-      width: 100%;
-      margin-bottom: 15px;
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-      font-size: 1rem;
-  }
-  #loginModalContent button {
-      background-color: #ffcc00;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-  }
-  #loginModalContent button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-  }
-  #recaptcha-container {
-      margin-bottom: 15px;
-  }
+    /* Login Modal */
+    #loginModal {
+        display: none;
+        position: fixed; 
+        z-index: 1300; /* higher than others */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.85);
+    }
+    #loginModalContent {
+        background-color: #222;
+        margin: 15% auto;
+        padding: 20px 30px;
+        border-radius: 15px;
+        max-width: 400px;
+        box-shadow: 0 0 15px #ffcc00;
+        text-align: left;
+        font-size: 1.1rem;
+        user-select: none;
+    }
+    #loginModalContent label {
+        color: #ffcc00;
+        font-weight: bold;
+    }
+    #loginModalContent input {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 8px;
+        border-radius: 5px;
+        border: none;
+        font-size: 1rem;
+    }
+    #loginModalContent button {
+        background-color: #ffcc00;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    #loginModalContent button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    #emailLinkInfo {
+        margin-top: 10px;
+        color: #ffcc00;
+    }
 </style>
 </head>
 <body>
@@ -402,31 +399,22 @@
         </a>
     </div>
 </div>
-
 <!-- Login Modal -->
 <div id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-hidden="true">
   <div id="loginModalContent">
-    <h2 id="loginModalTitle">Login with Phone</h2>
-    <form id="loginForm">
+    <h2 id="loginModalTitle">Login with Email</h2>
+    <form id="loginForm" autocomplete="off">
       <label for="userNameInput">Name:</label><br/>
       <input type="text" id="userNameInput" name="userName" required placeholder="Enter your name"/><br/>
-      
-      <label for="userPhoneInput">Phone Number:</label><br/>
-      <input type="tel" id="userPhoneInput" name="userPhone" required placeholder="+91xxxxxxxxxx" pattern="^\+\d{10,15}$"/><br/>
-
-      <div id="recaptcha-container"></div>
-
-      <button id="sendOtpBtn" type="button">Send OTP</button>
+      <label for="userEmailInput">Email Address:</label><br/>
+      <input type="email" id="userEmailInput" name="userEmail" required placeholder="your@email.com"/><br/>
+      <button id="sendOtpBtn" type="button">Send Login Link</button>
     </form>
-
-    <form id="otpForm" style="display:none; margin-top:15px;">
-      <label for="otpInput">Enter OTP:</label><br/>
-      <input type="text" id="otpInput" name="otp" required placeholder="6-digit OTP" pattern="^\d{6}$"/><br/>
-      <button id="verifyOtpBtn" type="button">Verify OTP</button>
-    </form>
+    <div id="emailLinkInfo" style="display:none;">
+      A sign-in link has been sent to your email. Please check your inbox and click the link to sign in.
+    </div>
   </div>
 </div>
-
 <!-- Modal for About Us -->
 <div id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" aria-hidden="true">
     <div id="aboutModalContent">
@@ -439,7 +427,6 @@
         </div>
     </div>
 </div>
-
 <!-- Subscription Modal -->
 <div id="subscriptionModal" role="dialog" aria-modal="true" aria-hidden="true">
     <div id="subscriptionModalContent">
@@ -459,425 +446,363 @@
         </div>
     </div>
 </div>
-
 <!-- User Info Modal -->
 <div id="userModal" role="dialog" aria-modal="true" aria-hidden="true">
     <div id="userModalContent">
         <button class="closeBtn" id="closeUserBtn">&times;</button>
         <h2>Your Information</h2>
         <p><strong>Name:</strong> </p>
-        <p><strong>Mobile Number:</strong> </p>
+        <p><strong>Email:</strong> </p>
         <p><strong>Remaining Subscription:</strong> 25 days left</p>
     </div>
 </div>
-
 <div class="container" id="topics-container"></div>
-
 <script>
-    // Firebase config - REPLACE with your actual config
-    const firebaseConfig = {
+// Firebase config - REPLACE with your actual config
+const firebaseConfig = {
     apiKey: "AIzaSyDZEBH979HzIWqGx7d_iLnNpmbOgHtMmno",
     authDomain: "odishabix-1ff06.firebaseapp.com",
     projectId: "odishabix-1ff06",
     storageBucket:   "odishabix-1ff06.firebasestorage.app",
     messagingSenderId: "622565515561",
     appId: "1:622565515561:web:335f358e7e089f5a41d738"
-	};
-    firebase.initializeApp(firebaseConfig);
+};
+firebase.initializeApp(firebaseConfig);
 
-    // Quiz data omitted for brevity; use your existing quizData array here.
-    const quizData = [
-        {
-            title: "Current Affairs",
-            subtopics: [
-                "Appointment",
-                "Awards and Prizes",
-                "Obituary",
-                "National Affairs",
-                "Odisha CA",
-                "Books and Authors",
-                "Index & Ranking",
-                "International Affairs",
-                "Military Exercises",
-                "Sports",
-                "Govt Schemes",
-                "Governors & Ministers"
-            ]
-        },
-        {
-            title: "Computer",
-            subtopics: [
-                "MS Word",
-                "MS Excel",
-                "MS PowerPoint",
-                "MS Access",
-                "Internet and Networking",
-                "OS & Emails & Ports",
-                "Abbreviations"
-            ]
-        },
-        {
-            title: "History",
-            subtopics: [
-                "Ancient India History",
-                "Ancient Odisha History",
-                "Medieval India History",
-                "Medieval Odisha History",
-                "Modern India History",
-                "Modern Odisha History"
-            ]
-        },
-        {
-            title: "Geography",
-            subtopics: [
-                "World Geography",
-                "Indian Geography",
-                "Odisha Geography"
-            ]
-        },
-        {
-            title: "Polity",
-            subtopics: [
-                "Indian Polity",
-                "Odisha Polity"
-            ]
-        },
-        {
-            title: "Economics",
-            subtopics: [
-                "Indian Economy",
-                "Budget & Finance"
-            ]
-        },
-        {
-            title: "Environment",
-            subtopics: [
-                "Climate Change",
-                "Biodiversity",
-                "Environmental Policies"
-            ]
-        },
-        {
-            title: "General Science",
-            subtopics: [
-                "Physics",
-                "Chemistry",
-                "Biology"
-            ]
-        },
-        {
-            title: "English",
-            subtopics: [
-                "Error detection",
-                "Sentence improvement",
-                "Direct & Indirect Speech",
-                "Active & Passive Voice",
-                "Idioms",
-                "Phrasal Verbs",
-                "One word Substitution",
-                "Articles",
-                "Prepositions",
-                "Fill in the Blanks"
-            ]
-        },
-        {
-            title: "Odia",
-            subtopics: [
-                "ସାଧାରଣ ବ୍ୟାକରଣ",
-                "ପ୍ରତିଶବ୍ଦ",
-                "ବିପରୀତ ଶବ୍ଦ",
-                "ଶୁଦ୍ଧି ଅଶୁଦ୍ଧି",
-                "କ୍ରିୟା",
-                "ସମାସ",
-                "କାରକ ଓ ବିଭକ୍ତି",
-                "ସମୋଚ୍ଚାରିତ ଶବ୍ଦ",
-                "କାଳ",
-                "ରୂଢ଼ି ଓ ଲୋକବାଣୀ",
-                "ସନ୍ଧି"
-            ]
-        }
-    ];
-
-    function renderTopics() {
-        const container = document.getElementById('topics-container');
-        quizData.forEach(topic => {
-            const topicDiv = document.createElement('div');
-            topicDiv.className = 'topic';
-            topicDiv.onclick = function() { toggleSubtopics(topicDiv) };
-            const h2 = document.createElement('h2');
-            h2.innerHTML = `${topic.title} <span class="toggle-icon">▶</span>`;
-            topicDiv.appendChild(h2);
-            const ul = document.createElement('ul');
-            ul.className = 'subtopics';
-            topic.subtopics.forEach(sub => {
-                const li = document.createElement('li');
-                li.innerHTML = `${sub} <button class="start-btn" onclick="startQuiz(event,'${slugify(topic.title)}-${slugify(sub)}')">Start Quiz</button>`;
-                ul.appendChild(li);
-            });
-            topicDiv.appendChild(ul);
-            container.appendChild(topicDiv);
+// Quiz data unchanged...
+const quizData = [
+    {
+        title: "Current Affairs",
+        subtopics: [
+            "Appointment",
+            "Awards and Prizes",
+            "Obituary",
+            "National Affairs",
+            "Odisha CA",
+            "Books and Authors",
+            "Index & Ranking",
+            "International Affairs",
+            "Military Exercises",
+            "Sports",
+            "Govt Schemes",
+            "Governors & Ministers"
+        ]
+    },
+    {
+        title: "Computer",
+        subtopics: [
+            "MS Word",
+            "MS Excel",
+            "MS PowerPoint",
+            "MS Access",
+            "Internet and Networking",
+            "OS & Emails & Ports",
+            "Abbreviations"
+        ]
+    },
+    {
+        title: "History",
+        subtopics: [
+            "Ancient India History",
+            "Ancient Odisha History",
+            "Medieval India History",
+            "Medieval Odisha History",
+            "Modern India History",
+            "Modern Odisha History"
+        ]
+    },
+    {
+        title: "Geography",
+        subtopics: [
+            "World Geography",
+            "Indian Geography",
+            "Odisha Geography"
+        ]
+    },
+    {
+        title: "Polity",
+        subtopics: [
+            "Indian Polity",
+            "Odisha Polity"
+        ]
+    },
+    {
+        title: "Economics",
+        subtopics: [
+            "Indian Economy",
+            "Budget & Finance"
+        ]
+    },
+    {
+        title: "Environment",
+        subtopics: [
+            "Climate Change",
+            "Biodiversity",
+            "Environmental Policies"
+        ]
+    },
+    {
+        title: "General Science",
+        subtopics: [
+            "Physics",
+            "Chemistry",
+            "Biology"
+        ]
+    },
+    {
+        title: "English",
+        subtopics: [
+            "Error detection",
+            "Sentence improvement",
+            "Direct & Indirect Speech",
+            "Active & Passive Voice",
+            "Idioms",
+            "Phrasal Verbs",
+            "One word Substitution",
+            "Articles",
+            "Prepositions",
+            "Fill in the Blanks"
+        ]
+    },
+    {
+        title: "Odia",
+        subtopics: [
+            "ସାଧାରଣ ବ୍ୟାକରଣ",
+            "ପ୍ରତିଶବ୍ଦ",
+            "ବିପରୀତ ଶବ୍ଦ",
+            "ଶୁଦ୍ଧି ଅଶୁଦ୍ଧି",
+            "କ୍ରିୟା",
+            "ସମାସ",
+            "କାରକ ଓ ବିଭକ୍ତି",
+            "ସମୋଚ୍ଚାରିତ ଶବ୍ଦ",
+            "କାଳ",
+            "ରୂଢ଼ି ଓ ଲୋକବାଣୀ",
+            "ସନ୍ଧି"
+        ]
+    }
+];
+function renderTopics() {
+    const container = document.getElementById('topics-container');
+    quizData.forEach(topic => {
+        const topicDiv = document.createElement('div');
+        topicDiv.className = 'topic';
+        topicDiv.onclick = function() { toggleSubtopics(topicDiv) };
+        const h2 = document.createElement('h2');
+        h2.innerHTML = `${topic.title} <span class="toggle-icon">▶</span>`;
+        topicDiv.appendChild(h2);
+        const ul = document.createElement('ul');
+        ul.className = 'subtopics';
+        topic.subtopics.forEach(sub => {
+            const li = document.createElement('li');
+            li.innerHTML = `${sub} <button class="start-btn" onclick="startQuiz(event,'${slugify(topic.title)}-${slugify(sub)}')">Start Quiz</button>`;
+            ul.appendChild(li);
         });
-    }
-
-    function slugify(text) {
-        return text.toString()
-                   .toLowerCase()
-                   .trim()
-                   .replace(/[\s&]+/g, '-')
-                   .replace(/[^\w\-]+/g, '');
-    }
-
-    function toggleSubtopics(topicElement) {
-        const subtopics = topicElement.querySelector('.subtopics');
-        const icon = topicElement.querySelector('.toggle-icon');
-        if (subtopics.style.display === 'block') {
-            subtopics.style.display = 'none';
-            icon.classList.remove('rotate');
-        } else {
-            subtopics.style.display = 'block';
-            icon.classList.add('rotate');
-        }
-    }
-
-    function startQuiz(event, quizId) {
-        event.stopPropagation();
-        window.location.href = quizId + ".html";
-    }
-
-    renderTopics();
-
-    // Hamburger & dropdown menu handling
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    const contactsBtn = document.getElementById('contactsBtn');
-    const socialMediaIcons = document.getElementById('socialMediaIcons');
-    const aboutBtn = document.getElementById('aboutBtn');
-    const aboutModal = document.getElementById('aboutModal');
-    const aboutModalText = document.getElementById('aboutModalText');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-
-    hamburgerBtn.addEventListener('click', () => {
-        const isActive = hamburgerBtn.classList.toggle('active');
-        if (isActive) {
-            dropdownMenu.classList.add('show');
-            hamburgerBtn.setAttribute('aria-expanded', 'true');
-        } else {
-            dropdownMenu.classList.remove('show');
-            hamburgerBtn.setAttribute('aria-expanded', 'false');
-            socialMediaIcons.classList.remove('show');
-            hideModal();
-        }
+        topicDiv.appendChild(ul);
+        container.appendChild(topicDiv);
     });
-
-    hamburgerBtn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            hamburgerBtn.click();
-        }
-    });
-
-    contactsBtn.addEventListener('click', () => {
-        socialMediaIcons.classList.toggle('show');
-        hideModal();
-    });
-
-    aboutBtn.addEventListener('click', () => {
+}
+function slugify(text) {
+    return text.toString()
+               .toLowerCase()
+               .trim()
+               .replace(/[\s&]+/g, '-')
+               .replace(/[^\w\-]+/g, '');
+}
+function toggleSubtopics(topicElement) {
+    const subtopics = topicElement.querySelector('.subtopics');
+    const icon = topicElement.querySelector('.toggle-icon');
+    if (subtopics.style.display === 'block') {
+        subtopics.style.display = 'none';
+        icon.classList.remove('rotate');
+    } else {
+        subtopics.style.display = 'block';
+        icon.classList.add('rotate');
+    }
+}
+function startQuiz(event, quizId) {
+    event.stopPropagation();
+    window.location.href = quizId + ".html";
+}
+renderTopics();
+// Hamburger & dropdown menu handling
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const dropdownMenu = document.getElementById('dropdownMenu');
+const contactsBtn = document.getElementById('contactsBtn');
+const socialMediaIcons = document.getElementById('socialMediaIcons');
+const aboutBtn = document.getElementById('aboutBtn');
+const aboutModal = document.getElementById('aboutModal');
+const aboutModalText = document.getElementById('aboutModalText');
+const closeModalBtn = document.getElementById('closeModalBtn');
+hamburgerBtn.addEventListener('click', () => {
+    const isActive = hamburgerBtn.classList.toggle('active');
+    if (isActive) {
+        dropdownMenu.classList.add('show');
+        hamburgerBtn.setAttribute('aria-expanded', 'true');
+    } else {
         dropdownMenu.classList.remove('show');
-        hamburgerBtn.classList.remove('active');
         hamburgerBtn.setAttribute('aria-expanded', 'false');
         socialMediaIcons.classList.remove('show');
-
-        aboutModalText.innerHTML = `
-          Welcome to ODISHABIX, a dedicated platform crafted to empower government job aspirants in Odisha. We understand the unique challenges and aspirations of individuals seeking a career in the state government, and we're committed to providing the most effective and accessible tools to help you succeed.
-          <br><br>
-          At ODISHABIX, our mission is to make government job preparation in Odisha <strong>smarter, more engaging, and ultimately, more achievable</strong>.
-          We believe in the power of focused practice, continuous learning, and staying updated with the latest exam patterns and information relevant to Odisha government examinations.
-        `;
-        showModal();
-    });
-
-    closeModalBtn.addEventListener('click', hideModal);
-
-    aboutModal.addEventListener('click', e => {
-        if (e.target === aboutModal) {
-            hideModal();
-        }
-    });
-
-    function showModal() {
-        aboutModal.style.display = 'block';
-        aboutModal.setAttribute('aria-hidden', 'false');
+        hideModal();
     }
-
-    function hideModal() {
-        aboutModal.style.display = 'none';
-        aboutModal.setAttribute('aria-hidden', 'true');
+});
+hamburgerBtn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        hamburgerBtn.click();
     }
-
-    // SUBSCRIPTION MODAL HANDLING
-    const subscriptionBtn = document.getElementById('subscriptionBtn');
-    const subscriptionModal = document.getElementById('subscriptionModal');
-    const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
-    const plans = document.querySelectorAll('#subscriptionModalContent .plan');
-
-    subscriptionBtn.addEventListener('click', () => {
-        dropdownMenu.classList.remove('show');
-        hamburgerBtn.classList.remove('active');
-        subscriptionModal.style.display = 'block';
+});
+contactsBtn.addEventListener('click', () => {
+    socialMediaIcons.classList.toggle('show');
+    hideModal();
+});
+aboutBtn.addEventListener('click', () => {
+    dropdownMenu.classList.remove('show');
+    hamburgerBtn.classList.remove('active');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    socialMediaIcons.classList.remove('show');
+    aboutModalText.innerHTML = `
+      Welcome to ODISHABIX, a dedicated platform crafted to empower government job aspirants in Odisha. We understand the unique challenges and aspirations of individuals seeking a career in the state government, and we're committed to providing the most effective and accessible tools to help you succeed.
+      <br><br>
+      At ODISHABIX, our mission is to make government job preparation in Odisha <strong>smarter, more engaging, and ultimately, more achievable</strong>.
+      We believe in the power of focused practice, continuous learning, and staying updated with the latest exam patterns and information relevant to Odisha government examinations.
+    `;
+    showModal();
+});
+closeModalBtn.addEventListener('click', hideModal);
+aboutModal.addEventListener('click', e => {
+    if (e.target === aboutModal) {
+        hideModal();
+    }
+});
+function showModal() {
+    aboutModal.style.display = 'block';
+    aboutModal.setAttribute('aria-hidden', 'false');
+}
+function hideModal() {
+    aboutModal.style.display = 'none';
+    aboutModal.setAttribute('aria-hidden', 'true');
+}
+// SUBSCRIPTION MODAL HANDLING
+const subscriptionBtn = document.getElementById('subscriptionBtn');
+const subscriptionModal = document.getElementById('subscriptionModal');
+const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
+const plans = document.querySelectorAll('#subscriptionModalContent .plan');
+subscriptionBtn.addEventListener('click', () => {
+    dropdownMenu.classList.remove('show');
+    hamburgerBtn.classList.remove('active');
+    subscriptionModal.style.display = 'block';
+});
+closeSubscriptionBtn.addEventListener('click', () => {
+    subscriptionModal.style.display = 'none';
+});
+plans.forEach(plan => {
+    plan.addEventListener('click', () => {
+        plans.forEach(p => p.classList.remove('selected'));
+        plan.classList.add('selected');
     });
-
-    closeSubscriptionBtn.addEventListener('click', () => {
-        subscriptionModal.style.display = 'none';
+    plan.querySelector('.buy-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        plans.forEach(p => p.classList.remove('selected'));
+        plan.classList.add('selected');
+        const price = plan.getAttribute('data-price');
+        const days = plan.getAttribute('data-days');
+        window.location.href = `payment.html?price=${price}&days=${days}`;
     });
+});
+// USER INFO MODAL HANDLING
+const userBtn = document.getElementById('userbtn');
+const userModal = document.getElementById('userModal');
+const closeUserBtn = document.getElementById('closeUserBtn');
+userBtn.addEventListener('click', () => {
+    dropdownMenu.classList.remove('show');
+    hamburgerBtn.classList.remove('active');
+    userModal.style.display = 'block';
+});
+closeUserBtn.addEventListener('click', () => {
+    userModal.style.display = 'none';
+});
 
-    plans.forEach(plan => {
-        plan.addEventListener('click', () => {
-            plans.forEach(p => p.classList.remove('selected'));
-            plan.classList.add('selected');
+/* ================= EMAIL LINK AUTH FLOW STARTS HERE ==================== */
+const loginModal = document.getElementById('loginModal');
+const loginForm = document.getElementById('loginForm');
+const sendOtpBtn = document.getElementById('sendOtpBtn');
+const emailLinkInfo = document.getElementById('emailLinkInfo');
+let actionCodeSettings = {
+  url: window.location.href,
+  handleCodeInApp: true
+};
+
+// Show login modal if no user is logged in, skip if processing email link below
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        updateUIAfterLogin();
+        loginModal.style.display = 'none';
+        loginModal.setAttribute('aria-hidden', 'true');
+    } else if (!firebase.auth().isSignInWithEmailLink(window.location.href)) {
+        loginModal.style.display = 'block';
+        loginModal.setAttribute('aria-hidden', 'false');
+    }
+});
+
+// Email link sending
+sendOtpBtn.addEventListener('click', () => {
+    const name = loginForm.userName.value.trim();
+    const email = loginForm.userEmail.value.trim();
+    if (!name) {
+        alert('Please enter your name.');
+        return;
+    }
+    if (!email.match(/^[^@]+@[^@]+\.[^@]+$/)) {
+        alert('Enter a valid email address.');
+        return;
+    }
+    sendOtpBtn.disabled = true;
+    firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
+        .then(() => {
+            emailLinkInfo.style.display = 'block';
+            sendOtpBtn.disabled = false;
+            window.localStorage.setItem('emailForSignIn', email);
+        })
+        .catch(error => {
+            alert('Error sending login link: ' + error.message);
+            sendOtpBtn.disabled = false;
         });
-        plan.querySelector('.buy-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            plans.forEach(p => p.classList.remove('selected'));
-            plan.classList.add('selected');
-            const price = plan.getAttribute('data-price');
-            const days = plan.getAttribute('data-days');
-            window.location.href = `payment.html?price=${price}&days=${days}`;
-        });
-    });
+});
 
-    // USER INFO MODAL HANDLING
-    const userBtn = document.getElementById('userbtn');
-    const userModal = document.getElementById('userModal');
-    const closeUserBtn = document.getElementById('closeUserBtn');
-
-    userBtn.addEventListener('click', () => {
-        dropdownMenu.classList.remove('show');
-        hamburgerBtn.classList.remove('active');
-        userModal.style.display = 'block';
-    });
-
-    closeUserBtn.addEventListener('click', () => {
-        userModal.style.display = 'none';
-    });
-
-    // Firebase Authentication and Login Modal Logic
-    const loginModal = document.getElementById('loginModal');
-    const loginForm = document.getElementById('loginForm');
-    const otpForm = document.getElementById('otpForm');
-    const sendOtpBtn = document.getElementById('sendOtpBtn');
-    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-
-    let confirmationResult = null;
-
-    // Setup invisible reCAPTCHA
-    const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        size: 'invisible',
-        callback: (response) => {
-            // reCAPTCHA solved, allow OTP send
-            sendOtpHandler();
-        }
-    });
-    recaptchaVerifier.render();
-
-    // Show login modal if no user
-    firebase.auth().onAuthStateChanged(user => {
-        if (user) {
+// Handle sign-in via email link
+if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
+    let email = window.localStorage.getItem('emailForSignIn');
+    if (!email) {
+        email = window.prompt('Please provide your email for confirmation');
+    }
+    firebase.auth().signInWithEmailLink(email, window.location.href)
+        .then(result => {
+            // Update Firebase user with name (if not already set)
+            const name = loginForm && loginForm.userName ? loginForm.userName.value.trim() : '';
+            if (name && result.user.displayName !== name) {
+                result.user.updateProfile({ displayName: name });
+            }
+            window.localStorage.removeItem('emailForSignIn');
             updateUIAfterLogin();
             loginModal.style.display = 'none';
             loginModal.setAttribute('aria-hidden', 'true');
-        } else {
-            loginModal.style.display = 'block';
-            loginModal.setAttribute('aria-hidden', 'false');
-        }
-    });
+        })
+        .catch(error => {
+            alert('Sign-in error: ' + error.message);
+        });
+}
 
-    sendOtpBtn.addEventListener('click', () => {
-        sendOtpHandler();
-    });
-
-    function sendOtpHandler() {
-        const name = loginForm.userName.value.trim();
-        const phoneNumber = loginForm.userPhone.value.trim();
-
-        if (!name) {
-            alert('Please enter your name.');
-            return;
-        }
-        if (!phoneNumber.match(/^\+\d{10,15}$/)) {
-            alert('Enter phone number in international format, e.g. +919876543210');
-            return;
-        }
-
-        sendOtpBtn.disabled = true;
-
-        firebase.auth().signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
-            .then(result => {
-                confirmationResult = result;
-                alert('OTP sent to ' + phoneNumber);
-
-                loginForm.style.display = 'none';
-                otpForm.style.display = 'block';
-            })
-            .catch(error => {
-                alert('Error sending OTP: ' + error.message);
-                sendOtpBtn.disabled = false;
-                recaptchaVerifier.render().then(widgetId => {
-                    grecaptcha.reset(widgetId);
-                });
-            });
+function updateUIAfterLogin() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+        userBtn.textContent = user.displayName || 'User';
+        const email = user.email || '';
+        const userModalContentP = document.querySelectorAll('#userModalContent p');
+        userModalContentP[0].innerHTML = `<strong>Name:</strong> ${user.displayName || ''}`;
+        userModalContentP[1].innerHTML = `<strong>Email:</strong> ${email}`;
     }
-
-    verifyOtpBtn.addEventListener('click', () => {
-        const otp = document.getElementById('otpInput').value.trim();
-        if (!otp.match(/^\d{6}$/)) {
-            alert('Enter a valid 6-digit OTP.');
-            return;
-        }
-        verifyOtp(otp);
-    });
-
-    function verifyOtp(otp) {
-        verificationInProgress(true);
-        confirmationResult.confirm(otp)
-            .then(result => {
-                const user = result.user;
-                const name = loginForm.userName.value.trim();
-
-                user.updateProfile({ displayName: name })
-                    .then(() => {
-                        updateUIAfterLogin();
-                        loginModal.style.display = 'none';
-                        loginModal.setAttribute('aria-hidden', 'true');
-                        verificationInProgress(false);
-                    });
-            })
-            .catch(error => {
-                alert('Incorrect OTP, please try again.');
-                verificationInProgress(false);
-            });
-    }
-
-    function verificationInProgress(isVerifying) {
-        sendOtpBtn.disabled = isVerifying;
-        verifyOtpBtn.disabled = isVerifying;
-        if (isVerifying) verifyOtpBtn.textContent = 'Verifying...';
-        else verifyOtpBtn.textContent = 'Verify OTP';
-    }
-
-    function updateUIAfterLogin() {
-        const user = firebase.auth().currentUser;
-        if (user) {
-            userBtn.textContent = user.displayName || 'User';
-            const phone = user.phoneNumber || '';
-
-            const userModalContentP = document.querySelectorAll('#userModalContent p');
-            userModalContentP[0].innerHTML = `<strong>Name:</strong> ${user.displayName || ''}`;
-            userModalContentP[1].innerHTML = `<strong>Mobile Number:</strong> ${phone}`;
-        }
-    }
-	
-	
-
+}
+/* =================== END EMAIL LINK AUTH LOGIC ======================== */
 </script>
 </body>
 </html>
