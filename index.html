@@ -257,63 +257,8 @@
         background-color: #ccc;
         cursor: not-allowed;
     }
-    #emailLinkInfo {
-        margin-top: 10px;
-        color: #ffcc00;
-    }
-	/* Subscription Modal & User Modal */
-    #subscriptionModal, #userModal {
-        display: none;
-        position: fixed;
-        z-index: 1200;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.7);
-    }
-    #subscriptionModalContent, #userModalContent {
-        background-color: #222;
-        margin: 10% auto;
-        padding: 20px 30px;
-        border-radius: 15px;
-        max-width: 600px;
-        color: #ffcc00;
-        font-size: 1.1rem;
-        line-height: 1.5;
-        position: relative;
-        box-shadow: 0 0 15px #ffcc00;
-    }
-    #subscriptionModalContent h2, #userModalContent h2 {
-        margin-top: 0;
-        text-align: center;
-    }
-    #subscriptionModalContent .plan {
-        background: rgba(255,255,255,0.1);
-        padding: 15px;
-        border-radius: 10px;
-        margin: 10px 0;
-        text-align: center;
-        cursor: pointer;
-    }
-    #subscriptionModalContent .plan.selected {
-        border: 2px solid #ffcc00;
-        box-shadow: 0 0 10px #ffaa00;
-    }
-    #subscriptionModalContent button.buy-btn {
-        background-color: #ffcc00;
-        color: #333;
-        border: none;
-        padding: 8px 15px;
-        margin-top: 10px;
-        border-radius: 5px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    #subscriptionModalContent button.buy-btn:hover {
-        background-color: #ffaa00;
-    }
+    #otpSection { margin-top: 10px; }
+    #loginInfo { color: #ffcc00; margin-top: 10px;}
 </style>
 </head>
 <body>
@@ -330,7 +275,7 @@
     <button class="menu-item" id="subscriptionBtn">Subscription</button>
     <button class="menu-item" id="contactsBtn">Contacts</button>
     <button class="menu-item" id="aboutBtn">About Us</button>
-	<button class="menu-item" id="logoutBtn">Logout</button>
+    <button class="menu-item" id="logoutBtn">Logout</button>
     <div class="social-media" id="socialMediaIcons" aria-label="Social media contacts">
         <a href="mailto:odishabix@gmail.com" class="social-icon email" title="Email" target="_blank" rel="noopener noreferrer" aria-label="Email">
             <i class="fas fa-envelope"></i>
@@ -345,17 +290,21 @@
 </div>
 <div id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" aria-hidden="true">
   <div id="loginModalContent">
-    <h2 id="loginModalTitle">Login with Email</h2>
+    <h2 id="loginModalTitle">Login with Phone</h2>
     <form id="loginForm" autocomplete="off">
       <label for="userNameInput">Name:</label><br/>
       <input type="text" id="userNameInput" name="userName" required placeholder="Enter your name"/><br/>
-      <label for="userEmailInput">Email Address:</label><br/>
-      <input type="email" id="userEmailInput" name="userEmail" required placeholder="your@email.com"/><br/>
-      <button id="sendOtpBtn" type="button">Send Login Link</button>
+      <label for="userPhoneInput">Phone Number:</label><br/>
+      <input type="tel" id="userPhoneInput" name="userPhone" required placeholder="+91XXXXXXXXXX"/><br/>
+      <div id="recaptcha-container" style="margin: 14px 0;"></div>
+      <button id="sendOtpBtn" type="button">Send OTP</button>
+      <div id="otpSection" style="display:none;">
+        <label for="otpInput">Enter OTP:</label><br/>
+        <input type="text" id="otpInput" name="otpInput" placeholder="Enter OTP"/>
+        <button id="verifyOtpBtn" type="button">Verify OTP</button>
+      </div>
     </form>
-    <div id="emailLinkInfo" style="display:none; color:#ffcc00; margin-top:10px;">
-      A sign-in link has been sent to your email. Please check your inbox and click the link to sign in.
-    </div>
+    <div id="loginInfo" style="display:none; color:#ffcc00; margin-top:10px;"></div>
   </div>
 </div>
 <div id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" aria-hidden="true">
@@ -392,7 +341,7 @@
         <button class="closeBtn" id="closeUserBtn">&times;</button>
         <h2>Your Information</h2>
         <p><strong>Name:</strong> </p>
-        <p><strong>Email:</strong> </p>
+        <p><strong>Phone:</strong> </p>
         <p><strong>Remaining Subscription:</strong> 25 days left</p>
     </div>
 </div>
@@ -402,124 +351,24 @@
     apiKey: "AIzaSyDZEBH979HzIWqGx7d_iLnNpmbOgHtMmno",
     authDomain: "odishabix-1ff06.firebaseapp.com",
     projectId: "odishabix-1ff06",
-    storageBucket: "odishabix-1ff06.firebasestorage.app",
+    storageBucket: "odishabix-1ff06.appspot.com",
     messagingSenderId: "622565515561",
     appId: "1:622565515561:web:335f358e7e089f5a41d738"
   };
   firebase.initializeApp(firebaseConfig);
 
   const quizData = [
-    {
-      title: "Current Affairs",
-      subtopics: [
-        "Appointment",
-        "Awards and Prizes",
-        "Obituary",
-        "National Affairs",
-        "Odisha CA",
-        "Books and Authors",
-        "Index & Ranking",
-        "International Affairs",
-        "Military Exercises",
-        "Sports",
-        "Govt Schemes",
-        "Governors & Ministers"
-      ]
-    },
-    {
-      title: "Computer",
-      subtopics: [
-        "MS Word",
-        "MS Excel",
-        "MS PowerPoint",
-        "MS Access",
-        "Internet and Networking",
-        "OS & Emails & Ports",
-        "Abbreviations"
-      ]
-    },
-    {
-      title: "History",
-      subtopics: [
-        "Ancient India History",
-        "Ancient Odisha History",
-        "Medieval India History",
-        "Medieval Odisha History",
-        "Modern India History",
-        "Modern Odisha History"
-      ]
-    },
-    {
-      title: "Geography",
-      subtopics: [
-        "World Geography",
-        "Indian Geography",
-        "Odisha Geography"
-      ]
-    },
-    {
-      title: "Polity",
-      subtopics: [
-        "Indian Polity",
-        "Odisha Polity"
-      ]
-    },
-    {
-      title: "Economics",
-      subtopics: [
-        "Indian Economy",
-        "Budget & Finance"
-      ]
-    },
-    {
-      title: "Environment",
-      subtopics: [
-        "Climate Change",
-        "Biodiversity",
-        "Environmental Policies"
-      ]
-    },
-    {
-      title: "General Science",
-      subtopics: [
-        "Physics",
-        "Chemistry",
-        "Biology"
-      ]
-    },
-    {
-      title: "English",
-      subtopics: [
-        "Error detection",
-        "Sentence improvement",
-        "Direct & Indirect Speech",
-        "Active & Passive Voice",
-        "Idioms",
-        "Phrasal Verbs",
-        "One word Substitution",
-        "Articles",
-        "Prepositions",
-        "Fill in the Blanks"
-      ]
-    },
-    {
-      title: "Odia",
-      subtopics: [
-        "ସାଧାରଣ ବ୍ୟାକରଣ",
-        "ପ୍ରତିଶବ୍ଦ",
-        "ବିପରୀତ ଶବ୍ଦ",
-        "ଶୁଦ୍ଧି ଅଶୁଦ୍ଧି",
-        "କ୍ରିୟା",
-        "ସମାସ",
-        "କାରକ ଓ ବିଭକ୍ତି",
-        "ସମୋଚ୍ଚାରିତ ଶବ୍ଦ",
-        "କାଳ",
-        "ରୂଢ଼ି ଓ ଲୋକବାଣୀ",
-        "ସନ୍ଧି"
-      ]
-    }
+    { title: "Current Affairs", subtopics: ["Appointment","Awards and Prizes","Obituary","National Affairs","Odisha CA","Books and Authors","Index & Ranking","International Affairs","Military Exercises","Sports","Govt Schemes","Governors & Ministers"]},
+    { title: "Computer", subtopics: ["MS Word","MS Excel","MS PowerPoint","MS Access","Internet and Networking","OS & Emails & Ports","Abbreviations"]},
+    { title: "History", subtopics: ["Ancient India History","Ancient Odisha History","Medieval India History","Medieval Odisha History","Modern India History","Modern Odisha History"]},
+    { title: "Geography", subtopics: ["World Geography","Indian Geography","Odisha Geography"]},
+    { title: "Polity", subtopics: ["Indian Polity","Odisha Polity"]},
+    { title: "Economics", subtopics: ["Indian Economy","Budget & Finance"]},
+    { title: "Environment", subtopics: ["Climate Change","Biodiversity","Environmental Policies"]},
+    { title: "General Science", subtopics: ["Physics","Chemistry","Biology"]},
+    { title: "English", subtopics: ["Error detection","Sentence improvement","Direct & Indirect Speech","Active & Passive Voice","Idioms","Phrasal Verbs","One word Substitution","Articles","Prepositions","Fill in the Blanks"]},
+    { title: "Odia", subtopics: ["ସାଧାରଣ ବ୍ୟାକରଣ","ପ୍ରତିଶବ୍ଦ","ବିପରୀତ ଶବ୍ଦ","ଶୁଦ୍ଧି ଅଶୁଦ୍ଧି","କ୍ରିୟା","ସମାସ","କାରକ ଓ ବିଭକ୍ତି","ସମୋଚ୍ଚାରିତ ଶବ୍ଦ","କାଳ","ରୂଢ଼ି ଓ ଲୋକବାଣୀ","ସନ୍ଧି"]}
   ];
-
   function renderTopics() {
     const container = document.getElementById('topics-container');
     quizData.forEach(topic => {
@@ -540,11 +389,9 @@
       container.appendChild(topicDiv);
     });
   }
-
   function slugify(text) {
     return text.toString().toLowerCase().trim().replace(/[\s&]+/g, '-').replace(/[^\w-]+/g, '');
   }
-
   function toggleSubtopics(topicElement) {
     const subtopics = topicElement.querySelector('.subtopics');
     const icon = topicElement.querySelector('.toggle-icon');
@@ -556,15 +403,13 @@
       icon.classList.add('rotate');
     }
   }
-
   function startQuiz(event, quizId) {
     event.stopPropagation();
     window.location.href = quizId + ".html";
   }
-
   renderTopics();
 
-  // Hamburger & dropdown menu handling
+  // Hamburger & menu logic - unchanged
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const dropdownMenu = document.getElementById('dropdownMenu');
   const contactsBtn = document.getElementById('contactsBtn');
@@ -573,7 +418,6 @@
   const aboutModal = document.getElementById('aboutModal');
   const aboutModalText = document.getElementById('aboutModalText');
   const closeModalBtn = document.getElementById('closeModalBtn');
-
   hamburgerBtn.addEventListener('click', () => {
     const isActive = hamburgerBtn.classList.toggle('active');
     if (isActive) {
@@ -586,19 +430,16 @@
       hideModal();
     }
   });
-
   hamburgerBtn.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       hamburgerBtn.click();
     }
   });
-
   contactsBtn.addEventListener('click', () => {
     socialMediaIcons.classList.toggle('show');
     hideModal();
   });
-
   aboutBtn.addEventListener('click', () => {
     dropdownMenu.classList.remove('show');
     hamburgerBtn.classList.remove('active');
@@ -612,40 +453,33 @@
     `;
     showModal();
   });
-
   closeModalBtn.addEventListener('click', hideModal);
   aboutModal.addEventListener('click', e => {
     if (e.target === aboutModal) {
       hideModal();
     }
   });
-
   function showModal() {
     aboutModal.style.display = 'block';
     aboutModal.setAttribute('aria-hidden', 'false');
   }
-
   function hideModal() {
     aboutModal.style.display = 'none';
     aboutModal.setAttribute('aria-hidden', 'true');
   }
-
   // Subscription Modal Handling
   const subscriptionBtn = document.getElementById('subscriptionBtn');
   const subscriptionModal = document.getElementById('subscriptionModal');
   const closeSubscriptionBtn = document.getElementById('closeSubscriptionBtn');
   const plans = document.querySelectorAll('#subscriptionModalContent .plan');
-
   subscriptionBtn.addEventListener('click', () => {
     dropdownMenu.classList.remove('show');
     hamburgerBtn.classList.remove('active');
     subscriptionModal.style.display = 'block';
   });
-
   closeSubscriptionBtn.addEventListener('click', () => {
     subscriptionModal.style.display = 'none';
   });
-
   plans.forEach(plan => {
     plan.addEventListener('click', () => {
       plans.forEach(p => p.classList.remove('selected'));
@@ -660,125 +494,112 @@
       window.location.href = `payment.html?price=${price}&days=${days}`;
     });
   });
-
   // User Info Modal Handling
   const userBtn = document.getElementById('userbtn');
   const userModal = document.getElementById('userModal');
   const closeUserBtn = document.getElementById('closeUserBtn');
-
   userBtn.addEventListener('click', () => {
     dropdownMenu.classList.remove('show');
     hamburgerBtn.classList.remove('active');
     userModal.style.display = 'block';
   });
-
   closeUserBtn.addEventListener('click', () => {
     userModal.style.display = 'none';
   });
-	
-	const logoutBtn = document.getElementById('logoutBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn.addEventListener('click', () => 
+  {
+    firebase.auth().signOut()
+      .then(() => {
+        window.location.href = 'index.html';
+      })
+      .catch(error => {
+        alert('Error logging out: ' + error.message);
+      });
+  });
 
-		logoutBtn.addEventListener('click', () => 
-		{
-		  firebase.auth().signOut()
-		    .then(() => {
-		      // Optionally, refresh page or redirect to index.html after logout
-		      window.location.href = 'index.html';
-		    })
-		    .catch(error => {
-		      alert('Error logging out: ' + error.message);
-		    });
-		});
-
-  /* Email Link Authentication with Display Name Update */
-
-  const loginModal = document.getElementById('loginModal');
-  const loginForm = document.getElementById('loginForm');
-  const sendOtpBtn = document.getElementById('sendOtpBtn');
-  const emailLinkInfo = document.getElementById('emailLinkInfo');
-
-  const actionCodeSettings = {
-    url: window.location.origin + window.location.pathname,
-    handleCodeInApp: true
-  };
-
+  // ----------------------- PHONE OTP LOGIN LOGIC -------------------------
+  let confirmationResult = null;
+  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+    'size': 'invisible',
+    'callback': function(response) {}
+  });
+  window.recaptchaVerifier.render();
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
       updateUIAfterLogin();
       loginModal.style.display = 'none';
       loginModal.setAttribute('aria-hidden', 'true');
-    } else if (!firebase.auth().isSignInWithEmailLink(window.location.href)) {
+    } else {
       loginModal.style.display = 'block';
       loginModal.setAttribute('aria-hidden', 'false');
     }
   });
-
-  sendOtpBtn.addEventListener('click', () => {
+  const sendOtpBtn = document.getElementById('sendOtpBtn');
+  sendOtpBtn.addEventListener('click', function() {
     const name = loginForm.userName.value.trim();
-    const email = loginForm.userEmail.value.trim();
+    const phone = loginForm.userPhone.value.trim();
     if (!name) {
       alert('Please enter your name.');
       return;
     }
-    if (!email.match(/^[^@]+@[^@]+\.[^@]+$/)) {
-      alert('Enter a valid email address.');
+    if (!phone.match(/^\+\d{10,15}$/)) {
+      alert('Enter a valid phone number with country code.');
       return;
     }
     sendOtpBtn.disabled = true;
-    firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
-      .then(() => {
-        emailLinkInfo.style.display = 'block';
-        sendOtpBtn.disabled = false;
-        window.localStorage.setItem('emailForSignIn', email);
+    firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
+      .then(function(result) {
+        confirmationResult = result;
+        document.getElementById('loginInfo').textContent = 'OTP sent to your phone number.';
+        document.getElementById('loginInfo').style.display = 'block';
+        document.getElementById('otpSection').style.display = 'block';
         window.localStorage.setItem('nameForSignIn', name);
+        sendOtpBtn.disabled = false;
       })
-      .catch(error => {
-        alert('Error sending login link: ' + error.message);
+      .catch(function(error) {
+        alert('Error sending OTP: ' + error.message);
+        grecaptcha.reset(window.recaptchaVerifier.widgetId);
         sendOtpBtn.disabled = false;
       });
   });
-
-  if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
-    let email = window.localStorage.getItem('emailForSignIn');
-    if (!email) {
-      email = window.prompt('Please provide your email for confirmation');
+  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+  verifyOtpBtn.addEventListener('click', function() {
+    const otp = document.getElementById('otpInput').value.trim();
+    if (!otp) {
+      alert('Please enter OTP.');
+      return;
     }
-    firebase.auth().signInWithEmailLink(email, window.location.href)
-      .then(result => {
+    confirmationResult.confirm(otp)
+      .then(function(result) {
         const user = result.user;
-        let name = window.localStorage.getItem('nameForSignIn') || '';
-
+        const name = window.localStorage.getItem('nameForSignIn') || '';
         if (name && user.displayName !== name) {
-          user.updateProfile({ displayName: name }).then(() => {
-            updateUIAfterLogin();
-          });
+          user.updateProfile({ displayName: name }).then(updateUIAfterLogin);
         } else {
           updateUIAfterLogin();
         }
-
-        window.localStorage.removeItem('emailForSignIn');
         window.localStorage.removeItem('nameForSignIn');
         loginModal.style.display = 'none';
         loginModal.setAttribute('aria-hidden', 'true');
       })
-      .catch(error => {
-        alert('Sign-in error: ' + error.message);
+      .catch(function(error) {
+        alert('Error verifying OTP: ' + error.message);
       });
-  }
-
+  });
   function updateUIAfterLogin() {
     const user = firebase.auth().currentUser;
     if (user) {
       userBtn.textContent = user.displayName || 'User';
-      const email = user.email || '';
+      const phone = user.phoneNumber || '';
       const userModalContentP = document.querySelectorAll('#userModalContent p');
       if (userModalContentP.length >= 2) {
         userModalContentP[0].innerHTML = `<strong>Name:</strong> ${user.displayName || ''}`;
-        userModalContentP[1].innerHTML = `<strong>Email:</strong> ${email}`;
+        userModalContentP[1].innerHTML = `<strong>Phone:</strong> ${phone}`;
       }
     }
   }
+  // --------------------- END PHONE OTP LOGIN LOGIC ----------------------
 </script>
 </body>
 </html>
-
