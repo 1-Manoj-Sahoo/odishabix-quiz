@@ -1,0 +1,3635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odisha Geography Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+	
+	header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
+    text-align: center;
+    padding: 8px 8px;
+    background-color: rgba(0,0,0,1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+	}
+
+	header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    letter-spacing: 2px;
+    color: #ffcc00;
+	}
+
+	header h1 .header-link {
+    color: #ffcc00;
+    text-decoration: none;
+    user-select: none;
+	}
+
+	header h1 .header-link:hover,
+	header h1 .header-link:focus {
+     text-decoration: none;
+	}
+	header p {
+        margin-top: 2px;
+        font-size: 1.2rem;
+        color: #ffee99;
+    }
+	.container.mt-5.mb-5 {
+    margin-top: 100px !important;
+	}
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+		<header>
+  		<h1><a href="index.html" class="header-link">ODISHABIX</a></h1>
+		 <p>Prepare Better, Achieve faster</p>
+	</header>
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">ODISHA GEOGRAPHY</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+{
+    "question": "Which physiographic division covers the largest area of Odisha?",
+    "options": ["Coastal Plains", "Central Plateaus", "Eastern Ghats Hills", "Mahanadi Delta Plain"],
+    "answer": 1,
+    "explanation": "The Central Plateaus cover a significant portion of Odisha's land area, characterized by undulating terrain and hills."
+  },
+  {
+    "question": "The principal mountain range running through Odisha is called:",
+    "options": ["Western Ghats", "Eastern Ghats", "Vindhya Range", "Satpura Range"],
+    "answer": 1,
+    "explanation": "The Eastern Ghats run through Odisha, forming uplands and hills in the western and southern parts."
+  },
+  {
+    "question": "Which is the largest river flowing entirely within Odisha?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 1,
+    "explanation": "The Brahmani River is the largest that flows entirely within Odisha before joining the Mahanadi."
+  },
+  {
+    "question": "Odisha’s coastline extends approximately how many kilometers along the Bay of Bengal?",
+    "options": ["315 km", "480 km", "600 km", "750 km"],
+    "answer": 1,
+    "explanation": "Odisha has a coastline of about 480 km along the Bay of Bengal."
+  },
+  {
+    "question": "The mineral with the largest reserve in Odisha is:",
+    "options": ["Bauxite", "Iron ore", "Manganese", "Chromite"],
+    "answer": 1,
+    "explanation": "Odisha is rich in iron ore and is one of the largest reserves in India."
+  },
+  {
+    "question": "Which is the predominant soil type found in the coastal plains of Odisha?",
+    "options": ["Alluvial soil", "Red soil", "Laterite soil", "Black soil"],
+    "answer": 0,
+    "explanation": "The coastal plains mostly have alluvial soils deposited by the rivers."
+  },
+  {
+    "question": "Which of the following wildlife sanctuaries is located in the Eastern Ghats of Odisha?",
+    "options": ["Simlipal Wildlife Sanctuary", "Karlapat Wildlife Sanctuary", "Satkosia Tiger Reserve", "Chilika Wildlife Sanctuary"],
+    "answer": 1,
+    "explanation": "Karlapat Wildlife Sanctuary is located within the Eastern Ghats region of Odisha."
+  },
+  {
+    "question": "Which industrial sector is the largest contributor to Odisha’s economy?",
+    "options": ["Agriculture", "Steel and Minerals", "Textiles", "Information Technology"],
+    "answer": 1,
+    "explanation": "Odisha's economy is driven largely by its steel production and mineral resources."
+  },
+  {
+    "question": "The famous Chilika Lake in Odisha is classified as a:",
+    "options": ["Freshwater lake", "Brackish water lagoon", "Saltwater lagoon", "Glacial lake"],
+    "answer": 1,
+    "explanation": "Chilika is the largest brackish water lagoon in India."
+  },
+  {
+    "question": "Which river forms the boundary between Odisha and Andhra Pradesh?",
+    "options": ["Godavari", "Vamsadhara", "Krishna", "Champavathi"],
+    "answer": 1,
+    "explanation": "The Vamsadhara River originates in Odisha and flows into Andhra Pradesh forming part of the boundary."
+  },
+  {
+    "question": "Which is the highest peak of Odisha located in the Eastern Ghats?",
+    "options": ["Deomali", "Tendong", "Dongargarh", "Niyamgiri"],
+    "answer": 0,
+    "explanation": "Deomali Peak, at about 1672 meters, is the highest peak in Odisha’s Eastern Ghats."
+  },
+  {
+    "question": "The largest port of Odisha is:",
+    "options": ["Gopalpur Port", "Paradeep Port", "Dhamra Port", "Chandbali Port"],
+    "answer": 1,
+    "explanation": "Paradeep is the largest and major port facilitating maritime trade in Odisha."
+  },
+  {
+    "question": "The major industrial belt of Odisha lies along which river valley?",
+    "options": ["Mahanadi River Valley", "Brahmani River Valley", "Subarnarekha River Valley", "Rushikulya River Valley"],
+    "answer": 0,
+    "explanation": "The Mahanadi River valley is the hub for many thermal and steel industries."
+  },
+  {
+    "question": "Which forest type dominates Odisha’s landscape?",
+    "options": ["Tropical Evergreen", "Tropical Deciduous", "Mangrove", "Alpine Forest"],
+    "answer": 1,
+    "explanation": "Tropical deciduous forests are the most widespread in Odisha."
+  },
+  {
+    "question": "Which soil type is found predominantly in western Odisha?",
+    "options": ["Red and laterite soils", "Alluvial soils", "Black soils", "Desert soils"],
+    "answer": 0,
+    "explanation": "Western Odisha is mainly characterized by red and laterite soils."
+  },
+  {
+    "question": "Which of the following rivers does NOT originate or flow through Odisha?",
+    "options": ["Mahanadi", "Godavari", "Baitarani", "Brahmani"],
+    "answer": 1,
+    "explanation": "Godavari flows in Andhra Pradesh and Telangana, not through Odisha."
+  },
+  {
+    "question": "Which of these minerals is Odisha NOT a major producer of?",
+    "options": ["Chromite", "Gold", "Bauxite", "Copper"],
+    "answer": 1,
+    "explanation": "Gold is not a major mineral produced in Odisha."
+  },
+  {
+    "question": "Which transport network connects the mineral-rich areas of Odisha to the hinterlands?",
+    "options": ["Railways", "National Highway 5", "River navigation", "Airways"],
+    "answer": 0,
+    "explanation": "Railways are crucial in transporting minerals from mines to industries and ports."
+  },
+  {
+    "question": "Which district in Odisha is known as the major producer of bauxite?",
+    "options": ["Kalahandi", "Koraput", "Mayurbhanj", "Sundargarh"],
+    "answer": 1,
+    "explanation": "Koraput district has rich bauxite deposits."
+  },
+  {
+    "question": "Which of the following wetlands in Odisha is a Ramsar site?",
+    "options": ["Chilika Lake", "Bhitarkanika Mangroves", "Lake Daringbadi", "Tikarpada"],
+    "answer": 0,
+    "explanation": "Chilika Lake is a designated Ramsar Wetland of International Importance."
+  },
+  {
+    "question": "Which climatic zone does Odisha predominantly fall under?",
+    "options": ["Tropical wet and dry", "Arid", "Temperate", "Montane"],
+    "answer": 0,
+    "explanation": "Odisha experiences a tropical wet and dry climate with distinct wet and dry seasons."
+  },
+  {
+    "question": "The major source of irrigation in Odisha is:",
+    "options": ["Canals", "Tanks", "Tube wells", "Wells"],
+    "answer": 1,
+    "explanation": "Traditional tanks (water reservoirs) are widely used for irrigation in Odisha."
+  },
+  {
+    "question": "Which mineral resource is abundant in the Keonjhar district of Odisha?",
+    "options": ["Iron ore", "Bauxite", "Coal", "Limestone"],
+    "answer": 0,
+    "explanation": "Keonjhar is rich in iron ore reserves."
+  },
+  {
+    "question": "Which of the following is a major tribal habitat area in Odisha?",
+    "options": ["Malkangiri", "Bhadrak", "Balasore", "Jagatsinghpur"],
+    "answer": 0,
+    "explanation": "Malkangiri district in southern Odisha is home to many tribal communities."
+  },
+  {
+    "question": "Which is the dominant vegetation type along the coastal belt of Odisha?",
+    "options": ["Mangroves", "Deciduous forests", "Evergreen forests", "Scrub forests"],
+    "answer": 0,
+    "explanation": "The coastal plains have extensive mangrove forests, especially around Chilika and Bhitarkanika."
+  },
+  {
+    "question": "Which highway passes through Odisha connecting Chennai to Kolkata?",
+    "options": ["National Highway 5", "National Highway 16", "National Highway 6", "National Highway 9"],
+    "answer": 1,
+    "explanation": "National Highway 16 (old NH5) runs along Odisha’s coast connecting Chennai and Kolkata."
+  },
+  {
+    "question": "What type of climate disaster frequently affects Odisha’s coastal areas?",
+    "options": ["Cyclones", "Earthquakes", "Droughts", "Landslides"],
+    "answer": 0,
+    "explanation": "Tropical cyclones regularly impact Odisha’s coastal region causing damage."
+  },
+  {
+    "question": "The mineral 'chromite' in Odisha is mainly found in the district of:",
+    "options": ["Sundargarh", "Jajpur", "Kalahandi", "Nabarangpur"],
+    "answer": 0,
+    "explanation": "Sundargarh district is one of the major chromite producing areas."
+  },
+  {
+    "question": "Which river in Odisha is known as the 'Sorrow of Odisha' due to frequent floods?",
+    "options": ["Baitarani", "Mahanadi", "Brahmani", "Rushikulya"],
+    "answer": 1,
+    "explanation": "Mahanadi often causes floods leading to loss of life and property."
+  },
+  {
+    "question": "Which hill range forms the western border of Odisha?",
+    "options": ["Eastern Ghats", "Satpura Hills", "Vindhya Hills", "Aravalli Hills"],
+    "answer": 0,
+    "explanation": "The Eastern Ghats run along Odisha's western boundary."
+  },
+  {
+    "question": "The main industrial area of Odisha is located near which city?",
+    "options": ["Rourkela", "Bhubaneswar", "Sambalpur", "Cuttack"],
+    "answer": 0,
+    "explanation": "Rourkela is known for its steel plant and industrial activities."
+  },
+  {
+    "question": "The famous red soil of Odisha is rich in:",
+    "options": ["Iron oxide", "Calcium carbonate", "Potassium", "Magnesium"],
+    "answer": 0,
+    "explanation": "The red color comes from iron oxide content."
+  },
+  {
+    "question": "The ‘Koel-Karo’ river system is famous for flowing through which Odisha district?",
+    "options": ["Sundargarh", "Mayurbhanj", "Malkangiri", "Kalahandi"],
+    "answer": 0,
+    "explanation": "The Koel and Karo rivers flow through Sundargarh and are tributaries to Brahmani."
+  },
+  {
+    "question": "Which is the oldest railway station in Odisha?",
+    "options": ["Cuttack", "Bhubaneswar", "Paradeep", "Sambalpur"],
+    "answer": 0,
+    "explanation": "Cuttack station is among the oldest railway stations in Odisha."
+  },
+  {
+    "question": "Which soil type in Odisha is most suitable for paddy cultivation?",
+    "options": ["Alluvial soil", "Red soil", "Laterite soil", "Black soil"],
+    "answer": 0,
+    "explanation": "Alluvial soils of the coastal plains are fertile for paddy."
+  },
+  {
+    "question": "The mineral oil reserves in Odisha are found in which basin?",
+    "options": ["Cambay Basin", "Mahanadi Basin", "Godavari Basin", "Damodar Basin"],
+    "answer": 1,
+    "explanation": "Mahanadi Basin in Odisha contains oil and gas deposits."
+  },
+  {
+    "question": "Which vegetation type is common in the northern Odisha plateau region?",
+    "options": ["Dry deciduous forest", "Mangrove forest", "Moist evergreen forest", "Alpine forest"],
+    "answer": 0,
+    "explanation": "Northern plateau supports dry deciduous forests."
+  },
+  {
+    "question": "Which district of Odisha has the highest coal reserves?",
+    "options": ["Talcher", "Koraput", "Keonjhar", "Malkangiri"],
+    "answer": 0,
+    "explanation": "Talcher is the largest coal mining area in Odisha."
+  },
+  {
+    "question": "Which port in Odisha is located near the mouth of the Mahanadi River?",
+    "options": ["Paradeep Port", "Gopalpur Port", "Dhamra Port", "Chandbali Port"],
+    "answer": 0,
+    "explanation": "Paradeep Port is on the Mahanadi delta near the river mouth."
+  },
+  {
+    "question": "Which type of industry is Rourkela Steel Plant associated with?",
+    "options": ["Iron and Steel", "Textile", "Chemical", "Pharmaceutical"],
+    "answer": 0,
+    "explanation": "Rourkela Steel Plant is a major iron and steel producer."
+  },
+  {
+    "question": "Which coastal feature is prominent in Odisha’s shoreline?",
+    "options": ["Estuaries and lagoons", "Sea cliffs", "High tide terraces", "Fjords"],
+    "answer": 0,
+    "explanation": "Estuaries and brackish water lagoons like Chilika dominate."
+  },
+  {
+    "question": "Which Odisha national park is famous for its tiger reserve?",
+    "options": ["Simlipal National Park", "Debrigarh Wildlife Sanctuary", "Nandankanan Zoological Park", "Hirakud Wildlife Sanctuary"],
+    "answer": 0,
+    "explanation": "Simlipal is a tiger reserve in Odisha."
+  },
+  {
+    "question": "The main crop grown in the coastal plains of Odisha is:",
+    "options": ["Paddy", "Wheat", "Millets", "Cotton"],
+    "answer": 0,
+    "explanation": "Paddy is the dominant crop grown in ecologically suitable coastal plains."
+  },
+  {
+    "question": "Which river basin is shared by Odisha and Jharkhand states?",
+    "options": ["Subarnarekha", "Brahmani", "Mahanadi", "Baitarani"],
+    "answer": 0,
+    "explanation": "The Subarnarekha River basin spreads across Odisha and Jharkhand."
+  },
+  {
+    "question": "Which district in Odisha is majorly covered by evergreen forests?",
+    "options": ["Kandhamal", "Jajpur", "Bargarh", "Nayagarh"],
+    "answer": 0,
+    "explanation": "Kandhamal district has dense evergreen forests."
+  },
+  {
+    "question": "Which physiographic division of Odisha is known for maximum tribal concentration?",
+    "options": ["Coastal Plains", "Central Plateaus", "Eastern Ghats Highlands", "Mahanadi Delta"],
+    "answer": 2,
+    "explanation": "Eastern Ghats Highland region is home to dense tribal populations, especially in Koraput, Malkangiri, and Rayagada."
+  },
+  {
+    "question": "The delta of which river is shared between Odisha and West Bengal?",
+    "options": ["Subarnarekha", "Brahmani", "Mahanadi", "Baitarani"],
+    "answer": 0,
+    "explanation": "The Subarnarekha delta spans Odisha and West Bengal coastal areas."
+  },
+  {
+    "question": "Which district is the leading producer of manganese in Odisha?",
+    "options": ["Keonjhar", "Sundargarh", "Mayurbhanj", "Jajpur"],
+    "answer": 1,
+    "explanation": "Sundargarh district has the highest manganese deposits and production."
+  },
+  {
+    "question": "The Satkosia Gorge on the Mahanadi River separates which two physiographic units?",
+    "options": ["Coastal Plains and Eastern Ghats", "Mahanadi Delta and Central Plateaus", "Upper Mahanadi Basin and Coastal Plains", "Eastern Ghats and Northern Plateau"],
+    "answer": 2,
+    "explanation": "Satkosia Gorge marks the transition from upper Mahanadi basin to coastal plains."
+  },
+  {
+    "question": "Which thermal power plant in Odisha is located near Talcher?",
+    "options": ["IB Valley TPS", "Kaniha NTPC", "Budhipadar TPS", "Banharpali TPS"],
+    "answer": 1,
+    "explanation": "Kaniha NTPC is a major thermal power station near Talcher."
+  },
+  {
+    "question": "Which type of coastal landform is prominent near the Devi river mouth?",
+    "options": ["Tidal flats", "Marine terraces", "Sand spits and bars", "Sea cliffs"],
+    "answer": 2,
+    "explanation": "Sand spits and bars are common formations near Devi river mouth."
+  },
+  {
+    "question": "The Hirakud Dam helps control floods in which river basin?",
+    "options": ["Brahmani", "Baitarani", "Mahanadi", "Subarnarekha"],
+    "answer": 2,
+    "explanation": "Hirakud Dam on Mahanadi controls downstream flooding."
+  },
+  {
+    "question": "Which mineral is extensively mined in Damanjodi?",
+    "options": ["Iron ore", "Bauxite", "Chromite", "Manganese"],
+    "answer": 1,
+    "explanation": "Damanjodi has major bauxite mines that supply NALCO’s alumina plant."
+  },
+  {
+    "question": "What is the predominant wind pattern during monsoon season in Odisha?",
+    "options": ["North-east to south-west", "South-west to north-east", "West to east", "Variable winds"],
+    "answer": 1,
+    "explanation": "South-west monsoon winds bring heavy rains to Odisha."
+  },
+  {
+    "question": "Which district of Odisha has significant platinum group metal (PGM) potential?",
+    "options": ["Keonjhar", "Mayurbhanj", "Baula-Nuasahi (Jajpur)", "Koraput"],
+    "answer": 2,
+    "explanation": "Baula-Nuasahi area in Jajpur district is known for PGM occurrences."
+  },
+  {
+    "question": "Which river is also called the 'Ganga of Odisha'?",
+    "options": ["Brahmani", "Mahanadi", "Baitarani", "Rushikulya"],
+    "answer": 2,
+    "explanation": "Baitarani is culturally revered and called the 'Ganga of Odisha'."
+  },
+  {
+    "question": "Ramsar site Bhitarkanika is located at the estuary of which river?",
+    "options": ["Brahmani-Baitarani-Dhamra", "Rushikulya", "Subarnarekha", "Vansadhara"],
+    "answer": 0,
+    "explanation": "Bhitarkanika lies in the estuarine region of the Brahmani-Baitarani-Dhamra system."
+  },
+  {
+    "question": "Which limestone belt supports Odisha’s cement industry?",
+    "options": ["Bargarh belt", "Sundargarh belt", "Koraput belt", "Rayagada belt"],
+    "answer": 1,
+    "explanation": "Sundargarh district's limestone reserves support several cement plants."
+  },
+  {
+    "question": "Which hydroelectric project is built on the Indravati River?",
+    "options": ["Balimela", "Upper Kolab", "Upper Indravati", "Machkund"],
+    "answer": 2,
+    "explanation": "Upper Indravati Hydro Project in Kalahandi uses the river's flow for power generation."
+  },
+  {
+    "question": "The coastal plain of Odisha is also called:",
+    "options": ["Mahanadi-Godavari Plain", "Utkal Plains", "Eastern Coastal Belt", "Bengal-Orissa Plain"],
+    "answer": 1,
+    "explanation": "It is referred to as the Utkal Plains, formed by river deltas."
+  },
+  {
+    "question": "Which mineral belt of Odisha is known as part of the 'Singhbhum-Keonjhar-Bonai' region?",
+    "options": ["Coal belt", "Bauxite belt", "Iron ore belt", "Limestone belt"],
+    "answer": 2,
+    "explanation": "Singhbhum-Keonjhar-Bonai region is a major iron ore mining area."
+  },
+  {
+    "question": "Which climatic hazard destroyed large areas near Paradeep in 1999?",
+    "options": ["Super cyclone", "Tsunami", "Flood", "Drought"],
+    "answer": 0,
+    "explanation": "The 1999 super cyclone caused massive destruction in coastal Odisha."
+  },
+  {
+    "question": "Which NTPC plant in Odisha is one of India’s largest thermal power stations?",
+    "options": ["Talcher-Kaniha", "Banharpali", "Angul", "Titlagarh"],
+    "answer": 0,
+    "explanation": "NTPC Talcher-Kaniha is among India’s biggest thermal stations."
+  },
+  {
+    "question": "Which Odisha wetland is a nesting ground for Olive Ridley turtles?",
+    "options": ["Chilika", "Devi River mouth", "Bhitarkanika", "All of the above"],
+    "answer": 3,
+    "explanation": "All these coasts are important nesting sites for Olive Ridley turtles."
+  },
+  {
+    "question": "Which coastal district is known for its extensive prawn culture?",
+    "options": ["Balasore", "Puri", "Kendrapara", "Ganjam"],
+    "answer": 2,
+    "explanation": "Kendrapara's estuaries support large-scale prawn farming."
+  },
+  {
+    "question": "The Eastern Ghats in southern Odisha are primarily composed of:",
+    "options": ["Metamorphic rocks", "Igneous rocks", "Sedimentary rocks", "Recent alluvium"],
+    "answer": 0,
+    "explanation": "Metamorphic rocks dominate the Eastern Ghats of Odisha."
+  },
+  {
+    "question": "Which district has the largest forest cover in Odisha?",
+    "options": ["Sundargarh", "Kandhamal", "Koraput", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Kandhamal district has the highest percentage of forest cover."
+  },
+  {
+    "question": "Which major river of Odisha flows into Chilika Lake?",
+    "options": ["Mahanadi", "Rushikulya", "Daya", "Baitarani"],
+    "answer": 2,
+    "explanation": "The Daya river flows into northern Chilika Lake."
+  },
+  {
+    "question": "Which tribal-dominated district is rich in both bauxite and forest resources?",
+    "options": ["Koraput", "Keonjhar", "Mayurbhanj", "Sundargarh"],
+    "answer": 0,
+    "explanation": "Koraput is rich in bauxite reserves and dense forests."
+  },
+  {
+    "question": "The IB Valley in Odisha is famous for which resource?",
+    "options": ["Coal", "Iron ore", "Bauxite", "Manganese"],
+    "answer": 0,
+    "explanation": "The IB Valley in Jharsuguda-Sundargarh area is a major coalfield."
+  },
+  {
+    "question": "Which irrigation project is located in Bargarh district?",
+    "options": ["Hirakud", "Salandi", "Indravati", "Rengali"],
+    "answer": 0,
+    "explanation": "Bargarh district benefits primarily from the Hirakud irrigation system."
+  },
+  {
+    "question": "The largest mangrove ecosystem in Odisha is found at:",
+    "options": ["Bhitarkanika", "Chilika", "Devi estuary", "Subarnarekha delta"],
+    "answer": 0,
+    "explanation": "Bhitarkanika hosts India's second largest mangrove area after Sundarbans."
+  },
+  {
+    "question": "Which is the coldest place in Odisha, often recording sub-10°C winters?",
+    "options": ["Sambalpur", "Daringbadi", "Phulbani", "Koraput"],
+    "answer": 1,
+    "explanation": "Daringbadi in Kandhamal is called the 'Kashmir of Odisha'."
+  },
+  {
+    "question": "Which river's catchment dominates southern Odisha's drainage?",
+    "options": ["Vansadhara", "Godavari", "Nagavali", "Indravati"],
+    "answer": 3,
+    "explanation": "The Indravati River basin covers a large part of southern Odisha."
+  },
+  {
+    "question": "Which district houses the Khandadhar waterfalls?",
+    "options": ["Keonjhar", "Sundargarh", "Mayurbhanj", "Rayagada"],
+    "answer": 1,
+    "explanation": "Khandadhar Falls, one of the highest in Odisha, is in Sundargarh district."
+  },
+  {
+    "question": "Which is the longest river flowing through Odisha?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Mahanadi is the longest river in Odisha, flowing about 480 km in the state."
+  },
+  {
+    "question": "Which mineral resource supports the aluminium industry in Odisha?",
+    "options": ["Bauxite", "Iron ore", "Manganese", "Limestone"],
+    "answer": 0,
+    "explanation": "Bauxite is used for producing aluminium; Odisha has huge deposits."
+  },
+  {
+    "question": "Which river drains into the Bay of Bengal south of Chilika Lake?",
+    "options": ["Rushikulya", "Daya", "Baitarani", "Bahuda"],
+    "answer": 0,
+    "explanation": "Rushikulya river enters the Bay south of Chilika."
+  },
+  {
+    "question": "Which mineral-rich belt runs through Sukinda valley?",
+    "options": ["Iron ore belt", "Chromite belt", "Bauxite belt", "Coal belt"],
+    "answer": 1,
+    "explanation": "Sukinda valley has one of the world's largest chromite reserves."
+  },
+  {
+    "question": "Which Odisha city is known for its textile industry, especially Sambalpuri sarees?",
+    "options": ["Bargarh", "Berhampur", "Cuttack", "Balasore"],
+    "answer": 0,
+    "explanation": "Bargarh is famous for production of Sambalpuri ikat fabrics."
+  },
+  {
+    "question": "Which habitat in Odisha is crucial for migratory birds in winter?",
+    "options": ["Chilika Lake", "Satkosia Gorge", "Khandadhar", "Harishankar"],
+    "answer": 0,
+    "explanation": "Chilika Lake hosts lakhs of migratory birds in winters."
+  },
+  {
+    "question": "Which district has large graphite deposits in Odisha?",
+    "options": ["Balangir", "Rayagada", "Kalahandi", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Rayagada district is known for graphite reserves."
+  },
+  {
+    "question": "Which Odisha National Highway is part of the Golden Quadrilateral network?",
+    "options": ["NH 16", "NH 26", "NH 49", "NH 55"],
+    "answer": 0,
+    "explanation": "NH16 runs along Odisha’s coast and is part of the Golden Quadrilateral."
+  },
+  {
+    "question": "Which location records the highest average annual rainfall in Odisha?",
+    "options": ["Koraput", "Malkangiri", "Kandhamal", "Puri"],
+    "answer": 1,
+    "explanation": "Malkangiri in southern Odisha has one of the highest rainfall averages."
+  },
+  {
+    "question": "Which Odisha river is a tributary of the Godavari?",
+    "options": ["Indravati", "Bansadhara", "Nagavali", "Rushikulya"],
+    "answer": 0,
+    "explanation": "The Indravati River joins the Godavari in Chhattisgarh."
+  },
+  {
+    "question": "Which protected area in Odisha is famous for saltwater crocodiles?",
+    "options": ["Bhitarkanika", "Simlipal", "Satkosia", "Debrigarh"],
+    "answer": 0,
+    "explanation": "Bhitarkanika is known for its estuarine crocodiles."
+  },
+  {
+    "question": "Which mineral-based industry is concentrated in Jharsuguda?",
+    "options": ["Aluminium", "Steel", "Cement", "Fertilizer"],
+    "answer": 0,
+    "explanation": "Jharsuguda is a major aluminium production hub."
+  },
+  {
+    "question": "Which Odisha river system flows through the Hirakud reservoir?",
+    "options": ["Mahanadi", "Baitarani", "Brahmani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Hirakud Dam is built on the Mahanadi River."
+  },
+  {
+    "question": "Which is the largest inland river island in Odisha?",
+    "options": ["Satkosia", "Bhitarakanika", "Bhattarika", "Kud Gahira"],
+    "answer": 3,
+    "explanation": "Kud Gahira is considered the largest inland river island in Odisha, located in the Mahanadi basin."
+  },
+  {
+    "question": "The Tampara Lake in Odisha is located in which district?",
+    "options": ["Ganjam", "Puri", "Balasore", "Khordha"],
+    "answer": 0,
+    "explanation": "Tampara Lake is a brackish water lagoon situated in Ganjam district along the Bay of Bengal."
+  },
+  {
+    "question": "Which is the southernmost district of Odisha?",
+    "options": ["Malkangiri", "Koraput", "Gajapati", "Rayagada"],
+    "answer": 0,
+    "explanation": "Malkangiri is the southernmost district of Odisha, sharing borders with Chhattisgarh and Andhra Pradesh."
+  },
+  {
+    "question": "Which mineral in Odisha is predominantly mined from the Nuasahi area?",
+    "options": ["Chromite", "Coal", "Bauxite", "Manganese"],
+    "answer": 0,
+    "explanation": "Nuasahi area in Jajpur district is famous for chromite mining."
+  },
+  {
+    "question": "The Tel river is a major tributary of which river in Odisha?",
+    "options": ["Brahmani", "Subarnarekha", "Mahanadi", "Baitarani"],
+    "answer": 2,
+    "explanation": "The Tel river joins the Mahanadi near Sonepur in western Odisha."
+  },
+  {
+    "question": "Which plateau in Odisha is known for lateritic soil rich in minerals?",
+    "options": ["Bolangir Plateau", "Athgarh Plateau", "Sundargarh Plateau", "Mayurbhanj Plateau"],
+    "answer": 3,
+    "explanation": "The Mayurbhanj plateau has lateritic soil and is rich in minerals like iron ore."
+  },
+  {
+    "question": "Which Odisha waterfall is formed by the Machkund river?",
+    "options": ["Barehipani", "Khandadhar", "Duduma", "Sanaghagara"],
+    "answer": 2,
+    "explanation": "Duduma waterfall on the Machkund river is located on the Odisha-Andhra border."
+  },
+  {
+    "question": "Which is the largest irrigation project in southern Odisha?",
+    "options": ["Hirakud", "Upper Kolab", "Upper Indravati", "Rengali"],
+    "answer": 2,
+    "explanation": "Upper Indravati project is the largest in southern Odisha, serving Kalahandi and nearby districts."
+  },
+  {
+    "question": "Which river flows through the city of Cuttack?",
+    "options": ["Brahmani", "Kathajodi", "Rushikulya", "Indravati"],
+    "answer": 1,
+    "explanation": "Kathajodi river, a distributary of Mahanadi, flows through Cuttack."
+  },
+  {
+    "question": "Which coastal feature protects Kendrapara from sea erosion?",
+    "options": ["Barrier spits", "Mangrove forests", "Wave-cut terraces", "Cliffs"],
+    "answer": 1,
+    "explanation": "Mangrove forests in Bhitarkanika protect Kendrapara from coastal erosion."
+  },
+  {
+    "question": "Which is the largest mining belt for iron ore in Odisha?",
+    "options": ["Joda-Barbil", "Sukinda", "Gandhamardan", "Talcher"],
+    "answer": 0,
+    "explanation": "The Joda-Barbil region in Keonjhar is Odisha’s largest iron ore mining belt."
+  },
+  {
+    "question": "Which Odisha city is famous for brass and bell metal crafts besides being near a major dam?",
+    "options": ["Cuttack", "Sambalpur", "Balangir", "Dhenkanal"],
+    "answer": 1,
+    "explanation": "Sambalpur is famous for its Sambalpuri textiles and bell metal crafts, located near Hirakud dam."
+  },
+  {
+    "question": "Which district has the highest percentage of Scheduled Tribe population in Odisha?",
+    "options": ["Malkangiri", "Mayurbhanj", "Rayagada", "Nabarangpur"],
+    "answer": 0,
+    "explanation": "Malkangiri has the highest proportion of ST population in the state."
+  },
+  {
+    "question": "Which Odisha wildlife sanctuary is contiguous with Similipal Tiger Reserve?",
+    "options": ["Hadagarh", "Kuldiha", "Balukhand", "Debrigarh"],
+    "answer": 1,
+    "explanation": "Kuldiha Wildlife Sanctuary is contiguous with Similipal Tiger Reserve in Balasore district."
+  },
+  {
+    "question": "Which river basin in Odisha is known for sambalpur’s Hirakud Dam?",
+    "options": ["Brahmani", "Mahanadi", "Baitarani", "Indravati"],
+    "answer": 1,
+    "explanation": "Hirakud Dam is built across the Mahanadi river."
+  },
+  {
+    "question": "The city of Rourkela is located on which river bank?",
+    "options": ["Brahmani", "Koel", "Ib", "Jhinkpani"],
+    "answer": 0,
+    "explanation": "Rourkela is situated on the banks of the Brahmani river."
+  },
+  {
+    "question": "Which Odisha coastal lake is believed to be a remnant of the Bay of Bengal?",
+    "options": ["Tampara", "Chilika", "Ansupa", "Kanjia"],
+    "answer": 1,
+    "explanation": "Chilika Lake is a brackish lagoon formed as a remnant of the Bay of Bengal."
+  },
+  {
+    "question": "Which is the main cash crop cultivated in Ganjam district?",
+    "options": ["Cotton", "Sugarcane", "Groundnut", "Tobacco"],
+    "answer": 2,
+    "explanation": "Groundnut is extensively cultivated in Ganjam district."
+  },
+  {
+    "question": "Which is the only notified Tiger Reserve in Odisha besides Similipal?",
+    "options": ["Debrigarh", "Satkosia", "Bhitarkanika", "Kuldiha"],
+    "answer": 1,
+    "explanation": "Satkosia Tiger Reserve is the second tiger reserve after Similipal in Odisha."
+  },
+  {
+    "question": "Which Odisha district contains part of the Eastern Ghats’ Niyamgiri Hills?",
+    "options": ["Koraput", "Rayagada", "Malkangiri", "Kalahandi"],
+    "answer": 3,
+    "explanation": "Niyamgiri Hills spread across Kalahandi and Rayagada districts."
+  },
+  {
+    "question": "What type of forest dominates the Gandhamardan Hills?",
+    "options": ["Moist deciduous", "Dry deciduous", "Tropical evergreen", "Montane"],
+    "answer": 0,
+    "explanation": "Gandhamardan Hills have rich moist deciduous forests."
+  },
+  {
+    "question": "Which Odisha district has the maximum coastline length?",
+    "options": ["Balasore", "Jagatsinghpur", "Puri", "Ganjam"],
+    "answer": 0,
+    "explanation": "Balasore district has the longest stretch of coastline in Odisha."
+  },
+  {
+    "question": "Which Odisha national park is part of Mayurbhanj district?",
+    "options": ["Similipal", "Satkosia", "Bhitarkanika", "Chandaka"],
+    "answer": 0,
+    "explanation": "Similipal National Park lies in Mayurbhanj district."
+  },
+  {
+    "question": "The Machhakunda Hydroelectric Project is shared by Odisha and which state?",
+    "options": ["Andhra Pradesh", "Chhattisgarh", "Jharkhand", "West Bengal"],
+    "answer": 0,
+    "explanation": "Machhakunda project is located on Odisha-Andhra border."
+  },
+  {
+    "question": "Which Odisha district is known for the Harishankar-Nrusinghanath twin temple complex in the Gandhamardan Hills?",
+    "options": ["Balangir", "Bargarh", "Kalahandi", "Nuapada"],
+    "answer": 1,
+    "explanation": "Bargarh district hosts the Harishankar and Nrusinghanath temples on Gandhamardan Hills."
+  },
+  {
+    "question": "Which river marks part of the boundary between Odisha and Chhattisgarh?",
+    "options": ["Mahanadi", "Tel", "Ib", "Shankh"],
+    "answer": 3,
+    "explanation": "The Shankh river forms part of the boundary between Odisha and Chhattisgarh."
+  },
+  {
+    "question": "Which Odisha district is renowned for its tarakasi (silver filigree) craft?",
+    "options": ["Cuttack", "Bhubaneswar", "Puri", "Balasore"],
+    "answer": 0,
+    "explanation": "Cuttack is famous for intricate silver filigree work known as tarakasi."
+  },
+  {
+    "question": "The IB Thermal Power Station is located in which district?",
+    "options": ["Sundargarh", "Jharsuguda", "Sambalpur", "Bargarh"],
+    "answer": 1,
+    "explanation": "IB Thermal Power Station is located at Banharpali in Jharsuguda."
+  },
+  {
+    "question": "Which Odisha hill range is associated with bauxite mining protests?",
+    "options": ["Niyamgiri", "Gandhamardan", "Deomali", "Malayagiri"],
+    "answer": 0,
+    "explanation": "Niyamgiri Hills have seen anti-bauxite mining movements to protect tribal rights."
+  },
+  {
+    "question": "Which river's basin covers most of north-west Odisha?",
+    "options": ["Brahmani", "Baitarani", "Subarnarekha", "Mahanadi"],
+    "answer": 0,
+    "explanation": "Brahmani river basin spans major parts of north-west Odisha."
+  },
+  {
+    "question": "Which Odisha lake is the largest freshwater lake in the state?",
+    "options": ["Chilika", "Ansupa", "Tampara", "Kanjia"],
+    "answer": 1,
+    "explanation": "Ansupa lake in Cuttack district is the largest freshwater lake of Odisha."
+  },
+  {
+    "question": "Which Odisha district touches both Andhra Pradesh and Chhattisgarh borders?",
+    "options": ["Koraput", "Malkangiri", "Rayagada", "Nabarangpur"],
+    "answer": 1,
+    "explanation": "Malkangiri borders both Andhra Pradesh and Chhattisgarh."
+  },
+  {
+    "question": "Which sanctuary in Odisha is a habitat for the endangered blackbuck?",
+    "options": ["Balukhand-Konark", "Chandaka", "Bhitarkanika", "Similipal"],
+    "answer": 0,
+    "explanation": "Balukhand-Konark Sanctuary along Puri-Konark coast is home to blackbucks."
+  },
+  {
+    "question": "Which is the main river flowing through Kandhamal district?",
+    "options": ["Baitarani", "Tel", "Rushikulya", "Mahanadi"],
+    "answer": 2,
+    "explanation": "Rushikulya river flows through Kandhamal before entering Ganjam plains."
+  },
+  {
+    "question": "Which Odisha waterfall is within Similipal National Park?",
+    "options": ["Barehipani", "Duduma", "Khandadhar", "Sanaghagara"],
+    "answer": 0,
+    "explanation": "Barehipani waterfall is located inside Similipal National Park."
+  },
+  {
+    "question": "Which Odisha harbour is a fishing harbour as well as a minor port?",
+    "options": ["Chandbali", "Paradeep", "Gopalpur", "Bichitrapur"],
+    "answer": 2,
+    "explanation": "Gopalpur in Ganjam district is a fishing harbour and now a functional port."
+  },
+  {
+    "question": "Berhampur city is known as the 'Silk City' for its:",
+    "options": ["Samabalpuri sarees", "Tusser silk", "Berhampuri patta sarees", "Kantha embroidery"],
+    "answer": 2,
+    "explanation": "Berhampuri patta sarees and joda are famous silk products from the city."
+  },
+  {
+    "question": "Which dam is built across the Baitarani River?",
+    "options": ["Rengali", "Mandira", "Salandi", "Balimela"],
+    "answer": 0,
+    "explanation": "Rengali Dam is built on the Baitarani River in Angul/Keonjhar border area."
+  },
+  {
+    "question": "Which Odisha district produces the most turmeric?",
+    "options": ["Kandhamal", "Koraput", "Kalahandi", "Bargarh"],
+    "answer": 0,
+    "explanation": "Kandhamal is renowned for its organic turmeric."
+  },
+  {
+    "question": "Which coastal river is known for its short length but heavy sediment load?",
+    "options": ["Bahuda", "Devi", "Subarnarekha", "Jalaka"],
+    "answer": 1,
+    "explanation": "The Devi River is short but carries heavy silt during monsoon."
+  },
+    {
+    "question": "Which Odisha city is located at the confluence of the Mahanadi and Tel rivers?",
+    "options": ["Sonepur", "Boudh", "Sambalpur", "Jharsuguda"],
+    "answer": 0,
+    "explanation": "Sonepur, also called Subarnapur, is situated at the confluence of the Mahanadi and Tel rivers."
+  },
+  {
+    "question": "The famous Gupteswar cave shrine is located on the banks of which river?",
+    "options": ["Kolab", "Sabari", "Indravati", "Nagal"],
+    "answer": 1,
+    "explanation": "Gupteswar shrine is on the bank of the Sabari River in Koraput district."
+  },
+  {
+    "question": "Which Odisha district is a leading producer of vanadium-bearing titaniferous magnetite?",
+    "options": ["Mayurbhanj", "Sundargarh", "Keonjhar", "Jajpur"],
+    "answer": 0,
+    "explanation": "Mayurbhanj has deposits of vanadium-bearing titaniferous magnetite."
+  },
+  {
+    "question": "Which Odisha river forms a part of the boundary with Jharkhand?",
+    "options": ["Brahmani", "Subarnarekha", "Baitarani", "Ib"],
+    "answer": 1,
+    "explanation": "The Subarnarekha River forms part of Odisha’s northern boundary with Jharkhand."
+  },
+  {
+    "question": "In which physiographic region is the Karlapat Wildlife Sanctuary located?",
+    "options": ["Eastern Ghats", "Coastal Plains", "Northern Plateau", "Mahanadi Delta"],
+    "answer": 0,
+    "explanation": "Karlapat Wildlife Sanctuary is located in the Eastern Ghats region of Odisha."
+  },
+  {
+    "question": "Which is the deepest gorge in Odisha carved by the Mahanadi River?",
+    "options": ["Satkosia", "Chausathgarh", "Tikarpada", "Motlagarh"],
+    "answer": 0,
+    "explanation": "Satkosia Gorge is the deepest gorge in Odisha carved by Mahanadi."
+  },
+  {
+    "question": "The famous Barehipani Falls plunges from a height of approximately:",
+    "options": ["200 m", "217 m", "244 m", "272 m"],
+    "answer": 2,
+    "explanation": "Barehipani Falls in Similipal National Park has a height of about 244 metres."
+  },
+  {
+    "question": "Which Odisha district is well-known for production of granite decorative stones?",
+    "options": ["Khurda", "Ganjam", "Rayagada", "Mayurbhanj"],
+    "answer": 2,
+    "explanation": "Rayagada district has significant granite decorative stone resources."
+  },
+  {
+    "question": "The Telkoi valley is located in which district of Odisha?",
+    "options": ["Keonjhar", "Sundargarh", "Koraput", "Kandhamal"],
+    "answer": 0,
+    "explanation": "Telkoi valley is located in Keonjhar district."
+  },
+  {
+    "question": "Which coastal town lies at the mouth of the Rushikulya River?",
+    "options": ["Gopalpur", "Chhatrapur", "Paradeep", "Konark"],
+    "answer": 0,
+    "explanation": "Gopalpur is located near the mouth of the Rushikulya River."
+  },
+  {
+    "question": "The Mandira Dam in Sundargarh district is built on which river?",
+    "options": ["Brahmani", "Shankh", "Koel", "Ib"],
+    "answer": 3,
+    "explanation": "Mandira Dam is constructed across the Ib River in Sundargarh."
+  },
+  {
+    "question": "Which Odisha lake is oxbow type and located near Cuttack?",
+    "options": ["Chilika", "Ansupa", "Tampara", "Kanjia"],
+    "answer": 1,
+    "explanation": "Ansupa Lake, near Cuttack, is an oxbow lake formed by the Mahanadi."
+  },
+  {
+    "question": "What is the approximate length of Odisha’s border with Chhattisgarh?",
+    "options": ["500 km", "450 km", "400 km", "350 km"],
+    "answer": 2,
+    "explanation": "Odisha shares about 400 km of its border with Chhattisgarh."
+  },
+  {
+    "question": "Which is the main river flowing through Kalahandi district?",
+    "options": ["Tel", "Indravati", "Nagavali", "Vansadhara"],
+    "answer": 1,
+    "explanation": "The Indravati River passes through Kalahandi district."
+  },
+  {
+    "question": "The clay-rich black soils in parts of Odisha are best suited for cultivation of:",
+    "options": ["Cotton", "Tea", "Wheat", "Sugarcane"],
+    "answer": 0,
+    "explanation": "Black soils have high moisture retention, ideal for cotton."
+  },
+  {
+    "question": "Which port in Odisha is developed jointly with private sector participation?",
+    "options": ["Paradeep", "Gopalpur", "Chandbali", "Bichitrapur"],
+    "answer": 1,
+    "explanation": "Gopalpur Port is developed through a public-private partnership."
+  },
+  {
+    "question": "Which Odisha sanctuary is famous for elephants and spreads across Angul district?",
+    "options": ["Satkosia", "Chandaka-Dampara", "Debrigarh", "Hadagarh"],
+    "answer": 0,
+    "explanation": "Satkosia Gorge Sanctuary in Angul is known for its elephants."
+  },
+  {
+    "question": "The delta region of the Mahanadi is locally known as:",
+    "options": ["Utkal Plains", "Mahanadi Deltaic Plains", "Northern Coastal Plains", "Central Coastal Plains"],
+    "answer": 1,
+    "explanation": "The Mahanadi Deltaic Plains are locally referred for the delta area."
+  },
+  {
+    "question": "Which Odisha district has the highest production of paddy?",
+    "options": ["Bargarh", "Kalahandi", "Balasore", "Cuttack"],
+    "answer": 0,
+    "explanation": "Bargarh district is known as the 'Rice Bowl' of Odisha."
+  },
+  {
+    "question": "Which coastal feature is observed near Ramachandi in Puri district?",
+    "options": ["Lagoon", "Spit", "Estuary", "Mudflat"],
+    "answer": 1,
+    "explanation": "A prominent sand spit is observed near Ramachandi."
+  },
+  {
+    "question": "Which district has the largest area under forest cover in Odisha?",
+    "options": ["Kandhamal", "Sundargarh", "Koraput", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Sundargarh district has the largest total forest area in the state."
+  },
+  {
+    "question": "Which is the largest estuarine island in Odisha?",
+    "options": ["Parikud", "Kalijai", "Baliapal", "Rajhans"],
+    "answer": 0,
+    "explanation": "Parikud is the largest island in Chilika Lake."
+  },
+  {
+    "question": "The Lingaraj canal system draws water from which river?",
+    "options": ["Mahanadi", "Kathajodi", "Birupa", "Kuakhai"],
+    "answer": 1,
+    "explanation": "The Lingaraj canal is fed by the Kathajodi River."
+  },
+  {
+    "question": "Which mineral deposit is significant in Gandhamardan Hills?",
+    "options": ["Iron ore", "Bauxite", "Graphite", "Chromite"],
+    "answer": 1,
+    "explanation": "Gandhamardan hills are rich in bauxite reserves."
+  },
+  {
+    "question": "The Bahuda River forms part of the boundary between Odisha and which state?",
+    "options": ["West Bengal", "Andhra Pradesh", "Chhattisgarh", "Jharkhand"],
+    "answer": 1,
+    "explanation": "Bahuda River forms part of the boundary with Andhra Pradesh."
+  },
+  {
+    "question": "Which Odisha town is located on the banks of the Rushikulya River?",
+    "options": ["Bhanjanagar", "Berhampur", "Kandhamal", "Gopalpur"],
+    "answer": 0,
+    "explanation": "Bhanjanagar lies on the banks of the Rushikulya River."
+  },
+  {
+    "question": "The Sunabeda plateau is situated in which district?",
+    "options": ["Nuapada", "Koraput", "Rayagada", "Kalahandi"],
+    "answer": 1,
+    "explanation": "The Sunabeda plateau is located in Koraput district."
+  },
+  {
+    "question": "Which mineral is mined in large quantities at Barbil in Odisha?",
+    "options": ["Coal", "Iron ore", "Bauxite", "Limestone"],
+    "answer": 1,
+    "explanation": "Barbil, in Keonjhar district, is a hub for iron ore mining."
+  },
+  {
+    "question": "Which sedimentary deposit supports glass manufacturing in Odisha?",
+    "options": ["Quartz sand", "Limestone", "Clay", "Gypsum"],
+    "answer": 0,
+    "explanation": "Silica-rich quartz sand supports Odisha’s glass industry."
+  },
+  {
+    "question": "What is the predominant forest type in Similipal?",
+    "options": ["Dry Deciduous", "Moist Deciduous", "Evergreen", "Mangrove"],
+    "answer": 1,
+    "explanation": "Similipal is dominated by moist deciduous Sal forests."
+  },
+  {
+    "question": "Which district in Odisha is famous for the Tarini Temple and chromite mining?",
+    "options": ["Kendujhar", "Jajpur", "Sundargarh", "Khurda"],
+    "answer": 0,
+    "explanation": "Kendujhar district is famous for Ghatagaon Tarini temple and mineral wealth."
+  },
+  {
+    "question": "Which is the principal river of Ganjam district?",
+    "options": ["Rushikulya", "Vansadhara", "Bahuda", "Nagavali"],
+    "answer": 0,
+    "explanation": "The Rushikulya River flows through Ganjam district."
+  },
+  {
+    "question": "Which Odisha river originates from the Amarkantak plateau?",
+    "options": ["Mahanadi", "Indravati", "Hasdeo", "Tel"],
+    "answer": 0,
+    "explanation": "The Mahanadi River rises from the Amarkantak area in Chhattisgarh."
+  },
+  {
+    "question": "Which is the largest block in area in Odisha?",
+    "options": ["Thuamul Rampur", "Joda", "Khandapada", "Laikera"],
+    "answer": 0,
+    "explanation": "Thuamul Rampur in Kalahandi is one of the largest blocks by area."
+  },
+  {
+    "question": "The Tikarpada Wildlife Sanctuary is located in which district?",
+    "options": ["Angul", "Dhenkanal", "Kandhamal", "Boudh"],
+    "answer": 0,
+    "explanation": "Tikarpada Sanctuary is situated in Angul district."
+  },
+  {
+    "question": "Which Odisha town is known for its large dairy industry?",
+    "options": ["Anandpur", "Rairangpur", "Rairakhol", "Balasore"],
+    "answer": 2,
+    "explanation": "Rairakhol is known for significant dairy and milk cooperative activity."
+  },
+  {
+    "question": "Which coastal inlet forms the northern boundary of Chilika Lake?",
+    "options": ["Rambha Bay", "Mouth near Satapada", "Daya estuary", "Kalijai Bay"],
+    "answer": 1,
+    "explanation": "The Satapada mouth connects Chilika’s northern end to the sea."
+  },
+  {
+    "question": "Which is the major hill station in Kandhamal district?",
+    "options": ["Daringbadi", "Tensa", "Deomali", "Bhatli"],
+    "answer": 0,
+    "explanation": "Daringbadi is a popular hill station in Kandhamal."
+  },
+  {
+    "question": "Which Odisha river flows through the city of Sambalpur?",
+    "options": ["Ib", "Mahanadi", "Tel", "Jonk"],
+    "answer": 1,
+    "explanation": "The Mahanadi River passes through Sambalpur."
+  },
+  {
+    "question": "Which district is the leading producer of maize in Odisha?",
+    "options": ["Nabarangpur", "Kandhamal", "Koraput", "Bargarh"],
+    "answer": 0,
+    "explanation": "Nabarangpur is the top maize-producing district."
+  },
+  {
+    "question": "Which Odisha district has the largest number of waterfalls?",
+    "options": ["Mayurbhanj", "Keonjhar", "Koraput", "Sundargarh"],
+    "answer": 1,
+    "explanation": "Keonjhar district is famous for several waterfalls including Sanaghagara, Badaghagara, and Khandadhar."
+  },
+  {
+    "question": "What is the primary geological formation of the Eastern Ghats in Odisha?",
+    "options": ["Archean metamorphic rocks", "Tertiary sedimentary rocks", "Recent alluvium", "Gondwana sandstones"],
+    "answer": 0,
+    "explanation": "Eastern Ghats are primarily made of Archean metamorphic rocks like khondalite and charnockite."
+  },
+  {
+    "question": "Which river in Odisha forms the famous Joranda and Barehipani waterfalls?",
+    "options": ["Brahmani", "Budhabalanga", "Nandira", "Machkund"],
+    "answer": 1,
+    "explanation": "Budhabalanga River feeds Joranda and Barehipani falls in Similipal."
+  },
+  {
+    "question": "Which town in Odisha is closest to the Tropic of Cancer?",
+    "options": ["Rourkela", "Jharsuguda", "Sundargarh", "Bargarh"],
+    "answer": 3,
+    "explanation": "Bargarh district lies close to the Tropic of Cancer in western Odisha."
+  },
+  {
+    "question": "Which coastal river in Odisha is known for its turtle nesting beaches?",
+    "options": ["Bahuda", "Devi", "Rushikulya", "Subarnarekha"],
+    "answer": 2,
+    "explanation": "Rushikulya river mouth is one of the world’s largest Olive Ridley turtle nesting sites."
+  },
+  {
+    "question": "Which Odisha district has the highest altitude plateau?",
+    "options": ["Kandhamal", "Koraput", "Rayagada", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Koraput district has the Deomali and surrounding plateaus at the state's highest elevation."
+  },
+  {
+    "question": "Which Odisha river is known for its anicut at Naraj?",
+    "options": ["Kuakhai", "Kathajodi", "Mahanadi", "Birupa"],
+    "answer": 2,
+    "explanation": "The Naraj anicut is built on the Mahanadi River near Cuttack."
+  },
+  {
+    "question": "What is the main rock type of the Niyamgiri Hills?",
+    "options": ["Granite", "Khondalite", "Limestone", "Sandstone"],
+    "answer": 1,
+    "explanation": "Niyamgiri Hills are composed primarily of khondalite rocks."
+  },
+  {
+    "question": "Which Odisha port is the deepest?",
+    "options": ["Paradeep", "Gopalpur", "Dhamra", "Chandbali"],
+    "answer": 2,
+    "explanation": "Dhamra Port is the deepest port, enabling large vessel docking."
+  },
+  {
+    "question": "Which Odisha river forms the Hirakud reservoir?",
+    "options": ["Tel", "Ib", "Mahanadi", "Brahmani"],
+    "answer": 2,
+    "explanation": "The Mahanadi River is dammed to form the Hirakud reservoir."
+  },
+  {
+    "question": "Which Odisha sanctuary is famous for gharials?",
+    "options": ["Bhitarkanika", "Satkosia", "Similipal", "Chandaka"],
+    "answer": 1,
+    "explanation": "Satkosia Gorge Wildlife Sanctuary is known for its gharial conservation program."
+  },
+  {
+    "question": "The famous Harishankar temple lies on the slopes of which hills?",
+    "options": ["Gandhamardan", "Malayagiri", "Meghasani", "Deomali"],
+    "answer": 0,
+    "explanation": "Harishankar temple is located on the southern slope of Gandhamardan Hills."
+  },
+  {
+    "question": "Which Odisha river drains into the Bay of Bengal near Budhabalanga estuary?",
+    "options": ["Subarnarekha", "Salandi", "Brahmani", "Bansadhara"],
+    "answer": 0,
+    "explanation": "Subarnarekha meets the Bay of Bengal near Budhabalanga estuary."
+  },
+  {
+    "question": "Which dam is constructed across the Rushikulya River?",
+    "options": ["Ghodahada", "Rengali", "Mandira", "Indravati"],
+    "answer": 0,
+    "explanation": "Ghodahada Dam is built across Rushikulya for irrigation and fisheries."
+  },
+  {
+    "question": "Which Odisha district is called the 'Land of Waterfalls'?",
+    "options": ["Sundargarh", "Keonjhar", "Mayurbhanj", "Rayagada"],
+    "answer": 2,
+    "explanation": "Mayurbhanj is known for numerous waterfalls like Barehipani and Joranda."
+  },
+  {
+    "question": "Which Odisha district is known for diamond potential in Mahanadi River gravels?",
+    "options": ["Nuapada", "Boudh", "Subarnapur", "Kalahandi"],
+    "answer": 2,
+    "explanation": "Subarnapur district has recorded diamond occurrences in river gravels."
+  },
+  {
+    "question": "Which Odisha coast region is most cyclone-prone?",
+    "options": ["Ganjam Coast", "Balasore Coast", "Kendrapara Coast", "Jagatsinghpur Coast"],
+    "answer": 3,
+    "explanation": "Jagatsinghpur coast is frequently hit by severe cyclones."
+  },
+  {
+    "question": "The Tel River merges into the Mahanadi River at:",
+    "options": ["Sambalpur", "Sonepur", "Boudh", "Jharsuguda"],
+    "answer": 1,
+    "explanation": "Tel River meets Mahanadi near Sonepur."
+  },
+  {
+    "question": "The Balijori coalfield is located in which district?",
+    "options": ["Sundargarh", "Jharsuguda", "Angul", "Talcher"],
+    "answer": 0,
+    "explanation": "Balijori coalfield is found in Sundargarh district."
+  },
+  {
+    "question": "Which city is known as the 'Gateway to South Odisha'?",
+    "options": ["Berhampur", "Rayagada", "Koraput", "Paralakhemundi"],
+    "answer": 0,
+    "explanation": "Berhampur is referred to as the gateway to South Odisha."
+  },
+  {
+    "question": "Which Odisha lake is noted for hosting peacocks in large numbers?",
+    "options": ["Ansupa", "Tampara", "Kanjia", "Bhitarkanika creeks"],
+    "answer": 2,
+    "explanation": "Kanjia Lake near Nandankanan is famous for peacocks."
+  },
+  {
+    "question": "The Panchpatmali bauxite mines serve which industry?",
+    "options": ["Steel", "Aluminium", "Fertilizer", "Cement"],
+    "answer": 1,
+    "explanation": "Panchpatmali mines in Koraput supply NALCO’s aluminium industry."
+  },
+  {
+    "question": "Which Odisha district is famous for its appliqué crafts?",
+    "options": ["Puri", "Khurda", "Cuttack", "Ganjam"],
+    "answer": 1,
+    "explanation": "Khurda district, especially Pipili town, is known for appliqué work."
+  },
+  {
+    "question": "Which Odisha hill is the source of the Bansadhara River?",
+    "options": ["Lingaraj Hill", "Guma Peak", "Deomali", "Mahendragiri"],
+    "answer": 3,
+    "explanation": "Bansadhara originates from Mahendragiri hills."
+  },
+  {
+    "question": "Which is the largest brackish water lagoon in Asia?",
+    "options": ["Pulicat Lake", "Chilika Lake", "Vembanad Lake", "Kolleru Lake"],
+    "answer": 1,
+    "explanation": "Chilika Lake in Odisha is Asia’s largest brackish water lagoon."
+  },
+  {
+    "question": "The Hirakud reservoir submerged large parts of which forests?",
+    "options": ["Sal forests", "Teak forests", "Mangroves", "Pine forests"],
+    "answer": 0,
+    "explanation": "Sal forests were submerged due to the formation of Hirakud reservoir."
+  },
+  {
+    "question": "Which Odisha district has significant reserves of nickel?",
+    "options": ["Sukinda (Jajpur)", "Keonjhar", "Mayurbhanj", "Dhenkanal"],
+    "answer": 0,
+    "explanation": "Sukinda valley in Jajpur has chromium ores with nickel content."
+  },
+  {
+    "question": "Which Odisha river is dammed to form the Rengali reservoir?",
+    "options": ["Mahanadi", "Baitarani", "Brahmani", "Tel"],
+    "answer": 2,
+    "explanation": "Rengali Dam is constructed on the Brahmani River."
+  },
+  {
+    "question": "Which Odisha district ranks first in cashew production?",
+    "options": ["Ganjam", "Kendrapara", "Balasore", "Puri"],
+    "answer": 0,
+    "explanation": "Ganjam district leads in cashew nut cultivation."
+  },
+  {
+    "question": "Which is the largest industrial complex in Odisha?",
+    "options": ["Rourkela Steel Plant", "NALCO Angul", "Vedanta Jharsuguda", "IMFA Therubali"],
+    "answer": 0,
+    "explanation": "Rourkela Steel Plant is the largest integrated industrial complex."
+  },
+  {
+    "question": "Which hill station lies close to Deomali peak?",
+    "options": ["Tensa Hill", "Daringbadi", "Koraput town", "Rayagada town"],
+    "answer": 2,
+    "explanation": "Koraput town is situated close to Deomali peak."
+  },
+  {
+    "question": "Which Odisha wildlife sanctuary is located by the Hirakud reservoir?",
+    "options": ["Debrigarh", "Bhitarkanika", "Satkosia", "Hadagarh"],
+    "answer": 0,
+    "explanation": "Debrigarh Wildlife Sanctuary lies along Hirakud reservoir’s western side."
+  },
+  {
+    "question": "The Bahuda river drains into the Bay of Bengal in which district?",
+    "options": ["Berhampur", "Ganjam", "Kendrapara", "Balasore"],
+    "answer": 1,
+    "explanation": "Bahuda forms the Odisha-Andhra border and drains into Bay in Ganjam district."
+  },
+  {
+    "question": "The Chheligada irrigation project is located in which district?",
+    "options": ["Gajapati", "Rayagada", "Koraput", "Kandhamal"],
+    "answer": 0,
+    "explanation": "Chheligada irrigation-cum-hydro project is in Gajapati district."
+  },
+  {
+    "question": "Which Odisha river valley is known for paper mills due to bamboo availability?",
+    "options": ["Mahanadi Valley", "Indravati Valley", "Nagavali Valley", "Brahmani Valley"],
+    "answer": 3,
+    "explanation": "Brahmani valley paper mills use abundant bamboo from surrounding forests."
+  },
+  {
+    "question": "Which Odisha district has coastline, hills, and major river plain all together?",
+    "options": ["Puri", "Ganjam", "Balasore", "Kendrapara"],
+    "answer": 1,
+    "explanation": "Ganjam has diverse landscapes including coast, Eastern Ghats, and river plains."
+  },
+  {
+    "question": "Which Odisha peak is highest in the Karlapat range?",
+    "options": ["Karlapat Peak", "Belkhandi Hill", "Jaugada", "Thalamba"],
+    "answer": 0,
+    "explanation": "Karlapat Peak in Kalahandi is the highest in Karlapat range."
+  },
+  {
+    "question": "Which Odisha town is closest to the IB River coalfields?",
+    "options": ["Sundargarh", "Jharsuguda", "Rourkela", "Bargarh"],
+    "answer": 1,
+    "explanation": "Jharsuguda is near IB Valley coalfields."
+  },
+  {
+    "question": "Which Odisha river meets the Bay near the fishing harbour of Chandipur?",
+    "options": ["Subarnarekha", "Budhabalanga", "Baitarani", "Jalaka"],
+    "answer": 1,
+    "explanation": "Budhabalanga river meets the Bay of Bengal close to Chandipur."
+  },
+   {
+    "question": "Which Odisha river forms the boundary between Kendrapara and Jagatsinghpur districts?",
+    "options": ["Brahmani", "Mahanadi", "Paika", "Birupa"],
+    "answer": 1,
+    "explanation": "The Mahanadi River separates Kendrapara and Jagatsinghpur districts in its deltaic stretch."
+  },
+  {
+    "question": "Which mineral deposit in Odisha is mainly located in Rayagada district?",
+    "options": ["Graphite", "Bauxite", "Iron ore", "Manganese"],
+    "answer": 0,
+    "explanation": "Rayagada district is known for its graphite deposits, especially in Tumdibandha and Gunupur areas."
+  },
+  {
+    "question": "The Badaghagara waterfall is located in which Odisha district?",
+    "options": ["Mayurbhanj", "Keonjhar", "Sundargarh", "Kandhamal"],
+    "answer": 1,
+    "explanation": "Badaghagara waterfall is near Keonjhar town in Keonjhar district."
+  },
+  {
+    "question": "Which district is the leading producer of groundnuts in Odisha?",
+    "options": ["Bargarh", "Kalahandi", "Ganjam", "Balasore"],
+    "answer": 2,
+    "explanation": "Ganjam district leads in groundnut production due to its sandy loam soils."
+  },
+  {
+    "question": "Which river drains the Sambalpur plateau into the Mahanadi?",
+    "options": ["Tel", "Ib", "Jonk", "Brahmani"],
+    "answer": 0,
+    "explanation": "The Tel River drains part of the Sambalpur plateau before meeting the Mahanadi."
+  },
+  {
+    "question": "Which major town is located near the confluence of the Brahmani and Koel rivers?",
+    "options": ["Rourkela", "Bonaigarh", "Barkote", "Talcher"],
+    "answer": 0,
+    "explanation": "Rourkela lies close to the Brahmani-Koel confluence."
+  },
+  {
+    "question": "Which Odisha lake is part of the Nandankanan zoological park?",
+    "options": ["Kanjia", "Ansupa", "Tampara", "Chilika"],
+    "answer": 0,
+    "explanation": "Kanjia Lake is within the Nandankanan zoo premises in Khordha district."
+  },
+  {
+    "question": "The famous Mahendragiri Hills are located in which district?",
+    "options": ["Gajapati", "Ganjam", "Rayagada", "Koraput"],
+    "answer": 0,
+    "explanation": "Mahendragiri Hills are situated in Gajapati district."
+  },
+  {
+    "question": "Which Odisha river is a tributary of the Subarnarekha?",
+    "options": ["Jalaka", "Baura", "Budhabalanga", "Baitarani"],
+    "answer": 0,
+    "explanation": "The Jalaka river in Balasore drains into the Subarnarekha."
+  },
+  {
+    "question": "The Hirakud Dam primarily benefits which type of agriculture?",
+    "options": ["Paddy cultivation", "Cotton cultivation", "Horticulture", "Tea plantations"],
+    "answer": 0,
+    "explanation": "Hirakud irrigation mainly supports paddy cultivation in western Odisha."
+  },
+  {
+    "question": "Which Odisha district is a significant producer of bamboo?",
+    "options": ["Rayagada", "Kandhamal", "Sundargarh", "Gajapati"],
+    "answer": 2,
+    "explanation": "Sundargarh district's forests have dense bamboo growth, supporting paper and handicraft industries."
+  },
+  {
+    "question": "Which river system dominates the central coastal plains of Odisha?",
+    "options": ["Baitarani", "Mahanadi", "Brahmani", "Rushikulya"],
+    "answer": 1,
+    "explanation": "The Mahanadi system dominates central coastal plains from Cuttack to Kendrapara."
+  },
+  {
+    "question": "Which mining area in Odisha is associated with high-grade limestone?",
+    "options": ["Bargarh", "Jharsuguda", "Sundargarh", "Rayagada"],
+    "answer": 2,
+    "explanation": "Sundargarh has high-grade limestone deposits supporting cement plants."
+  },
+  {
+    "question": "Which Odisha sanctuary is important for protection of the endangered Indian python?",
+    "options": ["Bhitarkanika", "Satkosia", "Similipal", "Hadagarh"],
+    "answer": 2,
+    "explanation": "Similipal's varied habitats are crucial for the Indian python population."
+  },
+  {
+    "question": "Which Odisha coast feature is a nesting site for migratory birds outside Chilika?",
+    "options": ["Bali Harachandi", "Bhitarkanika creeks", "Parikud island", "Konark beach"],
+    "answer": 1,
+    "explanation": "Bhitarkanika's mudflats and creeks host migratory birds in winter."
+  },
+  {
+    "question": "Which Odisha district is home to the Harabhangi dam?",
+    "options": ["Gajapati", "Kandhamal", "Rayagada", "Koraput"],
+    "answer": 0,
+    "explanation": "Harabhangi dam is located in Gajapati district."
+  },
+  {
+    "question": "Which plateau is shared by Odisha and Chhattisgarh in the northwest?",
+    "options": ["Bastar Plateau", "Raigarh Plateau", "Bolangir Plateau", "Sundargarh Plateau"],
+    "answer": 3,
+    "explanation": "The Sundargarh plateau extends into Chhattisgarh's Raigarh district."
+  },
+  {
+    "question": "What is the chief export commodity from Paradeep Port?",
+    "options": ["Iron ore", "Thermal coal", "Bauxite", "Seafood"],
+    "answer": 1,
+    "explanation": "Thermal coal is a major bulk export from Paradeep Port."
+  },
+  {
+    "question": "Which Odisha district is known for 'black sand' mineral deposits along its coast?",
+    "options": ["Ganjam", "Puri", "Balasore", "Kendrapara"],
+    "answer": 2,
+    "explanation": "Balasore's Chandipur and nearby areas have placer deposits with ilmenite and monazite."
+  },
+  {
+    "question": "Which Odisha hill is a pilgrimage site for Parsuram?",
+    "options": ["Gandhamardan", "Mahendragiri", "Malayagiri", "Deomali"],
+    "answer": 1,
+    "explanation": "Mahendragiri hills are connected with mythological tales of Parsuram."
+  },
+  {
+    "question": "Which Odisha river forms the Upper Kolab reservoir?",
+    "options": ["Sabari", "Kolab", "Indravati", "Sileru"],
+    "answer": 1,
+    "explanation": "The Upper Kolab project is built on the Kolab river in Koraput."
+  },
+  {
+    "question": "The Baitarani river originates from which range?",
+    "options": ["Similipal Hills", "Keonjhar Hills", "Gandhamardan Hills", "Mahendragiri Hills"],
+    "answer": 1,
+    "explanation": "The Baitarani originates in the Keonjhar Hills near Gonasika."
+  },
+  {
+    "question": "Which Odisha district has a coastline as well as significant mining activity inland?",
+    "options": ["Balasore", "Ganjam", "Kendrapara", "Jajpur"],
+    "answer": 3,
+    "explanation": "Jajpur has Sukinda chromite mines inland and also touches the coast via Dhamra area."
+  },
+  {
+    "question": "Which is the largest block by area in Mayurbhanj district?",
+    "options": ["Sukruli", "Karanjia", "Raruan", "Udala"],
+    "answer": 0,
+    "explanation": "Sukruli is one of the largest blocks by area in Mayurbhanj."
+  },
+  {
+    "question": "Which Odisha coastal river system drains into the Bay near Chandrabhaga?",
+    "options": ["Kushabhadra", "Devi", "Daya", "Bahuda"],
+    "answer": 0,
+    "explanation": "The Kushabhadra river flows into the Bay near Chandrabhaga beach."
+  },
+  {
+    "question": "Which Odisha district is famed for the Kapilas hills?",
+    "options": ["Dhenkanal", "Angul", "Khurda", "Cuttack"],
+    "answer": 0,
+    "explanation": "Kapilas hills and temple are located in Dhenkanal district."
+  },
+  {
+    "question": "The primary soil type in the Kendrapara deltaic region is:",
+    "options": ["Alluvial", "Lateritic", "Red sandy", "Saline alkali"],
+    "answer": 0,
+    "explanation": "The deltaic plains of Kendrapara are covered with fertile alluvial soils."
+  },
+  {
+    "question": "Which Odisha mining project is operated by Vedanta Aluminium?",
+    "options": ["Jharsuguda smelter", "Barbil mines", "Joda East", "Talcher coalfields"],
+    "answer": 0,
+    "explanation": "Vedanta operates an aluminium smelter and power plant at Jharsuguda."
+  },
+  {
+    "question": "Which Odisha river has the Tikra Barrage built on it?",
+    "options": ["Mahanadi", "Jonk", "Ib", "Tel"],
+    "answer": 1,
+    "explanation": "The Tikra Barrage is built on the Jonk river in Bargarh."
+  },
+  {
+    "question": "Which Odisha district is known for turmeric marketed under a GI tag?",
+    "options": ["Kandhamal", "Koraput", "Nayagarh", "Balangir"],
+    "answer": 0,
+    "explanation": "Kandhamal turmeric has been granted a Geographical Indication tag."
+  },
+  {
+    "question": "Which Odisha coalfield is shared with Chhattisgarh?",
+    "options": ["Talcher", "IB Valley", "Mand-Raigarh", "Rampur"],
+    "answer": 1,
+    "explanation": "IB Valley coalfield lies in Jharsuguda and Sundargarh and extends into Chhattisgarh."
+  },
+  {
+    "question": "Which Odisha coastal district has the Devi estuary?",
+    "options": ["Jagatsinghpur", "Puri", "Bhadrak", "Balasore"],
+    "answer": 1,
+    "explanation": "Devi estuary is located in Puri district and is an Olive Ridley nesting site."
+  },
+  {
+    "question": "Which Odisha river is famous for diamond-bearing gravels historically?",
+    "options": ["Mahanadi", "Brahmani", "Subarnarekha", "Baitarani"],
+    "answer": 0,
+    "explanation": "Mahanadi river gravels in some stretches have yielded diamonds historically."
+  },
+  {
+    "question": "Which Odisha town is known as the Silk City?",
+    "options": ["Cuttack", "Sambalpur", "Berhampur", "Balasore"],
+    "answer": 2,
+    "explanation": "Berhampur is called Silk City for its famous silk sarees and textiles."
+  },
+  {
+    "question": "Which Odisha hydro project is located on the Sileru river?",
+    "options": ["Balimela", "Upper Kolab", "Machkund", "Indravati"],
+    "answer": 0,
+    "explanation": "Balimela hydroelectric project is on the Sileru river."
+  },
+  {
+    "question": "Which coastal island lies at the northern end of Chilika Lake?",
+    "options": ["Nalabana", "Kalijai", "Rajhans", "Parikud"],
+    "answer": 2,
+    "explanation": "Rajhans island lies between Chilika Lake and the Bay of Bengal near Satapada."
+  },
+  {
+    "question": "Which Odisha district is home to the Haripur Garh ruins?",
+    "options": ["Balasore", "Mayurbhanj", "Puri", "Jajpur"],
+    "answer": 0,
+    "explanation": "Haripur Garh ruins are located in Balasore district."
+  },
+  {
+    "question": "Which Odisha river is formed by the confluence of the Koel and Sankh rivers?",
+    "options": ["Brahmani", "Baitarani", "Ib", "Mahanadi"],
+    "answer": 0,
+    "explanation": "The Brahmani River forms when the Koel and Sankh rivers join near Rourkela."
+  },
+  {
+    "question": "Which Odisha district has both significant iron ore mines and a steel plant?",
+    "options": ["Keonjhar", "Sundargarh", "Jajpur", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Sundargarh hosts major iron ore mines and the Rourkela Steel Plant."
+  },
+  {
+    "question": "Which Odisha district contains the largest portion of the Chandaka-Dampara Wildlife Sanctuary?",
+    "options": ["Cuttack", "Khurda", "Dhenkanal", "Angul"],
+    "answer": 1,
+    "explanation": "Chandaka-Dampara Sanctuary lies mostly in Khurda district, with a portion in Cuttack."
+  },
+  {
+    "question": "The Rajarani temple water supply is historically linked to which tank?",
+    "options": ["Bindusagar", "Kanjia", "Tampara", "Ansupa"],
+    "answer": 0,
+    "explanation": "Bindusagar tank in Bhubaneswar historically supplied water to nearby temples like Rajarani."
+  },
+  {
+    "question": "Which Odisha district is known for sericulture and tussar silkworm cultivation?",
+    "options": ["Bargarh", "Keonjhar", "Mayurbhanj", "Sambalpur"],
+    "answer": 2,
+    "explanation": "Mayurbhanj is a major centre for tussar silk production."
+  },
+  {
+    "question": "Which Odisha beach is known as the 'Golden Beach' for its clean Blue Flag status?",
+    "options": ["Gopalpur", "Puri", "Chandipur", "Paradeep"],
+    "answer": 1,
+    "explanation": "Puri’s Golden Beach received Blue Flag certification for cleanliness and amenities."
+  },
+  {
+    "question": "The Kusumi river is a tributary of which main river in Odisha?",
+    "options": ["Baitarani", "Brahmani", "Mahanadi", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Kusumi is a tributary of the Baitarani river in northern Odisha."
+  },
+  {
+    "question": "Which Odisha district has the highest number of large dams?",
+    "options": ["Sundargarh", "Koraput", "Mayurbhanj", "Bargarh"],
+    "answer": 1,
+    "explanation": "Koraput district has numerous hydro and irrigation dams including Kolab, Jalaput, and Indravati."
+  },
+  {
+    "question": "The Similipal biosphere reserve falls under which two river basins?",
+    "options": ["Brahmani and Baitarani", "Subarnarekha and Budhabalanga", "Mahanadi and Brahmani", "Baitarani and Subarnarekha"],
+    "answer": 1,
+    "explanation": "Similipal’s drainage is mainly from the Subarnarekha and Budhabalanga river basins."
+  },
+  {
+    "question": "Which Odisha coastal river has its source near the Eastern Ghats close to Nayagarh?",
+    "options": ["Kushabhadra", "Daya", "Devi", "Bahuda"],
+    "answer": 2,
+    "explanation": "The Devi river originates near the Eastern Ghats foothills close to Nayagarh."
+  },
+  {
+    "question": "Which Odisha hill is an important Jain pilgrimage site?",
+    "options": ["Udayagiri Hills (Jajpur)", "Kapilas Hills", "Gandhamardan Hills", "Deomali"],
+    "answer": 0,
+    "explanation": "Udayagiri Hills in Jajpur district house ancient Jain caves and temples."
+  },
+  {
+    "question": "Which Odisha port is closest to the mineral belt of Sukinda?",
+    "options": ["Paradeep", "Dhamra", "Gopalpur", "Chandbali"],
+    "answer": 1,
+    "explanation": "Dhamra Port is nearest to the Sukinda chromite mines."
+  },
+  {
+    "question": "Which district is home to the famous Salia Dam?",
+    "options": ["Khurda", "Ganjam", "Gajapati", "Puri"],
+    "answer": 1,
+    "explanation": "Salia Dam is located in Ganjam district."
+  },
+  {
+    "question": "Which forest division in Odisha is known for teak plantations?",
+    "options": ["Anandapur", "Boudh", "Karanjia", "Athmallik"],
+    "answer": 3,
+    "explanation": "Athmallik forest division is famous for its teak plantations."
+  },
+  {
+    "question": "Which Odisha town is known for its proximity to natural hot springs?",
+    "options": ["Atri", "Tensa", "Jharsuguda", "Bhawanipatna"],
+    "answer": 0,
+    "explanation": "Atri in Khurda district is well known for its hot springs."
+  },
+  {
+    "question": "Which Odisha river basin supports the Hirakud irrigation command area?",
+    "options": ["Brahmani", "Mahanadi", "Ib", "Tel"],
+    "answer": 1,
+    "explanation": "The Hirakud reservoir on the Mahanadi supplies irrigation to the Mahanadi basin command areas."
+  },
+  {
+    "question": "Which Odisha district contains the Upper Jonk dam?",
+    "options": ["Nuapada", "Balangir", "Bargarh", "Kalahandi"],
+    "answer": 0,
+    "explanation": "Upper Jonk dam is in Nuapada district."
+  },
+  {
+    "question": "Which Odisha city is situated on the delta head of the Mahanadi system?",
+    "options": ["Bhubaneswar", "Cuttack", "Jagatsinghpur", "Puri"],
+    "answer": 1,
+    "explanation": "Cuttack lies at the head of Mahanadi's delta."
+  },
+  {
+    "question": "Which Odisha wildlife sanctuary is located along the Nagavali river?",
+    "options": ["Kuldiha", "Lakhari Valley", "Satkosia", "Debrigarh"],
+    "answer": 1,
+    "explanation": "Lakhari Valley Sanctuary in Gajapati is along the Nagavali river corridor."
+  },
+  {
+    "question": "The Sanaghagara waterfall is situated on which river?",
+    "options": ["Machakandana", "Bhandan", "Sanamai", "Kusumi"],
+    "answer": 0,
+    "explanation": "Sanaghagara waterfall in Keonjhar is formed on the Machakandana river."
+  },
+  {
+    "question": "Which Odisha district produces both iron ore and manganese in large quantities?",
+    "options": ["Sundargarh", "Keonjhar", "Jajpur", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Keonjhar is rich in both iron ore and manganese resources."
+  },
+  {
+    "question": "Which Odisha coastal lake is internationally important for biodiversity besides Chilika?",
+    "options": ["Tampara", "Ansupa", "Kanjia", "Balimela"],
+    "answer": 0,
+    "explanation": "Tampara Lake is a brackish lagoon in Ganjam important for aquatic biodiversity."
+  },
+  {
+    "question": "Which Odisha hill range lies between the Mahanadi and Brahmani river basins?",
+    "options": ["Malayagiri", "Gandhamardan", "Meghasani", "Deomali"],
+    "answer": 0,
+    "explanation": "Malayagiri hills are located between the Mahanadi and Brahmani basins in Angul."
+  },
+  {
+    "question": "Which Odisha river meets the Bay of Bengal near Pentha in Kendrapara?",
+    "options": ["Brahmani", "Baitarani", "Hansua", "Mahanadi"],
+    "answer": 2,
+    "explanation": "Hansua river joins the Bay of Bengal near Pentha village in Kendrapara."
+  },
+  {
+    "question": "Which Odisha district is a hub for aquaculture and seafood exports?",
+    "options": ["Jagatsinghpur", "Kendrapara", "Balasore", "Ganjam"],
+    "answer": 2,
+    "explanation": "Balasore district has a large aquaculture base and seafood processing units."
+  },
+  {
+    "question": "The Tikra river is a tributary of which major Odisha river?",
+    "options": ["Mahanadi", "Ib", "Brahmani", "Tel"],
+    "answer": 3,
+    "explanation": "The Tikra joins the Tel river, a tributary of the Mahanadi."
+  },
+  {
+    "question": "Which Odisha wildlife sanctuary is part of the South Odisha Eastern Ghats?",
+    "options": ["Karlapat", "Debrigarh", "Hadagarh", "Chandaka-Dampara"],
+    "answer": 0,
+    "explanation": "Karlapat sanctuary in Kalahandi lies in the Eastern Ghats system."
+  },
+  {
+    "question": "Which coastal area in Odisha is famous for red crabs?",
+    "options": ["Chandipur", "Rajhans Island", "Baliapal", "Bhitarkanika"],
+    "answer": 0,
+    "explanation": "Chandipur-on-Sea in Balasore is known for its large red crab colonies."
+  },
+  {
+    "question": "Which Odisha dam is also known for supporting a hydroelectric power station in Balangir?",
+    "options": ["Suktel", "Lower Indra", "Tel", "Upper Jonk"],
+    "answer": 1,
+    "explanation": "Lower Indra irrigation project in Balangir has hydroelectric capability."
+  },
+  {
+    "question": "Which Odisha district is the largest producer of ragi (finger millet)?",
+    "options": ["Koraput", "Kandhamal", "Rayagada", "Gajapati"],
+    "answer": 0,
+    "explanation": "Koraput leads ragi production due to its tribal agriculture and hilly terrain."
+  },
+  {
+    "question": "Which Odisha river forms the Salandi reservoir?",
+    "options": ["Baitarani", "Mahanadi", "Brahmani", "Budhabalanga"],
+    "answer": 0,
+    "explanation": "Salandi river, a tributary of Baitarani, is dammed to form the Salandi reservoir."
+  },
+  {
+    "question": "Which mineral from Odisha is critical for stainless steel production?",
+    "options": ["Bauxite", "Chromite", "Manganese", "Limestone"],
+    "answer": 1,
+    "explanation": "Chromite from Sukinda valley is essential for stainless steel making."
+  },
+  {
+    "question": "Which Odisha district has both plateau and extensive deltaic plains?",
+    "options": ["Cuttack", "Khurda", "Balasore", "Jajpur"],
+    "answer": 3,
+    "explanation": "Jajpur district spans parts of the Sukinda plateau and Baitarani delta plains."
+  },
+  {
+    "question": "Which Odisha hill peak is locally called 'The Roof of Odisha'?",
+    "options": ["Deomali", "Gandhamardan", "Meghasani", "Malayagiri"],
+    "answer": 0,
+    "explanation": "Deomali is Odisha’s highest peak and is called its 'Roof'."
+  },
+  {
+    "question": "Which Odisha district produces maximum sunflower?",
+    "options": ["Bargarh", "Nuapada", "Kalahandi", "Balangir"],
+    "answer": 2,
+    "explanation": "Kalahandi district leads in sunflower cultivation in Odisha."
+  },
+  {
+    "question": "Which Odisha city is located on the banks of river Nagavali?",
+    "options": ["Koraput", "Rayagada", "Paralakhemundi", "Gajapati"],
+    "answer": 1,
+    "explanation": "Rayagada town is situated along the Nagavali river."
+  },
+  {
+    "question": "Which Odisha district has a sugar industry based on coastal agriculture?",
+    "options": ["Bargarh", "Ganjam", "Rayagada", "Koraput"],
+    "answer": 1,
+    "explanation": "Ganjam district’s Aska area has a large sugar industry."
+  },
+  {
+    "question": "Which Odisha river's delta supports Bhitarkanika mangroves?",
+    "options": ["Baitarani", "Brahmani", "Combined Brahmani-Baitarani-Dhamra", "Subarnarekha"],
+    "answer": 2,
+    "explanation": "Bhitarkanika is nourished by the combined deltas of Brahmani, Baitarani, and Dhamra rivers."
+  },
+   {
+    "question": "Which is the largest river island in the Mahanadi delta region of Odisha?",
+    "options": ["Parikud Island", "Purusottampur Island", "Satapada Island", "Rajhans Island"],
+    "answer": 0,
+    "explanation": "Parikud Island in Chilika Lake and the Mahanadi delta area is the largest river–lake island of Odisha."
+  },
+  {
+    "question": "Which Odisha town is famous for its hot water sulphur springs?",
+    "options": ["Atri", "Tensa", "Deogarh", "Koraput"],
+    "answer": 0,
+    "explanation": "Atri hot springs in Khordha district are rich in sulphur content."
+  },
+  {
+    "question": "Which coastal river flows through Bhadrak district into the Bay of Bengal?",
+    "options": ["Baitarani", "Mahanadi", "Budhabalanga", "Kushabhadra"],
+    "answer": 0,
+    "explanation": "The Baitarani river flows through Bhadrak district before meeting the Bay."
+  },
+  {
+    "question": "Which Odisha district has both Similipal Tiger Reserve and significant iron ore mines?",
+    "options": ["Mayurbhanj", "Keonjhar", "Sundargarh", "Jajpur"],
+    "answer": 0,
+    "explanation": "Mayurbhanj hosts Similipal Tiger Reserve and also has iron ore in its hilly regions."
+  },
+  {
+    "question": "The Haladia river is a tributary of which major Odisha river?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 1,
+    "explanation": "Haladia is a tributary of the Brahmani river system."
+  },
+  {
+    "question": "Which Odisha district produces the maximum ginger?",
+    "options": ["Kandhamal", "Koraput", "Rayagada", "Gajapati"],
+    "answer": 0,
+    "explanation": "Kandhamal district leads ginger production in the state."
+  },
+  {
+    "question": "Which Odisha hill range is known for extensive mica deposits?",
+    "options": ["Ruby Hill", "Gandhamardan Hills", "Sarangada Hills", "Khariar Hills"],
+    "answer": 1,
+    "explanation": "The Gandhamardan Hills have reported mica occurrences along with bauxite."
+  },
+  {
+    "question": "Which coastal block in Puri district is famous for salt production?",
+    "options": ["Astaranga", "Kakatpur", "Satyabadi", "Delang"],
+    "answer": 0,
+    "explanation": "Astaranga in Puri district is known for traditional salt pans."
+  },
+  {
+    "question": "Which Odisha dam is built across the Subarnarekha river?",
+    "options": ["Gourangadi", "Chandil", "Galudih", "Massanjore"],
+    "answer": 1,
+    "explanation": "Chandil Dam is located on the Subarnarekha, partly benefiting Odisha’s Balasore region."
+  },
+  {
+    "question": "The Baghalati irrigation project is situated in which Odisha district?",
+    "options": ["Ganjam", "Gajapati", "Rayagada", "Kandhamal"],
+    "answer": 1,
+    "explanation": "Baghalati medium irrigation project is in Gajapati district."
+  },
+  {
+    "question": "Which Odisha district is famous for its large-scale betel leaf cultivation?",
+    "options": ["Kendrapara", "Puri", "Jagatsinghpur", "Balasore"],
+    "answer": 0,
+    "explanation": "Kendrapara’s coastal blocks grow betel leaves that are marketed across eastern India."
+  },
+  {
+    "question": "Which river system supplies water to the Rengali irrigation project?",
+    "options": ["Brahmani", "Mahanadi", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "The Rengali Dam and irrigation system are on the Brahmani river."
+  },
+  {
+    "question": "Which Odisha town sits at the confluence of the Nagavali and Jhanjavati rivers?",
+    "options": ["Paralakhemundi", "Gunupur", "Rayagada", "Bhanjanagar"],
+    "answer": 1,
+    "explanation": "Gunupur town lies on the confluence of these rivers in Rayagada district."
+  },
+  {
+    "question": "Which Odisha coastal village is known for the annual mass nesting of olive ridleys besides Gahirmatha?",
+    "options": ["Devi River mouth", "Chandakandi", "Bichitrapur", "Satapada"],
+    "answer": 0,
+    "explanation": "The Devi River mouth beach in Puri district is a notable olive ridley mass nesting site."
+  },
+  {
+    "question": "Which Odisha district has the largest extent of coffee plantations?",
+    "options": ["Koraput", "Rayagada", "Kandhamal", "Gajapati"],
+    "answer": 0,
+    "explanation": "Koraput region has favourable high-altitude conditions for coffee cultivation."
+  },
+  {
+    "question": "Which Odisha estuary lies between Dhamra and Paradeep?",
+    "options": ["Hansua", "Mahanadi", "Mahisali", "Barunei"],
+    "answer": 0,
+    "explanation": "Hansua river estuary lies between Dhamra and Paradeep coastal stretches."
+  },
+  {
+    "question": "The Kanika palace is located near the confluence of which rivers?",
+    "options": ["Baitarani and Kharasrota", "Mahanadi and Devi", "Brahmani and Baitarani", "Rushikulya and Bahuda"],
+    "answer": 0,
+    "explanation": "Kanika palace in Kendrapara stands near the meeting point of Baitarani and Kharasrota rivers."
+  },
+  {
+    "question": "Which Odisha river valley hosts significant alluvial diamond occurrences?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Certain stretches of Mahanadi river valley have yielded diamonds historically in Odisha."
+  },
+  {
+    "question": "Which Odisha peak is the highest point in the Similipal Hills?",
+    "options": ["Deomali", "Khairiburu", "Meghasani", "Malayagiri"],
+    "answer": 2,
+    "explanation": "Meghasani peak is the highest point in Similipal Hills of Mayurbhanj district."
+  },
+  {
+    "question": "Which Odisha district is the leading aquaculture hub for scampi (freshwater prawn)?",
+    "options": ["Cuttack", "Kendrapara", "Balasore", "Bhadrak"],
+    "answer": 3,
+    "explanation": "Bhadrak district is one of the leading producers of scampi for export."
+  },
+  {
+    "question": "Which Odisha river rises from the Amarkantak region in Chhattisgarh?",
+    "options": ["Mahanadi", "Indravati", "Tel", "Ib"],
+    "answer": 0,
+    "explanation": "The Mahanadi originates in Amarkantak highlands of Chhattisgarh."
+  },
+  {
+    "question": "Which Odisha district is famous for its traditional stone carving crafts?",
+    "options": ["Puri", "Khurda", "Mayurbhanj", "Kendujhar"],
+    "answer": 0,
+    "explanation": "Puri district, particularly around Konark, is renowned for stone carving."
+  },
+  {
+    "question": "Which Odisha town is located on the banks of the Ib river?",
+    "options": ["Jharsuguda", "Sundargarh", "Rourkela", "Belpahar"],
+    "answer": 1,
+    "explanation": "Sundargarh town lies on the Ib river bank."
+  },
+  {
+    "question": "Which Odisha site is a notified Important Bird Area (IBA) besides Chilika?",
+    "options": ["Ansupa lake", "Tampara lake", "Satkosia Gorge", "Bhitarkanika"],
+    "answer": 3,
+    "explanation": "Bhitarkanika mangroves are a designated Important Bird Area."
+  },
+  {
+    "question": "Which Odisha hill range forms the boundary with Andhra Pradesh in the south?",
+    "options": ["Mahendragiri Hills", "Niyamgiri Hills", "Deomali Hills", "Gandhamardan Hills"],
+    "answer": 0,
+    "explanation": "Mahendragiri Hills form the natural boundary in the south with Andhra Pradesh."
+  },
+  {
+    "question": "The Magarmuhan channel connects which lake to the Bay of Bengal?",
+    "options": ["Chilika", "Ansupa", "Tampara", "Kanjia"],
+    "answer": 0,
+    "explanation": "Magarmuhan is one of the sea mouths connecting Chilika Lake to the Bay."
+  },
+  {
+    "question": "Which Odisha coastal block is known for extensive inland brackish shrimp farms?",
+    "options": ["Astaranga", "Brahmagiri", "Erssama", "Balikuda"],
+    "answer": 2,
+    "explanation": "Erssama block in Jagatsinghpur is noted for shrimp aquaculture."
+  },
+  {
+    "question": "Which Odisha hydroelectric project is located on the Machkund river?",
+    "options": ["Machkund Project", "Balimela", "Upper Kolab", "Upper Indravati"],
+    "answer": 0,
+    "explanation": "The Machkund hydroelectric project is on the Machkund river on Odisha-Andhra border."
+  },
+  {
+    "question": "Which Odisha town is situated on the banks of the Tel river?",
+    "options": ["Titlagarh", "Balangir", "Boudh", "Sonepur"],
+    "answer": 1,
+    "explanation": "Balangir town lies along the Tel river."
+  },
+  {
+    "question": "Which Odisha district has significant reserves of China clay?",
+    "options": ["Mayurbhanj", "Koraput", "Khurda", "Bolangir"],
+    "answer": 0,
+    "explanation": "Mayurbhanj district's deposits are used in ceramics and refractories."
+  },
+  {
+    "question": "Which Odisha port is nearest to the mineral belt of Keonjhar and Mayurbhanj?",
+    "options": ["Paradeep", "Dhamra", "Gopalpur", "Chandbali"],
+    "answer": 1,
+    "explanation": "Dhamra Port is closest to these northern mineral-rich districts."
+  },
+  {
+    "question": "Which Odisha district is famous for Sabara tribe inhabited forests?",
+    "options": ["Rayagada", "Malkangiri", "Koraput", "Gajapati"],
+    "answer": 0,
+    "explanation": "Rayagada district has significant Sabara tribal populations in forest areas."
+  },
+  {
+    "question": "Which Odisha river is associated with the Tikarpada crocodile sanctuary?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Rushikulya"],
+    "answer": 0,
+    "explanation": "Tikarpada is located along the Mahanadi river gorge."
+  },
+  {
+    "question": "Which Odisha district is the top producer of black pepper?",
+    "options": ["Koraput", "Kandhamal", "Gajapati", "Rayagada"],
+    "answer": 2,
+    "explanation": "Gajapati district produces the most black pepper in Odisha."
+  },
+  {
+    "question": "Which Odisha city lies at the meeting point of Daya and Bhargavi rivers?",
+    "options": ["Puri", "Satapada", "Bhubaneswar", "Konark"],
+    "answer": 0,
+    "explanation": "Puri city is situated near the confluence of the Daya and Bhargavi before they enter Chilika."
+  },
+  {
+    "question": "Which Odisha river’s basin is shared with Andhra Pradesh and is used for the Janjavati Project?",
+    "options": ["Nagavali", "Vamsadhara", "Bahuda", "Indravati"],
+    "answer": 0,
+    "explanation": "The Nagavali river basin is used for the Janjavati irrigation project."
+  },
+  {
+    "question": "Which Odisha district is known for sacred groves preserved by local tribes?",
+    "options": ["Mayurbhanj", "Kandhamal", "Koraput", "Rayagada"],
+    "answer": 1,
+    "explanation": "Kandhamal has several sacred groves protected by tribal communities."
+  },
+  {
+    "question": "Which Odisha island separates the northern and central sectors of Chilika Lake?",
+    "options": ["Nalabana", "Kalijai", "Parikud", "Rajhans"],
+    "answer": 2,
+    "explanation": "Parikud Island acts as a divider between northern and central parts of Chilika."
+  },
+  {
+    "question": "Which Odisha district has both coastal saline soils and inland lateritic soils?",
+    "options": ["Balasore", "Puri", "Kendrapara", "Ganjam"],
+    "answer": 3,
+    "explanation": "Ganjam district exhibits diverse soil types from coast to hills."
+  },
+  {
+    "question": "Which Odisha river is dammed at Mandira for supplying water to Rourkela Steel Plant?",
+    "options": ["Ib", "Koel", "Brahmani", "Jonk"],
+    "answer": 0,
+    "explanation": "Mandira dam on Ib river supplies water to Rourkela Steel Plant."
+  },
+  {
+    "question": "Which Odisha wildlife sanctuary is famous for leopards in hilly Sal forests?",
+    "options": ["Hadagarh", "Debrigarh", "Tikarapada", "Karlapat"],
+    "answer": 3,
+    "explanation": "Karlapat Sanctuary's hilly deciduous forests are leopard habitats."
+  },
+  {
+    "question": "Which Odisha district has the highest proportion of mangrove forests?",
+    "options": ["Kendrapara", "Balasore", "Ganjam", "Puri"],
+    "answer": 0,
+    "explanation": "Kendrapara district hosts a large portion of the Bhitarkanika mangrove ecosystem."
+  },
+  {
+    "question": "The Budhabalanga River originates from which Odisha hill range?",
+    "options": ["Similipal Hills", "Keonjhar Hills", "Gandhamardan Hills", "Khariar Hills"],
+    "answer": 0,
+    "explanation": "Budhabalanga originates in the Similipal Hills of Mayurbhanj district."
+  },
+  {
+    "question": "Which Odisha district is a leading producer of tamarind?",
+    "options": ["Koraput", "Rayagada", "Malkangiri", "Kandhamal"],
+    "answer": 1,
+    "explanation": "Rayagada district produces tamarind extensively in tribal areas."
+  },
+  {
+    "question": "Which Odisha mineral resource is key for refractory manufacturing?",
+    "options": ["Bauxite", "Chromite", "Graphite", "China clay"],
+    "answer": 3,
+    "explanation": "China clay from Odisha is an important raw material for refractory and ceramic industries."
+  },
+  {
+    "question": "Which Odisha river flows through the Debrigarh Wildlife Sanctuary?",
+    "options": ["Mahanadi", "Brahmani", "Ib", "Tel"],
+    "answer": 0,
+    "explanation": "Mahanadi river skirts the Debrigarh Sanctuary along the Hirakud reservoir."
+  },
+  {
+    "question": "Meghasani Peak is part of which Odisha hill range?",
+    "options": ["Similipal Hills", "Gandhamardan Hills", "Deomali Hills", "Malayagiri Hills"],
+    "answer": 0,
+    "explanation": "Meghasani is the tallest peak in the Similipal Hills."
+  },
+  {
+    "question": "Which Odisha district’s coast includes the Chandrabhaga beach?",
+    "options": ["Puri", "Jagatsinghpur", "Ganjam", "Balasore"],
+    "answer": 0,
+    "explanation": "Chandrabhaga beach lies near Konark in Puri district."
+  },
+  {
+    "question": "Which Odisha town is famous for large-scale freshwater pearl culture?",
+    "options": ["Balasore", "Chilika", "Kendrapara", "Bhadrak"],
+    "answer": 3,
+    "explanation": "Bhadrak has emerged as a centre for freshwater pearl farming."
+  },
+  {
+    "question": "Which Odisha district produces the most pineapples?",
+    "options": ["Kandhamal", "Keonjhar", "Rayagada", "Mayurbhanj"],
+    "answer": 0,
+    "explanation": "Kandhamal's cooler climate favours pineapple cultivation."
+  },
+  {
+    "question": "What type of soil dominates the Western Odisha uplands?",
+    "options": ["Alluvial", "Red and lateritic", "Black cotton", "Saline"],
+    "answer": 1,
+    "explanation": "Western uplands have red and lateritic soils derived from crystalline rocks."
+  },
+  {
+    "question": "Which Odisha port is closest to the capital city Bhubaneswar?",
+    "options": ["Paradeep", "Gopalpur", "Dhamra", "Chandbali"],
+    "answer": 0,
+    "explanation": "Paradeep Port in Jagatsinghpur is closest to Bhubaneswar."
+  },
+  {
+    "question": "Which Odisha district houses the Mahavinayak Temple and limestone mines?",
+    "options": ["Jajpur", "Keonjhar", "Koraput", "Rayagada"],
+    "answer": 0,
+    "explanation": "Jajpur is known for Mahavinayak Temple and its limestone reserves."
+  },
+  {
+    "question": "Which Odisha river is known locally as the 'River of Salt'?",
+    "options": ["Bahuda", "Devi", "Rushikulya", "Subarnarekha"],
+    "answer": 1,
+    "explanation": "The Devi River in Puri district is linked to traditional salt-making areas."
+  },
+  {
+    "question": "Which Odisha district is famous for the Harvela waterfalls?",
+    "options": ["Koraput", "Rayagada", "Malkangiri", "Kalahandi"],
+    "answer": 2,
+    "explanation": "Harvela waterfalls are located in Malkangiri district."
+  },
+  {
+    "question": "Which Odisha sanctuary is part of the IB Valley coal belt?",
+    "options": ["Debrigarh", "Hadagarh", "Satkosia", "Bhitarkanika"],
+    "answer": 0,
+    "explanation": "Debrigarh Wildlife Sanctuary lies within the IB Valley region."
+  },
+  {
+    "question": "Which Odisha coast forms part of the Gopalpur–Paradeep littoral cell?",
+    "options": ["Southern coast", "Northern coast", "Central coast", "Eastern deltaic coast"],
+    "answer": 0,
+    "explanation": "The southern coast from Gopalpur to Paradeep forms a littoral cell impacted by longshore drift."
+  },
+  {
+    "question": "Which Odisha river meets the Bay of Bengal near the town of Bansadhara mouth?",
+    "options": ["Vamsadhara", "Nagavali", "Bahuda", "Rushikulya"],
+    "answer": 0,
+    "explanation": "The Vamsadhara river flows from Odisha into Andhra Pradesh and meets the Bay near its mouth."
+  },
+  {
+    "question": "Which mineral mined in Odisha has the richest reserves in Sukinda valley?",
+    "options": ["Chromite", "Manganese", "Bauxite", "Graphite"],
+    "answer": 0,
+    "explanation": "Sukinda valley contains one of the world's richest chromite reserves."
+  },
+  {
+    "question": "Which Odisha city has developed as a major transport hub connecting mineral areas to ports?",
+    "options": ["Cuttack", "Talcher", "Jharsuguda", "Bargarh"],
+    "answer": 2,
+    "explanation": "Jharsuguda is a growing transport and industrial hub connecting coal and metal industries to ports."
+  },
+  {
+    "question": "Which Odisha hill range protects the Mahanadi delta from western storms?",
+    "options": ["Malayagiri", "Gandhamardan", "Niyamgiri", "Similipal"],
+    "answer": 0,
+    "explanation": "Malayagiri Hills in Angul help shield parts of the Mahanadi delta from westerly weather."
+  },
+  {
+    "question": "Which Odisha river forms the Kuanria reservoir?",
+    "options": ["Indravati", "Kusei", "Brahmani", "Kuanria Nalla"],
+    "answer": 3,
+    "explanation": "Kuanria reservoir in Nayagarh district is on the Kuanria Nalla stream."
+  },
+  {
+    "question": "Which Odisha coastal area is known for sand dune ecosystems?",
+    "options": ["Balaramgadi", "Astaranga", "Ramayapatna", "Baliharchandi"],
+    "answer": 1,
+    "explanation": "Astaranga in Puri district has prominent sand dune systems."
+  },
+  {
+    "question": "Which Odisha river originates near the Amagaon hills in Sundargarh?",
+    "options": ["Ib", "Koel", "Shankh", "Brahmani"],
+    "answer": 2,
+    "explanation": "The Shankh river originates near Amagaon hills in Sundargarh district."
+  },
+  {
+    "question": "Which Odisha reservoir was built primarily for flood control on the Mahanadi?",
+    "options": ["Hirakud", "Rengali", "Salandi", "Balimela"],
+    "answer": 0,
+    "explanation": "Hirakud Dam was built after the 1937 floods for flood mitigation."
+  },
+  {
+    "question": "Which Odisha district is known for its kapok (silk cotton) production?",
+    "options": ["Mayurbhanj", "Kandhamal", "Cuttack", "Bargarh"],
+    "answer": 1,
+    "explanation": "Kandhamal produces silk cotton used for pillows and mattresses."
+  },
+  {
+    "question": "Which Odisha lake is a notified bird sanctuary within the city limits?",
+    "options": ["Ansupa", "Kanjia", "Tampara", "Bindusagar"],
+    "answer": 1,
+    "explanation": "Kanjia Lake within Bhubaneswar’s Nandankanan is a bird sanctuary."
+  },
+  {
+    "question": "Which Odisha hill range is contiguous with the Eastern Ghats of Andhra Pradesh?",
+    "options": ["Mahendragiri", "Niyamgiri", "Deomali", "Gandhamardan"],
+    "answer": 0,
+    "explanation": "Mahendragiri Hills extend into Andhra Pradesh's Eastern Ghats."
+  },
+  {
+    "question": "Which Odisha coastal inlet connects Chilika Lake to the sea near Satapada?",
+    "options": ["Magarmuhan", "Gabakund", "Murado", "Kalupada"],
+    "answer": 0,
+    "explanation": "Magarmuhan is the main sea mouth linking Chilika to the Bay near Satapada."
+  },
+  {
+    "question": "Which Odisha river is dammed at Upper Indravati for hydroelectricity?",
+    "options": ["Indravati", "Kolab", "Sileru", "Tel"],
+    "answer": 0,
+    "explanation": "Upper Indravati project in Kalahandi harnesses the Indravati river."
+  },
+  {
+    "question": "Which Odisha district is famous for Sabai grass handicrafts?",
+    "options": ["Mayurbhanj", "Keonjhar", "Balasore", "Bhadrak"],
+    "answer": 0,
+    "explanation": "Mayurbhanj artisans weave Sabai grass into ropes and handicrafts."
+  },
+  {
+    "question": "Which Odisha district houses the Maa Samaleswari temple on the Mahanadi bank?",
+    "options": ["Sambalpur", "Bargarh", "Boudh", "Sonepur"],
+    "answer": 0,
+    "explanation": "Sambalpur is situated on the Mahanadi and home to Samaleswari temple."
+  },
+  {
+    "question": "Which Odisha river meets the Bay near the Pentha Olive Ridley rookery?",
+    "options": ["Baitarani", "Hansua", "Mahanadi", "Kharasrota"],
+    "answer": 1,
+    "explanation": "Hansua river outfall is near Pentha beach rookery in Kendrapara."
+  },
+  {
+    "question": "Which Odisha hill region is rich in gemstones like garnet and sapphire?",
+    "options": ["Rayagada Hills", "Keonjhar Hills", "Balangir Highlands", "Nayagarh Hills"],
+    "answer": 0,
+    "explanation": "Gemstones have been found in parts of Rayagada district hills."
+  },
+  {
+    "question": "Which Odisha district has Asia’s largest brackish water lagoon within it?",
+    "options": ["Puri", "Khordha", "Ganjam", "All of the above"],
+    "answer": 3,
+    "explanation": "Chilika Lake spans Puri, Khordha, and Ganjam districts."
+  },
+  {
+    "question": "Which Odisha island near Bhitarkanika is known for dense mangrove cover?",
+    "options": ["Dangamal", "Nalabana", "Kalijai", "Rajhans"],
+    "answer": 0,
+    "explanation": "Dangamal island in Bhitarkanika has rich mangrove forests."
+  },
+  {
+    "question": "Which Odisha coastal village is famous for its proximity to the Udayagiri & Khandagiri caves inland?",
+    "options": ["Pipili", "Sipasurubili", "Kakatpur", "Balipatna"],
+    "answer": 3,
+    "explanation": "Balipatna lies inland on the coastal plain near the historic caves."
+  },
+  {
+    "question": "Which Odisha tribal belt district also has extensive rice-fish integrated farming?",
+    "options": ["Koraput", "Malkangiri", "Rayagada", "Kandhamal"],
+    "answer": 0,
+    "explanation": "Koraput practices rice-fish farming in its hilly valleys."
+  },
+  {
+    "question": "Which Odisha river flows entirely within Ganjam district?",
+    "options": ["Bahuda", "Rushikulya", "Ghodahada", "Kushabhadra"],
+    "answer": 2,
+    "explanation": "Ghodahada river originates and flows entirely within Ganjam."
+  },
+  {
+    "question": "Which Odisha district has the Patora Dam, a popular tourist and irrigation site?",
+    "options": ["Nuapada", "Bargarh", "Kalahandi", "Balangir"],
+    "answer": 0,
+    "explanation": "Patora Dam is built on the Jonk river in Nuapada district."
+  },
+  {
+    "question": "Which Odisha river flows through the urban area of Bhawanipatna?",
+    "options": ["Hati", "Tel", "Utei", "Indravati"],
+    "answer": 0,
+    "explanation": "The Hati river skirts Bhawanipatna town in Kalahandi district."
+  },
+  {
+    "question": "Which Odisha coastal lake is formed by the mouth of the Bahuda river?",
+    "options": ["Tampara", "Ansupa", "Kanjia", "Bahuda mouth lagoon"],
+    "answer": 3,
+    "explanation": "A small lagoon exists at the Bahuda river mouth along Ganjam coast."
+  },
+  {
+    "question": "Which Odisha district is the leading producer of coriander seeds?",
+    "options": ["Koraput", "Kandhamal", "Bargarh", "Balangir"],
+    "answer": 1,
+    "explanation": "Kandhamal's cool climate favours coriander seed production."
+  },
+  {
+    "question": "In Odisha, Kutra region is famous for which mineral?",
+    "options": ["Limestone", "Iron Ore", "Manganese", "Bauxite"],
+    "answer": 2,
+    "explanation": "Kutra in Sundargarh district has manganese deposits."
+  },
+  {
+    "question": "Which Odisha district hosts the Deras Dam?",
+    "options": ["Khurda", "Puri", "Cuttack", "Ganjam"],
+    "answer": 0,
+    "explanation": "Deras Dam is located within Chandaka forest area in Khurda district."
+  },
+  {
+    "question": "Which Odisha river has the Rani Duduma waterfall?",
+    "options": ["Indravati", "Machkund", "Kolab", "Sabari"],
+    "answer": 1,
+    "explanation": "Rani Duduma is on the Machkund river in Koraput district."
+  },
+  {
+    "question": "Which Odisha city is located close to the confluence of the Kathajodi and Kuakhai rivers?",
+    "options": ["Bhubaneswar", "Cuttack", "Jagatsinghpur", "Puri"],
+    "answer": 0,
+    "explanation": "Bhubaneswar lies inland close to where Kuakhai and Kathajodi meet."
+  },
+  {
+    "question": "Baliapal in Balasore district gained attention for protests against which project?",
+    "options": ["Missile Testing Range", "Port Expansion", "Thermal Plant", "Airport"],
+    "answer": 0,
+    "explanation": "Baliapal protests in the 1980s opposed a defence missile testing range."
+  },
+  {
+    "question": "Which Odisha river flows through the city of Baripada?",
+    "options": ["Budhabalanga", "Subarnarekha", "Gangahar", "Baitarani"],
+    "answer": 0,
+    "explanation": "The Budhabalanga river flows past Baripada in Mayurbhanj."
+  },
+  {
+    "question": "Which Odisha district is known for the Belghar sanctuary for elephants?",
+    "options": ["Kandhamal", "Rayagada", "Gajapati", "Boudh"],
+    "answer": 0,
+    "explanation": "Belghar in Kandhamal is an elephant habitat and eco-tourism spot."
+  },
+  {
+    "question": "Which Odisha coast area is significant for sacred site Ramayapatna?",
+    "options": ["Ganjam coast", "Puri coast", "Balasore coast", "Jagatsinghpur coast"],
+    "answer": 0,
+    "explanation": "Ramayapatna is a sacred site on the Ganjam coast."
+  },
+  {
+    "question": "Which Odisha district has the highest production of cotton?",
+    "options": ["Kalahandi", "Rayagada", "Bargarh", "Balangir"],
+    "answer": 3,
+    "explanation": "Balangir is the leading cotton-producing district in Odisha."
+  },
+  {
+    "question": "Which Odisha river has Upper Kolab as its hydroelectric project?",
+    "options": ["Kolab", "Indravati", "Sileru", "Tel"],
+    "answer": 0,
+    "explanation": "Upper Kolab project is situated on the Kolab river."
+  },
+  {
+    "question": "Which Odisha lake is also known locally as 'Blue Lagoon'?",
+    "options": ["Tampara", "Kanjia", "Ansupa", "Chilika"],
+    "answer": 0,
+    "explanation": "Tampara Lake in Ganjam is called the 'Blue Lagoon' for its scenic waters."
+  },
+  {
+    "question": "Which Odisha district’s coast includes the Devi estuary rookery?",
+    "options": ["Jagatsinghpur", "Puri", "Kendrapara", "Balasore"],
+    "answer": 1,
+    "explanation": "The Devi estuary is in Puri district and is an olive ridley nesting site."
+  },
+  {
+    "question": "Which Odisha plateau is known for lateritic coffee soils?",
+    "options": ["Koraput Plateau", "Sundargarh Plateau", "Mayurbhanj Plateau", "Bolangir Plateau"],
+    "answer": 0,
+    "explanation": "Koraput's high lateritic soils are suited for coffee cultivation."
+  },
+  {
+    "question": "Which Odisha district hosts the Tikarpada crocodile sanctuary?",
+    "options": ["Angul", "Dhenkanal", "Cuttack", "Boudh"],
+    "answer": 0,
+    "explanation": "Tikarpada sanctuary is in Angul district on Mahanadi river."
+  },
+  {
+    "question": "Which hill station in Odisha is known as the 'Kashmir of Odisha'?",
+    "options": ["Koraput", "Tensa", "Daringbadi", "Sunabeda"],
+    "answer": 2,
+    "explanation": "Daringbadi in Kandhamal earns the name for its cool climate."
+  },
+  {
+    "question": "Which Odisha town is famous for brass and bell metal utensils?",
+    "options": ["Sambalpur", "Kantilo", "Jajpur", "Bhubaneswar"],
+    "answer": 1,
+    "explanation": "Kantilo in Nayagarh district is well known for brass and bell metal crafts."
+  },
+  {
+    "question": "The Rissia Dam is located in which district?",
+    "options": ["Mayurbhanj", "Keonjhar", "Sundargarh", "Balasore"],
+    "answer": 0,
+    "explanation": "Rissia Dam is situated in Mayurbhanj district."
+  },
+  {
+    "question": "Which Odisha river drains the Bhitarakanika mangroves?",
+    "options": ["Subarnarekha", "Brahmani-Baitarani-Dhamra", "Rushikulya", "Hansua"],
+    "answer": 1,
+    "explanation": "Bhitarkanika mangroves are nourished by Brahmani, Baitarani, and Dhamra rivers."
+  },
+  {
+    "question": "Which large irrigation project is located on the Ong river?",
+    "options": ["Mandira", "Rengali", "Gopabandhu", "Siphon Canal Project"],
+    "answer": 2,
+    "explanation": "Gopabandhu irrigation project is located on the Ong river."
+  },
+  {
+    "question": "Which Odisha district has a mineral-based paper mill location?",
+    "options": ["Rayagada", "Jajpur", "Keonjhar", "Bargarh"],
+    "answer": 0,
+    "explanation": "Rayagada hosts JK Paper Mills, using bamboo and other materials from forests."
+  },
+  {
+    "question": "The Megha river joins which main Odisha river?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 2,
+    "explanation": "The Megha river joins the Baitarani in its deltaic region."
+  },
+  {
+    "question": "Which Odisha district's coast has extensive sand dunes at Chandrabagha?",
+    "options": ["Jagatsinghpur", "Puri", "Balasore", "Ganjam"],
+    "answer": 1,
+    "explanation": "Puri district near Konark has Chandrabagha's sand dunes."
+  },
+  {
+    "question": "Which Odisha river has the Samal Barrage?",
+    "options": ["Brahmani", "Mahanadi", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Samal Barrage is across the Brahmani river in Angul district."
+  },
+  {
+    "question": "Which Odisha district is the largest producer of sunflower oilseeds?",
+    "options": ["Kalahandi", "Nuapada", "Bargarh", "Balangir"],
+    "answer": 0,
+    "explanation": "Kalahandi leads sunflower cultivation in Odisha."
+  },
+  {
+    "question": "Which Odisha marine ecosystem is protected under a Ramsar tag?",
+    "options": ["Bhitarkanika", "Chilika", "Both Bhitarkanika and Chilika", "Tampara"],
+    "answer": 2,
+    "explanation": "Both Chilika Lake and Bhitarkanika mangroves are Ramsar sites."
+  },
+  {
+    "question": "Which Odisha coastal town is a base for offshore oil exploration?",
+    "options": ["Paradeep", "Dhamra", "Gopalpur", "Chandipur"],
+    "answer": 1,
+    "explanation": "Dhamra port area is being developed as a base for offshore oil exploration."
+  },
+  {
+    "question": "Which Odisha river valley is an important groundnut cultivation zone?",
+    "options": ["Brahmani valley", "Rushikulya valley", "Mahanadi delta", "Baitarani valley"],
+    "answer": 1,
+    "explanation": "Rushikulya valley plains are important groundnut-growing areas."
+  },
+  {
+    "question": "Where is the Upper Suktel irrigation project being built?",
+    "options": ["Balangir", "Bargarh", "Sambalpur", "Nuapada"],
+    "answer": 0,
+    "explanation": "Upper Suktel irrigation project is located in Balangir district."
+  },
+  {
+    "question": "Which Odisha river estuary is part of the Devi wildlife conservation zone?",
+    "options": ["Bahuda", "Hansua", "Kushabhadra", "Devi"],
+    "answer": 3,
+    "explanation": "The Devi estuary is a protected area for olive ridley turtles."
+  },
+  {
+    "question": "Which Odisha district is known for Padma Lake?",
+    "options": ["Khurda", "Koraput", "Ganjam", "Kalahandi"],
+    "answer": 2,
+    "explanation": "Padma Lake is located in Ganjam district."
+  },
+  {
+    "question": "Which Odisha coast location is referred to as 'Drifting Beach' for its receding tide?",
+    "options": ["Chandipur", "Astaranga", "Konark", "Puri"],
+    "answer": 0,
+    "explanation": "Chandipur-on-Sea is famous for its unique receding tide beach."
+  },
+  {
+    "question": "Which Odisha district produces the highest amount of jaggery?",
+    "options": ["Bargarh", "Kalahandi", "Dhenkanal", "Ganjam"],
+    "answer": 2,
+    "explanation": "Dhenkanal district is well known for gur (jaggery) production."
+  },
+  {
+    "question": "Which Odisha river has the Derjang irrigation project?",
+    "options": ["Tel", "Brahmani", "Mahanadi", "Kuakhai"],
+    "answer": 1,
+    "explanation": "Derjang irrigation project is located on the Brahmani river in Angul district."
+  },
+  {
+    "question": "Which Odisha district boasts the highest vegetable production?",
+    "options": ["Cuttack", "Balasore", "Bargarh", "Kendrapara"],
+    "answer": 2,
+    "explanation": "Bargarh district is a leader in vegetable cultivation."
+  },
+  {
+    "question": "Which Odisha river serves as the water source for Talcher power plants?",
+    "options": ["Brahmani", "Mahanadi", "Baitarani", "Ib"],
+    "answer": 0,
+    "explanation": "Brahmani river water is used for Talcher thermal power plants."
+  },
+  {
+    "question": "Which Odisha coastal belt is rich in ilmenite and monazite sands?",
+    "options": ["Gopalpur–Chhatrapur", "Puri–Astaranga", "Balasore–Chandipur", "Kendrapara–Odagaon"],
+    "answer": 0,
+    "explanation": "The Gopalpur–Chhatrapur stretch is noted for mineral-rich beach sands."
+  },
+  {
+    "question": "Which Odisha district has the most extensive laterite stone quarries?",
+    "options": ["Khurda", "Balangir", "Koraput", "Mayurbhanj"],
+    "answer": 0,
+    "explanation": "Khurda district is known for large laterite stone quarrying."
+  },
+  {
+    "question": "Which Odisha river originates from the Amat Hills?",
+    "options": ["Ib", "Tel", "Baitarani", "Brahmani"],
+    "answer": 0,
+    "explanation": "The Ib river originates from the Amat Hills in Sundargarh."
+  },
+  {
+    "question": "What is the length of Odisha’s coastline?",
+    "options": ["315 km", "480 km", "600 km", "750 km"],
+    "answer": 1,
+    "explanation": "Odisha has a coastline of about 480 km along the Bay of Bengal."
+  },
+  {
+    "question": "Which is the longest river of Odisha?",
+    "options": ["Brahmani", "Baitarani", "Mahanadi", "Rushikulya"],
+    "answer": 2,
+    "explanation": "The Mahanadi is the longest river flowing through Odisha."
+  },
+  {
+    "question": "Chilika Lake is famous for being the largest ______ in Asia.",
+    "options": ["Freshwater lake", "Brackish water lagoon", "Saltwater lake", "Crater lake"],
+    "answer": 1,
+    "explanation": "Chilika Lake is the largest brackish water lagoon in Asia."
+  },
+  {
+    "question": "Where is Hirakud Dam located?",
+    "options": ["Bargarh", "Sambalpur", "Kalahandi", "Cuttack"],
+    "answer": 1,
+    "explanation": "Hirakud Dam is built on the Mahanadi River near Sambalpur."
+  },
+  {
+    "question": "Which is the highest peak in Odisha?",
+    "options": ["Deomali", "Meghasani", "Gandhamardan", "Mahendragiri"],
+    "answer": 0,
+    "explanation": "Deomali Peak in Koraput district is the highest peak in Odisha."
+  },
+  {
+    "question": "Which river is called the 'Sorrow of Odisha'?",
+    "options": ["Brahmani", "Baitarani", "Mahanadi", "Subarnarekha"],
+    "answer": 2,
+    "explanation": "The Mahanadi is known for frequent floods, earning it the name 'Sorrow of Odisha'."
+  },
+  {
+    "question": "In which district is Similipal National Park located?",
+    "options": ["Mayurbhanj", "Keonjhar", "Sundargarh", "Ganjam"],
+    "answer": 0,
+    "explanation": "Similipal National Park is in Mayurbhanj district."
+  },
+  {
+    "question": "Which district is known as the 'Rice Bowl of Odisha'?",
+    "options": ["Bargarh", "Kendrapara", "Cuttack", "Puri"],
+    "answer": 0,
+    "explanation": "Bargarh district is called the 'Rice Bowl of Odisha'."
+  },
+  {
+    "question": "Which is the largest port in Odisha?",
+    "options": ["Gopalpur", "Paradeep", "Dhamra", "Chandbali"],
+    "answer": 1,
+    "explanation": "Paradeep is the largest major port in Odisha."
+  },
+  {
+    "question": "Which soil type is dominant in Odisha’s coastal plains?",
+    "options": ["Alluvial", "Laterite", "Red", "Black"],
+    "answer": 0,
+    "explanation": "Alluvial soils dominate the fertile coastal belt."
+  },
+  {
+    "question": "Which mineral is found in Sukinda Valley?",
+    "options": ["Bauxite", "Chromite", "Coal", "Manganese"],
+    "answer": 1,
+    "explanation": "Sukinda Valley in Jajpur district has one of the largest chromite deposits."
+  },
+  {
+    "question": "Which river flows into Chilika Lake from the north?",
+    "options": ["Daya", "Mahanadi", "Kushabhadra", "Paika"],
+    "answer": 0,
+    "explanation": "The Daya river flows into Chilika Lake from the north."
+  },
+  {
+    "question": "Which climate type is found in most parts of Odisha?",
+    "options": ["Arid", "Tropical monsoon", "Temperate", "Polar"],
+    "answer": 1,
+    "explanation": "Odisha has a tropical monsoon climate."
+  },
+  {
+    "question": "What is the main crop grown in Odisha?",
+    "options": ["Wheat", "Cotton", "Paddy", "Maize"],
+    "answer": 2,
+    "explanation": "Rice (paddy) is the main crop grown in Odisha."
+  },
+  {
+    "question": "Which wildlife sanctuary is famous for saltwater crocodiles?",
+    "options": ["Similipal", "Bhitarkanika", "Satkosia", "Debrigarh"],
+    "answer": 1,
+    "explanation": "Bhitarkanika is home to estuarine crocodiles."
+  },
+  {
+    "question": "Where is the Upper Indravati hydroelectric project located?",
+    "options": ["Kalahandi", "Koraput", "Rayagada", "Sundargarh"],
+    "answer": 0,
+    "explanation": "Upper Indravati project is in Kalahandi district."
+  },
+  {
+    "question": "Which Odisha coast location is famous for its receding sea water?",
+    "options": ["Chandipur", "Puri", "Konark", "Gopalpur"],
+    "answer": 0,
+    "explanation": "Chandipur beach’s water recedes up to 5 km during low tide."
+  },
+  {
+    "question": "Which river originates from the Keonjhar Hills?",
+    "options": ["Baitarani", "Subarnarekha", "Brahmani", "Ib"],
+    "answer": 0,
+    "explanation": "Baitarani river originates from the Gonasika hills in Keonjhar."
+  },
+  {
+    "question": "What is the state animal of Odisha?",
+    "options": ["Sambar deer", "Asiatic elephant", "Blackbuck", "Royal Bengal tiger"],
+    "answer": 1,
+    "explanation": "The Asiatic elephant is the state animal of Odisha."
+  },
+  {
+    "question": "Which city is known as the 'Silver City of Odisha'?",
+    "options": ["Cuttack", "Rourkela", "Bhubaneswar", "Berhampur"],
+    "answer": 0,
+    "explanation": "Cuttack is famous for its silver filigree work."
+  },
+  {
+    "question": "Which district has the Niyamgiri Hills?",
+    "options": ["Rayagada & Kalahandi", "Koraput", "Mayurbhanj", "Ganjam"],
+    "answer": 0,
+    "explanation": "Niyamgiri Hills straddle Rayagada and Kalahandi districts."
+  },
+  {
+    "question": "What is the state tree of Odisha?",
+    "options": ["Sal", "Teak", "Neem", "Mango"],
+    "answer": 0,
+    "explanation": "Sal (Shorea robusta) is the state tree of Odisha."
+  },
+  {
+    "question": "Which Odisha river is a tributary of the Mahanadi from the south?",
+    "options": ["Ib", "Tel", "Ong", "Subarnarekha"],
+    "answer": 1,
+    "explanation": "The Tel river is the largest southern tributary of the Mahanadi."
+  },
+  {
+    "question": "Which port is closest to Gopalpur town?",
+    "options": ["Dhamra", "Gopalpur Port", "Paradeep", "Chandbali"],
+    "answer": 1,
+    "explanation": "Gopalpur Port is near Gopalpur town in Ganjam."
+  },
+  {
+    "question": "Which dam is on the Baitarani River?",
+    "options": ["Salandi", "Rengali", "Balimela", "Indravati"],
+    "answer": 0,
+    "explanation": "Salandi Dam is built on the Baitarani River."
+  },
+  {
+    "question": "What is the state bird of Odisha?",
+    "options": ["Indian Roller", "Peacock", "Sunbird", "Black-necked Stork"],
+    "answer": 0,
+    "explanation": "The Indian Roller (Blue Jay) is the state bird."
+  },
+  {
+    "question": "Which hill station of Odisha is called the 'Kashmir of Odisha'?",
+    "options": ["Daringbadi", "Deomali", "Tensa", "Sunabeda"],
+    "answer": 0,
+    "explanation": "Daringbadi hill station in Kandhamal is called the 'Kashmir of Odisha'."
+  },
+  {
+    "question": "Which mineral is key for aluminium production in Odisha?",
+    "options": ["Bauxite", "Iron ore", "Manganese", "Chromite"],
+    "answer": 0,
+    "explanation": "Bauxite is the raw material for aluminium; Odisha has vast reserves."
+  },
+  {
+    "question": "Where is the Chandaka-Dampara Wildlife Sanctuary located?",
+    "options": ["Cuttack & Khurda", "Puri", "Ganjam", "Keonjhar"],
+    "answer": 0,
+    "explanation": "Chandaka-Dampara straddles Cuttack and Khurda districts."
+  },
+  {
+    "question": "Which Odisha district has Mahendragiri Hills?",
+    "options": ["Gajapati", "Ganjam", "Koraput", "Rayagada"],
+    "answer": 0,
+    "explanation": "Mahendragiri Hills are in Gajapati district."
+  },
+  {
+    "question": "Which Odisha city is located on the banks of the Brahmani River?",
+    "options": ["Rourkela", "Cuttack", "Sambalpur", "Puri"],
+    "answer": 0,
+    "explanation": "Rourkela is on the banks of the Brahmani River."
+  },
+  {
+    "question": "Which is the only Ramsar site in Odisha apart from Chilika?",
+    "options": ["Tampara", "Bhitarkanika", "Ansupa", "Kanjia"],
+    "answer": 1,
+    "explanation": "Bhitarkanika mangroves are a Ramsar Wetland site."
+  },
+  {
+    "question": "What is the state flower of Odisha?",
+    "options": ["Lotus", "Ashoka flower", "Kandha kusum", "Rose"],
+    "answer": 2,
+    "explanation": "Kandha kusum (Ashoka tree flower) is Odisha's state flower."
+  },
+  {
+    "question": "Which district is famous for Sambalpuri sarees?",
+    "options": ["Bargarh", "Balasore", "Puri", "Khurda"],
+    "answer": 0,
+    "explanation": "Bargarh is a hub of Sambalpuri handloom weaving."
+  },
+  {
+    "question": "Name the main crop of the coastal plains of Odisha.",
+    "options": ["Wheat", "Paddy", "Sugarcane", "Groundnut"],
+    "answer": 1,
+    "explanation": "Paddy is the dominant crop due to fertile alluvial soils."
+  },
+  {
+    "question": "Which river forms the IB Valley coal belt?",
+    "options": ["Mahanadi", "Ib", "Brahmani", "Tel"],
+    "answer": 1,
+    "explanation": "The Ib Valley coal belt lies along the Ib river in Jharsuguda and Sundargarh."
+  },
+  {
+    "question": "Which city is known as 'Temple City of Odisha'?",
+    "options": ["Puri", "Cuttack", "Bhubaneswar", "Sambalpur"],
+    "answer": 2,
+    "explanation": "Bhubaneswar is called the 'Temple City' for its numerous ancient temples."
+  },
+  {
+    "question": "Which Odisha district has the largest forest area?",
+    "options": ["Kandhamal", "Sundargarh", "Koraput", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Sundargarh has the largest forest area in Odisha."
+  },
+  {
+    "question": "Where is the Debrigarh Wildlife Sanctuary?",
+    "options": ["Sambalpur", "Kandhamal", "Rayagada", "Balasore"],
+    "answer": 0,
+    "explanation": "Debrigarh Sanctuary is in Sambalpur near Hirakud reservoir."
+  },
+  {
+    "question": "Which Odisha coastal town is famous for silk sarees?",
+    "options": ["Cuttack", "Bhubaneswar", "Berhampur", "Kendrapara"],
+    "answer": 2,
+    "explanation": "Berhampur is called the 'Silk City of Odisha'."
+  },
+  {
+    "question": "Which river is associated with the Rengali Dam?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 1,
+    "explanation": "Rengali Dam is built on the Brahmani river."
+  },
+  {
+    "question": "Which district is known for Kendrapara gharials?",
+    "options": ["Bhadrak", "Jagatsinghpur", "Kendrapara", "Jajpur"],
+    "answer": 2,
+    "explanation": "Kendrapara's Bhitarkanika sanctuary has large gharial populations."
+  },
+  {
+    "question": "Which mineral is mined at Panchpatmali hills?",
+    "options": ["Bauxite", "Iron ore", "Manganese", "Chromite"],
+    "answer": 0,
+    "explanation": "Panchpatmali in Koraput district has large bauxite mines."
+  },
+  {
+    "question": "Which is the second longest river in Odisha?",
+    "options": ["Brahmani", "Baitarani", "Rushikulya", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "The Brahmani River is the second longest after the Mahanadi."
+  },
+  {
+    "question": "The state capital Bhubaneswar lies in which district?",
+    "options": ["Cuttack", "Khordha", "Puri", "Nayagarh"],
+    "answer": 1,
+    "explanation": "Bhubaneswar is in Khordha district."
+  },
+  {
+    "question": "Which is the state fish of Odisha?",
+    "options": ["Mrigal", "Hilsa", "Catla", "Rohu"],
+    "answer": 1,
+    "explanation": "Hilsa (Ilish) is the state fish of Odisha."
+  },
+  {
+    "question": "Which district is famous for Tensa Iron Ore Mines?",
+    "options": ["Sundargarh", "Keonjhar", "Mayurbhanj", "Jajpur"],
+    "answer": 0,
+    "explanation": "Tensa mines are in Sundargarh district."
+  },
+  {
+    "question": "Which district is known for the temple town Bhubaneswar?",
+    "options": ["Puri", "Cuttack", "Khordha", "Ganjam"],
+    "answer": 2,
+    "explanation": "Bhubaneswar in Khordha district is called the 'Temple City'."
+  },
+  {
+    "question": "Where is the Sunabeda plateau located?",
+    "options": ["Koraput", "Kandhamal", "Keonjhar", "Mayurbhanj"],
+    "answer": 0,
+    "explanation": "Sunabeda plateau is in Koraput district."
+  },
+  {
+    "question": "Which is the major crop grown in Koraput district?",
+    "options": ["Tea", "Coffee", "Paddy", "Wheat"],
+    "answer": 2,
+    "explanation": "Paddy is the staple crop in Koraput."
+  },
+  {
+    "question": "Which dam is across the Indravati river?",
+    "options": ["Upper Kolab", "Upper Indravati", "Rengali", "Hirakud"],
+    "answer": 1,
+    "explanation": "Upper Indravati dam is in Kalahandi on the Indravati river."
+  },
+  {
+    "question": "Which lake is located near Baripada?",
+    "options": ["Kanjia", "Tampara", "Jharpokharia", "Sunehul"],
+    "answer": 0,
+    "explanation": "Kanjia is near Cuttack, not Baripada — Baripada has no large famous lake."
+  },
+  {
+    "question": "Baitarani River flows into which larger river system?",
+    "options": ["Subarnarekha", "Bay of Bengal directly", "Mahanadi", "Brahmani"],
+    "answer": 1,
+    "explanation": "Baitarani flows directly into the Bay of Bengal."
+  },
+  {
+    "question": "Which district is famous for Daringbadi hill station?",
+    "options": ["Kandhamal", "Koraput", "Mayurbhanj", "Ganjam"],
+    "answer": 0,
+    "explanation": "Daringbadi is known as the 'Kashmir of Odisha' in Kandhamal."
+  },
+  {
+    "question": "Which city in Odisha is nicknamed 'Millennium City'?",
+    "options": ["Cuttack", "Bhubaneswar", "Puri", "Sambalpur"],
+    "answer": 0,
+    "explanation": "Cuttack is called the 'Millennium City'."
+  },
+  {
+    "question": "Which national highway runs along the Odisha coast?",
+    "options": ["NH 53", "NH 16", "NH 26", "NH 55"],
+    "answer": 1,
+    "explanation": "NH16 (old NH5) runs parallel to Odisha's coastline."
+  },
+  {
+    "question": "Which Odisha district produces the most turmeric?",
+    "options": ["Ganjam", "Kandhamal", "Koraput", "Balasore"],
+    "answer": 1,
+    "explanation": "Kandhamal turmeric has a GI tag."
+  },
+  {
+    "question": "Which wildlife sanctuary is nearest to Cuttack city?",
+    "options": ["Bhitarkanika", "Chandaka-Dampara", "Satkosia", "Debrigarh"],
+    "answer": 1,
+    "explanation": "Chandaka-Dampara Sanctuary is near Cuttack and Bhubaneswar."
+  },
+  {
+    "question": "Rushikulya river flows mainly through which district?",
+    "options": ["Puri", "Kandhamal", "Ganjam", "Balasore"],
+    "answer": 2,
+    "explanation": "Rushikulya river flows mainly in Ganjam district."
+  },
+  {
+    "question": "Where is the Debrigarh Sanctuary situated?",
+    "options": ["Near Hirakud Dam", "Near Balimela Dam", "Near Rengali Dam", "Near Upper Indravati"],
+    "answer": 0,
+    "explanation": "Debrigarh Sanctuary is adjacent to Hirakud reservoir."
+  },
+  {
+    "question": "Which mineral is abundant in Koraput district's Panchpatmali hills?",
+    "options": ["Iron ore", "Bauxite", "Chromite", "Manganese"],
+    "answer": 1,
+    "explanation": "Panchpatmali hills are rich in bauxite."
+  },
+  {
+    "question": "Which port is in Ganjam district?",
+    "options": ["Gopalpur", "Paradeep", "Dhamra", "Chandbali"],
+    "answer": 0,
+    "explanation": "Gopalpur Port is in Ganjam district."
+  },
+  {
+    "question": "Which Odisha river is a tributary of the Godavari?",
+    "options": ["Nagavali", "Indravati", "Rushikulya", "Bansadhara"],
+    "answer": 1,
+    "explanation": "The Indravati joins the Godavari in Chhattisgarh."
+  },
+  {
+    "question": "Which district is famous for Pipili appliqué crafts?",
+    "options": ["Khordha", "Puri", "Cuttack", "Ganjam"],
+    "answer": 1,
+    "explanation": "Pipili in Puri district is famous for appliqué handicrafts."
+  },
+  {
+    "question": "Which Odisha city is known as the 'Silver Filigree City'?",
+    "options": ["Cuttack", "Berhampur", "Bhubaneswar", "Rourkela"],
+    "answer": 0,
+    "explanation": "Cuttack is known for silver filigree work."
+  },
+  {
+    "question": "Which is the state animal of Odisha?",
+    "options": ["Elephant", "Leopard", "Sambar", "Tiger"],
+    "answer": 0,
+    "explanation": "The Asiatic elephant is Odisha's state animal."
+  },
+  {
+    "question": "Which river is associated with Satkosia Gorge?",
+    "options": ["Baitarani", "Brahmani", "Mahanadi", "Rushikulya"],
+    "answer": 2,
+    "explanation": "Satkosia Gorge is a deep canyon on the Mahanadi."
+  },
+  {
+    "question": "Which district is famous for Sambalpuri Ikat weaving?",
+    "options": ["Bargarh", "Koraput", "Rayagada", "Puri"],
+    "answer": 0,
+    "explanation": "Bargarh is a hub for Sambalpuri sarees."
+  },
+  {
+    "question": "What is the state tree of Odisha?",
+    "options": ["Sal", "Neem", "Mango", "Teak"],
+    "answer": 0,
+    "explanation": "Sal is Odisha's state tree."
+  },
+  {
+    "question": "Which mineral is mined in Sukinda valley?",
+    "options": ["Chromite", "Bauxite", "Coal", "Limestone"],
+    "answer": 0,
+    "explanation": "Sukinda valley in Jajpur has rich chromite deposits."
+  },
+  {
+    "question": "Which is the largest district in Odisha by area?",
+    "options": ["Sundargarh", "Mayurbhanj", "Kandhamal", "Koraput"],
+    "answer": 1,
+    "explanation": "Mayurbhanj is the largest district in Odisha by area."
+  },
+  {
+    "question": "Which river forms Hirakud reservoir?",
+    "options": ["Mahanadi", "Brahmani", "Baitarani", "Tel"],
+    "answer": 0,
+    "explanation": "Mahanadi river is dammed to create Hirakud reservoir."
+  },
+  {
+    "question": "Ansupa is an example of which type of lake?",
+    "options": ["Crater lake", "Oxbow lake", "Saltwater lake", "Glacial lake"],
+    "answer": 1,
+    "explanation": "Ansupa Lake is an oxbow lake formed by the Mahanadi."
+  },
+  {
+    "question": "Which coastal town is famous for Olive Ridley turtle nesting?",
+    "options": ["Konark", "Chandipur", "Gahirmatha", "Puri"],
+    "answer": 2,
+    "explanation": "Gahirmatha coast is the largest nesting site for Olive Ridley turtles."
+  },
+  {
+    "question": "Which sanctuary is near the city of Angul?",
+    "options": ["Satkosia", "Similipal", "Bhitarkanika", "Chandaka"],
+    "answer": 0,
+    "explanation": "Satkosia Sanctuary is near Angul."
+  },
+  {
+    "question": "Which is the smallest district in Odisha by area?",
+    "options": ["Jagatsinghpur", "Khurda", "Puri", "Nayagarh"],
+    "answer": 0,
+    "explanation": "Jagatsinghpur is the smallest district by area."
+  },
+  {
+    "question": "Which Odisha river originates from Similipal hills?",
+    "options": ["Subarnarekha", "Budhabalanga", "Baitarani", "Jalaka"],
+    "answer": 1,
+    "explanation": "Budhabalanga originates from Similipal Hills."
+  },
+  {
+    "question": "Where is Upper Kolab project located?",
+    "options": ["Kalahandi", "Koraput", "Rayagada", "Malkangiri"],
+    "answer": 1,
+    "explanation": "Upper Kolab project is in Koraput."
+  },
+  {
+    "question": "Which port is located near Dhamra river mouth?",
+    "options": ["Dhamra Port", "Chandbali", "Paradeep", "Gopalpur"],
+    "answer": 0,
+    "explanation": "Dhamra Port lies near the Dhamra river mouth."
+  },
+  {
+    "question": "Which district has the Udayagiri caves?",
+    "options": ["Jajpur", "Khurda", "Cuttack", "Puri"],
+    "answer": 0,
+    "explanation": "Udayagiri caves are in Jajpur district."
+  },
+  {
+    "question": "Which is the primary Rabi crop in Odisha?",
+    "options": ["Wheat", "Maize", "Groundnut", "Paddy"],
+    "answer": 0,
+    "explanation": "Wheat is the main Rabi crop in Odisha."
+  },
+  {
+    "question": "Which wildlife sanctuary is on the Brahmani river bank?",
+    "options": ["Debrigarh", "Hadagarh", "Satkosia", "Bhitarkanika"],
+    "answer": 1,
+    "explanation": "Hadagarh Sanctuary lies on Brahmani river bank."
+  },
+  {
+    "question": "Which Odisha beach is near Berhampur?",
+    "options": ["Pati-Sonapur", "Puri", "Chandipur", "Astaranga"],
+    "answer": 0,
+    "explanation": "Pati-Sonapur is a serene beach near Berhampur."
+  },
+  {
+    "question": "Which crop is widely grown in coastal saline soils of Odisha?",
+    "options": ["Coconut", "Paddy", "Banana", "Sugarcane"],
+    "answer": 0,
+    "explanation": "Coconut thrives in coastal saline soils."
+  },
+  {
+    "question": "Which major road runs from Kolkata to Chennai via Odisha?",
+    "options": ["NH 16", "NH 26", "NH 53", "NH 49"],
+    "answer": 0,
+    "explanation": "NH 16 runs along Odisha's entire coastline."
+  },
+  {
+    "question": "Which Odisha airport is an international airport?",
+    "options": ["Rourkela", "Jharsuguda", "Biju Patnaik", "Berhampur"],
+    "answer": 2,
+    "explanation": "Biju Patnaik Airport in Bhubaneswar is an international airport."
+  },
+  {
+    "question": "Which Odisha district is a major cashew producer?",
+    "options": ["Ganjam", "Balasore", "Puri", "Kendrapara"],
+    "answer": 0,
+    "explanation": "Ganjam district is a leading cashew growing area."
+  },
+  {
+    "question": "Which Odisha river flows wholly inside the state?",
+    "options": ["Brahmani", "Rushikulya", "Baitarani", "Subarnarekha"],
+    "answer": 1,
+    "explanation": "Rushikulya flows entirely within Odisha boundaries."
+  },
+  {
+    "question": "Which city is the largest in Odisha by population?",
+    "options": ["Cuttack", "Bhubaneswar", "Rourkela", "Berhampur"],
+    "answer": 1,
+    "explanation": "Bhubaneswar, the capital, has the largest population among Odisha's cities."
+  },
+  {
+    "question": "Which district is famous for the Harishankar temple?",
+    "options": ["Balangir", "Bargarh", "Kalahandi", "Nuapada"],
+    "answer": 1,
+    "explanation": "Harishankar temple is located in Bargarh district."
+  },
+  {
+    "question": "Which is the smallest district of Odisha by population?",
+    "options": ["Jagatsinghpur", "Kendrapara", "Boudh", "Nayagarh"],
+    "answer": 2,
+    "explanation": "Boudh district has the smallest population in Odisha."
+  },
+  {
+    "question": "Which Odisha river is known for diamond potential in its gravels?",
+    "options": ["Brahmani", "Mahanadi", "Baitarani", "Subarnarekha"],
+    "answer": 1,
+    "explanation": "Historically, some stretches of the Mahanadi were known for diamond deposits in gravels."
+  },
+  {
+    "question": "Which Odisha district has the Satkosia Gorge Sanctuary?",
+    "options": ["Kandhamal", "Angul", "Koraput", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Satkosia Gorge Sanctuary is located in Angul district."
+  },
+  {
+    "question": "Which Odisha river flows into the Bay of Bengal at Gopalpur?",
+    "options": ["Bahuda", "Rushikulya", "Vamsadhara", "Nagavali"],
+    "answer": 1,
+    "explanation": "The Rushikulya river meets the Bay near Gopalpur."
+  },
+  {
+    "question": "Which town is famous for Gopalpur beach?",
+    "options": ["Berhampur", "Puri", "Jagatsinghpur", "Balasore"],
+    "answer": 0,
+    "explanation": "Gopalpur beach is close to Berhampur."
+  },
+  {
+    "question": "Which Odisha airport is located in western Odisha?",
+    "options": ["Jharsuguda", "Biju Patnaik", "Rourkela", "Jeypore"],
+    "answer": 0,
+    "explanation": "Veer Surendra Sai Airport in Jharsuguda serves western Odisha."
+  },
+  {
+    "question": "Mahendragiri Hills are part of which mountain system?",
+    "options": ["Eastern Ghats", "Western Ghats", "Himalayas", "Vindhyas"],
+    "answer": 0,
+    "explanation": "Mahendragiri Hills belong to the Eastern Ghats."
+  },
+  {
+    "question": "Which town is known for Konark Sun Temple?",
+    "options": ["Konark", "Puri", "Bhubaneswar", "Khurda"],
+    "answer": 0,
+    "explanation": "Konark town houses the famous Sun Temple."
+  },
+  {
+    "question": "Which is the only UNESCO World Heritage Site in Odisha?",
+    "options": ["Puri Jagannath Temple", "Konark Sun Temple", "Udayagiri Caves", "Dhauli"],
+    "answer": 1,
+    "explanation": "Konark Sun Temple is the only UNESCO World Heritage Site in Odisha."
+  },
+  {
+    "question": "Which Odisha district has Gandhamardan Hills?",
+    "options": ["Balangir & Bargarh", "Koraput", "Kalahandi", "Mayurbhanj"],
+    "answer": 0,
+    "explanation": "Gandhamardan Hills are spread across Balangir and Bargarh districts."
+  },
+  {
+    "question": "Which mineral is mined in large quantities in Keonjhar?",
+    "options": ["Iron ore", "Bauxite", "Chromite", "Graphite"],
+    "answer": 0,
+    "explanation": "Keonjhar is a leading iron ore-producing district."
+  },
+  {
+    "question": "Which Odisha city is called the 'Steel City'?",
+    "options": ["Rourkela", "Cuttack", "Angul", "Jharsuguda"],
+    "answer": 0,
+    "explanation": "Rourkela is known for the Rourkela Steel Plant."
+  },
+  {
+    "question": "In which district is the Bhitarkanika National Park located?",
+    "options": ["Kendrapara", "Balasore", "Puri", "Cuttack"],
+    "answer": 0,
+    "explanation": "Bhitarkanika National Park is in Kendrapara district."
+  },
+  {
+    "question": "Which Odisha city lies on the banks of the Tel river?",
+    "options": ["Balangir", "Sonepur", "Boudh", "Jharsuguda"],
+    "answer": 0,
+    "explanation": "Balangir town is situated on the Tel river."
+  },
+  {
+    "question": "Which Odisha river originates from Amarkantak?",
+    "options": ["Mahanadi", "Brahmani", "Ib", "Tel"],
+    "answer": 0,
+    "explanation": "The Mahanadi originates from Amarkantak highlands."
+  },
+  {
+    "question": "Which coastal district is famous for Chandipur beach?",
+    "options": ["Balasore", "Puri", "Jagatsinghpur", "Ganjam"],
+    "answer": 0,
+    "explanation": "Chandipur's unique hide-and-seek beach is in Balasore."
+  },
+  {
+    "question": "Which river is dammed to form the Balimela reservoir?",
+    "options": ["Sileru", "Kolab", "Indravati", "Nagavali"],
+    "answer": 0,
+    "explanation": "Balimela project is built on the Sileru river."
+  },
+  {
+    "question": "Which Odisha district has the Gahirmatha Marine Sanctuary?",
+    "options": ["Kendrapara", "Balasore", "Puri", "Jagatsinghpur"],
+    "answer": 0,
+    "explanation": "Gahirmatha Marine Sanctuary is in Kendrapara district."
+  },
+  {
+    "question": "Which lake is called Asia's largest brackish water lagoon?",
+    "options": ["Chilika", "Ansupa", "Tampara", "Kanjia"],
+    "answer": 0,
+    "explanation": "Chilika Lake is the largest brackish water lagoon in Asia."
+  },
+  {
+    "question": "Which Odisha river flows entirely within the state?",
+    "options": ["Rushikulya", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Rushikulya flows entirely inside Odisha."
+  },
+  {
+    "question": "Which beach hosts the annual Puri Beach Festival?",
+    "options": ["Puri Beach", "Konark Beach", "Chandipur Beach", "Gopalpur Beach"],
+    "answer": 0,
+    "explanation": "The Puri Beach Festival is held at Puri Beach."
+  },
+  {
+    "question": "Which wildlife sanctuary is located in Kalahandi?",
+    "options": ["Karlapat", "Satkosia", "Debrigarh", "Chandaka"],
+    "answer": 0,
+    "explanation": "Karlapat Wildlife Sanctuary is in Kalahandi district."
+  },
+  {
+    "question": "Which city is the industrial hub for aluminium in Odisha?",
+    "options": ["Angul", "Rourkela", "Koraput", "Jharsuguda"],
+    "answer": 0,
+    "explanation": "NALCO’s aluminium smelter is at Angul."
+  },
+  {
+    "question": "Which river forms the IB Valley coal belt?",
+    "options": ["Ib", "Mahanadi", "Brahmani", "Baitarani"],
+    "answer": 0,
+    "explanation": "The Ib river valley has major coal deposits."
+  },
+  {
+    "question": "Which plateau is famous for coffee plantations?",
+    "options": ["Koraput Plateau", "Sundargarh Plateau", "Mayurbhanj Plateau", "Bolangir Plateau"],
+    "answer": 0,
+    "explanation": "Koraput Plateau has suitable climate for coffee."
+  },
+  {
+    "question": "Konark temple is located in which district?",
+    "options": ["Puri", "Jagatsinghpur", "Khurda", "Cuttack"],
+    "answer": 0,
+    "explanation": "Konark Sun Temple is in Puri district."
+  },
+  {
+    "question": "Which mineral is abundant in Kalahandi district?",
+    "options": ["Bauxite", "Chromite", "Iron ore", "Coal"],
+    "answer": 0,
+    "explanation": "Bauxite is found in abundance in Kalahandi."
+  },
+  {
+    "question": "Which Odisha city is famous for Sambalpuri textiles?",
+    "options": ["Sambalpur", "Bargarh", "Balangir", "Jharsuguda"],
+    "answer": 0,
+    "explanation": "Sambalpur city is known worldwide for Sambalpuri sarees."
+  },
+  {
+    "question": "The city of Cuttack lies between which two rivers?",
+    "options": ["Mahanadi & Kathajodi", "Brahmani & Baitarani", "Tel & Ong", "Rushikulya & Bahuda"],
+    "answer": 0,
+    "explanation": "Cuttack is located between Mahanadi and Kathajodi rivers."
+  },
+  {
+    "question": "Where is the Hadagarh Wildlife Sanctuary located?",
+    "options": ["Keonjhar", "Mayurbhanj", "Kendrapara", "Puri"],
+    "answer": 0,
+    "explanation": "Hadagarh Sanctuary is in Keonjhar district."
+  },
+  {
+    "question": "Which city hosts the Bali Yatra festival?",
+    "options": ["Cuttack", "Puri", "Bhubaneswar", "Berhampur"],
+    "answer": 0,
+    "explanation": "Bali Yatra is celebrated in Cuttack."
+  },
+  {
+    "question": "Which waterfall is inside Similipal National Park?",
+    "options": ["Barehipani", "Khandadhar", "Duduma", "Sanaghagara"],
+    "answer": 0,
+    "explanation": "Barehipani waterfall is located in Similipal."
+  },
+  {
+    "question": "Which is the main Rabi season pulse crop in Odisha?",
+    "options": ["Green gram", "Black gram", "Lentil", "Pea"],
+    "answer": 2,
+    "explanation": "Lentil is a key Rabi pulse crop."
+  },
+  {
+    "question": "Where is Satkosia Gorge located?",
+    "options": ["On Brahmani", "On Mahanadi", "On Baitarani", "On Rushikulya"],
+    "answer": 1,
+    "explanation": "Satkosia Gorge is on the Mahanadi river."
+  },
+  {
+    "question": "In which district is the Tikarpada crocodile sanctuary?",
+    "options": ["Angul", "Kendrapara", "Cuttack", "Sambalpur"],
+    "answer": 0,
+    "explanation": "Tikarpada sanctuary is in Angul district."
+  },
+  {
+    "question": "Which Odisha river is shortest among the major rivers?",
+    "options": ["Bahuda", "Baitarani", "Rushikulya", "Ib"],
+    "answer": 0,
+    "explanation": "Bahuda is a short river forming part of the Odisha-Andhra border."
+  },
+  {
+    "question": "Which Odisha airport is located in Koraput district?",
+    "options": ["Jeypore", "Jharsuguda", "Bhubaneswar", "Rourkela"],
+    "answer": 0,
+    "explanation": "Jeypore Airport is in Koraput district."
+  },
+  {
+    "question": "Which town is called the 'Brass Fish Town' for handicrafts?",
+    "options": ["Cuttack", "Kantilo", "Puri", "Balasore"],
+    "answer": 1,
+    "explanation": "Kantilo is famous for brass and metal crafts shaped like fish."
+  },
+   {
+    "question": "Which district is famous for Paralakhemundi town?",
+    "options": ["Gajapati", "Rayagada", "Koraput", "Kandhamal"],
+    "answer": 0,
+    "explanation": "Paralakhemundi is the district headquarters of Gajapati district."
+  },
+  {
+    "question": "Which Odisha beach is near Konark Sun Temple?",
+    "options": ["Chandrabhaga", "Chandipur", "Puri", "Astaranga"],
+    "answer": 0,
+    "explanation": "Chandrabhaga beach is very close to the Konark Sun Temple."
+  },
+  {
+    "question": "Which town is called the 'Rice Bowl of Odisha'?",
+    "options": ["Bargarh", "Cuttack", "Balasore", "Ganjam"],
+    "answer": 0,
+    "explanation": "Bargarh district is considered the 'Rice Bowl' of Odisha."
+  },
+  {
+    "question": "Where is the Nalabana Bird Sanctuary located?",
+    "options": ["Puri", "Khordha", "Cuttack", "Balasore"],
+    "answer": 0,
+    "explanation": "Nalabana Bird Sanctuary is inside Chilika Lake in Puri district."
+  },
+  {
+    "question": "Which mineral is abundant in Sundargarh district?",
+    "options": ["Coal", "Bauxite", "Chromite", "Limestone"],
+    "answer": 0,
+    "explanation": "Sundargarh district has large coal deposits."
+  },
+  {
+    "question": "Which is the second largest port in Odisha after Paradeep?",
+    "options": ["Dhamra", "Gopalpur", "Chandbali", "Balaramgadi"],
+    "answer": 0,
+    "explanation": "Dhamra Port is the second largest in Odisha."
+  },
+  {
+    "question": "Where is the Upper Sileru Hydro Project located?",
+    "options": ["Malkangiri", "Koraput", "Kalahandi", "Rayagada"],
+    "answer": 1,
+    "explanation": "Upper Sileru Hydro Project is in Koraput district."
+  },
+  {
+    "question": "Which is the only Ramsar site in Odisha apart from Chilika?",
+    "options": ["Bhitarkanika", "Tampara", "Ansupa", "Kanjia"],
+    "answer": 0,
+    "explanation": "Bhitarkanika mangroves are the only Ramsar site apart from Chilika."
+  },
+  {
+    "question": "Which Odisha city is famous for silver filigree work?",
+    "options": ["Cuttack", "Puri", "Bhubaneswar", "Berhampur"],
+    "answer": 0,
+    "explanation": "Cuttack is well known for silver filigree jewellery."
+  },
+  {
+    "question": "Which river is associated with the Satkosia Gorge?",
+    "options": ["Mahanadi", "Baitarani", "Brahmani", "Rushikulya"],
+    "answer": 0,
+    "explanation": "Satkosia Gorge is formed by the Mahanadi River."
+  },
+  {
+    "question": "Which Odisha district has the majority of sandalwood trees?",
+    "options": ["Koraput", "Kandhamal", "Rayagada", "Mayurbhanj"],
+    "answer": 1,
+    "explanation": "Kandhamal district is known for growing sandalwood trees."
+  },
+  {
+    "question": "Which district has the Badaghagara waterfall?",
+    "options": ["Keonjhar", "Sundargarh", "Mayurbhanj", "Rayagada"],
+    "answer": 0,
+    "explanation": "Badaghagara waterfall is located in Keonjhar district."
+  },
+  {
+    "question": "Which Odisha lake is an oxbow lake formed by the Mahanadi?",
+    "options": ["Ansupa", "Tampara", "Kanjia", "Chilika"],
+    "answer": 0,
+    "explanation": "Ansupa Lake is an oxbow lake created by the Mahanadi."
+  },
+  {
+    "question": "Which wildlife sanctuary is located on the Rushikulya River?",
+    "options": ["Rushikulya Sanctuary", "Satkosia", "Bhitarkanika", "Debrigarh"],
+    "answer": 0,
+    "explanation": "Rushikulya Sanctuary protects Olive Ridley turtle habitats along the river mouth."
+  },
+  {
+    "question": "Which Odisha district is famous for Damanjodi mines?",
+    "options": ["Koraput", "Kalahandi", "Rayagada", "Sundargarh"],
+    "answer": 0,
+    "explanation": "Damanjodi in Koraput has NALCO's bauxite mines."
+  },
+  {
+    "question": "Which Odisha plateau is rich in laterite soil?",
+    "options": ["Koraput Plateau", "Bolangir Plateau", "Mayurbhanj Plateau", "Sundargarh Plateau"],
+    "answer": 0,
+    "explanation": "Koraput Plateau has extensive laterite soil deposits."
+  },
+  {
+    "question": "What is the state bird of Odisha?",
+    "options": ["Indian Roller", "Peacock", "Hornbill", "Parrot"],
+    "answer": 0,
+    "explanation": "The Indian Roller (blue jay) is the state bird."
+  },
+  {
+    "question": "Which coastline attraction is near Satapada?",
+    "options": ["Sea mouth of Chilika", "Astaranga Beach", "Chandipur Beach", "Gopalpur Beach"],
+    "answer": 0,
+    "explanation": "Satapada is famous for its sea mouth connecting to Chilika Lake."
+  },
+  {
+    "question": "Which town is known as the Silk City of Odisha?",
+    "options": ["Berhampur", "Cuttack", "Puri", "Balasore"],
+    "answer": 0,
+    "explanation": "Berhampur is called the Silk City because of its silk sarees."
+  },
+  {
+    "question": "Which district is known for Ghatagaon Tarini temple?",
+    "options": ["Keonjhar", "Mayurbhanj", "Jharsuguda", "Dhenkanal"],
+    "answer": 0,
+    "explanation": "Ghatagaon Tarini temple is in Keonjhar."
+  },
+  {
+    "question": "Which river forms the Hirakud reservoir?",
+    "options": ["Mahanadi", "Brahmani", "Tel", "Ib"],
+    "answer": 0,
+    "explanation": "Hirakud reservoir is built on the Mahanadi River."
+  },
+  {
+    "question": "Which district is famous for Kendujhar's iron ore?",
+    "options": ["Keonjhar", "Bargarh", "Mayurbhanj", "Koraput"],
+    "answer": 0,
+    "explanation": "Keonjhar district is rich in iron ore deposits."
+  },
+  {
+    "question": "Bargarh is famous for which festival?",
+    "options": ["Konark Festival", "Dhanu Jatra", "Ratha Yatra", "Boita Bandana"],
+    "answer": 1,
+    "explanation": "Bargarh district hosts the world's largest open-air theatre festival, Dhanu Jatra."
+  },
+  {
+    "question": "Which Odisha city is on the bank of river Kathajodi?",
+    "options": ["Cuttack", "Bhubaneswar", "Puri", "Paradeep"],
+    "answer": 0,
+    "explanation": "Cuttack lies on the banks of the Kathajodi River."
+  },
+  {
+    "question": "What is the state tree of Odisha?",
+    "options": ["Sal", "Neem", "Teak", "Mango"],
+    "answer": 0,
+    "explanation": "Sal (Shorea robusta) is Odisha's state tree."
+  },
+  {
+    "question": "Which is the main Rabi season crop in Odisha?",
+    "options": ["Paddy", "Groundnut", "Wheat", "Mustard"],
+    "answer": 2,
+    "explanation": "Wheat is the main Rabi crop in Odisha."
+  },
+  {
+    "question": "Which district is famous for Pipili appliqué work?",
+    "options": ["Puri", "Khordha", "Cuttack", "Balasore"],
+    "answer": 0,
+    "explanation": "Pipili town in Puri district is famous for its appliqué crafts."
+  },
+  {
+    "question": "Where is the Debrigarh Wildlife Sanctuary situated?",
+    "options": ["Sambalpur", "Angul", "Bargarh", "Balangir"],
+    "answer": 0,
+    "explanation": "Debrigarh Sanctuary is located near the Hirakud reservoir in Sambalpur."
+  },
+  {
+    "question": "Which river flows entirely within Odisha?",
+    "options": ["Rushikulya", "Brahmani", "Baitarani", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Rushikulya flows entirely inside Odisha's geographical boundary."
+  },
+  {
+    "question": "Which coastal town is famous for Olive Ridley turtle nesting?",
+    "options": ["Konark", "Gahirmatha", "Puri", "Chandipur"],
+    "answer": 1,
+    "explanation": "Gahirmatha is the largest nesting ground for Olive Ridley turtles."
+  },
+  {
+    "question": "Which airport is located in Jharsuguda district?",
+    "options": ["Veer Surendra Sai Airport", "Biju Patnaik Airport", "Jeypore Airport", "Rourkela Airport"],
+    "answer": 0,
+    "explanation": "Veer Surendra Sai Airport serves Jharsuguda district."
+  },
+  {
+    "question": "Which lake is located inside Nandankanan Zoological Park?",
+    "options": ["Kanjia", "Tampara", "Ansupa", "Chilika"],
+    "answer": 0,
+    "explanation": "Kanjia Lake lies inside Nandankanan Zoo in Bhubaneswar."
+  },
+  {
+    "question": "Which is known as the 'Rice Bowl of Odisha' district?",
+    "options": ["Bargarh", "Kendrapara", "Cuttack", "Puri"],
+    "answer": 0,
+    "explanation": "Bargarh is known as the 'Rice Bowl of Odisha'."
+  },
+  {
+    "question": "Where is the Rengali Dam located?",
+    "options": ["Angul", "Sundargarh", "Keonjhar", "Bargarh"],
+    "answer": 0,
+    "explanation": "Rengali Dam is built across the Brahmani River in Angul district."
+  },
+  {
+    "question": "Which town is known for Sambalpuri sarees?",
+    "options": ["Sambalpur", "Bargarh", "Balangir", "Jharsuguda"],
+    "answer": 0,
+    "explanation": "Sambalpur town is famous for its handwoven Sambalpuri sarees."
+  },
+  {
+    "question": "Which mineral is mined at Panchpatmali?",
+    "options": ["Chromite", "Bauxite", "Iron ore", "Coal"],
+    "answer": 1,
+    "explanation": "Panchpatmali hills have large bauxite deposits."
+  }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

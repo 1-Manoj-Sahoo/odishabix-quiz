@@ -1,0 +1,3607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancient Indian History Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+		
+	header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
+    text-align: center;
+    padding: 8px 8px;
+    background-color: rgba(0,0,0,1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+	}
+
+	header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    letter-spacing: 2px;
+    color: #ffcc00;
+	}
+
+	header h1 .header-link {
+    color: #ffcc00;
+    text-decoration: none;
+    user-select: none;
+	}
+
+	header h1 .header-link:hover,
+	header h1 .header-link:focus {
+     text-decoration: none;
+	}
+	header p {
+        margin-top: 2px;
+        font-size: 1.2rem;
+        color: #ffee99;
+    }
+	.container.mt-5.mb-5 {
+    margin-top: 100px !important;
+	}
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+<header>
+  		<h1><a href="index.html" class="header-link">ODISHABIX</a></h1>
+		 <p>Prepare Better, Achieve faster</p>
+	</header>
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">ANCIENT INDIA HISTORY</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+
+  {
+    "question": "Which of the following is NOT a feature of the Indus Valley Civilization?",
+    "options": ["Grid pattern planning", "Advanced drainage system", "Iron tools", "Use of baked bricks"],
+    "answer": 2,
+    "explanation": "The Indus Valley Civilization did not use iron; they were in the Bronze Age and primarily used copper and bronze tools."
+  },
+  {
+    "question": "The 'Great Bath' was discovered at which of the following Indus Valley sites?",
+    "options": ["Harappa", "Mohenjodaro", "Banawali", "Lothal"],
+    "answer": 1,
+    "explanation": "The Great Bath is one of the most remarkable structures at Mohenjodaro."
+  },
+  {
+    "question": "Which Vedic text is considered the oldest?",
+    "options": ["Samaveda", "Atharvaveda", "Rigveda", "Yajurveda"],
+    "answer": 2,
+    "explanation": "Rigveda is the oldest known Vedic Sanskrit text."
+  },
+  {
+    "question": "Who was the founder of Jainism?",
+    "options": ["Rishabha", "Mahavira", "Parshvanatha", "Gautam Buddha"],
+    "answer": 1,
+    "explanation": "Jain tradition regards Mahavira as its founder; although Rishabha and Parshvanatha preceded him, Mahavira established the faith."
+  },
+  {
+    "question": "The Mauryan Empire was established in which year?",
+    "options": ["326 BCE", "322 BCE", "185 BCE", "273 BCE"],
+    "answer": 1,
+    "explanation": "Chandragupta Maurya founded the Mauryan Empire in 322 BCE."
+  },
+  {
+    "question": "Which Mahajanapada was located in present-day Punjab?",
+    "options": ["Kuru", "Panchala", "Gandhara", "Vajji"],
+    "answer": 2,
+    "explanation": "Gandhara corresponded to the northwest region including parts of Punjab and Afghanistan."
+  },
+  {
+    "question": "Which of the following is NOT a correct pair about Sangam literature?",
+    "options": ["Tolkappiyam – Grammar", "Purananuru – Love Poems", "Ettuthokai – Eight Anthologies", "Pattupattu – Ten Idylls"],
+    "answer": 1,
+    "explanation": "Purananuru is about war, valor, and social life, NOT about love poems (Akam); Akam poems are about love."
+  },
+  {
+    "question": "The famous teacher Chanakya or Kautilya was the prime minister in whose court?",
+    "options": ["Chandragupta Maurya", "Ashoka", "Bindusara", "Harshavardhana"],
+    "answer": 0,
+    "explanation": "Chanakya was the mentor and advisor of Chandragupta Maurya."
+  },
+  {
+    "question": "The capital of the Kalinga kingdom was?",
+    "options": ["Pataliputra", "Taxila", "Ujjain", "Tosali"],
+    "answer": 3,
+    "explanation": "Tosali was one of the capitals of Kalinga during the time of Ashoka."
+  },
+  {
+    "question": "Who was the first ruler to issue coins bearing his name and portrait?",
+    "options": ["Chandragupta Maurya", "Kumaragupta", "Kanishka", "Chandragupta II"],
+    "answer": 2,
+    "explanation": "Kanishka of the Kushan dynasty is noted for issuing coins with his name and image."
+  },
+  {
+    "question": "The Chola dynasty was well-known for its administrative division called?",
+    "options": ["Janapadas", "Nadu", "Pradesh", "Mandala"],
+    "answer": 1,
+    "explanation": "Chola administration was notably organized into Nadu (districts)."
+  },
+  {
+    "question": "On which river bank was the city of Harappa situated?",
+    "options": ["Ghaggar", "Indus", "Ravi", "Sutlej"],
+    "answer": 2,
+    "explanation": "Harappa is located on the left bank of the Ravi river."
+  },
+  {
+    "question": "Which Buddhist council resulted in the division between Hinayana and Mahayana?",
+    "options": ["First", "Second", "Third", "Fourth"],
+    "answer": 3,
+    "explanation": "The Fourth Buddhist Council held under Kanishka led to the split into Hinayana and Mahayana sects."
+  },
+  {
+    "question": "Which site is known for evidence of the earliest Neolithic domestication of animals in India?",
+    "options": ["Mehrgarh", "Chirand", "Burzahom", "Koldihwa"],
+    "answer": 0,
+    "explanation": "Mehrgarh in present-day Pakistan has yielded the earliest evidence of animal domestication."
+  },
+  {
+    "question": "The famous Allahabad Pillar inscription describes the achievements of which king?",
+    "options": ["Samudragupta", "Chandragupta-II", "Ashoka", "Harsha"],
+    "answer": 0,
+    "explanation": "The Allahabad Pillar inscription (Prayag Prashasti) is by Harisena and details Samudragupta’s exploits."
+  },
+  {
+    "question": "The Svetambara and Digambara sects are associated with?",
+    "options": ["Buddhism", "Vaishnavism", "Jainism", "Shaivism"],
+    "answer": 2,
+    "explanation": "Jainism split into Svetambara (white-clad) and Digambara (sky-clad) sects."
+  },
+  {
+    "question": "The Rigvedic society was primarily?",
+    "options": ["Urban and commercial", "Rural, tribal, and pastoral", "Feudal", "Highly stratified urban"],
+    "answer": 1,
+    "explanation": "Early Vedic society was predominantly rural and tribal, with cattle rearing as a main occupation."
+  },
+  {
+    "question": "The Jorwe culture is associated with which age in Deccan?",
+    "options": ["Neolithic", "Chalcolithic", "Iron Age", "Stone Age"],
+    "answer": 1,
+    "explanation": "Jorwe is a Chalcolithic (copper-stone) culture of Maharashtra Deccan."
+  },
+  {
+    "question": "The Chalukyas of Badami are also known as?",
+    "options": ["Early Western Chalukyas", "Later Western Chalukyas", "Eastern Chalukyas", "Chalukyas of Vengi"],
+    "answer": 0,
+    "explanation": "They are referred to as the Early Western Chalukyas of Badami."
+  },
+  {
+    "question": "Which Indus Valley site is called the 'Manchester of Harappa'?",
+    "options": ["Kalibangan", "Dholavira", "Chanhudaro", "Lothal"],
+    "answer": 3,
+    "explanation": "Lothal is known for its bead-making industry, earning it the title 'Manchester of Harappa'."
+  },
+  {
+    "question": "The famous Bhimbetka caves, which contain prehistoric paintings, are located in which state?",
+    "options": ["Maharashtra", "Madhya Pradesh", "Odisha", "Chhattisgarh"],
+    "answer": 1,
+    "explanation": "The Bhimbetka cave complex is in Madhya Pradesh."
+  },
+  {
+    "question": "Ashvamedha and Rajasuya are associated with which type of ritual?",
+    "options": ["Vedic sacrifices", "Buddhist rituals", "Jain ceremonies", "Dravidian cults"],
+    "answer": 0,
+    "explanation": "Ashvamedha (horse sacrifice) and Rajasuya are large Vedic rituals."
+  },
+  {
+    "question": "Sangam texts were composed mainly in:",
+    "options": ["Kannada", "Tamil", "Prakrit", "Pali"],
+    "answer": 1,
+    "explanation": "Sangam literature was produced in ancient Tamil."
+  },
+  {
+    "question": "Who is considered the greatest ruler of the Satavahana dynasty?",
+    "options": ["Satakarni I", "Gautamiputra Satakarni", "Vashishthiputra Pulumavi", "Yajna Sri Satakarni"],
+    "answer": 1,
+    "explanation": "Gautamiputra Satakarni was the most powerful and notable Satavahana king."
+  },
+  {
+    "question": "The Nalanda University was destroyed by which invader?",
+    "options": ["Mahmud of Ghazni", "Muhammad Ghori", "Bakhtiyar Khilji", "Alauddin Khilji"],
+    "answer": 2,
+    "explanation": "Bakhtiyar Khilji destroyed Nalanda University in the late 12th century."
+  },
+  {
+    "question": "The concept of 'Triratnas' (Three Jewels) is central to which religion?",
+    "options": ["Buddhism", "Jainism", "Shaivism", "Vaishnavism"],
+    "answer": 1,
+    "explanation": "Triratnas – Right Faith, Right Knowledge, and Right Conduct – form the core of Jain philosophy."
+  },
+  {
+    "question": "Harshavardhana’s capital was at?",
+    "options": ["Ujjain", "Thanesar", "Patliputra", "Kannauj"],
+    "answer": 3,
+    "explanation": "Kannauj became Harsha's imperial capital after Thanesar."
+  },
+  {
+    "question": "The Ain-i-Akbari mentions which South Indian dynasty for its efficient administration?",
+    "options": ["Cholas", "Vijayanagara", "Chalukyas", "Hoysalas"],
+    "answer": 1,
+    "explanation": "Ain-i-Akbari praises the administrative system of the Vijayanagara Empire."
+  },
+  {
+    "question": "The ancient city of Taxila was the capital of which Mahajanapada?",
+    "options": ["Kashi", "Kosala", "Avanti", "Gandhara"],
+    "answer": 3,
+    "explanation": "Gandhara had Taxila as its capital."
+  },
+  {
+    "question": "Which Gupta king is associated with the title 'Vikramaditya'?",
+    "options": ["Chandragupta I", "Samudragupta", "Chandragupta II", "Skandagupta"],
+    "answer": 2,
+    "explanation": "Chandragupta II assumed the title 'Vikramaditya.'"
+  },
+  {
+    "question": "Which South Indian dynasty is credited with constructing the Brihadisvara Temple at Thanjavur?",
+    "options": ["Cholas", "Pallavas", "Hoysalas", "Chalukyas"],
+    "answer": 0,
+    "explanation": "Rajaraja Chola I built the Brihadisvara Temple at Thanjavur."
+  },
+  {
+    "question": "Which historical text is considered the earliest Buddhist literature?",
+    "options": ["Jatakas", "Vinaya Pitaka", "Sutta Pitaka", "Abhidhamma Pitaka"],
+    "answer": 2,
+    "explanation": "The Sutta Pitaka is the earliest compilation of the Buddha's discourses."
+  },
+  {
+    "question": "Bindusara, the Mauryan emperor, was also known as?",
+    "options": ["Devanampriya", "Amitraghata", "Priyadarshi", "Kumara"],
+    "answer": 1,
+    "explanation": "Bindusara was called 'Amitraghata,' meaning 'Slayer of enemies.'"
+  },
+  {
+    "question": "Which Indus Valley site gives evidence of a dockyard?",
+    "options": ["Mohenjodaro", "Harappa", "Lothal", "Banawali"],
+    "answer": 2,
+    "explanation": "Lothal is famous for ruins of a dockyard."
+  },
+  {
+    "question": "Sangam Assemblies are believed to have been held in which city?",
+    "options": ["Madurai", "Kanchipuram", "Uraiyur", "Puhar"],
+    "answer": 0,
+    "explanation": "Madurai is traditionally regarded as the centre of Sangam Assemblies."
+  },
+  {
+    "question": "The Chalukyan king Pulakeshin II defeated which North Indian ruler?",
+    "options": ["Harsha", "Samudragupta", "Chandragupta II", "Skandagupta"],
+    "answer": 0,
+    "explanation": "Pulakeshin II famously repulsed Harsha's invasion of the Deccan."
+  },
+  {
+    "question": "Who composed the Prakrit work 'Gathasaptasati'?",
+    "options": ["Samudragupta", "Satakarni", "Hala", "Pulakeshin"],
+    "answer": 2,
+    "explanation": "King Hala of the Satavahana dynasty authored 'Gathasaptasati.'"
+  },
+  {
+    "question": "Which civilization used fire altars for ritualistic purposes?",
+    "options": ["Indus Valley", "Vedic", "Sangam", "Chalukya"],
+    "answer": 1,
+    "explanation": "Fire altars for Yajnas are most prominent in the Vedic period."
+  },
+  {
+    "question": "The hallmark of the Mauryan sculpture is best seen in?",
+    "options": ["Erection of temples", "Stupas", "Polished stone pillars", "Terracotta figurines"],
+    "answer": 2,
+    "explanation": "Polished stone pillars (like the Ashokan Pillars) exemplify Mauryan sculpture."
+  },
+  {
+    "question": "Who among the following was the court physician of Chandragupta Maurya, also the author of 'Arthashastra'?",
+    "options": ["Jivaka", "Vishnugupta", "Charaka", "Kautilya"],
+    "answer": 3,
+    "explanation": "Kautilya, also known as Chanakya or Vishnugupta, authored Arthashastra."
+  },
+  {
+    "question": "The famous 'Iron Pillar' at Mehrauli, Delhi, belongs to the period of which dynasty?",
+    "options": ["Maurya", "Kushan", "Gupta", "Chola"],
+    "answer": 2,
+    "explanation": "The Iron Pillar is from the Gupta period, possibly Chandragupta II."
+  },
+  {
+    "question": "The famous Buddhist university at Vikramashila was founded by which king?",
+    "options": ["Dharampala", "Harsha", "Ashoka", "Samudragupta"],
+    "answer": 0,
+    "explanation": "King Dharampala of the Pala dynasty established Vikramashila."
+  },
+  {
+    "question": "What is the name of the earliest Tamil grammar text?",
+    "options": ["Purananuru", "Tolkappiyam", "Silappadikaram", "Akananuru"],
+    "answer": 1,
+    "explanation": "Tolkappiyam is the oldest known Tamil grammar and literary text."
+  },
+  {
+    "question": "In Vedic society, who were the 'Vratas'?",
+    "options": ["Warriors", "Students", "Ascetics", "Vedic Priests"],
+    "answer": 2,
+    "explanation": "'Vratas' were ascetic individuals practicing austerities."
+  },
+  {
+    "question": "Who was the founder of the Chalukya dynasty of Badami?",
+    "options": ["Pulakeshin I", "Mangalesha", "Kirtivarman I", "Pulakeshin II"],
+    "answer": 0,
+    "explanation": "Pulakeshin I established the early Chalukya power in Badami."
+  },
+  {
+    "question": "Which Buddhist text contains the stories of the previous births of Buddha?",
+    "options": ["Dhammapada", "Sutta Nipata", "Jataka", "Vinaya Pitaka"],
+    "answer": 2,
+    "explanation": "The Jataka tales are a collection of stories of Buddha’s previous births."
+  },
+  {
+    "question": "Who among the following was NOT an important ruler of the Sangam Age?",
+    "options": ["Karikala Chola", "Nedunjeliyan", "Rajaraja I", "Cheran Senguttuvan"],
+    "answer": 2,
+    "explanation": "Rajaraja I is from the medieval Chola era, not the Sangam period."
+  },
+  {
+    "question": "The Arthashastra is a treatise on?",
+    "options": ["Poetry", "Philosophy", "Economics and Polity", "Drama"],
+    "answer": 2,
+    "explanation": "Arthashastra by Kautilya is focused on economics, statecraft and polity."
+  },
+  {
+    "question": "The earliest evidence of agriculture in South India is found at?",
+    "options": ["Paiyampalli", "Hallur", "Chirand", "Koldihwa"],
+    "answer": 1,
+    "explanation": "Hallur (Karnataka) has yielded early evidence of agriculture and domestication."
+  },
+  {
+    "question": "During the Gupta period, the greatest development was seen in the field of?",
+    "options": ["Literature and Arts", "Village Administration", "Foreign Trade", "Shipbuilding"],
+    "answer": 0,
+    "explanation": "The Gupta Age is known for a flowering of literature, science, arts, and architecture."
+  },
+   {
+    "question": "Which Indus Valley Civilization site provides evidence of the earliest ploughed field?",
+    "options": ["Kalibangan", "Rakhigarhi", "Harappa", "Lothal"],
+    "answer": 0,
+    "explanation": "Kalibangan in Rajasthan revealed furrow marks indicating the use of a plough."
+  },
+  {
+    "question": "The 'Purusha Sukta' hymn, describing social stratification into varnas, is found in which Veda?",
+    "options": ["Sama Veda", "Atharva Veda", "Rig Veda", "Yajur Veda"],
+    "answer": 2,
+    "explanation": "The Purusha Sukta occurs in the 10th Mandala of the Rig Veda."
+  },
+  {
+    "question": "The earliest capital of the Mauryan dynasty before Pataliputra was?",
+    "options": ["Rajagriha", "Taxila", "Ujjain", "Vaishali"],
+    "answer": 0,
+    "explanation": "Rajagriha was the initial capital used by Chandragupta before shifting to Pataliputra."
+  },
+  {
+    "question": "In Jainism, the term 'Kevala Jnana' refers to?",
+    "options": ["Liberation", "Omniscience", "Enlightenment", "Non-violence"],
+    "answer": 1,
+    "explanation": "Kevala Jnana means absolute knowledge or omniscience attained by a Tirthankara."
+  },
+  {
+    "question": "Which Gupta ruler is known for opening the Western Indian trade to the Mediterranean?",
+    "options": ["Samudragupta", "Chandragupta II", "Skandagupta", "Kumaragupta"],
+    "answer": 1,
+    "explanation": "Chandragupta II's expansion allowed safe trade by opening the Saurashtra coast."
+  },
+  {
+    "question": "The 'Nasik Prashasti' inscription is associated with which dynasty?",
+    "options": ["Satavahana", "Maurya", "Gupta", "Chola"],
+    "answer": 0,
+    "explanation": "The Nasik Prashasti was issued by Gautami Balashri in honor of her son Gautamiputra Satakarni of the Satavahana dynasty."
+  },
+  {
+    "question": "The Pallavas are best known in history for their contributions to?",
+    "options": ["Sanskrit dramas", "Temple architecture", "Trade guilds", "Metal coinage"],
+    "answer": 1,
+    "explanation": "Pallavas excelled in rock-cut and structural temple architecture."
+  },
+  {
+    "question": "Who among the following is known as the 'maker of the Mauryan Empire'?",
+    "options": ["Chandragupta", "Chanakya", "Bindusara", "Ashoka"],
+    "answer": 0,
+    "explanation": "Chandragupta Maurya established and consolidated the Mauryan Empire."
+  },
+  {
+    "question": "The Megalithic burials in South India commonly used which kind of funerary marker?",
+    "options": ["Painted pottery", "Iron pillars", "Menhirs and dolmens", "Cairns"],
+    "answer": 2,
+    "explanation": "Menhirs (upright stones) and dolmens (stone table graves) are common megalithic burial markers."
+  },
+  {
+    "question": "The Rigvedic term 'Krishna Ayas' refers to?",
+    "options": ["Copper", "Bronze", "Iron", "Gold"],
+    "answer": 2,
+    "explanation": "'Krishna Ayas' means black metal, referring to iron."
+  },
+  {
+    "question": "According to Buddhist tradition, the first sermon of Buddha is called?",
+    "options": ["Abhidhamma", "Dhamma Chakka Pavattana", "Mahaparinirvana", "Vinaya"],
+    "answer": 1,
+    "explanation": "The first sermon at Sarnath is 'Turning of the Wheel of Dharma' (Dhamma Chakka Pavattana)."
+  },
+  {
+    "question": "The Bhakti Movement in South India was led by?",
+    "options": ["Nayanars and Alvars", "Kabir and Nanak", "Basava and Ramanuja", "Tulsidas and Surdas"],
+    "answer": 0,
+    "explanation": "Nayanars (Shaivite saints) and Alvars (Vaishnavite saints) led early Bhakti in Tamil Nadu."
+  },
+  {
+    "question": "Who composed 'Manimekalai', one of the great epics of Tamil literature?",
+    "options": ["Sattanar", "Ilango Adigal", "Tiruvalluvar", "Kambar"],
+    "answer": 0,
+    "explanation": "'Manimekalai' was composed by Buddhist poet Sattanar."
+  },
+  {
+    "question": "The 'Chakravyuha' military formation is mentioned in which Indian text?",
+    "options": ["Ramayana", "Mahabharata", "Rig Veda", "Shatapatha Brahmana"],
+    "answer": 1,
+    "explanation": "Chakravyuha (circular battle formation) is detailed in the Mahabharata."
+  },
+  {
+    "question": "The famous Chinese pilgrim who visited India during Harsha's reign was?",
+    "options": ["Fa-Hien", "Hiuen Tsang", "Itsing", "Xuanzang"],
+    "answer": 3,
+    "explanation": "Xuanzang (Hiuen Tsang) visited the court of Harsha and documented his travels."
+  },
+  {
+    "question": "Which king assumed the title 'Dharma-Mahamatra'?",
+    "options": ["Ashoka", "Samudragupta", "Kanishka", "Chandragupta Maurya"],
+    "answer": 0,
+    "explanation": "Ashoka adopted many titles, including 'Dharma-Mahamatra' (officer of morality)."
+  },
+  {
+    "question": "The earliest specimens of South Indian bronze sculpture belong to which dynasty?",
+    "options": ["Pallava", "Chola", "Chalukya", "Pandya"],
+    "answer": 1,
+    "explanation": "Chola bronzes are among the earliest and finest South Indian sculptures."
+  },
+  {
+    "question": "Panini, the grammarian, was associated with which ancient region?",
+    "options": ["Magadha", "Kalinga", "Gandhara", "Avanti"],
+    "answer": 2,
+    "explanation": "Panini belonged to Shalatula near Gandhara."
+  },
+  {
+    "question": "The famous stone chariot at Hampi is attributed to which kingdom?",
+    "options": ["Chalukya", "Chola", "Vijayanagara", "Pallava"],
+    "answer": 2,
+    "explanation": "This iconic monument was built in the Vijayanagara empire."
+  },
+  {
+    "question": "The oldest evidence of iron in India has been found at which site?",
+    "options": ["Ahar", "Hallur", "Atranjikhera", "Burzahom"],
+    "answer": 2,
+    "explanation": "Atranjikhera (U.P.) yielded early iron artifacts dating to around 1000 BCE."
+  },
+  {
+    "question": "Which Ashokan edict mentions the Dhamma-Mahamatras for the first time?",
+    "options": ["Major Rock Edicts", "Minor Rock Edict", "Pillar Edict VII", "Bhabru Edict"],
+    "answer": 0,
+    "explanation": "Dhamma-Mahamatras are first referenced in Major Rock Edicts V."
+  },
+  {
+    "question": "Sangam polity was primarily composed of which three dynasties?",
+    "options": ["Cheras, Cholas, Pallavas", "Cholas, Pandyas, Cheras", "Pallavas, Pandyas, Cheras", "Cholas, Gangas, Pallavas"],
+    "answer": 1,
+    "explanation": "Cholas, Pandyas, and Cheras were the dominant Sangam dynasties."
+  },
+  {
+    "question": "Who translated the Buddhist text 'Milindapanho' from Sanskrit to Pali?",
+    "options": ["Nagasena", "Kanishka", "Menander", "Ashvaghosha"],
+    "answer": 0,
+    "explanation": "Nagasena is traditionally credited with the teaching, though translation happened later."
+  },
+  {
+    "question": "Who is credited with the composition of the work 'Silappadikaram'?",
+    "options": ["Tiruvalluvar", "Ilango Adigal", "Avvaiyar", "Sattanar"],
+    "answer": 1,
+    "explanation": "Ilango Adigal wrote the Tamil epic Silappadikaram."
+  },
+  {
+    "question": "The capital of the Guptas was located at?",
+    "options": ["Vaishali", "Mathura", "Pataliputra", "Kanchipuram"],
+    "answer": 2,
+    "explanation": "Pataliputra was the principal capital of the Gupta dynasty."
+  },
+  {
+    "question": "Which of the following Siddharthas is also known as Buddha?",
+    "options": ["Siddhartha Gautama", "Mahavira", "Rishabha", "Parshvanatha"],
+    "answer": 0,
+    "explanation": "Siddhartha Gautama later became known as Buddha."
+  },
+  {
+    "question": "The Megasthenes' account of Mauryan India is known as?",
+    "options": ["Indica", "Historia", "Periplus", "Artha"],
+    "answer": 0,
+    "explanation": "'Indica' is the famous account written by Megasthenes."
+  },
+  {
+    "question": "Which language was used for Ashoka's inscriptions in the northwest part of his empire?",
+    "options": ["Greek", "Pali", "Aramaic", "Sanskrit"],
+    "answer": 2,
+    "explanation": "Aramaic (and some Greek) was used in northwest inscriptions due to the Hellenistic presence."
+  },
+  {
+    "question": "Which of the following was the earliest site with evidence of rice cultivation in India?",
+    "options": ["Hallur", "Chirand", "Mahagara", "Koldihwa"],
+    "answer": 3,
+    "explanation": "Koldihwa (U.P.) provides early evidence for rice cultivation during Neolithic age."
+  },
+  {
+    "question": "Which ancient kingdom was ruled by King Udayin?",
+    "options": ["Vatsa", "Anga", "Magadha", "Kosala"],
+    "answer": 2,
+    "explanation": "King Udayin founded Pataliputra and ruled Magadha."
+  },
+  {
+    "question": "The walls of the Chola temples are noted for their?",
+    "options": ["Fresco paintings", "High relief sculptures", "Carvings of deities and scenes", "Brick inscriptions"],
+    "answer": 2,
+    "explanation": "Chola temple walls feature elaborate sculptural carvings."
+  },
+  {
+    "question": "Who was the founder of the Eastern Chalukya dynasty?",
+    "options": ["Pulakeshin II", "Kubja Vishnuvardhana", "Mangalesha", "Kirtivarman I"],
+    "answer": 1,
+    "explanation": "Kubja Vishnuvardhana established the Eastern Chalukya branch in Vengi."
+  },
+  {
+    "question": "Each Sangam assembly is said to have lasted for?",
+    "options": ["99 years", "99 days", "999 years", "9 years"],
+    "answer": 0,
+    "explanation": "Traditionally, each Sangam assembly is said to have lasted 99 years."
+  },
+  {
+    "question": "The 'Shudras' in Vedic society were?",
+    "options": ["Priests", "Warriors", "Agricultural laborers and service providers", "Kings"],
+    "answer": 2,
+    "explanation": "Shudras performed duties of labor and service in Vedic society."
+  },
+  {
+    "question": "The 'Nayanars' were associated with which religious movement?",
+    "options": ["Jainism", "Buddhism", "Shaivism Bhakti", "Vaishnavism"],
+    "answer": 2,
+    "explanation": "Nayanars were Shaivite devotee saints of Tamil Bhakti movement."
+  },
+  {
+    "question": "The earliest coins in India were known as?",
+    "options": ["Dinar", "Punch-marked coins", "Dam", "Pagoda"],
+    "answer": 1,
+    "explanation": "The earliest coins were silver punch-marked coins in Mahajanapada era."
+  },
+  {
+    "question": "The concept of 'Mahajanapadas' belongs to which historical period?",
+    "options": ["Vedic Age", "Mauryan Age", "Post-Vedic Age", "Stone Age"],
+    "answer": 2,
+    "explanation": "Mahajanapadas developed during the 6th century BCE, Post-Vedic / Second Urbanization period."
+  },
+  {
+    "question": "The Chalukyas forged a powerful kingdom in which region?",
+    "options": ["Punjab", "Deccan", "Tamil Nadu", "Bengal"],
+    "answer": 1,
+    "explanation": "The Early Chalukyas ruled the Deccan region (Badami)."
+  },
+  {
+    "question": "The doctrine of 'Ahimsa' is fundamental to which two ancient religions?",
+    "options": ["Hinduism, Buddhism", "Buddhism, Jainism", "Jainism, Shaivism", "Vaishnavism, Buddhism"],
+    "answer": 1,
+    "explanation": "Ahimsa (non-violence) is a core tenet of both Jainism and Buddhism."
+  },
+  {
+    "question": "The Satavahana king who issued coins with ship motifs, indicating trade, was?",
+    "options": ["Gautamiputra Satakarni", "Yajna Sri Satakarni", "Simuka", "Satakarni I"],
+    "answer": 1,
+    "explanation": "Yajna Sri Satakarni's coins show ship motifs, suggesting maritime activity."
+  },
+  {
+    "question": "Which early medieval dynasty built the rock-cut temples of Ellora?",
+    "options": ["Maurya", "Pallava", "Chalukya", "Gupta"],
+    "answer": 2,
+    "explanation": "Chalukyas and Rashtrakutas contributed significantly to the rock-cut temples at Ellora."
+  },
+  {
+    "question": "The Upanishads are a part of which Vedic corpus?",
+    "options": ["Samhitas", "Brahmanas", "Aranyakas", "Jnana Kanda"],
+    "answer": 3,
+    "explanation": "Upanishads, or 'knowledge portion', are also called Vedanta or Jnana Kanda."
+  },
+  {
+    "question": "Who revitalized Buddhism in South India during the medieval period?",
+    "options": ["Basava", "Atisha", "Dhammapala", "Acharya Nagarjuna"],
+    "answer": 3,
+    "explanation": "Nagarjuna, a great Mahayana thinker, revived Buddhist philosophy in South India."
+  },
+  {
+    "question": "The famous assembly of philosophers at Kumbakonam was held under which Chola king?",
+    "options": ["Rajaraja I", "Rajendra I", "Kulottunga I", "Vikrama Chola"],
+    "answer": 2,
+    "explanation": "Kulottunga I is known for assembling scholars at Kumbakonam."
+  },
+  {
+    "question": "According to the Rigveda, who is considered the god of fire?",
+    "options": ["Indra", "Agni", "Varuna", "Yama"],
+    "answer": 1,
+    "explanation": "Agni is the Vedic god of fire, acting as a mediator between gods and men."
+  },
+  {
+    "question": "The earliest account of the city of Pataliputra is provided by?",
+    "options": ["Fa Hien", "Kautilya", "Megasthenes", "Pliny"],
+    "answer": 2,
+    "explanation": "Megasthenes, the ambassador of Seleucus, wrote detailed accounts of Pataliputra."
+  },
+  {
+    "question": "The Neolithic site of Burzahom is located in modern-day?",
+    "options": ["Himachal Pradesh", "Gujarat", "Jammu & Kashmir", "Bihar"],
+    "answer": 2,
+    "explanation": "Burzahom is in the Kashmir Valley."
+  },
+  {
+    "question": "The term 'Mahajanapada' literally means?",
+    "options": ["Great persons", "Great country", "Great assembly", "Great teacher"],
+    "answer": 1,
+    "explanation": "'Mahajanapada' means great country or territory."
+  },
+  {
+    "question": "Vardhamana Mahavira attained enlightenment at?",
+    "options": ["Kundagrama", "Pava", "Vaishali", "Jrimbhikagrama"],
+    "answer": 3,
+    "explanation": "Mahavira attained Kevalajnana (enlightenment) at Jrimbhikagrama."
+  },
+   {
+    "question": "Which Indus Valley site is known for evidence of a 'three-part' town planning system?",
+    "options": ["Kalibangan", "Dholavira", "Ropar", "Banawali"],
+    "answer": 1,
+    "explanation": "Dholavira in Gujarat shows evidence of a citadel, middle town, and lower town layout."
+  },
+  {
+    "question": "The Painted Grey Ware culture is associated with which period?",
+    "options": ["Early Vedic Age", "Later Vedic Age", "Neolithic Age", "Mauryan Age"],
+    "answer": 1,
+    "explanation": "Painted Grey Ware is linked to the Later Vedic Age and early Mahajanapadas."
+  },
+  {
+    "question": "Who was the last Nanda ruler defeated by Chandragupta Maurya?",
+    "options": ["Mahapadma Nanda", "Dhana Nanda", "Kaila Nanda", "Satya Nanda"],
+    "answer": 1,
+    "explanation": "Dhana Nanda was overthrown with the help of Chanakya."
+  },
+  {
+    "question": "The Buddhist text 'Mahavamsa' is a chronicle of which region?",
+    "options": ["Magadha", "Sri Lanka", "Gandhara", "Kosala"],
+    "answer": 1,
+    "explanation": "'Mahavamsa' is a Pali chronicle of Sri Lanka's history and Buddhism’s spread."
+  },
+  {
+    "question": "Which Sangam work belongs to the 'Ten Idylls' collection?",
+    "options": ["Purananuru", "Pattinappalai", "Akananuru", "Tolkappiyam"],
+    "answer": 1,
+    "explanation": "Pattinappalai is among the Pattuppaṭṭu (Ten Idylls), praising Chola ruler Karikala."
+  },
+  {
+    "question": "The term 'Viharas' in Buddhist context refers to?",
+    "options": ["Monastic dwellings", "Sacred groves", "Scriptures", "Meditation postures"],
+    "answer": 0,
+    "explanation": "Viharas were monasteries or residences for Buddhist monks."
+  },
+  {
+    "question": "In Jain tradition, 'Sallekhana' refers to?",
+    "options": ["Fasting unto death", "Meditative trance", "Scriptural study", "Fasting only during Paryushana"],
+    "answer": 0,
+    "explanation": "Sallekhana is the practice of voluntary death by fasting, considered a vow."
+  },
+  {
+    "question": "Which Gupta ruler issued the most gold coins?",
+    "options": ["Samudragupta", "Chandragupta I", "Chandragupta II", "Kumaragupta I"],
+    "answer": 2,
+    "explanation": "Chandragupta II (Vikramaditya) issued numerous types of gold coinage."
+  },
+  {
+    "question": "The 'Hero stones' or 'Virakal' tradition is associated with which cultural region?",
+    "options": ["Indus Valley", "Deccan", "Eastern India", "Gandhara"],
+    "answer": 1,
+    "explanation": "Hero stones commemorating warriors are common in ancient Deccan and Karnataka."
+  },
+  {
+    "question": "The Triratna of Buddhism does NOT include which of the following?",
+    "options": ["Buddha", "Dhamma", "Sangha", "Ahimsa"],
+    "answer": 3,
+    "explanation": "Ahimsa is central to Jainism; Buddhist Three Jewels are Buddha, Dhamma, Sangha."
+  },
+  {
+    "question": "Who is credited with the composition of the Sanskrit play 'Mrichchhakatika'?",
+    "options": ["Kalidasa", "Bhasa", "Shudraka", "Harsha"],
+    "answer": 2,
+    "explanation": "'Mrichchhakatika' (The Little Clay Cart) is attributed to King Shudraka."
+  },
+  {
+    "question": "The capital of the Satavahanas was located at?",
+    "options": ["Paithan", "Amaravati", "Pratishthana", "Sannati"],
+    "answer": 2,
+    "explanation": "Pratishthana (modern Paithan) was the Satavahana capital."
+  },
+  {
+    "question": "Bhagavati Sutra is a canonical text of which religion?",
+    "options": ["Jainism", "Buddhism", "Ajivika faith", "Shaivism"],
+    "answer": 0,
+    "explanation": "Bhagavati Sutra is a Jain canonical text in the Svetambara tradition."
+  },
+  {
+    "question": "The 'Vajji' Mahajanapada was known for which form of governance?",
+    "options": ["Monarchy", "Confederacy of clans", "Republic", "Oligarchy"],
+    "answer": 1,
+    "explanation": "Vajji was a confederation of clans (Gana-sangha) including the Licchavis."
+  },
+  {
+    "question": "Nalanda flourished under which Gupta Emperor’s patronage?",
+    "options": ["Samudragupta", "Chandragupta II", "Kumaragupta I", "Skandagupta"],
+    "answer": 2,
+    "explanation": "Kumaragupta I is credited with founding and patronizing Nalanda University."
+  },
+  {
+    "question": "Which ancient South Indian port was famous for its trade with Roman Empire?",
+    "options": ["Arikamedu", "Muziris", "Kaveripattinam", "All of these"],
+    "answer": 3,
+    "explanation": "All three were major ports linked to Indo-Roman trade."
+  },
+  {
+    "question": "The Vedic god Varuna was associated primarily with?",
+    "options": ["War", "Sky and Law", "Fire", "Wealth"],
+    "answer": 1,
+    "explanation": "Varuna was associated with the sky, cosmic order, and moral law."
+  },
+  {
+    "question": "Which Mauryan ruler is best known for his policy of Dhamma?",
+    "options": ["Chandragupta", "Bindusara", "Ashoka", "Dasharatha"],
+    "answer": 2,
+    "explanation": "Ashoka’s Dhamma was a moral policy promoting tolerance and non-violence."
+  },
+  {
+    "question": "The Hathigumpha inscription is attributed to which ruler?",
+    "options": ["Ashoka", "Kharavela", "Chandragupta I", "Pulkeshin I"],
+    "answer": 1,
+    "explanation": "The Hathigumpha inscription in Odisha records the exploits of Kharavela."
+  },
+  {
+    "question": "The rock-cut temples of Mahabalipuram were built under which dynasty?",
+    "options": ["Pallavas", "Cholas", "Pandyas", "Chalukyas"],
+    "answer": 0,
+    "explanation": "The Pallava kings were responsible for the shore temples and rock-cut monuments at Mahabalipuram."
+  },
+  {
+    "question": "Bimbisara was a ruler of which Mahajanapada?",
+    "options": ["Kosala", "Magadha", "Vatsa", "Avanti"],
+    "answer": 1,
+    "explanation": "Bimbisara was the king of Magadha and expanded his territory through conquest and diplomacy."
+  },
+  {
+    "question": "The Gupta administration’s land grant charters were often written on?",
+    "options": ["Clay tablets", "Copper plates", "Stone slabs", "Palm leaves"],
+    "answer": 1,
+    "explanation": "Copper plate inscriptions recorded royal land grants."
+  },
+  {
+    "question": "The Paharpur archaeological site in Bangladesh is famous for?",
+    "options": ["Vedic sacrificial altars", "Buddhist monastery ruins", "Indus Valley artifacts", "Gupta coin hoards"],
+    "answer": 1,
+    "explanation": "Paharpur is the site of Somapura Mahavihara, a major Buddhist monastery."
+  },
+  {
+    "question": "In whose reign was the Allahabad Pillar Inscription composed?",
+    "options": ["Chandragupta I", "Chandragupta II", "Samudragupta", "Skandagupta"],
+    "answer": 2,
+    "explanation": "It was composed during Samudragupta’s reign by his court poet Harisena."
+  },
+  {
+    "question": "The sheet gold coins of the Gupta period were called?",
+    "options": ["Dinaras", "Kahapanas", "Pagodas", "Mashaka"],
+    "answer": 0,
+    "explanation": "Gupta gold coins were modeled on the Roman 'dinara'."
+  },
+  {
+    "question": "The Indus Valley civilization town famous for fire altars and ploughed fields is?",
+    "options": ["Kalibangan", "Lothal", "Harappa", "Banawali"],
+    "answer": 0,
+    "explanation": "Kalibangan has yielded fire altars and agricultural field remains."
+  },
+  {
+    "question": "The great grammarian Patanjali is associated with which period?",
+    "options": ["Maurya", "Sunga", "Kanva", "Satavahana"],
+    "answer": 1,
+    "explanation": "Patanjali, author of Mahabhashya, lived during the Sunga period."
+  },
+  {
+    "question": "In Rigvedic times, the term 'Gavishti' referred to?",
+    "options": ["Trade", "Battle", "Cattle raid", "Diplomacy"],
+    "answer": 2,
+    "explanation": "Gavishti literally means 'search for cows', implying cattle raids."
+  },
+  {
+    "question": "The founder of the Kanva dynasty was?",
+    "options": ["Vasudeva", "Susarman", "Kanvasena", "Baladitya"],
+    "answer": 0,
+    "explanation": "Vasudeva Kanva overthrew the last Sunga ruler."
+  },
+  {
+    "question": "The 'Anguttara Nikaya' belongs to which Pitaka in Buddhist canon?",
+    "options": ["Sutta Pitaka", "Vinaya Pitaka", "Abhidhamma Pitaka", "None"],
+    "answer": 0,
+    "explanation": "Anguttara Nikaya is a collection of discourses in the Sutta Pitaka."
+  },
+  {
+    "question": "The term 'Ghatikas' in Pallava period referred to?",
+    "options": ["Water reservoirs", "Educational institutions", "Marketplaces", "Metal workshops"],
+    "answer": 1,
+    "explanation": "'Ghatika' was a kind of Brahmanical educational center in the Pallava period."
+  },
+  {
+    "question": "Which king is linked to the famous 'Junagadh rock inscription'?",
+    "options": ["Rudradaman I", "Ashoka", "Skandagupta", "Harsha"],
+    "answer": 0,
+    "explanation": "Junagadh rock inscription in Gujarat mentions Rudradaman I."
+  },
+  {
+    "question": "The famous bronze image of Nataraja belongs to which dynasty?",
+    "options": ["Pallava", "Pandya", "Chola", "Vijayanagara"],
+    "answer": 2,
+    "explanation": "The Chola bronze figurine of Nataraja is a masterpiece of Indian art."
+  },
+  {
+    "question": "Which Mahajanapada had Champa as its capital?",
+    "options": ["Anga", "Vatsa", "Kosala", "Magadha"],
+    "answer": 0,
+    "explanation": "The Anga Mahajanapada had Champa as its capital."
+  },
+  {
+    "question": "The biography of Harsha, 'Harshacharita', was composed by?",
+    "options": ["Bana", "Kalhana", "Kalidasa", "Dandin"],
+    "answer": 0,
+    "explanation": "Bana was Harsha's court poet who wrote Harshacharita."
+  },
+  {
+    "question": "In the context of Sangam polity, 'Velir' were?",
+    "options": ["Merchants", "Minor chieftains", "Priests", "Chronicles"],
+    "answer": 1,
+    "explanation": "Velir were a class of minor chieftains in Tamil polity."
+  },
+  {
+    "question": "The 'Ratnavali' and 'Nagananda' were authored by which ruler?",
+    "options": ["Harsha", "Chandragupta II", "Pulakesin II", "Krishnadevaraya"],
+    "answer": 0,
+    "explanation": "Harshavardhana composed these Sanskrit plays."
+  },
+  {
+    "question": "The earliest evidence of rice in South India comes from?",
+    "options": ["Paiyampalli", "Hallur", "Koratgallu", "Tinnevelly"],
+    "answer": 1,
+    "explanation": "Hallur in Karnataka has yielded Neolithic rice remains."
+  },
+  {
+    "question": "Which Indus site showed a stadium-like structure?",
+    "options": ["Dholavira", "Lothal", "Rakhigarhi", "Harappa"],
+    "answer": 0,
+    "explanation": "Dholavira has an open ground interpreted as a stadium."
+  },
+  {
+    "question": "During Ashoka's reign, which council codified the Buddhist canon?",
+    "options": ["First", "Second", "Third", "Fourth"],
+    "answer": 2,
+    "explanation": "The Third Buddhist Council at Pataliputra was during Ashoka's reign."
+  },
+  {
+    "question": "The Badami cave temples were primarily dedicated to?",
+    "options": ["Jainism", "Vaishnavism", "Shaivism and Vaishnavism", "Buddhism"],
+    "answer": 2,
+    "explanation": "Badami caves include both Shaivite and Vaishnavite themes."
+  },
+  {
+    "question": "The Ashtadhyayi is a foundational text for which subject?",
+    "options": ["Mathematics", "Astronomy", "Grammar", "Logic"],
+    "answer": 2,
+    "explanation": "Ashtadhyayi by Panini is the foundational text on Sanskrit grammar."
+  },
+  {
+    "question": "The earliest coins called ‘Karshapanas’ belong to?",
+    "options": ["Maurya period", "Mahajanapada period", "Gupta period", "Indus period"],
+    "answer": 1,
+    "explanation": "Karshapanas were silver punch-marked coins of the Mahajanapadas."
+  },
+  {
+    "question": "Which Indus Valley site is known for evidence of rice husk impressions in bricks?",
+    "options": ["Rakhigarhi", "Kalibangan", "Lothal", "Harappa"],
+    "answer": 2,
+    "explanation": "Rice husk impressions were found at Lothal, indicating rice cultivation."
+  },
+  {
+    "question": "In Later Vedic society, the term ‘Samiti’ referred to?",
+    "options": ["Judicial court", "General assembly of people", "Military organization", "Tax collection body"],
+    "answer": 1,
+    "explanation": "The Samiti was a popular assembly involved in political and religious functions."
+  },
+  {
+    "question": "Which ruler invited Buddhist monks from across Asia to the Fourth Buddhist Council in Kashmir?",
+    "options": ["Ashoka", "Kanishka", "Harsha", "Bimbisara"],
+    "answer": 1,
+    "explanation": "Kanishka convened the Fourth Buddhist Council in Kashmir, leading to Mahayana compilation."
+  },
+  {
+    "question": "The capital city of the Chera dynasty during the Sangam age was?",
+    "options": ["Madurai", "Uraiyur", "Vanchi", "Kanchipuram"],
+    "answer": 2,
+    "explanation": "Vanchi (Karur) was the Chera capital during the Sangam era."
+  },
+  {
+    "question": "Which term in Jainism refers to a liberated soul?",
+    "options": ["Kevali", "Arhat", "Siddha", "Tirthankara"],
+    "answer": 2,
+    "explanation": "A Siddha is a soul that has attained liberation in Jain philosophy."
+  },
+  {
+    "question": "The Junagadh rock inscription of Skandagupta mentions which event?",
+    "options": ["Ashoka's conquest of Kalinga", "Repair of the Sudarshana Lake", "Victory over Huns", "Foundation of Nalanda"],
+    "answer": 1,
+    "explanation": "Junagadh inscription records Skandagupta’s repair of the Sudarshana Lake."
+  },
+  {
+    "question": "The famous Iron Pillar near Qutub Minar was constructed during whose reign?",
+    "options": ["Chandragupta I", "Chandragupta II", "Ashoka", "Kumaragupta I"],
+    "answer": 1,
+    "explanation": "The inscription suggests it was erected during Chandragupta II's reign."
+  },
+  {
+    "question": "Which of the following was the capital of the Kushan Empire under Kanishka I?",
+    "options": ["Mathura", "Purushapura", "Taxila", "Kapisa"],
+    "answer": 1,
+    "explanation": "Purushapura (modern Peshawar) was Kanishka's capital."
+  },
+  {
+    "question": "Which Gupta ruler assumed the title of 'Maharajadhiraja' and expanded the empire considerably?",
+    "options": ["Samudragupta", "Chandragupta I", "Kumaragupta", "Skandagupta"],
+    "answer": 0,
+    "explanation": "Samudragupta expanded the empire and styled himself 'Maharajadhiraja'."
+  },
+  {
+    "question": "The Neolithic site of Chirand is located in?",
+    "options": ["Odisha", "Uttar Pradesh", "Bihar", "Karnataka"],
+    "answer": 2,
+    "explanation": "Chirand lies in Bihar and shows late Neolithic to Chalcolithic remains."
+  },
+  {
+    "question": "Which period is often called the ‘Second Urbanization’ in India?",
+    "options": ["Mauryan period", "6th century BCE", "Gupta period", "Post-Gupta period"],
+    "answer": 1,
+    "explanation": "The rise of towns and cities around the 6th century BCE is termed the Second Urbanization."
+  },
+  {
+    "question": "The Rathas of Mahabalipuram were built to resemble?",
+    "options": ["Stupas", "Temples on chariots", "Halls of learning", "Fortified palaces"],
+    "answer": 1,
+    "explanation": "They are monolithic temples carved to look like chariots."
+  },
+  {
+    "question": "Which Buddhist site is known for its rock-cut Chaitya halls in Maharashtra?",
+    "options": ["Sanchi", "Bharhut", "Ajanta", "Karle"],
+    "answer": 3,
+    "explanation": "Karle in Maharashtra has large rock-cut Chaitya halls."
+  },
+  {
+    "question": "In the Rig Veda, which deity is called ‘Purandara’?",
+    "options": ["Indra", "Varuna", "Agni", "Soma"],
+    "answer": 0,
+    "explanation": "Indra is called Purandara, the destroyer of forts."
+  },
+  {
+    "question": "The ancient university of Takshashila was known for teaching which subject extensively?",
+    "options": ["Medicine", "Law", "Military science", "All of these"],
+    "answer": 3,
+    "explanation": "Takshashila was a multi-disciplinary seat of learning."
+  },
+  {
+    "question": "The Bhakti saint Andal is associated with which sect?",
+    "options": ["Shaivism", "Vaishnavism", "Shaktism", "Jainism"],
+    "answer": 1,
+    "explanation": "Andal was a Vaishnavite Alvar saint."
+  },
+  {
+    "question": "The ‘Ratna’ system of chief ministers is associated with which ruler’s court?",
+    "options": ["Ashoka", "Samudragupta", "Chandragupta Maurya", "Vikramaditya"],
+    "answer": 3,
+    "explanation": "Vikramaditya’s court is said to have had 'Navaratnas' (nine gems)."
+  },
+  {
+    "question": "The earliest evidence of silk in India comes from which archaeological site?",
+    "options": ["Navdatoli", "Harappa", "Kaundinyapura", "Chirand"],
+    "answer": 2,
+    "explanation": "Kaundinyapura (Maharashtra) yielded early silk fragments."
+  },
+  {
+    "question": "The Lomas Rishi caves are associated with which ancient sect?",
+    "options": ["Ajivikas", "Buddhists", "Jains", "Shaivas"],
+    "answer": 0,
+    "explanation": "Lomas Rishi caves in Barabar hills were dedicated to Ajivika sect."
+  },
+  {
+    "question": "The term ‘Gopuram’ is associated with which architectural style?",
+    "options": ["Nagara", "Dravida", "Vesara", "Indo-Islamic"],
+    "answer": 1,
+    "explanation": "Gopuram is the monumental entrance tower in Dravida style temples."
+  },
+  {
+    "question": "Which inscription mentions the achievements of the Pallava king Narasimhavarman I?",
+    "options": ["Aihole inscription", "Halasi inscription", "Kudumiyanmalai inscription", "Mandagapattu inscription"],
+    "answer": 0,
+    "explanation": "Aihole inscription by Pulakesin II also references his defeat by Narasimhavarman I."
+  },
+  {
+    "question": "The Mahajanapada of Malla had its capital at?",
+    "options": ["Kushinagar", "Vaishali", "Rajgir", "Champapuri"],
+    "answer": 0,
+    "explanation": "Malla's capital Kushinagar was where Buddha attained Mahaparinirvana."
+  },
+  {
+    "question": "The Surya Temple at Modhera was built by which dynasty?",
+    "options": ["Gupta", "Chalukya", "Solanki", "Rashtrakuta"],
+    "answer": 2,
+    "explanation": "The Solanki rulers of Gujarat constructed the Modhera Sun Temple."
+  },
+  {
+    "question": "Which Kushan ruler started the Shaka era in 78 CE?",
+    "options": ["Vima Kadphises", "Kujula Kadphises", "Kanishka I", "Huvishka"],
+    "answer": 2,
+    "explanation": "Kanishka I initiated the Shaka Era in 78 CE."
+  },
+  {
+    "question": "The earliest fortifications in the history of the Indian subcontinent are found at?",
+    "options": ["Kalibangan", "Indraprastha", "Rajgir", "Sisupalgarh"],
+    "answer": 3,
+    "explanation": "Sisupalgarh in Odisha shows early fortified urban centers."
+  },
+  {
+    "question": "The horse sacrifice was called?",
+    "options": ["Ashvamedha", "Rajasuya", "Vajapeya", "Gomedha"],
+    "answer": 0,
+    "explanation": "Ashvamedha was the grand Vedic ritual of royal authority."
+  },
+  {
+    "question": "Which Chola king conquered Sri Lanka in the 11th century?",
+    "options": ["Rajaraja I", "Rajendra I", "Kulothunga I", "Vikrama Chola"],
+    "answer": 1,
+    "explanation": "Rajendra Chola I led successful campaigns into Sri Lanka."
+  },
+  {
+    "question": "The term ‘Ayagapata’ in ancient Indian history refers to?",
+    "options": ["Jain votive tablet", "Buddhist prayer wheel", "Coin mold", "Vedic altar"],
+    "answer": 0,
+    "explanation": "Ayagapatas are Jain votive tablets found at Mathura."
+  },
+  {
+    "question": "The Periplus of the Erythraean Sea describes trade between India and which regions?",
+    "options": ["Rome and Egypt", "China and Japan", "Persia and Arabia", "Central Asia"],
+    "answer": 0,
+    "explanation": "The Periplus records Indo-Roman-Egyptian maritime trade."
+  },
+  {
+    "question": "Which Indus Valley site is on the banks of the Ghaggar-Hakra river?",
+    "options": ["Kalibangan", "Lothal", "Mohanjodaro", "Ropar"],
+    "answer": 0,
+    "explanation": "Kalibangan lies on the banks of the Ghaggar river."
+  },
+  {
+    "question": "The Buddhist philosopher Asanga is associated with which school?",
+    "options": ["Theravada", "Mahayana-Yogachara", "Hinayana", "Vajrayana"],
+    "answer": 1,
+    "explanation": "Asanga founded the Yogachara school of Mahayana Buddhism."
+  },
+  {
+    "question": "Which dynasty issued coins with images of Shiva and Nandi bull?",
+    "options": ["Gupta", "Satavahana", "Western Kshatrapa", "Kadamba"],
+    "answer": 2,
+    "explanation": "Western Kshatrapa coins featured Shiva and Nandi imagery."
+  },
+  {
+    "question": "The Tripitakas were finally compiled in written form in Sri Lanka under whose reign?",
+    "options": ["Ashoka", "Vattagamani Abhaya", "Kanishka", "Devanampiya Tissa"],
+    "answer": 1,
+    "explanation": "King Vattagamani Abhaya had the Buddhist canon written in 1st century BCE."
+  },
+  {
+    "question": "The Chalukyan ruler Pulakeshin II defeated Harsha on the banks of which river?",
+    "options": ["Godavari", "Narmada", "Krishna", "Mahanadi"],
+    "answer": 1,
+    "explanation": "The battle near the Narmada river halted Harsha’s southern expansion."
+  },
+  {
+    "question": "The Bhakti saint Basava preached in which language?",
+    "options": ["Tamil", "Kannada", "Marathi", "Telugu"],
+    "answer": 1,
+    "explanation": "Basava preached in Kannada and initiated the Lingayat movement."
+  },
+  {
+    "question": "Which Gupta ruler repelled the Huna invasions?",
+    "options": ["Samudragupta", "Chandragupta II", "Skandagupta", "Kumaragupta"],
+    "answer": 2,
+    "explanation": "Skandagupta successfully resisted Hun invasions in the 5th century CE."
+  },
+  {
+    "question": "Sarnath lion capital is carved from which material?",
+    "options": ["Sandstone", "Granite", "Marble", "Schist"],
+    "answer": 0,
+    "explanation": "It is carved from polished Chunar sandstone."
+  },
+  {
+    "question": "Ellora Caves feature monuments of which three religions?",
+    "options": ["Hinduism, Buddhism, Jainism", "Hinduism, Jainism, Zoroastrianism", "Buddhism, Christianity, Jainism", "Only Hinduism"],
+    "answer": 0,
+    "explanation": "Ellora contains Hindu, Buddhist, and Jain monuments."
+  },
+  {
+    "question": "The earliest capital of Magadha was at?",
+    "options": ["Rajgir", "Pataliputra", "Gaya", "Vaishali"],
+    "answer": 0,
+    "explanation": "Rajgir (Rajagriha) was the first Magadhan capital."
+  },
+  {
+    "question": "The stupa at Sanchi was originally built by?",
+    "options": ["Ashoka", "Bindusara", "Bimbisara", "Harsha"],
+    "answer": 0,
+    "explanation": "Ashoka constructed the original stupa at Sanchi."
+  },
+  {
+    "question": "In the Sangam age, 'Madaran' were?",
+    "options": ["Fishermen", "Weavers", "Agriculturalists", "Palace entertainers"],
+    "answer": 1,
+    "explanation": "Madaran in Sangam literature refers to weaving communities."
+  },
+  {
+    "question": "The term 'Vishti' in ancient Indian context meant?",
+    "options": ["Tax in kind", "Forced labor", "Military service", "Royal grant"],
+    "answer": 1,
+    "explanation": "Vishti was a form of forced labor imposed on peasants."
+  },
+   {
+    "question": "Which Indus Valley site has yielded the largest number of seals?",
+    "options": ["Harappa", "Kalibangan", "Lothal", "Mohenjodaro"],
+    "answer": 3,
+    "explanation": "Mohenjodaro has produced the largest and most diverse collection of Indus seals."
+  },
+  {
+    "question": "Who among the following Vedic gods is called the 'King of Gods'?",
+    "options": ["Agni", "Indra", "Varuna", "Soma"],
+    "answer": 1,
+    "explanation": "Indra is referred to as the King of the Gods (Devaraja) in the Rigveda."
+  },
+  {
+    "question": "The famous ancient port of Barygaza (Bharuch) was located in which region?",
+    "options": ["Tamil Nadu", "Gujarat", "Odisha", "Kerala"],
+    "answer": 1,
+    "explanation": "Barygaza (Bharuch) was a major ancient port on the Gujarat coast."
+  },
+  {
+    "question": "The ancient Sanskrit drama 'Svapnavasavadatta' was composed by?",
+    "options": ["Kalidasa", "Bhasa", "Shudraka", "Bhavabhuti"],
+    "answer": 1,
+    "explanation": "Bhasa is considered the author of 'Svapnavasavadatta'."
+  },
+  {
+    "question": "'Kadambari', an early Sanskrit prose romance, was written by?",
+    "options": ["Kalidasa", "Dandin", "Banabhatta", "Sudraka"],
+    "answer": 2,
+    "explanation": "Banabhatta is the author of the classic romance 'Kadambari'."
+  },
+  {
+    "question": "The Sufi movement made its initial impact in southern India through the arrival of?",
+    "options": ["Chishti saints", "Qadiri saints", "Sufi dervishes from Persia", "Rishis"],
+    "answer": 0,
+    "explanation": "Early Chishti Sufis played a key role in introducing Sufism to South India."
+  },
+  {
+    "question": "Who was the court poet of Harsha, author of 'Harshacharita'?",
+    "options": ["Banabhatta", "Kalidasa", "Bharavi", "Dandin"],
+    "answer": 0,
+    "explanation": "Banabhatta was Harsha's court poet and author of 'Harshacharita'."
+  },
+  {
+    "question": "Which Mauryan emperor had a council of ministers called 'Mantriparishad'?",
+    "options": ["Chandragupta Maurya", "Bindusara", "Ashoka", "Dasharatha"],
+    "answer": 0,
+    "explanation": "Chandragupta Maurya created a central advisory council, the Mantriparishad."
+  },
+  {
+    "question": "The earliest archaeologically known capital of the Satavahanas was?",
+    "options": ["Paithan", "Amaravati", "Kondapur", "Pratishthana"],
+    "answer": 3,
+    "explanation": "Pratishthana (Paithan) was the principal Satavahana capital."
+  },
+  {
+    "question": "The earliest reference to iron in India is found in which Veda?",
+    "options": ["Atharvaveda", "Rigveda", "Yajurveda", "Samaveda"],
+    "answer": 1,
+    "explanation": "Rigveda uses the term 'Krishna Ayas' (black metal), commonly identified with iron."
+  },
+  {
+    "question": "The North Indian dynasty that patronized both Jainism and Buddhism in Karnataka was?",
+    "options": ["Maurya", "Kadamba", "Satavahana", "Rashtrakuta"],
+    "answer": 2,
+    "explanation": "Satavahanas patronized both faiths in the Deccan."
+  },
+  {
+    "question": "The Pallava king who sent the first embassy to China was?",
+    "options": ["Mahendravarman I", "Simhavishnu", "Narasimhavarman II", "Nandivarman II"],
+    "answer": 2,
+    "explanation": "Narasimhavarman II (Rajasimha) is credited with such missions."
+  },
+  {
+    "question": "Which Mauryan outpost in Afghanistan served as a link for cultural exchange?",
+    "options": ["Taxila", "Kandahar", "Purushapura", "Mehrgarh"],
+    "answer": 1,
+    "explanation": "Kandahar was an important outpost linking India to the Persian and Hellenistic worlds."
+  },
+  {
+    "question": "The earliest standing stone temples in South India are attributed to which dynasty?",
+    "options": ["Cholas", "Chalukyas", "Pallavas", "Satavahanas"],
+    "answer": 2,
+    "explanation": "The Pallavas pioneered structural (stone) temples in South India."
+  },
+  {
+    "question": "'Nanda Deepa', a prominent Vedic ritual, is associated with which element?",
+    "options": ["Sacred water", "Holy fire", "Cattle", "Sun worship"],
+    "answer": 1,
+    "explanation": "Nanda Deepa refers to a perpetual holy fire/ritual lamp."
+  },
+  {
+    "question": "Which Jain Tirthankara is believed to have lived around the time of the Indus Valley Civilization according to Jain tradition?",
+    "options": ["Parshvanatha", "Mahavira", "Rishabhanatha", "Ajitanatha"],
+    "answer": 2,
+    "explanation": "Rishabhanatha is traditionally said to be the first Tirthankara, sometimes dated to the IVC era."
+  },
+  {
+    "question": "The Ilango Adigal epic 'Silappadikaram' describes events in which ancient Tamil city?",
+    "options": ["Uraiyur", "Madurai", "Puhar", "Vanchi"],
+    "answer": 2,
+    "explanation": "'Silappadikaram' centres around Kaveripattinam (Puhar)."
+  },
+  {
+    "question": "The famous archaeological site of Mehrgarh is important for which cultural phase?",
+    "options": ["Paleolithic", "Mesolithic", "Neolithic–Chalcolithic", "Iron Age"],
+    "answer": 2,
+    "explanation": "Mehrgarh provides evidence of Neolithic–Chalcolithic period settlements."
+  },
+  {
+    "question": "The Satavahanas followed which type of succession?",
+    "options": ["Matrilineal", "Patrilineal", "Primogeniture", "Elective"],
+    "answer": 0,
+    "explanation": "There is evidence suggesting matrilineal tendencies in Satavahana royal succession."
+  },
+  {
+    "question": "The famous cave temples at Badami were built during the rule of which dynasty?",
+    "options": ["Pallavas", "Gangas", "Chalukyas", "Hoysalas"],
+    "answer": 2,
+    "explanation": "Badami caves were excavated by the Chalukyas."
+  },
+  {
+    "question": "The Ardhanarishvara iconography attained classic form under which South Indian dynasty?",
+    "options": ["Moriyas", "Chalukyas", "Pallavas", "Cholas"],
+    "answer": 2,
+    "explanation": "The Pallava period sculptures feature Ardhanarishvara motifs in full form."
+  },
+  {
+    "question": "Which Mauryan envoy is mentioned by Greek sources as ambassador to Seleucus' court?",
+    "options": ["Chanakya", "Megasthenes", "Deimachus", "Diodorus"],
+    "answer": 2,
+    "explanation": "Deimachus was the Seleucid ambassador sent to Chandragupta’s court, as per Greek sources."
+  },
+  {
+    "question": "The city of Taxila was destroyed by which foreign invader?",
+    "options": ["Alexander", "Bakhtiyar Khilji", "Toramana", "Kushan king Kanishka"],
+    "answer": 0,
+    "explanation": "Taxila was demolished during Alexander's campaign."
+  },
+  {
+    "question": "Which Gupta emperor is often linked with the 'Council of Poets' or 'Navaratnas'?",
+    "options": ["Samudragupta", "Chandragupta I", "Chandragupta II", "Skandagupta"],
+    "answer": 2,
+    "explanation": "King Vikramaditya is traditionally associated with the 'navaratnas' legend."
+  },
+  {
+    "question": "The Upanishadic sages are best known for their doctrine of?",
+    "options": ["Materialism", "Atman-Brahman identity", "Three Paths (margas)", "Caste hierarchy"],
+    "answer": 1,
+    "explanation": "Upanishads expound on the unity of individual soul (Atman) and universal soul (Brahman)."
+  },
+  {
+    "question": "Who authored the Jain canonical text 'Acharanga Sutra'?",
+    "options": ["Mahavira", "Bhadrabahu", "Sudharmaswami", "Upali"],
+    "answer": 3,
+    "explanation": "Upali is traditionally credited with authoring the Acharanga Sutra."
+  },
+  {
+    "question": "Which Mauryan king is associated with the spread of Buddhism to Sri Lanka?",
+    "options": ["Chandragupta", "Ashoka", "Bindusara", "Dasharatha"],
+    "answer": 1,
+    "explanation": "Ashoka sent his son Mahinda to Sri Lanka to spread Buddhism."
+  },
+  {
+    "question": "The famous poet Thiruvalluvar is associated with which classic Tamil work?",
+    "options": ["Purananuru", "Tolkappiyam", "Silappadikaram", "Tirukkural"],
+    "answer": 3,
+    "explanation": "Tiruvalluvar composed the ethical treatise Tirukkural."
+  },
+  {
+    "question": "Which term referred to ritual suicide by widows in early Tamil society?",
+    "options": ["Sati", "Talaikkattu", "Nadu", "Pavai Nonbu"],
+    "answer": 1,
+    "explanation": "Talaikkattu describes the early Tamil ritual of widow's self-sacrifice."
+  },
+  {
+    "question": "The principle of three-fold division of society (trivarga) is emphasized in which ancient Indian text?",
+    "options": ["Arthashastra", "Manusmriti", "Upanishads", "Rigveda"],
+    "answer": 1,
+    "explanation": "Manusmriti discusses trivarga: Dharma, Artha, Kama."
+  },
+  {
+    "question": "Which South Indian port is associated with pearl fisheries since antiquity?",
+    "options": ["Arikamedu", "Kaverypattinam", "Korkai", "Muziris"],
+    "answer": 2,
+    "explanation": "Korkai in the Gulf of Mannar was reputed for pearls."
+  },
+  {
+    "question": "The earliest reference to South Indian iron smelting is found at which site?",
+    "options": ["Paiyampalli", "Hallur", "Mahurjhari", "Maski"],
+    "answer": 1,
+    "explanation": "Hallur (Karnataka) provides early evidence for iron working."
+  },
+  {
+    "question": "The 'Gudimallam linga' is an example of early?",
+    "options": ["Wheel-made pottery", "Stone iconography", "Brick temple", "Ivory craft"],
+    "answer": 1,
+    "explanation": "The Gudimallam linga is one of the earliest phallic stone images of Shiva."
+  },
+  {
+    "question": "According to Buddhist tradition, how many Great Councils were held after Buddha’s death?",
+    "options": ["Three", "Two", "Four", "Five"],
+    "answer": 2,
+    "explanation": "Four main Buddhist councils were held after Buddha."
+  },
+  {
+    "question": "The Mauryan empire reached its greatest territorial extent under?",
+    "options": ["Chandragupta", "Bindusara", "Ashoka", "Dasharatha"],
+    "answer": 2,
+    "explanation": "Ashoka expanded the Mauryan domain to its furthest limits."
+  },
+  {
+    "question": "Stone inscriptions found at Sittanavasal in Tamil Nadu represent which tradition?",
+    "options": ["Buddhist", "Jain", "Shaivite", "Vedic"],
+    "answer": 1,
+    "explanation": "Sittanavasal caves are famed for ancient Jain inscriptions and paintings."
+  },
+  {
+    "question": "The 'Navaratnas' of Vikramaditya’s court included the poet?",
+    "options": ["Dandin", "Banabhatta", "Kalidasa", "Bharavi"],
+    "answer": 2,
+    "explanation": "Kalidasa is counted among the mythical Nine Gems (Navaratnas)."
+  },
+  {
+    "question": "Which river is associated with the Rigveda’s nadistuti sukta (hymn to rivers)?",
+    "options": ["Sarasvati", "Ganga", "Krishna", "Godavari"],
+    "answer": 0,
+    "explanation": "Sarasvati is eulogized as the best of rivers in Rigveda’s nadistuti sukta."
+  },
+  {
+    "question": "Evidence of the earliest cultivation of cotton is found at?",
+    "options": ["Kalibangan", "Mohenjodaro", "Mehrgarh", "Lothal"],
+    "answer": 2,
+    "explanation": "Mehrgarh provides proof of cotton cultivation c. 5th millennium BCE."
+  },
+  {
+    "question": "In Jain philosophy, who is credited as the 23rd Tirthankara?",
+    "options": ["Mahavira", "Parshvanatha", "Neminatha", "Ajitanatha"],
+    "answer": 1,
+    "explanation": "Parshvanatha is acknowledged as the 23rd Jain Tirthankara."
+  },
+  {
+    "question": "The famous Kanheri Caves near Mumbai are associated with which faith?",
+    "options": ["Jainism", "Buddhism", "Shaivism", "Vaishnavism"],
+    "answer": 1,
+    "explanation": "Kanheri is a major site of Buddhist rock-cut caves."
+  },
+  {
+    "question": "The tribal republics mentioned in Buddhist texts were collectively named?",
+    "options": ["Ganasangha", "Samiti", "Gramashabha", "Janapada"],
+    "answer": 0,
+    "explanation": "Ganasangha refers to oligarchic republics of the age."
+  },
+  {
+    "question": "The ancient city of Kanchipuram became most important under which dynasty?",
+    "options": ["Chalukya", "Chola", "Pallava", "Pandya"],
+    "answer": 2,
+    "explanation": "The Pallava dynasty made Kanchipuram a famed learning and religious center."
+  },
+  {
+    "question": "The Shaka king Rudradaman I was chiefly known for?",
+    "options": ["Defeat of Kushans", "Repair of Sudarshana Lake", "Conquest of Ceylon", "Building of Kanheri Caves"],
+    "answer": 1,
+    "explanation": "He repaired Sudarshana Lake as recorded in the Junagadh inscription."
+  },
+  {
+    "question": "The Mauryan secret service was known as?",
+    "options": ["Dhamma Mahamatras", "Amatyas", "Gudhapurushas", "Pratiharas"],
+    "answer": 2,
+    "explanation": "Gudhapurushas were covert operatives/spies in Mauryan administration."
+  },
+  {
+    "question": "The Rashtrakutas defeated the Chalukyas and made their capital at?",
+    "options": ["Paithan", "Aihole", "Manyakheta", "Kanchipuram"],
+    "answer": 2,
+    "explanation": "Manyakheta became the Rashtrakuta capital in Karnataka."
+  },
+  {
+    "question": "Which Gupta period mathematician wrote 'Aryabhatiya'?",
+    "options": ["Aryabhatta", "Varahamihira", "Brahmagupta", "Bhaskaracharya"],
+    "answer": 0,
+    "explanation": "Aryabhatta authored 'Aryabhatiya', a foundational mathematical text."
+  },
+  {
+    "question": "Which Indus Valley site supplied evidence for the practice of fire worship?",
+    "options": ["Lothal", "Banawali", "Kalibangan", "Sutkagendor"],
+    "answer": 2,
+    "explanation": "Evidence for fire altars at Kalibangan suggests fire worship."
+  },
+  {
+    "question": "Which Indus Valley site is located in Haryana and is one of the largest known sites?",
+    "options": ["Banawali", "Rakhigarhi", "Kalibangan", "Dholavira"],
+    "answer": 1,
+    "explanation": "Rakhigarhi in Haryana is among the largest Indus Valley Civilization sites discovered."
+  },
+  {
+    "question": "The Rigvedic river 'Sarasvati' is believed to have flowed mainly in which region?",
+    "options": ["Western Rajasthan", "Eastern Punjab", "Bihar Plains", "Kerala coast"],
+    "answer": 0,
+    "explanation": "Sarasvati is believed to have flowed through present-day Haryana and Rajasthan before drying."
+  },
+  {
+    "question": "Who was the author of 'Abhijnanasakuntalam'?",
+    "options": ["Bhasa", "Kalidasa", "Bhavabhuti", "Dandin"],
+    "answer": 1,
+    "explanation": "Kalidasa wrote the famed Sanskrit drama 'Abhijnanasakuntalam'."
+  },
+  {
+    "question": "Which Mauryan ruler was known as 'Amitraghata' to the Greeks?",
+    "options": ["Chandragupta Maurya", "Bindusara", "Ashoka", "Dasharatha"],
+    "answer": 1,
+    "explanation": "Bindusara was called 'Amitraghata' meaning 'slayer of enemies'."
+  },
+  {
+    "question": "Which Sangam age port city is referred to in Greek and Roman sources as 'Kaberis Emporium'?",
+    "options": ["Kaveripattinam", "Korkai", "Muziris", "Arikamedu"],
+    "answer": 0,
+    "explanation": "Kaveripattinam was an important Chola port known as 'Kaberis Emporium' in foreign accounts."
+  },
+  {
+    "question": "The earliest Buddhist caves in Western India are located at?",
+    "options": ["Ajanta", "Bhaja", "Nasik", "Ellora"],
+    "answer": 1,
+    "explanation": "Bhaja caves near Pune are among the earliest Buddhist rock-cut caves."
+  },
+  {
+    "question": "Which archaeological culture is known for 'red and black ware' pottery?",
+    "options": ["Harappan", "Neolithic Kashmir", "Chalcolithic Central India", "Mauryan"],
+    "answer": 2,
+    "explanation": "Red and Black Ware is typical of Chalcolithic cultures in Central and South India."
+  },
+  {
+    "question": "Ashoka's inscriptions were written in which script in the North-Western region?",
+    "options": ["Brahmi", "Kharosthi", "Greek", "Aramaic"],
+    "answer": 1,
+    "explanation": "Kharosthi was used in Ashokan inscriptions in the North-West."
+  },
+  {
+    "question": "The Gupta period land tax was generally known by which term?",
+    "options": ["Bhaga", "Bali", "Hiranya", "Udaka-bhaga"],
+    "answer": 0,
+    "explanation": "'Bhaga' was the main agricultural land tax in the Gupta era."
+  },
+  {
+    "question": "Which dynasty's coins depict the king on one side and a deity on the other?",
+    "options": ["Guptas", "Mauryas", "Nandas", "Shungas"],
+    "answer": 0,
+    "explanation": "Gupta coins often depict the ruler on one side and Hindu deities on the other."
+  },
+  {
+    "question": "The famous Bull Seal is associated with which civilization?",
+    "options": ["Mesopotamian", "Egyptian", "Harappan", "Persian"],
+    "answer": 2,
+    "explanation": "The Bull Seal is a well-known artifact from the Harappan Civilization."
+  },
+  {
+    "question": "The Buddhist text 'Dhammapada' is part of which Pitaka?",
+    "options": ["Vinaya Pitaka", "Sutta Pitaka", "Abhidhamma Pitaka", "None"],
+    "answer": 1,
+    "explanation": "Dhammapada is a compilation of the Buddha's sayings in the Sutta Pitaka."
+  },
+  {
+    "question": "Who among the following was NOT one of the 'Navaratnas' in Akbar's court?",
+    "options": ["Tansen", "Birbal", "Kalidasa", "Abul Fazl"],
+    "answer": 2,
+    "explanation": "Kalidasa belonged to the Gupta period, not Akbar's court."
+  },
+  {
+    "question": "In the Mauryan administration, the official known as 'Samaharta' was in charge of?",
+    "options": ["Law and Order", "Collection of revenue", "Foreign affairs", "Trade regulation"],
+    "answer": 1,
+    "explanation": "Samaharta was the chief revenue officer."
+  },
+  {
+    "question": "The Chola period village administration unit called 'Ur' consisted mainly of?",
+    "options": ["All inhabitants", "Only Brahmins", "Royal officials", "Merchants"],
+    "answer": 0,
+    "explanation": "An 'Ur' was a village assembly consisting of all inhabitants."
+  },
+  {
+    "question": "Which Gupta ruler performed the Ashvamedha sacrifice to proclaim his sovereignty?",
+    "options": ["Samudragupta", "Chandragupta II", "Skandagupta", "Kumaragupta"],
+    "answer": 0,
+    "explanation": "Samudragupta performed the Ashvamedha sacrifice to display imperial authority."
+  },
+  {
+    "question": "The famous Buddhist site of Sarnath is also known as?",
+    "options": ["Isipatana", "Rajgir", "Nalanda", "Bodhgaya"],
+    "answer": 0,
+    "explanation": "Sarnath was ancient Isipatana where Buddha gave his first sermon."
+  },
+  {
+    "question": "The caves at Ajanta were mainly built under the patronage of which dynasty?",
+    "options": ["Maurya", "Satavahana", "Gupta", "Chalukya"],
+    "answer": 1,
+    "explanation": "Most Ajanta caves were constructed under Satavahana patronage and later dynasties."
+  },
+  {
+    "question": "In the Rig Veda, 'Puru' and 'Bharata' mentioned are names of?",
+    "options": ["Tribes", "Kings", "Rivers", "Battles"],
+    "answer": 0,
+    "explanation": "Purus and Bharatas were important Vedic tribes."
+  },
+  {
+    "question": "The Seleucid ambassador Megasthenes wrote his observations in?",
+    "options": ["Geographica", "Indica", "Historia", "Naturalis Historia"],
+    "answer": 1,
+    "explanation": "'Indica' is Megasthenes' famous account of India under Chandragupta."
+  },
+  {
+    "question": "The Buddhist university of Valabhi was located in which present-day state?",
+    "options": ["Bihar", "Gujarat", "Odisha", "Karnataka"],
+    "answer": 1,
+    "explanation": "Valabhi University was a major Buddhist center in present-day Gujarat."
+  },
+  {
+    "question": "The Mahajanapada of Avanti had its capital at?",
+    "options": ["Ujjain", "Pataliputra", "Mahishmati", "Taxila"],
+    "answer": 0,
+    "explanation": "Ujjain was the capital of Avanti Mahajanapada."
+  },
+  {
+    "question": "The Eleventh Tirthankara of Jainism was?",
+    "options": ["Parshvanatha", "Mahavira", "Shreyansanatha", "Neminatha"],
+    "answer": 2,
+    "explanation": "Shreyansanatha is recognized as the Eleventh Tirthankara."
+  },
+  {
+    "question": "Which inscription mentions Harsha's victory over Sasanka of Gauda?",
+    "options": ["Banskhera", "Madhuvan", "Munger", "Bihar"],
+    "answer": 0,
+    "explanation": "The Banskhera inscription records Harsha's conquests including over Sasanka."
+  },
+  {
+    "question": "The Indus Valley people used which material most for making tools?",
+    "options": ["Iron", "Bronze", "Copper", "Stone"],
+    "answer": 1,
+    "explanation": "The civilization flourished in the Bronze Age."
+  },
+  {
+    "question": "The megalithic culture of South India is associated with the use of?",
+    "options": ["Microliths", "Iron", "Polished stone tools", "Copper only"],
+    "answer": 1,
+    "explanation": "Iron tools and weapons are characteristic of megalithic culture."
+  },
+  {
+    "question": "Kautilya’s Arthashastra does NOT mention which one of the following metals?",
+    "options": ["Gold", "Silver", "Iron", "Mercury"],
+    "answer": 3,
+    "explanation": "Mercury is not mentioned among useful metals in Arthashastra."
+  },
+  {
+    "question": "The famous musical treatise 'Sangeeta Ratnakara' was written by?",
+    "options": ["Bharata", "Sharangadeva", "Matanga", "Jayadeva"],
+    "answer": 1,
+    "explanation": "Sharangadeva wrote 'Sangeeta Ratnakara' during the Yadava dynasty in the 13th century."
+  },
+  {
+    "question": "The Later Vedic texts refer to large assemblies like?",
+    "options": ["Vidhata and Sabha", "Sabha and Samiti", "Samiti and Gana", "Vidhata and Parishad"],
+    "answer": 1,
+    "explanation": "Later Vedic literature refers prominently to the Sabha and Samiti assemblies."
+  },
+  {
+    "question": "The coins of the Gupta period were mostly made of?",
+    "options": ["Silver", "Gold", "Copper", "Iron"],
+    "answer": 1,
+    "explanation": "Gold coins were the most distinctive in the Gupta period."
+  },
+  {
+    "question": "Alvars and Nayanars belong to which religious tradition?",
+    "options": ["Bhakti movement", "Sufi movement", "Shaiva Siddhanta", "Vajrayana"],
+    "answer": 0,
+    "explanation": "They were Tamil Bhakti saints devoted to Vishnu (Alvars) and Shiva (Nayanars)."
+  },
+  {
+    "question": "The famous Ratha temples are found at?",
+    "options": ["Kanchipuram", "Mahabalipuram", "Madurai", "Thanjavur"],
+    "answer": 1,
+    "explanation": "Ratha-shaped rock temples exist in Mahabalipuram, built by Pallavas."
+  },
+  {
+    "question": "Nalanda was destroyed in 1193 CE by?",
+    "options": ["Khilji", "Qutb al-Din Aibak", "Bakhtiyar Khilji", "Iltutmish"],
+    "answer": 2,
+    "explanation": "The Turko-Afghan general Bakhtiyar Khilji destroyed Nalanda."
+  },
+  {
+    "question": "The Mauryan ruler Ashoka sent missionaries to which Greek ruler’s court?",
+    "options": ["Antiochus II", "Ptolemy II Philadelphus", "Magas of Cyrene", "All of the above"],
+    "answer": 3,
+    "explanation": "Ashoka dispatched envoys to all these Hellenistic monarchs."
+  },
+  {
+    "question": "The Sangam era text 'Pattuppattu' literally translates to?",
+    "options": ["Ten songs", "Eight anthologies", "Four epics", "Ten idylls"],
+    "answer": 3,
+    "explanation": "'Pattuppattu' means Ten Idylls in Tamil literature."
+  },
+  {
+    "question": "The Buddhist site Amaravati is located in which state?",
+    "options": ["Odisha", "Andhra Pradesh", "Tamil Nadu", "Bihar"],
+    "answer": 1,
+    "explanation": "Amaravati in Andhra Pradesh is famed for its Buddhist stupa."
+  },
+  {
+    "question": "Which Indus city was known for bead-making industry?",
+    "options": ["Harappa", "Chanhudaro", "Mohenjodaro", "Ropar"],
+    "answer": 1,
+    "explanation": "Chanhudaro specialized in bead-making."
+  },
+  {
+    "question": "The 'Mandapa' in Indian temples refers to?",
+    "options": ["Main sanctum", "Pillared hall", "Tower", "Gate pavilion"],
+    "answer": 1,
+    "explanation": "Mandapa is the pillared hall in front of the sanctum."
+  },
+  {
+    "question": "In Indus Valley weights and measures, which ratio was used?",
+    "options": ["Decimal", "Binary", "Octal", "Hexadecimal"],
+    "answer": 0,
+    "explanation": "Decimal system was used in Harappan weights."
+  },
+  {
+    "question": "The Chalukya capital Vatapi is known today as?",
+    "options": ["Aihole", "Pattadakal", "Badami", "Bijapur"],
+    "answer": 2,
+    "explanation": "Vatapi is the historical name of Badami in Karnataka."
+  },
+  {
+    "question": "Which South Indian dynasty built the Kailasanatha temple at Kanchipuram?",
+    "options": ["Pallava", "Chola", "Pandya", "Chalukya"],
+    "answer": 0,
+    "explanation": "Pallava king Narasimhavarman II built Kailasanatha temple."
+  },
+  {
+    "question": "The 'Rummindei Pillar' inscription records Ashoka’s visit to?",
+    "options": ["Bodhgaya", "Sarnath", "Lumbini", "Kusinagara"],
+    "answer": 2,
+    "explanation": "Rummindei in Nepal marks Buddha’s birthplace at Lumbini."
+  },
+  {
+    "question": "Who is credited with the construction of the great Sanchi Stupa?",
+    "options": ["Ashoka", "Chandragupta Maurya", "Bindusara", "Harsha"],
+    "answer": 0,
+    "explanation": "Ashoka built the original Sanchi Stupa."
+  },
+  {
+    "question": "Which Indus Valley site has evidence of the world's earliest known stepwell?",
+    "options": ["Mohenjodaro", "Dholavira", "Harappa", "Kalibangan"],
+    "answer": 1,
+    "explanation": "Dholavira in Gujarat has remains interpreted as one of the world's earliest stepwells."
+  },
+  {
+    "question": "In the Rigvedic age, what was the primary medium of exchange?",
+    "options": ["Coins", "Cattle", "Grain", "Barter beyond cattle"],
+    "answer": 1,
+    "explanation": "Cattle were the main medium of wealth and exchange during the Rigvedic age."
+  },
+  {
+    "question": "Who wrote the Sanskrit play 'Malavikagnimitram'?",
+    "options": ["Kalidasa", "Bhasa", "Bhavabhuti", "Sudraka"],
+    "answer": 0,
+    "explanation": "Kalidasa authored 'Malavikagnimitram', depicting King Agnimitra's love story."
+  },
+  {
+    "question": "The earliest Tamil epic 'Silappadikaram' revolves around which profession?",
+    "options": ["Potter", "Carpenter", "Jeweller", "Merchant"],
+    "answer": 3,
+    "explanation": "It narrates the story of a merchant and his wife in ancient Tamilakam."
+  },
+  {
+    "question": "In Buddhist tradition, who was Ananda?",
+    "options": ["Buddha's cousin and attendant", "A king", "A rival teacher", "A monk from Kashmir"],
+    "answer": 0,
+    "explanation": "Ananda was Buddha's close cousin and personal attendant."
+  },
+  {
+    "question": "The Chinese traveller Fa-Hien visited India during the reign of which Gupta emperor?",
+    "options": ["Samudragupta", "Chandragupta II", "Kumaragupta I", "Skandagupta"],
+    "answer": 1,
+    "explanation": "Fa-Hien visited during Chandragupta II's rule."
+  },
+  {
+    "question": "Vidisha in Madhya Pradesh is famous for which ancient monument?",
+    "options": ["Udayagiri caves", "Ellora caves", "Karla caves", "Bhaja caves"],
+    "answer": 0,
+    "explanation": "Vidisha hosts the Udayagiri caves with Gupta period rock-cut sculptures."
+  },
+  {
+    "question": "Who was the founder of the Shunga dynasty?",
+    "options": ["Pushyamitra Shunga", "Agnimitra", "Vasudeva Kanva", "Susarman"],
+    "answer": 0,
+    "explanation": "Pushyamitra Shunga established the Shunga dynasty after killing the last Mauryan ruler."
+  },
+  {
+    "question": "Which ancient text describes the duties of a king and principles of governance?",
+    "options": ["Manusmriti", "Arthashastra", "Upanishads", "Mahabharata"],
+    "answer": 1,
+    "explanation": "Kautilya's Arthashastra details administration, law, and economics."
+  },
+  {
+    "question": "The megalithic burial site of Adichanallur is located in which state?",
+    "options": ["Kerala", "Tamil Nadu", "Karnataka", "Andhra Pradesh"],
+    "answer": 1,
+    "explanation": "Adichanallur in Tamil Nadu is known for urn burials and megalithic remains."
+  },
+  {
+    "question": "Which Gupta ruler was known for his promotion of Sanskrit over Prakrit?",
+    "options": ["Chandragupta I", "Samudragupta", "Chandragupta II", "Skandagupta"],
+    "answer": 1,
+    "explanation": "Samudragupta encouraged Sanskrit as the primary court language."
+  },
+  {
+    "question": "The Indus Valley site of Surkotada is notable for evidence of?",
+    "options": ["Horse remains", "Dockyard", "Advanced drainage", "Fire altars"],
+    "answer": 0,
+    "explanation": "Surkotada in Gujarat yielded bones identified as horse remains."
+  },
+  {
+    "question": "Panini’s grammar Ashtadhyayi belongs to which period?",
+    "options": ["Vedic Age", "Pre-Mauryan Age", "Mauryan Age", "Gupta Age"],
+    "answer": 1,
+    "explanation": "Panini lived in the pre-Mauryan era in Gandhara."
+  },
+  {
+    "question": "Who was the last great ruler of the Kanva dynasty?",
+    "options": ["Susarman", "Vasudeva", "Bhumimitra", "Kanha"],
+    "answer": 0,
+    "explanation": "Susarman was the last Kanva king before the dynasty’s fall."
+  },
+  {
+    "question": "Avalokiteshvara is a bodhisattva associated with?",
+    "options": ["Compassion", "Wisdom", "Power", "Wealth"],
+    "answer": 0,
+    "explanation": "Avalokiteshvara embodies compassion in Mahayana Buddhism."
+  },
+  {
+    "question": "The term 'Sangam' literally means?",
+    "options": ["Assembly", "Sacrifice", "Festival", "Prosperity"],
+    "answer": 0,
+    "explanation": "Sangam means 'assembly or meeting' of poets and scholars."
+  },
+  {
+    "question": "Who is credited with founding Kancheepuram as a major Buddhist and Jain learning centre before Pallava times?",
+    "options": ["Ashoka", "Bindusara", "Kalabhra rulers", "Satavahanas"],
+    "answer": 2,
+    "explanation": "The Kalabhra rulers promoted Kancheepuram as a Jain and Buddhist hub."
+  },
+  {
+    "question": "Evidence of the earliest planned cities in the Ganga valley is found at?",
+    "options": ["Rajgir", "Hastinapur", "Kausambi", "Vaishali"],
+    "answer": 2,
+    "explanation": "Kausambi shows early urban planning in the Ganga valley."
+  },
+  {
+    "question": "The famous Chausath Yogini temple is dedicated to which goddess?",
+    "options": ["Durga", "Lakshmi", "Parvati", "Kali"],
+    "answer": 0,
+    "explanation": "Chausath Yogini temples are primarily dedicated to Durga in her various forms."
+  },
+  {
+    "question": "Which dynasty was ruling during the composition of Sangam literature?",
+    "options": ["Pallavas", "Chera-Chola-Pandya", "Chalukyas", "Rashtrakutas"],
+    "answer": 1,
+    "explanation": "The Chera, Chola and Pandya dynasties flourished during the Sangam period."
+  },
+  {
+    "question": "The Buddhist university at Nalanda declined initially due to invasions of?",
+    "options": ["Huns", "Turko-Afghans", "Gurjara-Pratiharas", "Bengal kings"],
+    "answer": 0,
+    "explanation": "Huna invasions caused early decline before final destruction by Bakhtiyar Khilji."
+  },
+  {
+    "question": "Nagananda, a Sanskrit drama, is unique for celebrating which religion’s themes?",
+    "options": ["Hinduism", "Buddhism", "Jainism", "Persian Zoroastrianism"],
+    "answer": 1,
+    "explanation": "Harsha's Nagananda is notable for Buddhist themes."
+  },
+  {
+    "question": "The Later Vedic period saw the rise of which strongest kingdom in North India?",
+    "options": ["Kuru", "Panchala", "Magadha", "Kasi"],
+    "answer": 0,
+    "explanation": "Kuru kingdom dominated during the Later Vedic period."
+  },
+  {
+    "question": "The term 'Ashtapada' in Jainism is associated with?",
+    "options": ["A type of meditation", "An ornamental throne", "Name of Mount Meru", "A board game"],
+    "answer": 3,
+    "explanation": "Ashtapada is an ancient board game linked to Jain legends."
+  },
+  {
+    "question": "The Tripitaka is originally written in which language?",
+    "options": ["Sanskrit", "Pali", "Prakrit", "Tibetan"],
+    "answer": 1,
+    "explanation": "Theravada Buddhist canon Tripitaka is in Pali language."
+  },
+  {
+    "question": "Which Gupta astronomer correctly calculated the length of the solar year?",
+    "options": ["Aryabhatta", "Varahamihira", "Brahmagupta", "Bhaskaracharya"],
+    "answer": 0,
+    "explanation": "Aryabhatta calculated the solar year as 365.258 days."
+  },
+  {
+    "question": "The decline of the Harappan civilization is attributed to which of the following?",
+    "options": ["Invasions", "Floods", "Earthquakes", "Combination of factors"],
+    "answer": 3,
+    "explanation": "A mix of climatic change, floods, and decline in trade contributed."
+  },
+  {
+    "question": "The term 'Nagara' in temple architecture denotes?",
+    "options": ["South Indian style", "North Indian style", "Mixed style", "Buddhist stupa style"],
+    "answer": 1,
+    "explanation": "Nagara is the typical North Indian temple style."
+  },
+  {
+    "question": "Which early medieval ruler is credited with promoting the Vesara style of architecture?",
+    "options": ["Hoysalas", "Early Chalukyas", "Rashtrakutas", "Yadavas"],
+    "answer": 1,
+    "explanation": "Vesara style was developed under Early Western Chalukyas."
+  },
+  {
+    "question": "The term 'Shreni' in ancient Indian economy refers to?",
+    "options": ["Guilds", "Villages", "Tax categories", "Temples"],
+    "answer": 0,
+    "explanation": "Shrenis were merchant and craft guilds in ancient India."
+  },
+  {
+    "question": "During the Mauryan period, the empire was divided into how many provinces?",
+    "options": ["4", "5", "6", "3"],
+    "answer": 0,
+    "explanation": "Mauryan empire was divided into four provinces with capitals at Tosali, Ujjain, Suvarnagiri, and Taxila."
+  },
+  {
+    "question": "The earliest depiction of 'Saptamatrikas' is found in the art of?",
+    "options": ["Maurya", "Kushan", "Gupta", "Early Chalukya"],
+    "answer": 1,
+    "explanation": "Kushan period shows early depictions of the Saptamatrikas."
+  },
+  {
+    "question": "The famous bronze image of Buddha in Sarnath Museum belongs to which period?",
+    "options": ["Maurya", "Kushan", "Gupta", "Pala"],
+    "answer": 2,
+    "explanation": "It is a Gupta period masterpiece known for elegance."
+  },
+  {
+    "question": "The practice of land grants to Brahmins during the Gupta period was called?",
+    "options": ["Brahmadeya", "Devadana", "Agrahara", "Samhita"],
+    "answer": 0,
+    "explanation": "Brahmadeya was land gifted to Brahmins, often tax-free."
+  },
+  {
+    "question": "The Prakrit text 'Gaudavaho' narrates the exploits of which king?",
+    "options": ["Harsha", "Yashovarman of Kannauj", "Pulakeshin II", "Raja Raja Chola"],
+    "answer": 1,
+    "explanation": "Gaudavaho narrates Yashovarman’s victories in Bengal."
+  },
+  {
+    "question": "Which ancient Indian physician is regarded as the author of 'Sushruta Samhita'?",
+    "options": ["Charaka", "Dhanvantari", "Sushruta", "Nagarjuna"],
+    "answer": 2,
+    "explanation": "Sushruta compiled the surgical treatise 'Sushruta Samhita'."
+  },
+  {
+    "question": "The ancient site of Lothal is located in which present-day state?",
+    "options": ["Rajasthan", "Gujarat", "Haryana", "Punjab"],
+    "answer": 1,
+    "explanation": "Lothal lies in Gujarat, known for its dockyard."
+  },
+  {
+    "question": "Who was the founder of the Rashtrakuta dynasty?",
+    "options": ["Dantidurga", "Amoghavarsha I", "Krishna I", "Govinda III"],
+    "answer": 0,
+    "explanation": "Dantidurga founded the Rashtrakuta kingdom after ending Chalukya supremacy."
+  },
+  {
+    "question": "The ancient Buddhist site of Bharhut is famous for?",
+    "options": ["Bronze images", "Stupa railings and gateways", "Cave paintings", "Monolithic temples"],
+    "answer": 1,
+    "explanation": "Bharhut in Madhya Pradesh is known for stupa railings with intricate reliefs."
+  },
+  {
+    "question": "Which Harappan site provides evidence of a stadium or ceremonial ground?",
+    "options": ["Kalibangan", "Harappa", "Mohenjodaro", "Dholavira"],
+    "answer": 3,
+    "explanation": "Dholavira shows an open ground interpreted as a stadium or ceremonial area."
+  },
+  {
+    "question": "The Kalinga War was fought in which year?",
+    "options": ["321 BCE", "261 BCE", "185 BCE", "273 BCE"],
+    "answer": 1,
+    "explanation": "Ashoka fought the Kalinga war in 261 BCE, after which he embraced Dhamma."
+  },
+  {
+    "question": "The 'Mandasor inscription' commemorates the construction of a sun temple under which ruler?",
+    "options": ["Bandhuvarman", "Varahamihira", "Vikramaditya", "Siladitya"],
+    "answer": 0,
+    "explanation": "The Mandasor inscription credits Bandhuvarman for the temple."
+  },
+  {
+    "question": "Which Indus Valley site is known for discovery of a 'fire altar' similar to those in Vedic culture?",
+    "options": ["Lothal", "Kalibangan", "Dholavira", "Banawali"],
+    "answer": 1,
+    "explanation": "Kalibangan revealed fire altars suggesting ritual practices resembling Vedic sacrifices."
+  },
+  {
+    "question": "The river 'Vipasa' mentioned in ancient texts is the modern-day?",
+    "options": ["Beas", "Sutlej", "Jhelum", "Chenab"],
+    "answer": 0,
+    "explanation": "Vipasa is the ancient name for the Beas River."
+  },
+  {
+    "question": "Who composed the Sanskrit play 'Ratnavali'?",
+    "options": ["Kalidasa", "Harshavardhana", "Bhasa", "Bhavabhuti"],
+    "answer": 1,
+    "explanation": "Harshavardhana authored 'Ratnavali', along with 'Nagananda' and 'Priyadarsika'."
+  },
+  {
+    "question": "Which Mauryan administrator was in charge of toll collection?",
+    "options": ["Sannidhata", "Samaharta", "Shulkadhyaksha", "Dhamma Mahamatra"],
+    "answer": 2,
+    "explanation": "Shulkadhyaksha supervised toll collection in Mauryan administration."
+  },
+  {
+    "question": "The Sangam era text 'Akananuru' deals primarily with?",
+    "options": ["Heroic deeds", "Love and courtship", "Moral laws", "Trade and economy"],
+    "answer": 1,
+    "explanation": "Akananuru contains 'Akam' genre poems focusing on love and personal life."
+  },
+  {
+    "question": "The Buddhist concept of 'Anatta' refers to?",
+    "options": ["Impermanence", "Suffering", "Non-self", "Liberation"],
+    "answer": 2,
+    "explanation": "Anatta or Anatman means there is no permanent soul or self."
+  },
+  {
+    "question": "Which Gupta era inscription celebrates Harisena as the court poet?",
+    "options": ["Allahabad Pillar Inscription", "Bhitari Pillar", "Junagadh Rock", "Mandasor Inscription"],
+    "answer": 0,
+    "explanation": "The Allahabad Pillar Inscription was composed by Harisena, praising Samudragupta."
+  },
+  {
+    "question": "The neolithic site of Koldihwa is famous for earliest evidence of?",
+    "options": ["Sugarcane cultivation", "Rice cultivation", "Wheat cultivation", "Cotton cultivation"],
+    "answer": 1,
+    "explanation": "Koldihwa in Uttar Pradesh gives earliest evidence of rice cultivation."
+  },
+  {
+    "question": "Bhadrabahu, under whom Jainism spread to South India, was the contemporary of?",
+    "options": ["Ashoka", "Chandragupta Maurya", "Bindusara", "Chandragupta I"],
+    "answer": 1,
+    "explanation": "Bhadrabahu was spiritual mentor to Chandragupta Maurya, accompanying him to Karnataka."
+  },
+  {
+    "question": "Which dynasty built the Shore Temple at Mahabalipuram?",
+    "options": ["Pallava", "Chola", "Pandya", "Chalukya"],
+    "answer": 0,
+    "explanation": "Shore Temple was built by Rajasimha (Narasimhavarman II) of the Pallava dynasty."
+  },
+  {
+    "question": "Who is credited with codifying the Tripitaka after Buddha's death?",
+    "options": ["Ananda", "Upali", "Kassapa", "Moggaliputta Tissa"],
+    "answer": 2,
+    "explanation": "Kassapa Mahathera presided over the First Buddhist Council that compiled the Tripitaka."
+  },
+  {
+    "question": "Which Chalukya ruler was known as 'Satyashraya'?",
+    "options": ["Pulakeshin I", "Pulakeshin II", "Vikrama Chalukya", "Mangalesha"],
+    "answer": 1,
+    "explanation": "Pulakeshin II, the greatest Chalukya ruler, assumed the title 'Satyashraya'."
+  },
+  {
+    "question": "In Rigvedic period, what was the term used for a war chariot fighter?",
+    "options": ["Rathi", "Senani", "Dhanurdhara", "Ashvamedhika"],
+    "answer": 0,
+    "explanation": "'Rathi' refers to a warrior adept with a war chariot."
+  },
+  {
+    "question": "The Periplus of the Erythraean Sea was originally written in which language?",
+    "options": ["Greek", "Latin", "Prakrit", "Sanskrit"],
+    "answer": 0,
+    "explanation": "It was written in Greek by an anonymous author, describing Indian Ocean trade."
+  },
+  {
+    "question": "Which Gupta period figure compiled the 'Brihat Samhita', an encyclopaedic work?",
+    "options": ["Aryabhatta", "Varahamihira", "Kalidasa", "Brahmagupta"],
+    "answer": 1,
+    "explanation": "Varahamihira wrote Brihat Samhita on astronomy, astrology, architecture, and more."
+  },
+  {
+    "question": "Mehrauli Iron Pillar was erected in honour of which king?",
+    "options": ["Chandragupta Maurya", "Kumaragupta", "Chandragupta II", "Skandagupta"],
+    "answer": 2,
+    "explanation": "Inscription credits Chandragupta II Vikramaditya."
+  },
+  {
+    "question": "Which Indus Valley Civilization site has yielded evidence of the cultivation of barley?",
+    "options": ["Harappa", "Dholavira", "Kalibangan", "Ropar"],
+    "answer": 0,
+    "explanation": "Harappa has shown evidence of barley and wheat cultivation."
+  },
+  {
+    "question": "The Pallava king Narasimhavarman I was famous for defeating which Chalukya ruler?",
+    "options": ["Pulakeshin II", "Mangalesha", "Kirtivarman I", "Pulakeshin I"],
+    "answer": 0,
+    "explanation": "Narasimhavarman I defeated Pulakeshin II and captured Badami."
+  },
+  {
+    "question": "The Rigvedic term 'Purusha' in Purusha Sukta symbolizes?",
+    "options": ["A tribal chief", "Cosmic man", "Warrior", "Priest"],
+    "answer": 1,
+    "explanation": "Purusha is the cosmic man sacrificed for creation of varnas."
+  },
+  {
+    "question": "The ancient port city Muziris, known for Indo-Roman trade, is located in present-day?",
+    "options": ["Tamil Nadu", "Odisha", "Kerala", "Goa"],
+    "answer": 2,
+    "explanation": "Muziris was a key port on the Kerala coast."
+  },
+  {
+    "question": "Which Mauryan ruler appointed 'Dhamma Mahamatras'?",
+    "options": ["Chandragupta Maurya", "Bindusara", "Ashoka", "Dasharatha"],
+    "answer": 2,
+    "explanation": "Ashoka appointed Dhamma Mahamatras to spread and enforce Dhamma."
+  },
+  {
+    "question": "The term 'Brahmadeya' refers to?",
+    "options": ["Temple grant", "Village gifted to Brahmins", "Royal army", "Village tax"],
+    "answer": 1,
+    "explanation": "Brahmadeya was tax-exempt land/village grant to Brahmins."
+  },
+  {
+    "question": "Who was the chief architect of Ashoka's stupas and monuments?",
+    "options": ["Kambuj", "Antiochus", "Kanaka", "None named in records"],
+    "answer": 3,
+    "explanation": "No specific architect is recorded for Ashokan stupas."
+  },
+  {
+    "question": "The Buddhist monk Nagarjuna is associated with which doctrine?",
+    "options": ["Nyingma", "Madhyamaka", "Yogachara", "Theravada"],
+    "answer": 1,
+    "explanation": "Nagarjuna founded the Madhyamaka (Middle Path) philosophy in Mahayana."
+  },
+  {
+    "question": "Which ruler convened the Third Buddhist Council?",
+    "options": ["Bimbisara", "Ajatashatru", "Ashoka", "Kanishka"],
+    "answer": 2,
+    "explanation": "Ashoka convened the Third Buddhist Council at Pataliputra."
+  },
+  {
+    "question": "The term 'Mandalam' in Chola administration refers to?",
+    "options": ["Revenue unit", "Military camp", "Province", "Fortified town"],
+    "answer": 2,
+    "explanation": "Mandalam was a provincial division in Chola territory."
+  },
+  {
+    "question": "The Indus Valley script remains undeciphered but is generally written in which direction?",
+    "options": ["Left to right", "Right to left", "Vertical", "Random"],
+    "answer": 1,
+    "explanation": "Most seals show right-to-left writing direction."
+  },
+  {
+    "question": "The Svetambara and Digambara sects differ mainly on?",
+    "options": ["Texts", "Clothing", "Diet", "Deity worship"],
+    "answer": 1,
+    "explanation": "Svetambaras wear white clothes; Digambaras go unclothed."
+  },
+  {
+    "question": "The Buddhist term 'Chaitya' refers to?",
+    "options": ["Assembly hall", "Monastery", "Prayer hall with a stupa", "Sacred grove"],
+    "answer": 2,
+    "explanation": "Chaitya is a prayer hall containing a stupa."
+  },
+  {
+    "question": "Which early medieval dynasty built the famous Brihadeswara Temple?",
+    "options": ["Pallava", "Chola", "Pandya", "Chera"],
+    "answer": 1,
+    "explanation": "Rajaraja Chola I built the temple at Thanjavur."
+  },
+  {
+    "question": "The Mahajanapada of Kosala had which ancient city as capital?",
+    "options": ["Kaushambi", "Ayodhya", "Rajgir", "Vaishali"],
+    "answer": 1,
+    "explanation": "Ayodhya was the capital of Kosala."
+  },
+  {
+    "question": "The ancient Indian physician Charaka is famous for his work on?",
+    "options": ["Surgery", "Medicine", "Astronomy", "Mathematics"],
+    "answer": 1,
+    "explanation": "Charaka wrote the 'Charaka Samhita' on medicine."
+  },
+  {
+    "question": "Which Indus site is located near the coast of the Arabian Sea?",
+    "options": ["Dholavira", "Lothal", "Kalibangan", "Rakhigarhi"],
+    "answer": 1,
+    "explanation": "Lothal was near Gulf of Khambhat coast and had a dockyard."
+  },
+  {
+    "question": "The term 'Viharas' in Buddhist monastic life originally meant?",
+    "options": ["Caves", "Temporary dwellings for monks", "Relic mounds", "Scriptures"],
+    "answer": 1,
+    "explanation": "Early Viharas were temporary residences during monsoon."
+  },
+  {
+    "question": "The Prayag Prashasti was inscribed on?",
+    "options": ["Stone slab", "Copper plate", "Pillar", "Cave wall"],
+    "answer": 2,
+    "explanation": "It was inscribed on the Ashokan pillar in Prayag (Allahabad)."
+  },
+  {
+    "question": "The capital of Magadha shifted from Rajgir to Pataliputra under which ruler?",
+    "options": ["Bimbisara", "Udayin", "Ajatashatru", "Shishunaga"],
+    "answer": 1,
+    "explanation": "King Udayin moved the capital to Pataliputra."
+  },
+  {
+    "question": "The 'Aihole inscription' was composed by which poet?",
+    "options": ["Bana", "Ravikriti", "Kalidasa", "Bhavabhuti"],
+    "answer": 1,
+    "explanation": "Ravikriti, the court poet of Pulakeshin II, composed it."
+  },
+  {
+    "question": "The ancient site of Sisupalgarh is in which state?",
+    "options": ["West Bengal", "Odisha", "Andhra Pradesh", "Madhya Pradesh"],
+    "answer": 1,
+    "explanation": "Sisupalgarh is an ancient fortified city near Bhubaneswar, Odisha."
+  },
+  {
+    "question": "The earliest dam in India, the Sudarshana Lake, was built during whose reign?",
+    "options": ["Ashoka", "Chandragupta Maurya", "Bindusara", "Rudradaman I"],
+    "answer": 0,
+    "explanation": "Ashoka built it; Rudradaman later repaired it."
+  },
+  {
+    "question": "Which Gupta ruler is known to have defeated the Hunas?",
+    "options": ["Samudragupta", "Kumaragupta", "Skandagupta", "Chandragupta I"],
+    "answer": 2,
+    "explanation": "Skandagupta repelled the Huna invasions successfully."
+  },
+  {
+    "question": "The Buddhist council that marked the division into Hinayana and Mahayana was?",
+    "options": ["Second Council", "Third Council", "Fourth Council", "First Council"],
+    "answer": 2,
+    "explanation": "Fourth Buddhist Council under Kanishka formalized the split."
+  },
+  {
+    "question": "The Archaeological site of Paiyampalli is associated with which cultural stage?",
+    "options": ["Paleolithic", "Mesolithic", "Neolithic-Chalcolithic", "Iron Age"],
+    "answer": 2,
+    "explanation": "Paiyampalli in Tamil Nadu has Neolithic-Chalcolithic remains."
+  },
+  {
+    "question": "Which Mauryan emperor is believed to have embraced Jainism?",
+    "options": ["Ashoka", "Bindusara", "Chandragupta Maurya", "Dasharatha"],
+    "answer": 2,
+    "explanation": "Chandragupta Maurya embraced Jainism and died at Shravanabelagola."
+  },
+   {
+    "question": "Which Indus Valley site is located in present-day Punjab, Pakistan and gave the civilization its name?",
+    "options": ["Mohenjodaro", "Harappa", "Ropar", "Kot Diji"],
+    "answer": 1,
+    "explanation": "Harappa in Punjab, Pakistan, was the first site to be excavated, giving the civilization its name."
+  },
+  {
+    "question": "The Rigvedic term 'Dasyu' refers to?",
+    "options": ["Warriors", "Enemies/non-Aryans", "Kings", "Priests"],
+    "answer": 1,
+    "explanation": "Dasyus were non-Aryan or hostile tribes mentioned in Vedic texts."
+  },
+  {
+    "question": "The famous Gupta-era temple at Deogarh is dedicated to which deity?",
+    "options": ["Vishnu", "Shiva", "Durga", "Surya"],
+    "answer": 0,
+    "explanation": "The Dashavatara Temple at Deogarh is dedicated to Vishnu."
+  },
+  {
+    "question": "In Sangam literature, 'Ay' refers to?",
+    "options": ["A type of chieftain", "Agricultural tax", "Temple land", "Trading guild"],
+    "answer": 0,
+    "explanation": "Ay refers to a hill chieftain in Sangam Tamil society."
+  },
+  {
+    "question": "The Mahaparinirvana of Buddha took place at?",
+    "options": ["Sarnath", "Kusinagara", "Rajgir", "Lumbini"],
+    "answer": 1,
+    "explanation": "Buddha attained Mahaparinirvana at Kusinagara (UP)."
+  },
+  {
+    "question": "Which Pallava king is known for building the monolithic rathas at Mamallapuram?",
+    "options": ["Narasimhavarman I", "Mahendravarman I", "Nandivarman II", "Aparajitavarman"],
+    "answer": 0,
+    "explanation": "Narasimhavarman I (also called Mamalla) built the Pancha Rathas."
+  },
+  {
+    "question": "Megasthenes described Indian society in terms of _____ occupational divisions.",
+    "options": ["Four", "Five", "Seven", "Six"],
+    "answer": 2,
+    "explanation": "Megasthenes mentioned seven occupational groups in Indian society."
+  },
+  {
+    "question": "Who was the founder of the Satavahana dynasty?",
+    "options": ["Simuka", "Gautamiputra Satakarni", "Yajna Sri Satakarni", "Satakarni I"],
+    "answer": 0,
+    "explanation": "Simuka founded the Satavahana dynasty in the Deccan."
+  },
+  {
+    "question": "The famous 'Gita Govinda' was composed by?",
+    "options": ["Kalidasa", "Jayadeva", "Bharavi", "Govindadas"],
+    "answer": 1,
+    "explanation": "Jayadeva composed the devotional 'Gita Govinda' in Sanskrit."
+  },
+  {
+    "question": "Which script was used in most of Ashoka’s inscriptions in eastern India?",
+    "options": ["Kharosthi", "Brahmi", "Greek", "Aramaic"],
+    "answer": 1,
+    "explanation": "Brahmi script was predominant in Ashokan inscriptions across most of India."
+  },
+  {
+    "question": "The term 'Nigama' in ancient Indian trade referred to?",
+    "options": ["Farmer guild", "Market town", "Brahmanical school", "Royal tax"],
+    "answer": 1,
+    "explanation": "Nigama was a trading or market centre in ancient India."
+  },
+  {
+    "question": "Kanishka convened the Fourth Buddhist Council in which place?",
+    "options": ["Taxila", "Srinagar/Kundalvana", "Pataliputra", "Rangoon"],
+    "answer": 1,
+    "explanation": "The Fourth Buddhist Council under Kanishka was held at Kundalvana in Kashmir."
+  },
+  {
+    "question": "The Chola administration had a detailed record-keeping system known as?",
+    "options": ["Kudi", "Kuttu", "Kudavolai", "Kanakku"],
+    "answer": 3,
+    "explanation": "Kanakku were official records maintained for village and temple administration."
+  },
+  {
+    "question": "Which Vedic text is a manual for performing sacrifices?",
+    "options": ["Brahmanas", "Upanishads", "Aranyakas", "Samhitas"],
+    "answer": 0,
+    "explanation": "Brahmanas are prose texts explaining rituals and sacrifices."
+  },
+  {
+    "question": "The Bagh Caves in Madhya Pradesh are associated with which religion?",
+    "options": ["Buddhism", "Jainism", "Shaivism", "Vaishnavism"],
+    "answer": 0,
+    "explanation": "Bagh Caves are Buddhist rock-cut monuments with murals."
+  },
+  {
+    "question": "Which Mauryan emperor issued the 'Queen's Edict'?",
+    "options": ["Ashoka", "Bindusara", "Chandragupta Maurya", "Dasharatha"],
+    "answer": 0,
+    "explanation": "Ashoka’s Queen’s Edict mentions gifts to the Buddhist Sangha."
+  },
+  {
+    "question": "The medieval shrine at Sringeri was established by?",
+    "options": ["Basava", "Shankaracharya", "Ramanuja", "Vallabhacharya"],
+    "answer": 1,
+    "explanation": "Adi Shankaracharya established the Sringeri Sharada Peetha."
+  },
+  {
+    "question": "The Indus Civilization is considered pre-Vedic because?",
+    "options": ["It was earlier in time and culturally distinct", "It was Buddhist", "It was Islamic", "It used iron tools"],
+    "answer": 0,
+    "explanation": "The Indus culture predates the Vedic age and had different urban features."
+  },
+  {
+    "question": "The ancient city of Pushkalavati was located in which Mahajanapada?",
+    "options": ["Gandhara", "Kuru", "Panchala", "Vatsa"],
+    "answer": 0,
+    "explanation": "Pushkalavati was in Gandhara, in present-day Pakistan."
+  },
+  {
+    "question": "The Buddhist site of Ratnagiri is located in which state?",
+    "options": ["Bihar", "Odisha", "Madhya Pradesh", "Karnataka"],
+    "answer": 1,
+    "explanation": "Ratnagiri in Odisha was a major Buddhist monastery site."
+  },
+  {
+    "question": "In Harappan cities, which material was most commonly used for making tools?",
+    "options": ["Iron", "Bronze", "Copper", "Tin"],
+    "answer": 1,
+    "explanation": "Bronze (an alloy of copper and tin) was the primary tool-making material."
+  },
+  {
+    "question": "Who was the greatest ruler of the Kushan dynasty?",
+    "options": ["Kujula Kadphises", "Vima Kadphises", "Kanishka", "Huvishka"],
+    "answer": 2,
+    "explanation": "Kanishka expanded the empire significantly and patronized Buddhism."
+  },
+  {
+    "question": "Which Sangam work details the life of the Pandya kings?",
+    "options": ["Maduraikkanchi", "Silappadikaram", "Tolkappiyam", "Purananuru"],
+    "answer": 0,
+    "explanation": "Maduraikkanchi extols the Pandya capital and rulers."
+  },
+  {
+    "question": "In Vedic rituals, 'Soma' refers to?",
+    "options": ["A god", "A sacred drink and deity", "An animal sacrifice", "A type of chariot"],
+    "answer": 1,
+    "explanation": "Soma is both a ritual drink and a deity in Vedic religion."
+  },
+  {
+    "question": "The Gupta period mathematician who discussed zero as a number was?",
+    "options": ["Aryabhatta", "Brahmagupta", "Bhaskara I", "Varahamihira"],
+    "answer": 1,
+    "explanation": "Brahmagupta defined rules for zero in his Brahmasphutasiddhanta."
+  },
+  {
+    "question": "The 'Ghazni hoard' is associated with which ancient dynasty?",
+    "options": ["Kushans", "Guptas", "Satavahanas", "Mauryas"],
+    "answer": 1,
+    "explanation": "Coins from the Gupta period were found in the Ghazni hoard."
+  },
+  {
+    "question": "Which Harappan site provides evidence for the worship of a proto-Shiva figure?",
+    "options": ["Lothal", "Mohenjodaro", "Kalibangan", "Harappa"],
+    "answer": 1,
+    "explanation": "The 'Pashupati seal' from Mohenjodaro depicts a proto-Shiva figure."
+  },
+  {
+    "question": "The term 'Ghatika' in Pallava times was used for?",
+    "options": ["Market", "Educational institution", "Granary", "Council hall"],
+    "answer": 1,
+    "explanation": "Ghatikas were Brahmanical educational institutions."
+  },
+  {
+    "question": "The 'Hathigumpha' inscription is written in which script?",
+    "options": ["Brahmi", "Kharosthi", "Devanagari", "Grantha"],
+    "answer": 0,
+    "explanation": "The Hathigumpha inscription is in Prakrit language and Brahmi script."
+  },
+  {
+    "question": "Which Mauryan official was like a modern-day agriculture minister?",
+    "options": ["Sitaadhyaksha", "Samaharta", "Akaradhyaksha", "Dhamma Mahamatra"],
+    "answer": 0,
+    "explanation": "Sitaadhyaksha was responsible for agriculture and land management."
+  },
+  {
+    "question": "The Sangam port of Korkai was famous for?",
+    "options": ["Spice trade", "Pearl fishing", "Shipbuilding", "Textiles"],
+    "answer": 1,
+    "explanation": "Korkai in Tamil Nadu was renowned for its pearl fisheries."
+  },
+  {
+    "question": "The language of Gandhara inscriptions is generally?",
+    "options": ["Sanskrit", "Prakrit", "Pali", "Greek"],
+    "answer": 1,
+    "explanation": "Most Gandhara inscriptions are in Prakrit using the Kharosthi script."
+  },
+  {
+    "question": "The Brihadeeswarar Temple at Thanjavur was dedicated to which deity?",
+    "options": ["Vishnu", "Durga", "Shiva", "Surya"],
+    "answer": 2,
+    "explanation": "The temple is dedicated to Lord Shiva."
+  },
+  {
+    "question": "Which Gupta ruler was an ardent Vaishnavite and issued coins depicting Garuda?",
+    "options": ["Samudragupta", "Chandragupta II", "Kumaragupta I", "Skandagupta"],
+    "answer": 2,
+    "explanation": "Kumaragupta I issued coins with Garuda on them."
+  },
+  {
+    "question": "Which Harappan site is in present-day Rajasthan?",
+    "options": ["Ropar", "Kalibangan", "Lothal", "Banawali"],
+    "answer": 1,
+    "explanation": "Kalibangan lies in Hanumangarh district of Rajasthan."
+  },
+  {
+    "question": "The Buddhist text 'Milindapanho' records a dialogue between King Milinda and?",
+    "options": ["Ananda", "Nagasena", "Kassapa", "Gopala"],
+    "answer": 1,
+    "explanation": "Milindapanho is a dialogue between King Menander (Milinda) and monk Nagasena."
+  },
+  {
+    "question": "In Gupta economy, the term 'Kulyavapa' denoted?",
+    "options": ["Land measurement for a clan", "Guild tax", "Royal household land", "Temple land"],
+    "answer": 0,
+    "explanation": "Kulyavapa was a unit of land measurement for assessment."
+  },
+  {
+    "question": "The Chalukyas of Badami used which language in their inscriptions?",
+    "options": ["Sanskrit and Kannada", "Tamil and Sanskrit", "Prakrit and Kannada", "Pali and Sanskrit"],
+    "answer": 0,
+    "explanation": "They used both Sanskrit and early Kannada in inscriptions."
+  },
+  {
+    "question": "The great ancient trade route ‘Uttarapatha’ connected?",
+    "options": ["North India to Central Asia", "South India to Sri Lanka", "East to West Bengal", "Pataliputra to Tamilakam"],
+    "answer": 0,
+    "explanation": "Uttarapatha ran from the Gangetic plains to Central Asia via Punjab."
+  },
+  {
+    "question": "Which Indus Valley site is located in Maharashtra?",
+    "options": ["Kalibangan", "Daimabad", "Chanhudaro", "Banawali"],
+    "answer": 1,
+    "explanation": "Daimabad in Maharashtra revealed late Harappan phase remains."
+  },
+  {
+    "question": "Who is known as 'Devanampriya' in ancient inscriptions?",
+    "options": ["Chandragupta Maurya", "Ashoka", "Bindusara", "Harsha"],
+    "answer": 1,
+    "explanation": "The title 'Devanampriya' meaning 'Beloved of the Gods' frequently appears in Ashoka’s edicts."
+  },
+  {
+    "question": "The earliest temple with a Shikhara was built at?",
+    "options": ["Sanchi", "Bhitargaon", "Ellora", "Khajuraho"],
+    "answer": 1,
+    "explanation": "Bhitargaon temple (Gupta period) is one of the earliest with a Shikhara."
+  },
+  {
+    "question": "In Buddhist architecture, the 'Harmika' is?",
+    "options": ["Square railing atop a stupa", "Base of the stupa", "Gateway", "Dome"],
+    "answer": 0,
+    "explanation": "Harmika is a square structure above the dome symbolizing the heavens."
+  },
+  {
+    "question": "The 'Panchatantra', a collection of fables, was originally written in which language?",
+    "options": ["Sanskrit", "Pali", "Prakrit", "Apabhramsha"],
+    "answer": 0,
+    "explanation": "Panchatantra was composed in Sanskrit by Vishnusharma."
+  },
+  {
+    "question": "The Chalukya-built temple housing the earliest known stone Shiva linga is at?",
+    "options": ["Aihole", "Badami", "Pattadakal", "Mahakuta"],
+    "answer": 1,
+    "explanation": "Badami’s cave temples contain early images of Shiva linga."
+  },
+  {
+    "question": "Which Gupta king adopted the title 'Parama Bhagavata'?",
+    "options": ["Samudragupta", "Chandragupta II", "Kumaragupta I", "Skandagupta"],
+    "answer": 1,
+    "explanation": "Chandragupta II was a devout Vaishnavite and styled himself Parama Bhagavata."
+  },
+  {
+    "question": "In Sangam literature, 'Marutam' refers to?",
+    "options": ["Pastoral land", "Agricultural land", "Coastal land", "Forest land"],
+    "answer": 1,
+    "explanation": "Marutam denotes fertile agricultural landscapes."
+  },
+  {
+    "question": "The 'Rajatarangini', a chronicle of Kashmir, was written by?",
+    "options": ["Bana", "Kalhana", "Bilhana", "Kalidasa"],
+    "answer": 1,
+    "explanation": "Kalhana composed the Sanskrit chronicle Rajatarangini."
+  },
+  {
+    "question": "The capital of Eastern Chalukyas was?",
+    "options": ["Vatapi", "Vengi", "Kanchipuram", "Pataliputra"],
+    "answer": 1,
+    "explanation": "Eastern Chalukyas ruled from Vengi in Andhra Pradesh."
+  },
+  {
+    "question": "Which early Vedic clan is associated with King Sudas?",
+    "options": ["Puru", "Bharata", "Trtsu", "Anu"],
+    "answer": 2,
+    "explanation": "Sudas belonged to the Trtsu clan of Bharatas."
+  },
+  {
+    "question": "Stupas generally contain?",
+    "options": ["Sacred books", "Relics of Buddha or monks", "Temple idols", "Royal crowns"],
+    "answer": 1,
+    "explanation": "Stupas house relics of Buddha or revered monks."
+  },
+  {
+    "question": "The copper-plate grants were primarily used for?",
+    "options": ["Military orders", "Religious land grants", "Trade records", "Genealogies only"],
+    "answer": 1,
+    "explanation": "Copper plates documented royal land grants to temples and Brahmins."
+  },
+  {
+    "question": "The Indus site of Kot Diji is located in which present country?",
+    "options": ["India", "Pakistan", "Afghanistan", "Iran"],
+    "answer": 1,
+    "explanation": "Kot Diji is in Sindh, Pakistan, showing pre-Harappan and Harappan phases."
+  },
+  {
+    "question": "The 'Pillars of Ashoka' are mostly carved from which stone?",
+    "options": ["Granite", "Sandstone", "Marble", "Limestone"],
+    "answer": 1,
+    "explanation": "They are of polished Chunar sandstone."
+  },
+  {
+    "question": "The coin term 'Dinar' used in Gupta period was borrowed from which culture?",
+    "options": ["Greek", "Roman", "Persian", "Chinese"],
+    "answer": 1,
+    "explanation": "The gold 'Dinar' coins of Guptas were inspired by Roman currency."
+  },
+  {
+    "question": "The Buddhist monastery at Nalanda was founded during whose reign?",
+    "options": ["Samudragupta", "Kumaragupta I", "Harsha", "Skandagupta"],
+    "answer": 1,
+    "explanation": "Kumaragupta I is credited with founding Nalanda."
+  },
+  {
+    "question": "Who among these was a noted woman poet-saint of the Bhakti movement in the South?",
+    "options": ["Andal", "Akka Mahadevi", "Mira Bai", "Lal Ded"],
+    "answer": 0,
+    "explanation": "Andal was a Tamil Alvar saint devoted to Vishnu."
+  },
+  {
+    "question": "In Jainism, the 'three gems' are Samyak Darshan, Samyak Jnana, and?",
+    "options": ["Samyak Smriti", "Samyak Samadhi", "Samyak Charitra", "Samyak Tapas"],
+    "answer": 2,
+    "explanation": "Right Conduct (Samyak Charitra) completes the three gems."
+  },
+  {
+    "question": "The Sangam text 'Tirukkural' contains how many couplets?",
+    "options": ["1200", "1330", "1500", "1600"],
+    "answer": 1,
+    "explanation": "Tirukkural by Tiruvalluvar has 1330 couplets."
+  },
+  {
+    "question": "The Indus Valley people used weights made mostly of?",
+    "options": ["Stone", "Metal", "Terracotta", "Shell"],
+    "answer": 0,
+    "explanation": "Stone weights, often chert, were used with standardized measures."
+  },
+  {
+    "question": "The Moriyas of Pippalivana were contemporaries of which dynasty?",
+    "options": ["Sungas", "Haryankas", "Nandas", "Mauryas"],
+    "answer": 2,
+    "explanation": "The Moriya tribe of Pippalivana existed alongside the Nandas."
+  },
+  {
+    "question": "The 'Gandatindu Jataka' depicts trade between India and which region?",
+    "options": ["China", "Burma", "Sri Lanka", "Rome"],
+    "answer": 1,
+    "explanation": "It mentions ancient trade between India and Burma (Myanmar)."
+  },
+  {
+    "question": "Who among the following composed 'Kiratarjuniya'?",
+    "options": ["Bharavi", "Bhasa", "Kalidasa", "Dandin"],
+    "answer": 0,
+    "explanation": "Bharavi’s Kiratarjuniya is based on an episode from the Mahabharata."
+  },
+  {
+    "question": "Which site has given the earliest evidence of settled agriculture in the Indian subcontinent?",
+    "options": ["Mehrgarh", "Chirand", "Koldihwa", "Paiyampalli"],
+    "answer": 0,
+    "explanation": "Mehrgarh in Balochistan shows Neolithic farming from around 7000 BCE."
+  },
+  {
+    "question": "The Ellora caves were built during which period?",
+    "options": ["Maurya", "Satavahana", "Rashtrakuta", "Pala"],
+    "answer": 2,
+    "explanation": "Ellora's monuments were chiefly built under the Rashtrakutas."
+  },
+  {
+    "question": "The ancient city of Ujjain was the capital of which Mahajanapada?",
+    "options": ["Avanti", "Magadha", "Kosala", "Vatsa"],
+    "answer": 0,
+    "explanation": "Ujjain was the capital of Avanti Mahajanapada."
+  },
+  {
+    "question": "The 'Kalpasutra' is a sacred text of which religion?",
+    "options": ["Buddhism", "Jainism", "Hinduism", "Zoroastrianism"],
+    "answer": 1,
+    "explanation": "Kalpasutra is a central Jain text detailing the lives of Tirthankaras."
+  },
+  {
+    "question": "The Indus Valley town of Chanhudaro was specialized in producing?",
+    "options": ["Metal idols", "Beads and bangles", "Terracotta figurines", "Stone tools"],
+    "answer": 1,
+    "explanation": "Chanhudaro had workshops for bead-making."
+  },
+  {
+    "question": "Who was the founder of the Gupta dynasty?",
+    "options": ["Samudragupta", "Chandragupta I", "Sri Gupta", "Kumaragupta"],
+    "answer": 2,
+    "explanation": "Sri Gupta founded the Gupta dynasty in the late 3rd century CE."
+  },
+  {
+    "question": "Who built the Kailasa temple at Ellora?",
+    "options": ["Krishna I", "Dantidurga", "Amoghavarsha", "Govinda III"],
+    "answer": 0,
+    "explanation": "Rashtrakuta king Krishna I constructed the monolithic Kailasa temple."
+  },
+  {
+    "question": "The Buddhist text 'Visuddhimagga' was authored by?",
+    "options": ["Nagasena", "Buddhaghosa", "Vasubandhu", "Asanga"],
+    "answer": 1,
+    "explanation": "Buddhaghosa, a 5th-century scholar, wrote the Visuddhimagga in Pali."
+  },
+  {
+    "question": "The Chinese pilgrim Itsing came to India in which century?",
+    "options": ["5th", "6th", "7th", "8th"],
+    "answer": 3,
+    "explanation": "Itsing visited in the late 7th century CE."
+  },
+  {
+    "question": "Who issued coins with the legend 'Satyanistha'?",
+    "options": ["Kanishka", "Chandragupta II", "Harsha", "Kumaragupta I"],
+    "answer": 0,
+    "explanation": "Kanishka’s coins sometimes bore the term 'Satyanistha'."
+  },
+  {
+    "question": "The 'Vatteluttu' script was used in which region?",
+    "options": ["North India", "Deccan", "Tamil Nadu and Kerala", "Odisha"],
+    "answer": 2,
+    "explanation": "Vatteluttu was an ancient script of Tamil and Malayalam regions."
+  },
+  {
+    "question": "The famous Amaravati stupa was built under which dynasty?",
+    "options": ["Maurya", "Satavahana", "Pallava", "Ikshvaku"],
+    "answer": 1,
+    "explanation": "Satavahanas built the great Buddhist stupa at Amaravati."
+  },
+  {
+    "question": "The Indus Valley site of Ali Murad is notable for?",
+    "options": ["Painted pottery", "Fire altars", "Granary", "Dockyard"],
+    "answer": 0,
+    "explanation": "Ali Murad in Sindh yielded painted pottery and fortifications."
+  },
+  {
+    "question": "The Chalukya king who built the Virupaksha Temple at Pattadakal was?",
+    "options": ["Pulakeshin I", "Vikramaditya II", "Mangalesha", "Kirtivarman I"],
+    "answer": 1,
+    "explanation": "Vikramaditya II commissioned the Virupaksha Temple after victories over Pallavas."
+  },
+   {
+    "question": "What river was the city of Harappa situated on?",
+    "options": ["Ganges", "Ravi", "Indus", "Yamuna"],
+    "answer": 1,
+    "explanation": "Harappa is located on the banks of the Ravi River."
+  },
+  {
+    "question": "Who was the founder of the Mauryan dynasty?",
+    "options": ["Ashoka", "Bindusara", "Chandragupta Maurya", "Chandragupta II"],
+    "answer": 2,
+    "explanation": "Chandragupta Maurya founded the Mauryan dynasty."
+  },
+  {
+    "question": "The Vedas are composed in which language?",
+    "options": ["Prakrit", "Sanskrit", "Tamil", "Pali"],
+    "answer": 1,
+    "explanation": "The Vedas were written in Sanskrit."
+  },
+  {
+    "question": "Which was the main occupation of people in Indus Valley Civilization?",
+    "options": ["Fishing", "Cattle rearing", "Agriculture", "Hunting"],
+    "answer": 2,
+    "explanation": "Agriculture was the main occupation of Harappan people."
+  },
+  {
+    "question": "Who is known as the 'Enlightened One' in Buddhism?",
+    "options": ["Mahavira", "Ashoka", "Gautama Buddha", "Ajatashatru"],
+    "answer": 2,
+    "explanation": "Gautama Buddha attained enlightenment and is called the Enlightened One."
+  },
+  {
+    "question": "The city of Pataliputra was the capital of which dynasty?",
+    "options": ["Maurya", "Chola", "Pallava", "Kushan"],
+    "answer": 0,
+    "explanation": "Pataliputra was the capital of the Mauryan dynasty."
+  },
+  {
+    "question": "Which is the oldest Veda?",
+    "options": ["Sama Veda", "Yajur Veda", "Atharva Veda", "Rig Veda"],
+    "answer": 3,
+    "explanation": "Rig Veda is the oldest of the four Vedas."
+  },
+  {
+    "question": "The Great Bath is associated with which ancient city?",
+    "options": ["Lothal", "Kalibangan", "Mohenjodaro", "Dholavira"],
+    "answer": 2,
+    "explanation": "The Great Bath was found in Mohenjodaro."
+  },
+  {
+    "question": "Who was the last Mauryan ruler?",
+    "options": ["Ashoka", "Chandragupta Maurya", "Brihadratha", "Bindusara"],
+    "answer": 2,
+    "explanation": "Brihadratha was the last Mauryan emperor."
+  },
+  {
+    "question": "Which animal was most important to Vedic society?",
+    "options": ["Goat", "Horse", "Camel", "Elephant"],
+    "answer": 1,
+    "explanation": "The horse was of great importance in the Vedic period."
+  },
+  {
+    "question": "Who was the founder of Jainism?",
+    "options": ["Gautama Buddha", "Parshvanatha", "Mahavira", "Bimbisara"],
+    "answer": 2,
+    "explanation": "Mahavira is credited as the founder in Jain tradition."
+  },
+  {
+    "question": "Who was the greatest ruler of the Mauryan Empire?",
+    "options": ["Bindusara", "Ashoka", "Chandragupta I", "Ajatashatru"],
+    "answer": 1,
+    "explanation": "Ashoka is considered the greatest Mauryan ruler."
+  },
+  {
+    "question": "Which Indus Valley site was a port city?",
+    "options": ["Dholavira", "Lothal", "Ropar", "Banawali"],
+    "answer": 1,
+    "explanation": "Lothal had a dockyard and was an important port."
+  },
+  {
+    "question": "The Megalithic sites are most common in which region?",
+    "options": ["Punjab", "South India", "West Bengal", "Haryana"],
+    "answer": 1,
+    "explanation": "South India has many megalithic burial sites."
+  },
+  {
+    "question": "Which was the main script used in Ashoka's inscriptions?",
+    "options": ["Sanskrit", "Brahmi", "Kharosthi", "Pali"],
+    "answer": 1,
+    "explanation": "Brahmi was used for most edicts."
+  },
+  {
+    "question": "Who wrote the Arthashastra?",
+    "options": ["Kalidasa", "Bana", "Chanakya", "Harsha"],
+    "answer": 2,
+    "explanation": "Kautilya or Chanakya wrote Arthashastra."
+  },
+  {
+    "question": "Which period is called the Copper-Stone Age?",
+    "options": ["Neolithic", "Mesolithic", "Chalcolithic", "Paleolithic"],
+    "answer": 2,
+    "explanation": "Chalcolithic means copper-stone age."
+  },
+  {
+    "question": "The Gupta Era started in which year?",
+    "options": ["78 AD", "320 AD", "185 BC", "273 AD"],
+    "answer": 1,
+    "explanation": "Gupta Era began in 320 AD with Chandragupta I."
+  },
+  {
+    "question": "Who is the author of Ramayana?",
+    "options": ["Vedavyasa", "Tulsidas", "Valmiki", "Kalidasa"],
+    "answer": 2,
+    "explanation": "Valmiki composed the Sanskrit Ramayana."
+  },
+  {
+    "question": "Which was not used by the Harappans?",
+    "options": ["Copper", "Bronze", "Iron", "Gold"],
+    "answer": 2,
+    "explanation": "Iron was unknown to Harappans."
+  },
+  {
+    "question": "Which Mahajanapada had its capital at Vaishali?",
+    "options": ["Kashi", "Vajji", "Anga", "Avanti"],
+    "answer": 1,
+    "explanation": "Vajji (Vrijji) had its capital at Vaishali."
+  },
+  {
+    "question": "Pataliputra is present-day?",
+    "options": ["Patna", "Delhi", "Kanpur", "Bhopal"],
+    "answer": 0,
+    "explanation": "Patna is modern Pataliputra."
+  },
+  {
+    "question": "Who is also known as 'Indian Napoleon'?",
+    "options": ["Chandragupta I", "Skandagupta", "Samudragupta", "Kumaragupta"],
+    "answer": 2,
+    "explanation": "Samudragupta was called the Indian Napoleon by V.A. Smith."
+  },
+  {
+    "question": "Indus Valley Civilization is also called?",
+    "options": ["Vedic Civilization", "Harappan Civilization", "Sangam Age", "Megalithic Age"],
+    "answer": 1,
+    "explanation": "It is also called Harappan Civilization after its first discovery."
+  },
+  {
+    "question": "Who was the founder of the Gupta dynasty?",
+    "options": ["Chandragupta I", "Samudragupta", "Sri Gupta", "Chandragupta II"],
+    "answer": 2,
+    "explanation": "Sri Gupta founded the dynasty, but Chandragupta I made it prominent."
+  },
+  {
+    "question": "Who is credited with spreading Buddhism to Sri Lanka?",
+    "options": ["Ashoka", "Kumaragupta", "Mahendra", "Samudragupta"],
+    "answer": 0,
+    "explanation": "Ashoka sent his son Mahendra (Mahinda) to Sri Lanka."
+  },
+  {
+    "question": "The Jatakas are stories about the?",
+    "options": ["Mahavira's teachings", "Ashoka's life", "Previous births of Buddha", "Chandragupta's conquests"],
+    "answer": 2,
+    "explanation": "The Jatakas record Buddha's previous lives."
+  },
+  {
+    "question": "The wheel in the Ashokan Pillar represents?",
+    "options": ["Law", "Trade", "War", "Agriculture"],
+    "answer": 0,
+    "explanation": "The wheel (Dharma Chakra) represents law/righteousness."
+  },
+  {
+    "question": "Harsha Vardhana ruled from?",
+    "options": ["Kannauj", "Pataliputra", "Ujjain", "Thanesar"],
+    "answer": 0,
+    "explanation": "Harsha established his capital at Kannauj."
+  },
+  {
+    "question": "The 'Tripitaka' is the holy book of which religion?",
+    "options": ["Hinduism", "Jainism", "Buddhism", "Islam"],
+    "answer": 2,
+    "explanation": "Tripitaka is the Buddhist canonical text."
+  },
+  {
+    "question": "Which king convened the Third Buddhist Council?",
+    "options": ["Ashoka", "Ajatashatru", "Kanishka", "Harsha"],
+    "answer": 0,
+    "explanation": "Ashoka convened the Third Buddhist Council in Pataliputra."
+  },
+  {
+    "question": "Who is known as 'Indian Aristotle'?",
+    "options": ["Kautilya", "Patanjali", "Kalidasa", "Panini"],
+    "answer": 0,
+    "explanation": "Chanakya (Kautilya) is sometimes called the Indian Aristotle for his statecraft."
+  },
+  {
+    "question": "The capital of Sangam Cholas was?",
+    "options": ["Madurai", "Puhar (Kaveripattinam)", "Kanchipuram", "Uraiyur"],
+    "answer": 1,
+    "explanation": "Kaveripattinam (Puhar) was a port city capital of early Cholas."
+  },
+  {
+    "question": "Which dynasty ruled from Badami?",
+    "options": ["Cholas", "Chalukyas", "Pallavas", "Satavahanas"],
+    "answer": 1,
+    "explanation": "Chalukyas ruled from Badami."
+  },
+  {
+    "question": "Where did Buddha attain enlightenment?",
+    "options": ["Lumbini", "Kusinara", "Bodh Gaya", "Sarnath"],
+    "answer": 2,
+    "explanation": "Buddha attained enlightenment at Bodh Gaya."
+  },
+  {
+    "question": "The term 'Mahajanapadas' refers to?",
+    "options": ["Vedic verses", "Great kingdoms", "Ancient caves", "Sanskrit plays"],
+    "answer": 1,
+    "explanation": "Mahajanapadas were large kingdoms during the 6th century BCE."
+  },
+  {
+    "question": "Which Jain Tirthankara is the last and most famous?",
+    "options": ["Rishabha", "Parshvanatha", "Mahavira", "Sumatinatha"],
+    "answer": 2,
+    "explanation": "Mahavira was the 24th Tirthankara."
+  },
+  {
+    "question": "The Rigvedic Aryans worshipped which principal god?",
+    "options": ["Agni", "Indra", "Varuna", "Soma"],
+    "answer": 1,
+    "explanation": "Indra is the principal deity in Rigveda."
+  },
+  {
+    "question": "Which was an important center of trade in the Indus Valley civilization?",
+    "options": ["Banawali", "Rangpur", "Lothal", "Kalibangan"],
+    "answer": 2,
+    "explanation": "Lothal was a port trading center in Gujarat."
+  },
+  {
+    "question": "Bimbisara was associated with which kingdom?",
+    "options": ["Magadha", "Kosala", "Gandhara", "Avanti"],
+    "answer": 0,
+    "explanation": "Bimbisara was the ruler of Magadha."
+  },
+  {
+    "question": "The staple grain of Rigvedic Aryans was?",
+    "options": ["Rice", "Barley", "Wheat", "Maize"],
+    "answer": 1,
+    "explanation": "Barley (Yava) was most important then."
+  },
+  {
+    "question": "The Sanchi Stupa was originally built by?",
+    "options": ["Harsha", "Bindusara", "Ashoka", "Kaniska"],
+    "answer": 2,
+    "explanation": "Ashoka built the original stupa at Sanchi."
+  },
+  {
+    "question": "The 'Nanda' dynasty was overthrown by?",
+    "options": ["Mauryas", "Shungas", "Guptas", "Kanvas"],
+    "answer": 0,
+    "explanation": "Mauryas defeated the Nandas."
+  },
+  {
+    "question": "Who was the author of Mahabharata?",
+    "options": ["Bharavi", "Valmiki", "Vyasa", "Bhasa"],
+    "answer": 2,
+    "explanation": "Sage Vyasa composed the Mahabharata."
+  },
+  {
+    "question": "The Upanishads are books on?",
+    "options": ["Law", "Philosophy", "Medicine", "Politics"],
+    "answer": 1,
+    "explanation": "Upanishads discuss philosophical questions."
+  },
+  {
+    "question": "The period of Mahajanapadas was followed by?",
+    "options": ["Sangam Age", "Mauryan Empire", "Gupta Empire", "Chalukya Dynasty"],
+    "answer": 1,
+    "explanation": "After Mahajanapada period, the Mauryan Empire rose."
+  },
+  {
+    "question": "The main occupation of people during Later Vedic period was?",
+    "options": ["Pottery", "Metal work", "Agriculture", "Hunting"],
+    "answer": 2,
+    "explanation": "Agriculture was the main occupation in Later Vedic period."
+  },
+  {
+    "question": "Which of these is not a Vedic deity?",
+    "options": ["Agni", "Indra", "Vishnu", "Zeus"],
+    "answer": 3,
+    "explanation": "Zeus is a Greek god, not Vedic."
+  },
+  {
+    "question": "The term 'Saptamatrikas' refers to?",
+    "options": ["Seven Kings", "Seven Rishis", "Seven Mother Goddesses", "Seven Rivers"],
+    "answer": 2,
+    "explanation": "Saptamatrikas means Seven Mother Goddesses."
+  },
+  {
+    "question": "Mahajanapadas were how many in number?",
+    "options": ["8", "6", "16", "20"],
+    "answer": 2,
+    "explanation": "There were 16 Mahajanapadas."
+  },
+  {
+    "question": "The term 'Ayudha Purusha' in the Mauryan period means?",
+    "options": ["Army officer", "Census officer", "Market inspector", "Royal priest"],
+    "answer": 0,
+    "explanation": "'Ayudha Purusha' was an officer related to army and weapons."
+  },
+  {
+    "question": "The university at Nalanda was famous for teaching?",
+    "options": ["Law", "Vedas", "Buddhism", "Ayurveda"],
+    "answer": 2,
+    "explanation": "Nalanda was a center of Buddhist learning."
+  },
+  {
+    "question": "Who among the following founded the Chola dynasty?",
+    "options": ["Rajendra I", "Vijayalaya Chola", "Rajaraja I", "Kulothunga I"],
+    "answer": 1,
+    "explanation": "Vijayalaya Chola founded the medieval Chola dynasty."
+  },
+  {
+    "question": "Who was the main god of the Harappan people?",
+    "options": ["Shiva", "Vishnu", "Indra", "Soma"],
+    "answer": 0,
+    "explanation": "A proto-Shiva, or 'Pashupati', figure was worshipped by Harappans."
+  },
+  {
+    "question": "The capital of Chalukyas was?",
+    "options": ["Vatapi", "Kanchi", "Madurai", "Amaravati"],
+    "answer": 0,
+    "explanation": "Vatapi (modern Badami) was their capital."
+  },
+  {
+    "question": "What is the meaning of 'Sangam' in Sangam Age?",
+    "options": ["Religious festival", "Assembly", "Temple", "Capital"],
+    "answer": 1,
+    "explanation": "Sangam means assembly of poets and scholars."
+  },
+  {
+    "question": "Megasthenes was a Greek ambassador to?",
+    "options": ["Chandragupta Maurya", "Bindusara", "Ashoka", "Harsha"],
+    "answer": 0,
+    "explanation": "He was ambassador at Chandragupta Maurya's court."
+  },
+  {
+    "question": "Who among the following is associated with Jainism?",
+    "options": ["Nagarjuna", "Tiruvalluvar", "Mahavira", "Kabir"],
+    "answer": 2,
+    "explanation": "Mahavira is the principal Tirthankara in Jainism."
+  },
+  {
+    "question": "Which script was used in Indus Valley seals?",
+    "options": ["Brahmi", "Kharosthi", "Undeciphered pictographic script", "Nagari"],
+    "answer": 2,
+    "explanation": "Indus script is pictographic and undeciphered."
+  },
+  {
+    "question": "Where did Gautama Buddha give his first sermon?",
+    "options": ["Vaishali", "Sarnath", "Bodh Gaya", "Kusinagar"],
+    "answer": 1,
+    "explanation": "Buddha gave his first sermon at Sarnath."
+  },
+  {
+    "question": "Who composed Meghaduta?",
+    "options": ["Bana", "Kalidasa", "Harsha", "Asvaghosha"],
+    "answer": 1,
+    "explanation": "Meghaduta was written by Kalidasa."
+  },
+  {
+    "question": "The concept of Ahimsa is closely related to?",
+    "options": ["Buddhism", "Jainism", "Vaishnavism", "Shaivism"],
+    "answer": 1,
+    "explanation": "Non-violence is central to Jain teaching."
+  },
+  {
+    "question": "The first Jain Tirthankara was?",
+    "options": ["Parshvanatha", "Rishabha", "Mahavira", "Sumatinatha"],
+    "answer": 1,
+    "explanation": "Rishabha is regarded as the first Tirthankara."
+  },
+  {
+    "question": "What is the main subject of the Ramayana?",
+    "options": ["Story of Mahavira", "Life of Krishna", "Story of Rama", "Arjun's conquests"],
+    "answer": 2,
+    "explanation": "Rama is the hero of Ramayana."
+  },
+  {
+    "question": "Sanchi is famous for its?",
+    "options": ["Iron pillar", "Library", "Stupa", "Rock-cut temple"],
+    "answer": 2,
+    "explanation": "Sanchi is known for its ancient Buddhist stupa."
+  },
+  {
+    "question": "The famous ancient port of Muziris was in?",
+    "options": ["Gujarat", "Kerala", "Maharashtra", "Odisha"],
+    "answer": 1,
+    "explanation": "Muziris was a port in ancient Kerala."
+  },
+  {
+    "question": "Which king is called 'Priyadarshi' in his inscriptions?",
+    "options": ["Ashoka", "Chandragupta II", "Harsha", "Samudragupta"],
+    "answer": 0,
+    "explanation": "Ashoka's inscriptions refer to him as 'Devanampriya Priyadarshi'."
+  },
+  {
+    "question": "What is the meaning of 'Dhamma' propagated by Ashoka?",
+    "options": ["Law", "Charity", "Piety or Righteousness", "Knowledge"],
+    "answer": 2,
+    "explanation": "'Dhamma' stands for moral law and good conduct."
+  },
+  {
+    "question": "Who defeated Harsha and stopped his southward expansion?",
+    "options": ["Chalukya Pulakeshin II", "Rashtrakuta Govinda III", "Chola Rajaraja I", "Pallava Narasimhavarman"],
+    "answer": 0,
+    "explanation": "Pulakeshin II defeated Harsha on the banks of Narmada."
+  },
+  {
+    "question": "What is 'Tripitaka'?",
+    "options": ["Hindu scripture", "Jain treatise", "Buddhist sacred text", "Sangam epic"],
+    "answer": 2,
+    "explanation": "Tripitaka is the Buddhist canon."
+  },
+  {
+    "question": "Which was the first kingdom to issue gold coins in India?",
+    "options": ["Guptas", "Kushans", "Mauryas", "Cholas"],
+    "answer": 1,
+    "explanation": "The Kushan empire issued gold coins before the Guptas."
+  },
+  {
+    "question": "The founder of Bhagavad Gita was?",
+    "options": ["Krishna", "Vyasa", "Valmiki", "Chanakya"],
+    "answer": 1,
+    "explanation": "Vyasa compiled Mahabharata which contains the Bhagavad Gita."
+  },
+  {
+    "question": "Jataka tales are part of which Buddhist Pitaka?",
+    "options": ["Vinaya Pitaka", "Abhidhamma Pitaka", "Sutta Pitaka", "None"],
+    "answer": 2,
+    "explanation": "Jatakas are in the Sutta Pitaka."
+  },
+  {
+    "question": "The Purusha Sukta hymn refers to?",
+    "options": ["Creation of the world", "King's coronation", "Harappan society", "Bharata dynasty"],
+    "answer": 0,
+    "explanation": "Purusha Sukta describes the cosmic creation and origin of varnas."
+  },
+  {
+    "question": "Who built the Brihadeeswara Temple at Thanjavur?",
+    "options": ["Kulothunga I", "Rajaraja Chola I", "Karikala Chola", "Mahendravarman I"],
+    "answer": 1,
+    "explanation": "Rajaraja Chola I built the Brihadisvara temple."
+  },
+  {
+    "question": "The main god worshipped by the Indus people was?",
+    "options": ["Mother Goddess", "Indra", "Shiva Pashupati", "Vishnu"],
+    "answer": 0,
+    "explanation": "A female Mother Goddess was widely worshipped."
+  },
+  {
+    "question": "The 'Prayag Prashasti' describes the achievements of?",
+    "options": ["Chandragupta II", "Skandagupta", "Samudragupta", "Ashoka"],
+    "answer": 2,
+    "explanation": "Prayag Prashasti (Allahabad Pillar Inscription) extols Samudragupta."
+	},
+	{
+    "question": "The city of Mohenjo-Daro was located in which modern-day country?",
+    "options": ["India", "Pakistan", "Bangladesh", "Nepal"],
+    "answer": 1,
+    "explanation": "Mohenjo-Daro is located in present-day Pakistan."
+  },
+  {
+    "question": "Which of the following was NOT a city of the Indus Valley Civilization?",
+    "options": ["Harappa", "Mohenjo-Daro", "Patliputra", "Lothal"],
+    "answer": 2,
+    "explanation": "Patliputra was the capital of the Mauryan Empire, not an Indus Valley city."
+  },
+  {
+    "question": "Which Veda is considered the most important in terms of hymns and prayers?",
+    "options": ["Rigveda", "Sama Veda", "Yajur Veda", "Atharva Veda"],
+    "answer": 1,
+    "explanation": "Sama Veda is mainly a collection of chants and hymns used in rituals."
+  },
+  {
+    "question": "Who was the last Jain Tirthankara?",
+    "options": ["Parshvanatha", "Mahavira", "Rishabhanatha", "Neminatha"],
+    "answer": 1,
+    "explanation": "Mahavira was the 24th and last Tirthankara of Jainism."
+  },
+  {
+    "question": "Which Mauryan Emperor adopted Buddhism and propagated dhamma?",
+    "options": ["Chandragupta Maurya", "Bindusara", "Ashoka", "Dasharatha"],
+    "answer": 2,
+    "explanation": "Ashoka became a follower of Buddhism after the Kalinga war."
+  },
+  {
+    "question": "The famous Greek ambassador to the Mauryan court was?",
+    "options": ["Megasthenes", "Plato", "Aristotle", "Pythagoras"],
+    "answer": 0,
+    "explanation": "Megasthenes was appointed ambassador to Chandragupta Maurya's court."
+  },
+  {
+    "question": "The capital of the Gupta Empire was?",
+    "options": ["Sravasti", "Pataliputra", "Ujjain", "Mathura"],
+    "answer": 1,
+    "explanation": "Pataliputra served as the capital during the Gupta Empire."
+  },
+  {
+    "question": "Which of the following was a major port in ancient Tamilakam?",
+    "options": ["Tiruchirappalli", "Madurai", "Kaveripattinam", "Kanchipuram"],
+    "answer": 2,
+    "explanation": "Kaveripattinam (Puhar) was a renowned ancient port city."
+  },
+  {
+    "question": "The concept of 'Ahimsa' (non-violence) is central to which religion?",
+    "options": ["Buddhism", "Jainism", "Hinduism", "Islam"],
+    "answer": 1,
+    "explanation": "Ahimsa is a fundamental principle in Jainism."
+  },
+  {
+    "question": "The earliest form of writing in India is?",
+    "options": ["Brahmi", "Kharosthi", "Indus script", "Devnagari"],
+    "answer": 2,
+    "explanation": "Indus script is the earliest known writing system in India."
+  },
+  {
+    "question": "Which of these is a major Buddhist pilgrimage site?",
+    "options": ["Pataliputra", "Bodh Gaya", "Mathura", "Ujjain"],
+    "answer": 1,
+    "explanation": "Bodh Gaya is where Buddha attained enlightenment."
+  },
+  {
+    "question": "The famous 'Sanchi Stupa' was built during which dynasty?",
+    "options": ["Maurya", "Gupta", "Satavahana", "Chola"],
+    "answer": 0,
+    "explanation": "Ashoka of the Maurya dynasty is credited with building the Sanchi Stupa."
+  },
+  {
+    "question": "The ancient Tamil Sangam literature was composed in which language?",
+    "options": ["Sanskrit", "Tamil", "Pali", "Prakrit"],
+    "answer": 1,
+    "explanation": "Sangam literature is composed in the Tamil language."
+  },
+  {
+    "question": "Which Indian ruler was known as 'Devanampriya'?",
+    "options": ["Ashoka", "Chandragupta Maurya", "Samudragupta", "Harsha"],
+    "answer": 0,
+    "explanation": "Ashoka was called 'Devanampriya' meaning 'Beloved of the Gods.'"
+  },
+  {
+    "question": "The 'Arthashastra' was written by?",
+    "options": ["Kautilya", "Kalidasa", "Chanakya", "Brahmagupta"],
+    "answer": 0,
+    "explanation": "Kautilya and Chanakya refer to the same person who authored Arthashastra."
+  },
+  {
+    "question": "The capital of the Satavahana dynasty was?",
+    "options": ["Ujjain", "Pratishthan", "Taxila", "Pataliputra"],
+    "answer": 1,
+    "explanation": "Pratishthan (Paithan) was the capital of Satavahanas."
+  },
+  {
+    "question": "Which river is associated with the Indus Valley Civilization?",
+    "options": ["Ganges", "Brahmaputra", "Yamuna", "Indus"],
+    "answer": 3,
+    "explanation": "The civilization is named after the Indus River."
+  },
+  {
+    "question": "Which of these was a primary material used for tools in the Indus Valley?",
+    "options": ["Iron", "Copper", "Steel", "Bronze"],
+    "answer": 1,
+    "explanation": "Copper and bronze were widely used; iron was not used in the Indus Valley."
+  },
+  {
+    "question": "The ancient university of Nalanda was located in?",
+    "options": ["Bihar", "Uttar Pradesh", "Odisha", "Madhya Pradesh"],
+    "answer": 0,
+    "explanation": "Nalanda is located in the present-day state of Bihar."
+  },
+  {
+    "question": "Which of the following is an ancient Indian epic?",
+    "options": ["Mahabharata", "Shahnameh", "Iliad", "Odyssey"],
+    "answer": 0,
+    "explanation": "Mahabharata is one of the two major Sanskrit epics of ancient India."
+  },
+  {
+    "question": "'Ajanta Caves' are associated with which religion?",
+    "options": ["Hinduism", "Buddhism", "Jainism", "Islam"],
+    "answer": 1,
+    "explanation": "The caves contain Buddhist murals and sculptures."
+  },
+  {
+    "question": "Which ancient civilization showed urban planning with grid streets and drainage?",
+    "options": ["Indus Valley", "Mesopotamia", "Egypt", "Minoan"],
+    "answer": 0,
+    "explanation": "Indus Valley cities were notable for their grid layout and drainage."
+  },
+  {
+    "question": "The 'Rigveda' mainly consists of?",
+    "options": ["Philosophical hymns", "Warrior chants", "Sacrificial mantras", "Love poems"],
+    "answer": 2,
+    "explanation": "The Rigveda contains mantras used in sacrifices."
+  },
+  {
+    "question": "Buddhism originated in which part of ancient India?",
+    "options": ["Magadha", "Gandhara", "Kalinga", "Avanti"],
+    "answer": 0,
+    "explanation": "Buddhism originated in the Magadha region."
+  },
+  {
+    "question": "Mahavira was a contemporary of which religious figure?",
+    "options": ["Buddha", "Chandragupta Maurya", "Ashoka", "Kalidasa"],
+    "answer": 0,
+    "explanation": "Mahavira and Buddha lived around the same period."
+  },
+  {
+    "question": "Which is the earliest known Indian dynasty with historical evidence?",
+    "options": ["Maurya", "Gupta", "Nanda", "Sunga"],
+    "answer": 0,
+    "explanation": "Maurya dynasty has the earliest historical records."
+  },
+  {
+    "question": "The monolith rock-cut temples are associated with which Indian dynasty?",
+    "options": ["Pallava", "Chola", "Satavahana", "Gupta"],
+    "answer": 0,
+    "explanation": "Pallavas are famous for rock-cut temples at Mahabalipuram."
+  },
+  {
+    "question": "Which was the primary language used in early Indian inscriptions?",
+    "options": ["Prakrit", "Pali", "Sanskrit", "Tamil"],
+    "answer": 0,
+    "explanation": "Prakrit was the language of many early inscriptions like Ashoka's edicts."
+  },
+  {
+    "question": "The concept of 'Ahimsa' was central to which two religious traditions?",
+    "options": ["Buddhism and Jainism", "Hinduism and Islam", "Christianity and Buddhism", "Sikhism and Jainism"],
+    "answer": 0,
+    "explanation": "Ahimsa, or non-violence, is a key teaching in both Buddhism and Jainism."
+  },
+  {
+    "question": "Coins depicting rulers seated on a throne are characteristic of which dynasty?",
+    "options": ["Maurya", "Gupta", "Mughal", "Chola"],
+    "answer": 1,
+    "explanation": "Gupta coins often showed the king seated on a throne."
+  },
+  {
+    "question": "The 'Bhagavad Gita' is a part of which epic?",
+    "options": ["Ramayana", "Mahabharata", "Puranas", "Vedas"],
+    "answer": 1,
+    "explanation": "The Bhagavad Gita is part of the Mahabharata."
+  },
+  {
+    "question": "What is the main theme of 'Silappathikaram'?",
+    "options": ["Love and justice", "War and conquest", "Religious hymns", "Scientific knowledge"],
+    "answer": 0,
+    "explanation": "Silappathikaram is about love, devotion, and justice."
+  },
+  {
+    "question": "The Great Bath found in Mohenjo-Daro indicates the importance of?",
+    "options": ["Religious purification", "Entertainment", "Trade exhibitions", "Army training"],
+    "answer": 0,
+    "explanation": "It is believed to be used for ritual purification."
+  },
+  {
+    "question": "Which is the earliest known Indian scripture?",
+    "options": ["Vedas", "Upanishads", "Puranas", "Ramayana"],
+    "answer": 0,
+    "explanation": "The Vedas are the earliest known Indian scriptures."
+  },
+  {
+    "question": "Which ancient Indian city was known for its advanced drainage system?",
+    "options": ["Harappa", "Pataliputra", "Kushinagar", "Madurai"],
+    "answer": 0,
+    "explanation": "Harappa had a sophisticated drainage and sewage system."
+  },
+  {
+    "question": "Jainism and Buddhism originated roughly in which century BCE?",
+    "options": ["6th century BCE", "2nd century BCE", "1st century BCE", "3rd century CE"],
+    "answer": 0,
+    "explanation": "Both originated in the 6th century BCE."
+  },
+  {
+    "question": "Ashoka’s edicts were written in which script?",
+    "options": ["Devanagari", "Kharosthi", "Brahmi", "Persian"],
+    "answer": 2,
+    "explanation": "Most Ashoka edicts are in the Brahmi script."
+  },
+  {
+    "question": "The 'Dhamma' propagated by Ashoka mostly promotes?",
+    "options": ["War and conquest", "Non-violence and tolerance", "Taxation system", "New religion"],
+    "answer": 1,
+    "explanation": "Ashoka's Dhamma encouraged ethics, non-violence, and tolerance."
+  },
+  {
+    "question": "Which Indian kingdom was mentioned by Greek historian Megasthenes?",
+    "options": ["Magadha", "Kalinga", "Kosala", "Vatsa"],
+    "answer": 0,
+    "explanation": "Megasthenes described Magadha extensively."
+  },
+  {
+    "question": "The 'Sangam' period is associated with which region?",
+    "options": ["North India", "Eastern India", "South India", "Western India"],
+    "answer": 2,
+    "explanation": "The Sangam period relates to Tamil Nadu in South India."
+  },
+  {
+    "question": "Which of the following was not a Vedic social class?",
+    "options": ["Brahmin", "Kshatriya", "Vaishya", "Sudesi"],
+    "answer": 3,
+    "explanation": "Sudesi is not a traditional Vedic varna."
+  },
+  {
+    "question": "The famous 'Aihole' temple complex is located in which state?",
+    "options": ["Rajasthan", "Karnataka", "Maharashtra", "Tamil Nadu"],
+    "answer": 1,
+    "explanation": "Aihole is in Karnataka."
+  },
+  {
+    "question": "Who is considered the last king of the Mauryan dynasty?",
+    "options": ["Ashoka", "Dasharatha", "Brihadratha", "Bindusara"],
+    "answer": 2,
+    "explanation": "Brihadratha was the last Mauryan king."
+  },
+  {
+    "question": "The earliest city in the Indian peninsula with archaeological remains is?",
+    "options": ["Kalikapuram", "Arikamedu", "Benakal", "Maski"],
+    "answer": 1,
+    "explanation": "Arikamedu was a major port in ancient Tamilakam."
+  },
+  {
+    "question": "The term 'Guru' denotes?",
+    "options": ["King", "Teacher", "Warrior", "Priest"],
+    "answer": 1,
+    "explanation": "Guru means a teacher or spiritual guide."
+  },
+  {
+    "question": "Who compiled the Yoga Sutras?",
+    "options": ["Patanjali", "Patanjali", "Vashistha", "Kanada"],
+    "answer": 0,
+    "explanation": "Patanjali is traditionally credited with Yoga Sutras."
+  },
+  {
+    "question": "Which of the following is a major site of the Harappan civilization?",
+    "options": ["Kausambi", "Harappa", "Pataliputra", "Indraprastha"],
+    "answer": 1,
+    "explanation": "Harappa is one of the major cities of the Indus Valley Civilication."
+  },
+  {
+    "question": "The term 'Varnas' in Vedic society refers to?",
+    "options": ["Religious ceremonies", "Social classes", "Sacred texts", "Festivals"],
+    "answer": 1,
+    "explanation": "Varnas denote the four social classes."
+  }
+
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>

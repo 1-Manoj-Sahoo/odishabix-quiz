@@ -1,0 +1,2999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medieval Odisha History Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+	
+	header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
+    text-align: center;
+    padding: 8px 8px;
+    background-color: rgba(0,0,0,1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+	}
+
+	header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    letter-spacing: 2px;
+    color: #ffcc00;
+	}
+
+	header h1 .header-link {
+    color: #ffcc00;
+    text-decoration: none;
+    user-select: none;
+	}
+
+	header h1 .header-link:hover,
+	header h1 .header-link:focus {
+     text-decoration: none;
+	}
+	header p {
+        margin-top: 2px;
+        font-size: 1.2rem;
+        color: #ffee99;
+    }
+	.container.mt-5.mb-5 {
+    margin-top: 100px !important;
+	}
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+<header>
+  		<h1><a href="index.html" class="header-link">ODISHABIX</a></h1>
+		 <p>Prepare Better, Achieve faster</p>
+	</header>
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">MEDIEVAL ODISHA HISTORY</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+
+  {
+    "question": "Who was the founder of the Eastern Ganga dynasty in Odisha?",
+    "options": ["Anantavarman Chodaganga", "Anantavarman Vajrahasta", "Rajendra Chola I", "Divyasingha Deva"],
+    "answer": 1,
+    "explanation": "Anantavarman Vajrahasta I is considered the founder of the Eastern Ganga dynasty."
+  },
+  {
+    "question": "Which ruler of the Eastern Ganga dynasty is credited with building the Jagannath Temple at Puri?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva IV", "Vishwanath Deva"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III started the construction of the Jagannath Temple which was completed by his successors."
+  },
+  {
+    "question": "The Eastern Ganga dynasty reached its territorial peak under which ruler?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Vishwanath Deva", "Khurda Gajapati Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Narasingha Deva I expanded the Eastern Ganga empire to its greatest extent."
+  },
+  {
+    "question": "Which foreign traveler described the grandeur of the Jagannath Temple during the Eastern Ganga period?",
+    "options": ["Francisco Pires", "Abdur Razzaq", "Niccolò de' Conti", "Jean-Baptiste Tavernier"],
+    "answer": 2,
+    "explanation": "Niccolò de' Conti visited Puri and described the temple in detail during the 15th century."
+  },
+  {
+    "question": "Which dynasty succeeded the Eastern Ganga dynasty in Odisha?",
+    "options": ["Somavamsi dynasty", "Gajapati dynasty", "Maratha rule", "Mughal administration"],
+    "answer": 1,
+    "explanation": "The Gajapati dynasty succeeded the Eastern Ganga dynasty in the medieval period."
+  },
+  {
+    "question": "Who was the founder of the Gajapati dynasty?",
+    "options": ["Kapilendra Deva", "Vishwanath Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva is regarded as the founder of the Gajapati dynasty."
+  },
+  {
+    "question": "The term 'Gajapati' literally means:",
+    "options": ["Lord of the Elephants", "King of Kings", "Defender of the Faith", "Lord of the Seas"],
+    "answer": 0,
+    "explanation": "'Gajapati' means 'Lord of the Elephants', symbolizing power and military strength."
+  },
+  {
+    "question": "Which Gajapati ruler is known for his conflicts with the Vijayanagara Empire and Bahmani Sultanate?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Raja Purushottama Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva fought against Vijayanagara and Bahmani Sultanate to expand his territory."
+  },
+  {
+    "question": "Prataparudra Deva was the ruler of which dynasty?",
+    "options": ["Eastern Ganga dynasty", "Gajapati dynasty", "Somavamsi dynasty", "Maratha dynasty"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva was a prominent Gajapati ruler."
+  },
+  {
+    "question": "Which Somavamsi ruler shifted the capital to modern-day Bhubaneswar?",
+    "options": ["Janmejaya I", "Mahadeva", "Udyotakesari", "Yayati I"],
+    "answer": 2,
+    "explanation": "Udyotakesari established Bhubaneswar as the capital of the Somavamsi dynasty."
+  },
+  {
+    "question": "The Somavamsi dynasty is noted for the construction of which famous temple?",
+    "options": ["Lingaraj Temple", "Sun Temple, Konark", "Jagannath Temple", "Brahmeswar Temple"],
+    "answer": 0,
+    "explanation": "The Lingaraj Temple was constructed during the Somavamsi period."
+  },
+  {
+    "question": "The famous Sun Temple at Konark was built during the reign of which dynasty?",
+    "options": ["Eastern Ganga dynasty", "Gajapati dynasty", "Somavamsi dynasty", "Bhauma Kara dynasty"],
+    "answer": 0,
+    "explanation": "The Sun Temple at Konark was built by Narasingha Deva I of the Eastern Ganga dynasty."
+  },
+  {
+    "question": "Which architecture style is prominent in the temples of Odisha?",
+    "options": ["Dravidian", "Nagara", "Kalinga", "Vesara"],
+    "answer": 2,
+    "explanation": "The Kalinga style is the distinctive architectural style of Odisha's temples."
+  },
+  {
+    "question": "What is the most important feature of Kalinga temple architecture?",
+    "options": ["Gopuram", "Shikhara", "Jagamohana", "Mandapa"],
+    "answer": 2,
+    "explanation": "The Jagamohana or assembly hall is a prominent feature in Kalinga temples."
+  },
+  {
+    "question": "The Jagannath Temple at Puri is dedicated to which deity?",
+    "options": ["Shiva", "Vishnu", "Jagannath", "Surya"],
+    "answer": 2,
+    "explanation": "Jagannath is a form of Lord Vishnu worshipped at Puri."
+  },
+  {
+    "question": "The main festival celebrated at the Jagannath Temple is called:",
+    "options": ["Diwali", "Ratha Yatra", "Holi", "Navaratri"],
+    "answer": 1,
+    "explanation": "Ratha Yatra or Chariot Festival is the primary festival of the Jagannath Temple."
+  },
+  {
+    "question": "Which Mughal emperor maintained the most influence in Odisha?",
+    "options": ["Akbar", "Jahangir", "Aurangzeb", "Shah Jahan"],
+    "answer": 0,
+    "explanation": "Emperor Akbar extended Mughal influence in Odisha during his reign."
+  },
+  {
+    "question": "During the Mughal rule, Odisha was a part of which Subah?",
+    "options": ["Bengal", "Delhi", "Ajmer", "Awadh"],
+    "answer": 0,
+    "explanation": "Odisha was incorporated into the Bengal Subah under the Mughals."
+  },
+  {
+    "question": "The Maratha rule in Odisha began under which Peshwa's leadership?",
+    "options": ["Balaji Vishwanath", "Balaji Bajirao", "Baji Rao I", "Madhavrao"],
+    "answer": 2,
+    "explanation": "Maratha influence in Odisha began under Peshwa Baji Rao I."
+  },
+  {
+    "question": "Which dynasty constructed Barabati Fort?",
+    "options": ["Eastern Ganga", "Gajapati", "Mughal", "Maratha"],
+    "answer": 1,
+    "explanation": "Barabati fort was constructed during the Gajapati dynasty period."
+  },
+  {
+    "question": "The temple town of Bhubaneswar is known as the city of:",
+    "options": ["Temples", "Lakes", "Forts", "Gardens"],
+    "answer": 0,
+    "explanation": "Bhubaneswar is famous as the 'City of Temples.'"
+  },
+  {
+    "question": "Which famous battle was fought between the Gajapati king and the Sultan of Bengal?",
+    "options": ["Battle of Pipli", "Battle of Kalinga", "Battle of Rajamahendri", "Battle of Haldighati"],
+    "answer": 0,
+    "explanation": "The Battle of Pipli was fought between the Gajapati king Kapilendra Deva and the Bengal Sultan."
+  },
+  {
+    "question": "Which of the following rulers expanded the Eastern Ganga kingdom southwards into Andhra Pradesh?",
+    "options": ["Bhanudeva I", "Anantavarman Chodaganga", "Narasingha Deva I", "Anangabhima Deva III"],
+    "answer": 1,
+    "explanation": "Anantavarman Chodaganga expanded Eastern Ganga rule southwards."
+  },
+  {
+    "question": "Somavamsi king Yayati I was known for:",
+    "options": ["Constructing temples", "Patronizing Jainism", "Maritime expeditions", "Building fortresses"],
+    "answer": 0,
+    "explanation": "Yayati I is credited with temple construction initiatives in Odisha."
+  },
+  {
+    "question": "The Jagannath temple’s main spire is known as:",
+    "options": ["Shikhara", "Vimana", "Deul", "Mandapa"],
+    "answer": 2,
+    "explanation": "In Odisha temple architecture, the spire is referred to as Deul."
+  },
+  {
+    "question": "Which Gajapati ruler shifted the capital of Odisha to Cuttack?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Mukunda Deva", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva moved the capital to Cuttack, making it a major power center."
+  },
+  {
+    "question": "Who built the Sun Temple at Konark?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Kapilendra Deva", "Yayati Keshari"],
+    "answer": 1,
+    "explanation": "Narasingha Deva I of the Eastern Ganga dynasty built the Sun Temple at Konark in the 13th century."
+  },
+  {
+    "question": "The Lingaraj Temple at Bhubaneswar was constructed mainly during the reign of:",
+    "options": ["Gajapati dynasty", "Eastern Ganga dynasty", "Somavamsi dynasty", "Bhauma-Kara dynasty"],
+    "answer": 2,
+    "explanation": "The Somavamsi dynasty completed the Lingaraj Temple in the 11th century CE."
+  },
+  {
+    "question": "Which Gajapati ruler was defeated by the Vijayanagara king Krishnadevaraya?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Purushottama Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva faced defeats against Krishnadevaraya of Vijayanagara."
+  },
+  {
+    "question": "The 'Natamandira' in Odisha temples refers to:",
+    "options": ["Assembly hall", "Hall for dance performances", "Sanctum sanctorum", "Outer courtyard"],
+    "answer": 1,
+    "explanation": "Natamandira is the dancing hall attached to many large Odisha temples."
+  },
+  {
+    "question": "Who commissioned the construction of the Jagannath Temple's main sanctum?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Kapilendra Deva", "Narasingha Deva I"],
+    "answer": 0,
+    "explanation": "Anantavarman Chodaganga Deva began the construction of the Jagannath Temple's main sanctum."
+  },
+  {
+    "question": "Which dynasty built the Mukteswara Temple in Bhubaneswar?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Bhauma-Kara"],
+    "answer": 0,
+    "explanation": "The Mukteswara Temple, known as the 'Gem of Odisha architecture', was built during the Somavamsi period."
+  },
+  {
+    "question": "Under which Mughal emperor was Odisha incorporated into the Bengal Subah?",
+    "options": ["Babur", "Humayun", "Akbar", "Sher Shah Suri"],
+    "answer": 2,
+    "explanation": "During Akbar’s reign, Odisha was brought under the Bengal Subah."
+  },
+  {
+    "question": "Which battle in 1568 AD led to the fall of the independent Hindu kingdom of Odisha?",
+    "options": ["Battle of Rajahmundry", "Battle of Talikota", "Battle of Raibania", "Battle of Sammugarh"],
+    "answer": 2,
+    "explanation": "The Battle of Raibania in 1568 led to the defeat of the last independent Hindu king of Odisha, Mukunda Deva."
+  },
+  {
+    "question": "Which Maratha general captured Odisha from the Mughals?",
+    "options": ["Raghunath Rao", "Mahadji Shinde", "Nana Phadnavis", "Balaji Bajirao"],
+    "answer": 0,
+    "explanation": "Raghunath Rao annexed Odisha into Maratha control in the mid-18th century."
+  },
+  {
+    "question": "The Rekha Deul in Odisha temple architecture refers to:",
+    "options": ["Sanctum tower", "Entrance gate", "Pillared hall", "Temple tank"],
+    "answer": 0,
+    "explanation": "Rekha Deul is the tall curvilinear spire above the sanctum sanctorum."
+  },
+  {
+    "question": "Which Gajapati ruler patronised the famous poet Sarala Das?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Mukunda Deva", "Purushottama Deva"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva supported Sarala Das, author of the Odia Mahabharata."
+  },
+  {
+    "question": "Who constructed the Barabati Fort in Cuttack?",
+    "options": ["Anantavarman Chodaganga", "Kapilendra Deva", "Mukunda Deva", "Narasingha Deva I"],
+    "answer": 1,
+    "explanation": "Kapilendra Deva of the Gajapati dynasty built the famous Barabati Fort in Cuttack."
+  },
+  {
+    "question": "Which temple built by the Eastern Ganga dynasty is known as the 'Black Pagoda'?",
+    "options": ["Lingaraj Temple", "Jagannath Temple", "Konark Sun Temple", "Mukteswara Temple"],
+    "answer": 2,
+    "explanation": "The Konark Sun Temple, built by Narasingha Deva I, is also called the 'Black Pagoda'."
+  },
+  {
+    "question": "The Somavamsi dynasty established their power in Odisha after defeating which dynasty?",
+    "options": ["Bhauma-Kara", "Eastern Ganga", "Kalachuri", "Chola"],
+    "answer": 0,
+    "explanation": "The Somavamsis defeated the Bhauma-Karas to establish their rule in Odisha."
+  },
+  {
+    "question": "Which Gajapati ruler fought against the Bengal Sultan Alauddin Hussain Shah?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Purushottama Deva fought multiple battles with Alauddin Hussain Shah of Bengal."
+  },
+  {
+    "question": "Which festival is historically linked to the naval expeditions of the Gajapatis?",
+    "options": ["Boita Bandana", "Ratha Yatra", "Makar Sankranti", "Magha Saptami"],
+    "answer": 0,
+    "explanation": "Boita Bandana commemorates Odisha’s ancient maritime voyages during the Gajapati period."
+  },
+  {
+    "question": "The word 'Deula' in Kalinga architecture refers to:",
+    "options": ["Sanctum tower", "Pillar structure", "Temple entrance", "Fortification wall"],
+    "answer": 0,
+    "explanation": "‘Deula’ refers to the main sanctum tower in Odisha’s temple architecture."
+  },
+  {
+    "question": "Who was the last independent Hindu king of Odisha before Mughal conquest?",
+    "options": ["Mukunda Deva", "Kapilendra Deva", "Prataparudra Deva", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Mukunda Deva was the last independent Hindu ruler of Odisha, defeated in 1568."
+  },
+  {
+    "question": "Which Mughal subahdar integrated Odisha fully into the Bengal Subah?",
+    "options": ["Man Singh I", "Todar Mal", "Subahdar Islam Khan", "Shaista Khan"],
+    "answer": 0,
+    "explanation": "Man Singh I incorporated Odisha into the Bengal Subah under Akbar."
+  },
+  {
+    "question": "Which temple in Bhubaneswar is famed for its intricately carved arched gateway (Torana)?",
+    "options": ["Mukteswara Temple", "Rajarani Temple", "Lingaraj Temple", "Parasurameswara Temple"],
+    "answer": 0,
+    "explanation": "Mukteswara Temple is celebrated for its elegant carved Torana."
+  },
+  {
+    "question": "The Ganga ruler Anangabhima Deva III declared Lord Jagannath as:",
+    "options": ["The state god of Odisha", "Supreme ruler of his empire", "His personal deity", "Protector of the seas"],
+    "answer": 1,
+    "explanation": "Anangabhima Deva III proclaimed Lord Jagannath as the actual ruler of his kingdom."
+  },
+  {
+    "question": "The Maratha control over Odisha lasted until its conquest by the British in:",
+    "options": ["1799", "1803", "1817", "1824"],
+    "answer": 1,
+    "explanation": "The British East India Company annexed Odisha from the Marathas in 1803."
+  },
+  {
+    "question": "Which Odia king was known as 'Gajapati Gaudesvara'?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Mukunda Deva", "Anangabhima Deva III"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva took the title 'Gajapati Gaudesvara' after victories in Bengal."
+  },
+  {
+    "question": "The temple of Rajarani in Bhubaneswar is notable for the absence of:",
+    "options": ["Main deity idol", "Jagamohana", "Shikhara", "Mandapa"],
+    "answer": 0,
+    "explanation": "The Rajarani Temple is famed for its intricate carvings but lacks a main deity inside."
+  },
+  {
+    "question": "Which dynasty introduced large scale stone temple building in Bhubaneswar?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Bhauma-Kara"],
+    "answer": 0,
+    "explanation": "The Somavamsis initiated large scale stone temple constructions in Bhubaneswar."
+  },
+  {
+    "question": "Which Gajapati ruler lost southern territories to the Vijayanagara Empire after the Battle of Chilka Lake?",
+    "options": ["Purushottama Deva", "Prataparudra Deva", "Mukunda Deva", "Kapilendra Deva"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva lost territories to Vijayanagara forces after the naval battle on Chilka Lake."
+  },
+  {
+    "question": "The Jagamohana in Odisha temples serves as:",
+    "options": ["Sanctum", "Audience hall", "Dance hall", "Kitchen area"],
+    "answer": 1,
+    "explanation": "Jagamohana is a large hall in front of the sanctum where devotees gather."
+  },
+  {
+    "question": "Which Mughal ruler’s farman granted the Jagannath Temple rights and privileges?",
+    "options": ["Akbar", "Jahangir", "Shah Jahan", "Aurangzeb"],
+    "answer": 0,
+    "explanation": "Akbar issued firmans ensuring temple rights and revenues."
+  },
+  {
+    "question": "The Eastern Ganga dynasty was originally established in which part of present-day India?",
+    "options": ["Ganjam region", "Puri region", "Cuttack region", "Balasore region"],
+    "answer": 0,
+    "explanation": "They rose to prominence in the southern Ganjam region."
+  },
+  {
+    "question": "The 'Bada Deula, Majhi Deula, Sana Deula' classification in Puri's Jagannath Temple refers to:",
+    "options": ["Temple priests", "Three main temple structures", "Festivals", "Temple markets"],
+    "answer": 1,
+    "explanation": "These terms refer to the three principal structures — sanctum, assembly hall, and festival hall."
+  },
+  {
+    "question": "Mukunda Deva was killed during the invasion led by:",
+    "options": ["Suleiman Kararani", "Man Singh I", "Raghunath Rao", "Aurangzeb"],
+    "answer": 0,
+    "explanation": "Suleiman Kararani, the Afghan ruler of Bengal, invaded Odisha and Mukunda Deva was killed in battle."
+  },
+   {
+    "question": "Who succeeded Narasingha Deva I as the ruler of the Eastern Ganga dynasty?",
+    "options": ["Bhanudeva I", "Anangabhima Deva III", "Kapilendra Deva", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Bhanudeva I succeeded Narasingha Deva I and continued the Eastern Ganga rule."
+  },
+  {
+    "question": "Which Gajapati ruler sent emissaries to establish friendly relations with the Portuguese?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Mukunda Deva", "Purushottama Deva"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva engaged diplomatically with the Portuguese traders."
+  },
+  {
+    "question": "The Somavamsis were originally rulers of which region before coming to Odisha?",
+    "options": ["Dakshina Kosala", "Andhra", "Magadha", "Gauda"],
+    "answer": 0,
+    "explanation": "They originated from Dakshina Kosala before expanding into Odisha."
+  },
+  {
+    "question": "Which Gajapati ruler shifted the capital to Khurda during declining years?",
+    "options": ["Mukunda Deva", "Divyasingha Deva", "Purushottama Deva", "Bhoi dynasty rulers"],
+    "answer": 3,
+    "explanation": "Bhoi dynasty rulers moved the capital to Khurda for strategic defence."
+  },
+  {
+    "question": "Which temple is called the 'Gem of Odisha architecture'?",
+    "options": ["Mukteswara Temple", "Rajarani Temple", "Brahmeswara Temple", "Lingaraj Temple"],
+    "answer": 0,
+    "explanation": "Mukteswara Temple is often called the gem for its exquisite carvings."
+  },
+  {
+    "question": "Who built the Vittala Temple complex in Hampi after defeating Gajapati forces?",
+    "options": ["Krishnadevaraya", "Devaraya II", "Achyuta Deva Raya", "Harihara II"],
+    "answer": 1,
+    "explanation": "Devaraya II defeated the Gajapatis and built structures in Vijayanagara."
+  },
+  {
+    "question": "The Eastern Ganga dynasty primarily patronised which religion?",
+    "options": ["Shaivism", "Vaishnavism", "Buddhism", "Jainism"],
+    "answer": 1,
+    "explanation": "They were staunch Vaishnavites, promoting Jagannath worship."
+  },
+  {
+    "question": "Which Maratha general administered Odisha from Cuttack?",
+    "options": ["Raghunath Rao", "Haripant Bhosle", "Baji Rao I", "Mahadji Shinde"],
+    "answer": 1,
+    "explanation": "Haripant Bhosle acted as the Maratha governor in Odisha."
+  },
+  {
+    "question": "The Vimala Temple inside the Puri Jagannath complex is dedicated to which deity?",
+    "options": ["Durga", "Lakshmi", "Parvati", "Saraswati"],
+    "answer": 0,
+    "explanation": "The Vimala Temple is dedicated to Goddess Durga, an important shrine within the complex."
+  },
+  {
+    "question": "Which Gajapati ruler faced repeated Afghan invasions from Bengal?",
+    "options": ["Mukunda Deva", "Prataparudra Deva", "Kapilendra Deva", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Mukunda Deva struggled against Afghan forces under the Kararani dynasty."
+  },
+  {
+    "question": "The Rajarani Temple belongs to which architectural phase in Odisha?",
+    "options": ["Early Kalinga", "Mature Kalinga", "Late Kalinga", "Post-Kalinga"],
+    "answer": 1,
+    "explanation": "Rajarani Temple represents the mature phase of Odisha temple architecture."
+  },
+  {
+    "question": "The Somavamsi ruler Yayati Keshari is credited with which major religious structure?",
+    "options": ["Jagannath Temple", "Lingaraj Temple", "Mukteswara Gate", "Konark Sun Temple"],
+    "answer": 1,
+    "explanation": "Yayati Keshari is credited with constructing the Lingaraj Temple."
+  },
+  {
+    "question": "Which Eastern Ganga king was known for victory over the Kalachuris?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Anantavarman Chodaganga", "Bhanudeva II"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III defeated the Kalachuris and expanded Ganga influence."
+  },
+  {
+    "question": "Which Mughal general led the decisive conquest of Odisha in 1592?",
+    "options": ["Todar Mal", "Man Singh I", "Qasim Khan", "Shaista Khan"],
+    "answer": 2,
+    "explanation": "Qasim Khan completed the Mughal incorporation of Odisha in 1592."
+  },
+  {
+    "question": "The Jagamohana of Konark Temple is unique because:",
+    "options": ["It is circular", "It collapsed in early modern period", "It has no entrance", "It faces south"],
+    "answer": 1,
+    "explanation": "The Jagamohana collapsed possibly in the 17th century, distinct in Konark's history."
+  },
+  {
+    "question": "Which Gajapati king was a contemporary of Chaitanya Mahaprabhu?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Mukunda Deva", "Purushottama Deva"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva interacted with Chaitanya and supported Vaishnavism."
+  },
+  {
+    "question": "The Jagannath Temple kitchen is considered the largest in the world and is attributed to which dynasty?",
+    "options": ["Gajapati", "Somavamsi", "Eastern Ganga", "Bhauma-Kara"],
+    "answer": 0,
+    "explanation": "The Gajapatis expanded the temple kitchen to cater to thousands of devotees."
+  },
+  {
+    "question": "Which river’s bank hosts the ancient city of Cuttack?",
+    "options": ["Mahanadi", "Baitarani", "Subarnarekha", "Rushikulya"],
+    "answer": 0,
+    "explanation": "Cuttack lies at the confluence of the Mahanadi and Kathajodi rivers."
+  },
+  {
+    "question": "The Somavamsis were patrons of which main sect of Hinduism?",
+    "options": ["Shaivism", "Vaishnavism", "Shaktism", "Smartism"],
+    "answer": 0,
+    "explanation": "They were primarily Shaivites, building major Shiva temples."
+  },
+  {
+    "question": "The 'Gajasimha' motif in Odisha temples depicts:",
+    "options": ["Elephant and lion together", "Mythical lion", "War elephant", "Elephant carrying deity"],
+    "answer": 0,
+    "explanation": "It represents a lion overpowering an elephant, symbolic of divine power."
+  },
+  {
+    "question": "Which Indo-Islamic structure in Odisha was originally a Hindu fort?",
+    "options": ["Barabati Fort", "Raibania Fort", "Cuttack Fort", "Jajpur Fort"],
+    "answer": 0,
+    "explanation": "Barabati Fort was originally constructed by Hindu rulers and later adapted."
+  },
+  {
+    "question": "Which Maratha governor coordinated tax collection in Odisha for the Peshwa?",
+    "options": ["Nilakanth Rao", "Haripant Bhosle", "Raghunath Rao", "Balwant Rao Mehendale"],
+    "answer": 1,
+    "explanation": "Haripant Bhosle served as key administrator ensuring revenue to the Peshwa treasury."
+  },
+  {
+    "question": "The massive audience hall in front of a sanctum in Odisha temples is called:",
+    "options": ["Jagamohana", "Natamandira", "Mandapa", "Sabhamandap"],
+    "answer": 0,
+    "explanation": "Jagamohana serves as the large audience or prayer hall."
+  },
+  {
+    "question": "Which Gajapati ruler fought the Battle of Chilika Lake against Vijayanagara forces?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Purushottama Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva faced Vijayanagara in this notable naval engagement."
+  },
+  {
+    "question": "The Mukteswara Temple archway carvings prominently feature which themes?",
+    "options": ["Scenes from Mahabharata", "Floral motifs and tales from Panchatantra", "Depictions of Jagannath worship", "Chronicles of rulers"],
+    "answer": 1,
+    "explanation": "The Torana has intricate floral designs and animal fables from the Panchatantra."
+  },
+  {
+    "question": "Which Afghan ruler of Bengal invaded Odisha defeating Mukunda Deva?",
+    "options": ["Sher Shah Suri", "Suleiman Kararani", "Daud Khan", "Alauddin Hussain Shah"],
+    "answer": 1,
+    "explanation": "Suleiman Kararani’s invasion marked the end of Mukunda Deva’s reign."
+  },
+  {
+    "question": "Which Somavamsi king issued inscriptions describing victories in Gauda region?",
+    "options": ["Yayati Keshari", "Udyotakesari", "Janmejaya I", "Mahadeva"],
+    "answer": 0,
+    "explanation": "Yayati Keshari boasted conquests extending to Gauda."
+  },
+  {
+    "question": "The Maratha revenue division in Odisha was known as:",
+    "options": ["Chowki", "Circar", "Pargana", "Haveli"],
+    "answer": 2,
+    "explanation": "They collected revenue through administrative parganas."
+  },
+  {
+    "question": "The Bhaskareswar Temple in Bhubaneswar is dedicated to:",
+    "options": ["Shiva", "Vishnu", "Durga", "Surya"],
+    "answer": 0,
+    "explanation": "Bhaskareswar Temple is dedicated to Lord Shiva."
+  },
+  {
+    "question": "Which battle marked the British takeover of Odisha from the Marathas?",
+    "options": ["Battle of Assaye", "Second Anglo-Maratha War", "Battle of Laswari", "British attack on Barabati"],
+    "answer": 1,
+    "explanation": "During the Second Anglo-Maratha War in 1803, Odisha was ceded to the British."
+  },
+  {
+    "question": "Which Eastern Ganga ruler renovated the Jagannath Temple after storm damage?",
+    "options": ["Narasingha Deva II", "Bhanudeva III", "Anangabhima Deva III", "Kapilendra Deva"],
+    "answer": 0,
+    "explanation": "Narasingha Deva II undertook repairs to the Jagannath Temple."
+  },
+  {
+    "question": "The depiction of dancers and musicians in Konark Temple carvings reflects:",
+    "options": ["Royal life only", "Religious and cultural synthesis", "Scenes from Buddha’s life", "Warfare traditions"],
+    "answer": 1,
+    "explanation": "These carvings show Odisha's rich performing arts integrated into temple design."
+  },
+  {
+    "question": "In Odisha temple typology, a 'Khakhara Deula' is associated with which deity type?",
+    "options": ["Sun", "Shakti (Goddess)", "Vishnu", "Shiva"],
+    "answer": 1,
+    "explanation": "Khakhara Deula style is linked with goddess shrines like Vaital Deula."
+  },
+  {
+    "question": "Who composed the Odia Mahabharata during the Gajapati rule?",
+    "options": ["Balaram Das", "Sarala Das", "Achyutananda Das", "Madhusudan Rao"],
+    "answer": 1,
+    "explanation": "Sarala Das authored the Odia Mahabharata."
+  },
+  {
+    "question": "Which dynasty patronised the building of the Brahmeswar Temple in Bhubaneswar?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Bhauma-Kara"],
+    "answer": 0,
+    "explanation": "The Somavamsi dynasty is credited with Brahmeswar Temple construction."
+  },
+  {
+    "question": "During Mughal times, Odisha was often administratively paired with which other Subah?",
+    "options": ["Gujarat", "Bengal", "Ajmer", "Multan"],
+    "answer": 1,
+    "explanation": "Odisha was part of Bengal Subah for much of Mughal rule."
+  },
+  {
+    "question": "The 'Natamandira' of Konark Temple was used for:",
+    "options": ["Dance performances before the deity", "Marketplace", "War council meetings", "Storage"],
+    "answer": 0,
+    "explanation": "Natyamandira served as a hall for devotional dances."
+  },
+  {
+    "question": "Which Eastern Ganga king shifted the capital permanently to Cuttack?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva I"],
+    "answer": 1,
+    "explanation": "Anangabhima Deva III moved the capital to Cuttack and fortified the city."
+  },
+  {
+    "question": "The Somavamsi dynasty was replaced in coastal Odisha by which dynasty?",
+    "options": ["Eastern Ganga", "Gajapati", "Bhoi", "Bhauma-Kara"],
+    "answer": 0,
+    "explanation": "The Eastern Gangas succeeded the Somavamsis in coastal Odisha."
+  },
+  {
+    "question": "Which Gajapati king annexed large parts of Andhra and Tamil regions?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Purushottama Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva expanded his empire deep into south India."
+  },
+  {
+    "question": "What is the primary material used in medieval Odisha temple construction?",
+    "options": ["Granite", "Sandstone", "Laterite", "Marble"],
+    "answer": 1,
+    "explanation": "Fine-grained sandstone was commonly used in Odisha’s medieval temples."
+  },
+  {
+    "question": "Which Mughal prince briefly served as Subahdar of Odisha?",
+    "options": ["Aurangzeb", "Dara Shikoh", "Shah Shuja", "Murad Baksh"],
+    "answer": 2,
+    "explanation": "Prince Shah Shuja was appointed Subahdar of Bengal including Odisha."
+  },
+  {
+    "question": "The temple of Vaital Deula in Bhubaneswar is dedicated to which goddess?",
+    "options": ["Durga", "Chamunda", "Kali", "Tara"],
+    "answer": 1,
+    "explanation": "Vaital Deula is a Shakti shrine primarily devoted to Chamunda."
+  },
+  {
+    "question": "Purushottama Deva is remembered for patronising which art form?",
+    "options": ["Odissi dance", "Pattachitra painting", "Chhau dance", "Gotipua"],
+    "answer": 0,
+    "explanation": "Purushottama Deva supported Odissi dance performances in temples."
+  },
+  {
+    "question": "Which Maratha Peshwa held ultimate authority over Odisha during Maratha rule?",
+    "options": ["Baji Rao I", "Madhavrao I", "Balaji Bajirao", "Nanasaheb Peshwa"],
+    "answer": 2,
+    "explanation": "Balaji Bajirao (Nanasaheb Peshwa) oversaw Odisha through his governors."
+  },
+  {
+    "question": "The Jagannath Temple kitchen can feed how many devotees approximately per day?",
+    "options": ["2,000", "10,000", "50,000", "1,00,000"],
+    "answer": 2,
+    "explanation": "The temple kitchen is capable of serving around 50,000 people daily."
+  },
+  {
+    "question": "Which Indo-Islamic structure in Odisha was originally built by Eastern Ganga rulers?",
+    "options": ["Raibania Fort", "Barabati Fort", "Chandbibi Mahal", "Qadam Rasul Mosque"],
+    "answer": 0,
+    "explanation": "The Raibania fort complex was initially constructed by the Eastern Ganga rulers."
+  },
+  {
+    "question": "The Bhoi dynasty was established in Odisha after the fall of which dynasty?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Mughal"],
+    "answer": 2,
+    "explanation": "The Bhoi dynasty emerged after the decline of the Gajapatis."
+  },
+  {
+    "question": "During Mughal period, Jagannath Temple enjoyed protection under which governor?",
+    "options": ["Shaista Khan", "Man Singh I", "Islam Khan Chishti", "Murshid Quli Khan"],
+    "answer": 1,
+    "explanation": "Man Singh I is credited with ensuring the temple’s safeguarding."
+  },
+  {
+    "question": "Which king of the Somavamsi dynasty is credited with building the Brahmeswar Temple?",
+    "options": ["Udyotakesari", "Yayati Keshari", "Kapilendra Deva", "Anangabhima Deva I"],
+    "answer": 0,
+    "explanation": "Udyotakesari is credited for constructing the Brahmeswar Temple."
+  },
+  {
+    "question": "The Maratha administration in Odisha was divided into how many chaklas (districts)?",
+    "options": ["2", "3", "4", "5"],
+    "answer": 2,
+    "explanation": "Odisha under Maratha rule was divided into four administrative chaklas."
+  },
+  {
+    "question": "The Sun Temple at Konark is oriented towards which direction?",
+    "options": ["East", "West", "North", "South"],
+    "answer": 0,
+    "explanation": "The Konark Temple faces east to catch the first rays of the sun."
+  },
+  {
+    "question": "Who defeated Mukunda Deva leading to the Afghan occupation of Odisha?",
+    "options": ["Suleiman Kararani", "Daud Khan", "Man Singh I", "Qasim Khan"],
+    "answer": 0,
+    "explanation": "Suleiman Kararani’s forces defeated Mukunda Deva in 1568."
+  },
+  {
+    "question": "Which deity is housed in the sanctum of Lingaraj Temple?",
+    "options": ["Jagannath", "Shiva", "Vishnu", "Surya"],
+    "answer": 1,
+    "explanation": "Lord Shiva is worshipped as Lingaraj in this temple."
+  },
+  {
+    "question": "The 'Gajapati' title became hereditary during the rule of:",
+    "options": ["Eastern Gangas", "Somavamsis", "Bhoi dynasty", "Kapilendra Deva"],
+    "answer": 3,
+    "explanation": "Kapilendra Deva of the Gajapati dynasty institutionalised the title."
+  },
+  {
+    "question": "Odisha was ceded to the British from the Marathas under which treaty?",
+    "options": ["Treaty of Salbai", "Treaty of Deogaon", "Treaty of Bassein", "Treaty of Madras"],
+    "answer": 1,
+    "explanation": "The Treaty of Deogaon (1803) transferred Odisha to British control."
+  },
+  {
+    "question": "Which Gajapati ruler initiated the tradition of Chhera Pahanra during the Ratha Yatra?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 2,
+    "explanation": "Prataparudra Deva initiated the symbolic act of temple servitude."
+  },
+  {
+    "question": "Which somavamsi king expanded his territory to include Utkala and Kangoda?",
+    "options": ["Yayati Keshari", "Udyotakesari", "Janmejaya I", "Mahasivagupta"],
+    "answer": 0,
+    "explanation": "Yayati Keshari incorporated Utkala and Kangoda into his domain."
+  },
+  {
+    "question": "The term 'Natamandira' relates to which temple art form in Odisha?",
+    "options": ["Dance", "Music", "Drama", "Sculpture"],
+    "answer": 0,
+    "explanation": "Natamandira or Natyamandap is used for temple dance performances."
+  },
+  {
+    "question": "During Mughal rule, what was the primary export from Odisha’s ports?",
+    "options": ["Rice", "Black pepper", "Silk", "Cotton textiles"],
+    "answer": 0,
+    "explanation": "Rice was a major export commodity from Odisha’s ports under Mughal trade."
+  },
+  {
+    "question": "Which Gajapati ruler rebuilt parts of the Jagannath Temple after damage from invasions?",
+    "options": ["Mukunda Deva", "Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva"],
+    "answer": 0,
+    "explanation": "Mukunda Deva restored the temple after Afghan attacks."
+  },
+  {
+    "question": "In Odisha’s medieval temples, which structure follows the Jagamohana?",
+    "options": ["Natamandira", "Bhogamandapa", "Pradakshinapatha", "Mandapa"],
+    "answer": 0,
+    "explanation": "The Natamandira comes after the Jagamohana in the temple layout."
+  },
+  {
+    "question": "The Ganga dynasty founder Anantavarman Vajrahasta hailed from which family branch?",
+    "options": ["Eastern Ganga of Kalinga", "Western Ganga of Karnataka", "Kalachuri", "Chola"],
+    "answer": 1,
+    "explanation": "He was from the Eastern Ganga branch linked to the Western Gangas of Karnataka through marriage alliances."
+  },
+  {
+    "question": "Which Maratha fort in Odisha controlled trade along the Mahanadi?",
+    "options": ["Barabati Fort", "Raibania Fort", "Singhur Fort", "Balasore Fort"],
+    "answer": 0,
+    "explanation": "Barabati Fort strategically guarded the Mahanadi trade routes."
+  },
+  {
+    "question": "The temple of Alarnath near Puri is associated with which period?",
+    "options": ["Eastern Ganga", "Somavamsi", "Gajapati", "Bhoi"],
+    "answer": 2,
+    "explanation": "Alarnath Temple gained prominence during the Gajapati rule."
+  },
+  {
+    "question": "The Raibania fort complex in Balasore district is attributed to which ruler?",
+    "options": ["Narasingha Deva I", "Kapilendra Deva", "Mukunda Deva", "Anangabhima Deva III"],
+    "answer": 0,
+    "explanation": "Narasingha Deva I constructed Raibania fort as a strategic defence in north Odisha."
+  },
+  {
+    "question": "Which dynasty completed the Lingaraj Temple?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Bhoi"],
+    "answer": 0,
+    "explanation": "The Somavamsis completed its construction by the 11th century."
+  },
+  {
+    "question": "The Marathas built which fort near the Chilika Lake region?",
+    "options": ["Banki Fort", "Barabati Fort", "Raibania Fort", "Ali Fort"],
+    "answer": 0,
+    "explanation": "Banki Fort was constructed to oversee the Chilika region."
+  },
+  {
+    "question": "Which Mughal emperor granted revenue rights to Jagannath Temple from specific villages?",
+    "options": ["Akbar", "Jahangir", "Aurangzeb", "Shah Jahan"],
+    "answer": 0,
+    "explanation": "Akbar granted these rights to support the temple’s finances."
+  },
+  {
+    "question": "Who was the last ruler of the Eastern Ganga dynasty?",
+    "options": ["Bhanudeva IV", "Narasingha Deva II", "Anangabhima Deva III", "Kapilendra Deva"],
+    "answer": 0,
+    "explanation": "Bhanudeva IV was the last Eastern Ganga ruler before the Gajapati takeover."
+  },
+  {
+    "question": "In Odisha temples, which structure is used for offering food to deities?",
+    "options": ["Natamandira", "Bhogamandapa", "Jagamohana", "Rekha Deula"],
+    "answer": 1,
+    "explanation": "The Bhogamandapa is the hall used for food offerings."
+  },
+  {
+    "question": "Which Afghan successor state controlled Odisha before the Mughals?",
+    "options": ["Karrani Sultanate of Bengal", "Sur Empire", "Barid Shahi", "Nizam Shahi"],
+    "answer": 0,
+    "explanation": "The Karrani Sultanate held Odisha until Mughal incorporation."
+  },
+  {
+    "question": "Which Eastern Ganga ruler began construction of the present Jagannath Temple at Puri?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva I"],
+    "answer": 0,
+    "explanation": "Anantavarman Chodaganga Deva initiated construction of the great Jagannath Temple at Puri."
+  },
+  {
+    "question": "What was the capital of Odisha during much of the Gajapati dynasty?",
+    "options": ["Puri", "Cuttack", "Jajpur", "Khurda"],
+    "answer": 1,
+    "explanation": "Cuttack served as the political capital during most of the Gajapati period."
+  },
+  {
+    "question": "The Somavamsis originally hailed from which dynasty before moving into Odisha?",
+    "options": ["Panduvamsis of Dakshina Kosala", "Cholas", "Vakatakas", "Kalachuris"],
+    "answer": 0,
+    "explanation": "They were linked to the Panduvamsis of Dakshina Kosala before expanding into Odisha."
+  },
+  {
+    "question": "Which Gajapati ruler fought the famous Kanchi-Kaveri expedition?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Purushottama Deva led the expedition to Kanchi and brought back the idol of Ucchista Ganapathi."
+  },
+  {
+    "question": "The Rekha Deula, Pidha Deula, and Khakhara Deula are:",
+    "options": ["Odisha temple architectural types", "Titles of temple priests", "Names of ancient forts", "Types of temple rituals"],
+    "answer": 0,
+    "explanation": "These are the three main structural types in Kalinga temple architecture."
+  },
+  {
+    "question": "Konark Sun Temple is dedicated to which deity?",
+    "options": ["Surya", "Jagannath", "Shiva", "Vishnu"],
+    "answer": 0,
+    "explanation": "It is a grand chariot-shaped temple dedicated to Surya, the Sun God."
+  },
+  {
+    "question": "Which Mughal emperor ordered the Jagannath Temple to be protected and maintained?",
+    "options": ["Akbar", "Jahangir", "Shah Jahan", "Aurangzeb"],
+    "answer": 0,
+    "explanation": "Emperor Akbar issued firmans to protect and provide revenue for the Jagannath Temple."
+  },
+  {
+    "question": "Who was the last prominent ruler of the Bhoi dynasty before Mughal annexation?",
+    "options": ["Govinda Vidyadhara", "Mukunda Deva", "Ramachandra Bhanja", "Janardan Dev"],
+    "answer": 1,
+    "explanation": "Mukunda Deva, originally of Bhoi lineage, was the last prominent independent ruler."
+  },
+  {
+    "question": "Which Maratha leader negotiated with the British leading to the Treaty of Deogaon?",
+    "options": ["Ragunath Rao", "Daulat Rao Scindia", "Baji Rao II", "Haripant Bhosle"],
+    "answer": 1,
+    "explanation": "Daulat Rao Scindia agreed to cede Odisha to the British in 1803."
+  },
+  {
+    "question": "The Jagamohana in Odisha temple architecture refers to:",
+    "options": ["Sanctum tower", "Audience hall", "Temple kitchen", "Pillared gate"],
+    "answer": 1,
+    "explanation": "Jagamohana is the large main hall for devotees in front of the sanctum."
+  },
+  {
+    "question": "Which Gajapati ruler confronted the Bahmani Sultanate and Vijayanagara Empire simultaneously?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva fought on multiple fronts against both southern powers."
+  },
+  {
+    "question": "The Somavamsi king Janmejaya I is known for extending his rule over:",
+    "options": ["Utkala and Kangoda", "Khurda and Chilika", "Balasore and Midnapore", "Raipur and Bastar"],
+    "answer": 0,
+    "explanation": "He expanded Somavamsi control to Utkala and Kangoda."
+  },
+  {
+    "question": "Which Maratha fort was built to oversee coastal trade in Odisha?",
+    "options": ["Ali Fort", "Raibania Fort", "Banki Fort", "Barabati Fort"],
+    "answer": 0,
+    "explanation": "Ali Fort was constructed by the Marathas for coastal defence and customs control."
+  },
+  {
+    "question": "The great temple kitchen of Puri is called:",
+    "options": ["Bhogaghar", "Mahaprasad Bhavan", "Ananda Bazaar", "Niladri Bhavan"],
+    "answer": 0,
+    "explanation": "Bhogaghar is the large kitchen complex of the Jagannath Temple."
+  },
+  {
+    "question": "Which Eastern Ganga ruler shifted focus to temple-building after military campaigns?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva I", "Anantavarman Chodaganga"],
+    "answer": 1,
+    "explanation": "Narasingha Deva I built Konark after consolidating military gains."
+  },
+  {
+    "question": "Under the Mughals, Odisha was divided into how many Sarkars?",
+    "options": ["5", "6", "7", "8"],
+    "answer": 1,
+    "explanation": "Mughal administration divided Odisha into six Sarkars for governance."
+  },
+  {
+    "question": "The Kanchi-Kaveri legend is celebrated annually in which Odia festival?",
+    "options": ["Ratha Yatra", "Chandan Yatra", "Kanchi Utsav", "Boita Bandana"],
+    "answer": 2,
+    "explanation": "Kanchi Utsav commemorates Purushottama Deva’s victory over Kanchi."
+  },
+  {
+    "question": "The Vaital Deula’s architecture belongs to which temple category?",
+    "options": ["Khakhara Deula", "Pidha Deula", "Rekha Deula", "Mandapa"],
+    "answer": 0,
+    "explanation": "Vaital Deula is a Khakhara type, associated with goddess worship."
+  },
+  {
+    "question": "Who issued the earliest known Odia language inscription?",
+    "options": ["Kapilendra Deva", "Mukunda Deva", "Anangabhima Deva III", "Bhanudeva I"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva is credited with the earliest inscription in Odia."
+  },
+  {
+    "question": "Barabati Fort is located on the banks of which river?",
+    "options": ["Mahanadi", "Baitarani", "Rushikulya", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "The fort is situated on the banks of the Mahanadi in Cuttack."
+  },
+  {
+    "question": "Which Ganga king assumed the title ‘Paramavaishnava’?",
+    "options": ["Anantavarman Chodaganga", "Narasingha Deva I", "Anangabhima Deva III", "Bhanudeva IV"],
+    "answer": 2,
+    "explanation": "Anangabhima Deva III declared himself servant to Lord Jagannath and took this title."
+  },
+  {
+    "question": "The Mukteswara Temple’s Torana (arch) is considered unique because of:",
+    "options": ["Its height", "Its floral and narrative carvings", "Its metal ornamentation", "Its painted surface"],
+    "answer": 1,
+    "explanation": "The Torana has intricate floral and narrative carvings unmatched elsewhere."
+  },
+  {
+    "question": "Who succeeded Anantavarman Chodaganga?",
+    "options": ["Anangabhima Deva I", "Narasingha Deva I", "Bhanudeva I", "Anangabhima Deva II"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva I took over after the reign of Chodaganga."
+  },
+  {
+    "question": "During Maratha rule, what was the main port of Odisha used for trade?",
+    "options": ["Chandabali", "Pipili", "Balasore", "Gopalpur"],
+    "answer": 2,
+    "explanation": "Balasore developed as a major port for Maratha-controlled trade."
+  },
+  {
+    "question": "The Somavamsis patronised which form of temple spire design?",
+    "options": ["Curvilinear (Rekha) Shikhara", "Pyramidal Roof", "Gopuram style", "Domed Shikhara"],
+    "answer": 0,
+    "explanation": "They primarily favoured the curvilinear Rekha Shikhara design."
+  },
+  {
+    "question": "Which Mughal Subahdar was known for reforming revenue in Odisha?",
+    "options": ["Man Singh I", "Shaista Khan", "Murshid Quli Khan", "Islam Khan"],
+    "answer": 2,
+    "explanation": "Murshid Quli Khan made significant revenue reforms impacting Odisha."
+  },
+  {
+    "question": "The ‘Nata Mandap’ of the Jagannath Temple was built by:",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Kapilendra Deva", "Purushottama Deva"],
+    "answer": 3,
+    "explanation": "Purushottama Deva added the Nata Mandap to the temple structure."
+  },
+  {
+    "question": "The Raibania Fort complex served primarily as:",
+    "options": ["Trade centre", "Military garrison against Bengal", "Royal palace", "Religious site"],
+    "answer": 1,
+    "explanation": "It was a northern military outpost to guard against Bengal invasions."
+  },
+  {
+    "question": "Kapilendra Deva’s empire extended from the Ganga to:",
+    "options": ["Kaveri", "Krishna", "Godavari", "Pennar"],
+    "answer": 0,
+    "explanation": "His vast empire stretched from the Ganga river in Bengal to the Kaveri in Tamil country."
+  },
+  {
+    "question": "Which style of sculpture dominated the Konark Sun Temple?",
+    "options": ["Terracotta", "Sandstone carvings", "Marble inlay", "Wooden carvings"],
+    "answer": 1,
+    "explanation": "Konark is celebrated for its detailed sandstone sculpture work."
+  },
+  {
+    "question": "Which Maratha governor defended Odisha against incursions from Bengal Nawabs?",
+    "options": ["Haripant Bhosle", "Raghunath Rao", "Nilakanth Rao", "Balwant Rao"],
+    "answer": 0,
+    "explanation": "Haripant Bhosle maintained Odisha’s frontiers during Maratha-Bengal conflicts."
+  },
+  {
+    "question": "The Lingaraj Temple complex consists of how many subsidiary shrines?",
+    "options": ["50", "64", "80", "108"],
+    "answer": 1,
+    "explanation": "The Lingaraj Temple complex includes around 64 smaller shrines."
+  },
+  {
+    "question": "Which Afghan ruler briefly held Odisha before it passed to Mughal control?",
+    "options": ["Suleiman Kararani", "Sher Shah Suri", "Daud Khan Karrani", "Islam Shah Suri"],
+    "answer": 2,
+    "explanation": "Daud Khan Karrani was defeated by the Mughals at Rajmahal, surrendering Odisha."
+  },
+  {
+    "question": "Which Odia port saw European factories established during the Mughal period?",
+    "options": ["Balasore", "Chandabali", "Puri", "Gopalpur"],
+    "answer": 0,
+    "explanation": "Balasore attracted English, Dutch, and Danish factories under Mughal sanction."
+  },
+  {
+    "question": "The Jagannath Temple’s main entrance is called:",
+    "options": ["Singhadwara", "Aswadwara", "Hastidwara", "Vyaghradwara"],
+    "answer": 0,
+    "explanation": "Singhadwara means ‘Lion’s Gate’ and is the primary entrance to the temple."
+  },
+  {
+    "question": "Which Eastern Ganga ruler built the Simhachalam Temple near Visakhapatnam?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Anantavarman Chodaganga", "Bhanudeva I"],
+    "answer": 2,
+    "explanation": "Anantavarman Chodaganga Deva built the famous Simhachalam Temple."
+  },
+  {
+    "question": "The 'Baisi Pahacha' in Puri Temple refers to:",
+    "options": ["22 steps to sanctum", "Ceremonial chariots", "Temple pillars", "Outer walls"],
+    "answer": 0,
+    "explanation": "Baisi Pahacha means 22 steps that devotees climb to enter sanctum area."
+  },
+  {
+    "question": "Which Eastern Ganga ruler is credited with completing the Jagannath Temple at Puri?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Narasingha Deva I", "Kapilendra Deva"],
+    "answer": 1,
+    "explanation": "Anangabhima Deva III completed the Jagannath Temple and dedicated his kingdom to Lord Jagannath."
+  },
+  {
+    "question": "The Somavamsi capital at Yayatinagar is identified with which modern site?",
+    "options": ["Jajpur", "Cuttack", "Bhubaneswar", "Puri"],
+    "answer": 0,
+    "explanation": "Yayatinagar, the Somavamsi capital, is identified with present-day Jajpur."
+  },
+  {
+    "question": "Which Gajapati king constructed the 'Mukhashala' of the Jagannath Temple?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva added the Mukhashala or frontal hall to the temple."
+  },
+  {
+    "question": "The Sun Temple at Konark was originally called:",
+    "options": ["Arka Kshetra", "Padma Kshetra", "Neelachala", "Ekamra Kshetra"],
+    "answer": 0,
+    "explanation": "Konark was referred to as Arka Kshetra, meaning 'the domain of the Sun God'."
+  },
+  {
+    "question": "Which Mughal governor repaired parts of Cuttack's Barabati Fort?",
+    "options": ["Man Singh I", "Shaista Khan", "Islam Khan", "Qasim Khan"],
+    "answer": 3,
+    "explanation": "Qasim Khan, a Mughal Subahdar, carried out fort repairs during his tenure."
+  },
+  {
+    "question": "The 'Mukti Mandap' in Jagannath Temple serves as:",
+    "options": ["Council hall of Brahmins", "Pilgrim accommodation", "Kitchen", "Store room"],
+    "answer": 0,
+    "explanation": "The Mukti Mandap is the council hall where learned Brahmins deliberate on religious matters."
+  },
+  {
+    "question": "Under whose reign did Odia become more prominent alongside Sanskrit in inscriptions?",
+    "options": ["Kapilendra Deva", "Mukunda Deva", "Prataparudra Deva", "Anantavarman Chodaganga"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva’s period saw greater official use of Odia in copperplates."
+  },
+  {
+    "question": "Which Maratha leader took personal charge of Odisha's revenue collection?",
+    "options": ["Raghunath Rao", "Haripant Bhosle", "Balwant Rao", "Daulat Rao Scindia"],
+    "answer": 1,
+    "explanation": "Haripant Bhosle supervised revenue administration in Odisha."
+  },
+  {
+    "question": "The Somavamsi dynasty mainly patronised the construction of which type of temples?",
+    "options": ["Shaivite temples", "Vaishnavite temples", "Buddhist viharas", "Shakti shrines"],
+    "answer": 0,
+    "explanation": "They were strong patrons of Shaivism, building many prominent Shiva temples."
+  },
+  {
+    "question": "The 'Bada Danda' in Puri refers to:",
+    "options": ["Main road for Ratha Yatra", "Temple fortification", "Pilgrim rest house", "Monastic street"],
+    "answer": 0,
+    "explanation": "Bada Danda is the grand avenue along which the Ratha Yatra chariots roll."
+  },
+  {
+    "question": "Which Eastern Ganga ruler faced a Yadava invasion from the west?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva I"],
+    "answer": 3,
+    "explanation": "Bhanudeva I successfully repulsed a Yadava incursion."
+  },
+  {
+    "question": "During Mughal reign, Cuttack functioned primarily as:",
+    "options": ["Temple town", "Military headquarters", "Port city", "Agricultural hub"],
+    "answer": 1,
+    "explanation": "Cuttack served as the military and administrative headquarters under Mughal rule."
+  },
+  {
+    "question": "The Konark Sun Temple's wheels are believed to represent:",
+    "options": ["Chariot of Jagannath", "Solar chariot with time measurement", "Zodiac signs", "Battle carriages"],
+    "answer": 1,
+    "explanation": "The 24 wheels of the temple symbolise the Sun's chariot and act as sundials."
+  },
+  {
+    "question": "Who was the last ruler of the Somavamsi dynasty?",
+    "options": ["Karna Deva", "Udyotakesari", "Janmejaya II", "Yayati II"],
+    "answer": 2,
+    "explanation": "Janmejaya II was the last significant Somavamsi king before Eastern Ganga rule."
+  },
+  {
+    "question": "The 'Ananda Bazaar' in Jagannath Temple is famous for:",
+    "options": ["Sale of temple food", "Trading of textiles", "Festive decorations", "Religious book market"],
+    "answer": 0,
+    "explanation": "Ananda Bazaar is where devotees can purchase Mahaprasad from the temple kitchen."
+  },
+  {
+    "question": "Which Maratha-era fort is situated near Pipili?",
+    "options": ["Barabati Fort", "Ali Fort", "Banki Fort", "Khurda Fort"],
+    "answer": 1,
+    "explanation": "Ali Fort near Pipili was a coastal defence point for the Marathas."
+  },
+  {
+    "question": "The 'Pattachitra' painting tradition of Odisha thrived under the patronage of:",
+    "options": ["Eastern Ganga and Gajapati rulers", "Mughal Subahdars", "Bhauma-Karas", "Somavamsis"],
+    "answer": 0,
+    "explanation": "Pattachitra art flourished with temple patronage from both Ganga and Gajapati kings."
+  },
+  {
+    "question": "Which Eastern Ganga king first used the title 'Gajapati'?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Narasingha Deva I", "Kapilendra Deva"],
+    "answer": 1,
+    "explanation": "Anangabhima Deva III used 'Gajapati', later popularised by Kapilendra Deva."
+  },
+  {
+    "question": "The Marathas collected pilgrim tax at Puri through which office?",
+    "options": ["Chowki", "Kachari", "Pargana", "Kotwali"],
+    "answer": 1,
+    "explanation": "The Kachari office supervised pilgrim tax collection."
+  },
+  {
+    "question": "Which dynasty constructed the Megheswar Temple in Bhubaneswar?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Bhoi"],
+    "answer": 0,
+    "explanation": "The Somavamsis built the Megheswar Temple dedicated to Lord Shiva."
+  },
+  {
+    "question": "The Great Trilateral Pilgrimage Circuit of medieval Odisha linked:",
+    "options": ["Puri, Konark, Bhubaneswar", "Puri, Cuttack, Jajpur", "Konark, Chilika, Barabati", "Bhubaneswar, Sambalpur, Balasore"],
+    "answer": 0,
+    "explanation": "Medieval pilgrims often visited Puri, Konark, and Bhubaneswar in one circuit."
+  },
+  {
+    "question": "Who was the only Gajapati ruler to formally submit to the Mughals?",
+    "options": ["Prataparudra Deva", "Govinda Vidyadhara", "Ramachandra Deva I", "Mukunda Deva"],
+    "answer": 2,
+    "explanation": "Ramachandra Deva I acknowledged Mughal suzerainty to retain control over Puri."
+  },
+  {
+    "question": "The Jagannath Temple’s 16-sided pillar in Mukti Mandap is made of:",
+    "options": ["Granite", "Chlorite", "Sandstone", "Marble"],
+    "answer": 1,
+    "explanation": "The chlorite stone pillar is noted for its polish."
+  },
+  {
+    "question": "Under Maratha rule, Odisha's provincial capital was at:",
+    "options": ["Cuttack", "Puri", "Khurda", "Balasore"],
+    "answer": 0,
+    "explanation": "Marathas administered Odisha from Cuttack."
+  },
+  {
+    "question": "The 'Bisuva Sankranti' festival in Odisha is associated with which dynasty’s traditions?",
+    "options": ["Eastern Ganga", "Gajapati", "Somavamsi", "Maratha"],
+    "answer": 1,
+    "explanation": "Gajapati kings celebrated it linked with agricultural cycles."
+  },
+  {
+    "question": "The Deogaon Treaty transferring Odisha was signed between the British and:",
+    "options": ["Baji Rao II", "Daulat Rao Scindia", "Raghunath Rao", "Haripant Bhosle"],
+    "answer": 1,
+    "explanation": "Daulat Rao Scindia ceded Odisha to the British in the 1803 treaty."
+  },
+  {
+    "question": "Which Ganga monarch ruled when Marco Polo visited the east coast of India?",
+    "options": ["Narasingha Deva II", "Bhanudeva I", "Anangabhima Deva III", "Bhanudeva II"],
+    "answer": 0,
+    "explanation": "Narasingha Deva II reigned during Marco Polo's travels."
+  },
+  {
+    "question": "The 'Singhadwara' gate figures prominently in which temple?",
+    "options": ["Lingaraj Temple", "Jagannath Temple", "Konark Sun Temple", "Rajarani Temple"],
+    "answer": 1,
+    "explanation": "It is the main Lion Gate entrance of the Puri Jagannath Temple."
+  },
+  {
+    "question": "Which Somavamsi ruler patronised the temple at Parasurameswara?",
+    "options": ["Janmejaya I", "Indraratha", "Yayati Keshari", "Udyotakesari"],
+    "answer": 2,
+    "explanation": "Yayati Keshari extended patronage to Parasurameswara Temple."
+  },
+  {
+    "question": "The Marathas primarily used Odisha as a base for campaigns against:",
+    "options": ["Bengal Nawabs", "Hyderabad Nizam", "Tipu Sultan", "Ahoms"],
+    "answer": 0,
+    "explanation": "They launched expeditions against Bengal Nawabs from Odisha."
+  },
+  {
+    "question": "The Jagannath Temple's kitchen uses which unique cooking method?",
+    "options": ["Solar cooking", "Steam cooking in clay pots", "Iron cauldrons", "Underground ovens"],
+    "answer": 1,
+    "explanation": "Clay pots are stacked and steam-cooked using wood fire."
+  },
+  {
+    "question": "Which fort near Balasore was key during Mughal-Maratha conflicts?",
+    "options": ["Raibania Fort", "Barabati Fort", "Ali Fort", "Khurda Fort"],
+    "answer": 0,
+    "explanation": "Raibania Fort was a strategic stronghold in Balasore."
+  },
+  {
+    "question": "The Udayagiri caves in Bhubaneswar were reused in medieval times for:",
+    "options": ["Shaivite worship", "Buddhist rituals", "Temple storehouses", "Military barracks"],
+    "answer": 0,
+    "explanation": "Originally Jain caves, later adapted for Shaivite use."
+  },
+  {
+    "question": "Which Eastern Ganga ruler took the title 'Trikalingadhipati'?",
+    "options": ["Anantavarman Chodaganga", "Narasingha Deva I", "Anangabhima Deva III", "Bhanudeva II"],
+    "answer": 0,
+    "explanation": "Anantavarman Chodaganga assumed the title meaning 'Lord of the Three Kalingas'."
+  },
+  {
+    "question": "Under which dynasty were the most number of large-scale tanks constructed in Odisha?",
+    "options": ["Eastern Ganga", "Somavamsi", "Gajapati", "Maratha"],
+    "answer": 0,
+    "explanation": "Eastern Ganga rulers constructed many irrigation tanks for agriculture."
+  },
+  {
+    "question": "The outer walls of Konark Sun Temple prominently display:",
+    "options": ["Mythical sea creatures", "Erotic sculpture and daily life scenes", "Persian floral designs", "Plain sandstone finishing"],
+    "answer": 1,
+    "explanation": "They feature both erotic art and depictions of daily life."
+  },
+  {
+    "question": "During Maratha rule, British trade in Balasore was:",
+    "options": ["Prohibited", "Taxed heavily", "Freely allowed", "Under joint control"],
+    "answer": 1,
+    "explanation": "Marathas imposed heavy taxes on British merchants in Balasore."
+  },
+  {
+    "question": "Which Gajapati ruler fought against the Bahmani Sultanate for control of the Krishna–Godavari delta?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva expanded Gajapati territory southwards and clashed with the Bahmani Sultanate over the fertile delta."
+  },
+  {
+    "question": "The 'Bhogamandapa' in Odisha temples serves the purpose of:",
+    "options": ["Dance performances", "Food offerings to deity", "Pilgrim resting place", "Administrative office"],
+    "answer": 1,
+    "explanation": "The Bhogamandapa is the hall where offerings are presented to the temple deity."
+  },
+  {
+    "question": "Which Eastern Ganga king was the patron of the poet Jayadeva, author of Gita Govinda?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Anantavarman Chodaganga", "Bhanudeva I"],
+    "answer": 3,
+    "explanation": "Bhanudeva I is believed to have patronised Jayadeva in the Ganga court."
+  },
+  {
+    "question": "Under the Mughals, which major road linked Cuttack with the imperial highway?",
+    "options": ["Utkal Path", "Mughal Road", "Dakshinapatha", "Hastinapur Road"],
+    "answer": 0,
+    "explanation": "Utkal Path connected Odisha’s headquarters at Cuttack to the grand trunk lines under the Mughals."
+  },
+  {
+    "question": "The Parsurameswara Temple is remarkable for being one of the earliest:",
+    "options": ["Brick temples", "Stone temples in Odisha", "Wooden shrines", "Fort temples"],
+    "answer": 1,
+    "explanation": "It’s one of the oldest surviving stone temples in Odisha, built in the 7th century CE."
+  },
+  {
+    "question": "Which Maratha Peshwa delegated Odisha’s administration to the Bhonsle family of Nagpur?",
+    "options": ["Baji Rao I", "Balaji Baji Rao", "Madhavrao I", "Baji Rao II"],
+    "answer": 1,
+    "explanation": "Balaji Baji Rao assigned Odisha’s control to the Nagpur Bhonsles."
+  },
+  {
+    "question": "The 'Chakra' on top of the Jagannath Temple is made of:",
+    "options": ["Bronze", "Iron", "Ashtadhatu", "Gold-plated copper"],
+    "answer": 2,
+    "explanation": "The Sudarshan Chakra atop the temple is of Ashtadhatu (eight-metal alloy)."
+  },
+  {
+    "question": "Who was the first Gajapati king after the fall of the Eastern Gangas?",
+    "options": ["Govinda Vidyadhara", "Kapilendra Deva", "Purushottama Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Kapilendra Deva founded the Gajapati dynasty after Eastern Ganga decline."
+  },
+  {
+    "question": "Which Mughal subahdar was also a celebrated Rajput general and administered Bengal including Odisha?",
+    "options": ["Man Singh I", "Shaista Khan", "Islam Khan", "Qasim Khan"],
+    "answer": 0,
+    "explanation": "Man Singh I of Amber served as Bengal’s subahdar overseeing Odisha."
+  },
+  {
+    "question": "The Natamandira of Sun Temple, Konark was primarily used for:",
+    "options": ["Storing temple chariots", "Dance and cultural performances", "Royal council meetings", "Feeding devotees"],
+    "answer": 1,
+    "explanation": "It was meant for devotional dances performed before the Sun God idol."
+  },
+  {
+    "question": "Under which dynasty did the 'Chhera Pahanra' ritual of sweeping chariots begin?",
+    "options": ["Eastern Ganga", "Gajapati", "Bhoi", "Somavamsi"],
+    "answer": 1,
+    "explanation": "The Gajapatis introduced the symbolic act of king sweeping chariots during Ratha Yatra."
+  },
+  {
+    "question": "Which Somavamsi king moved the royal seat to Abhinava Yayatinagar?",
+    "options": ["Yayati Keshari", "Udyotakesari", "Janmejaya II", "Mahasivagupta"],
+    "answer": 0,
+    "explanation": "Yayati Keshari renamed Jajpur as Abhinava Yayatinagar and made it a capital."
+  },
+  {
+    "question": "The famous 'Gajasimha' motif of Odisha temple art symbolises:",
+    "options": ["Victory of divine power", "Royal lineage", "Agricultural prosperity", "Unity of sects"],
+    "answer": 0,
+    "explanation": "It depicts a lion overpowering an elephant, signifying divine supremacy."
+  },
+  {
+    "question": "Which Maratha general was defeated by the British leading to loss of Odisha?",
+    "options": ["Raghuji Bhonsle II", "Haripant Bhosle", "Daulat Rao Scindia", "Yashwantrao Holkar"],
+    "answer": 0,
+    "explanation": "Raghuji Bhonsle II’s defeat in 1803 forced Marathas to cede Odisha to the British."
+  },
+  {
+    "question": "The Jagannath Temple's 'Anasara' period marks:",
+    "options": ["Annual rope replacement", "Deities rest for 15 days after Snana Purnima", "Temple renovation", "Pilgrim ban"],
+    "answer": 1,
+    "explanation": "During Anasara, deities rest away from public view after the bathing festival."
+  },
+  {
+    "question": "Which Eastern Ganga ruler built the fortress at Barabati before Gajapati renovations?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Anantavarman Chodaganga", "Bhanudeva I"],
+    "answer": 1,
+    "explanation": "Narasingha Deva I constructed early fortifications at Barabati."
+  },
+  {
+    "question": "During Mughal times, Pipili in Odisha was famous as:",
+    "options": ["Temple town", "Weaving and applique craft centre", "Military camp", "Pilgrim port"],
+    "answer": 1,
+    "explanation": "Pipili became renowned for applique and textile crafts."
+  },
+  {
+    "question": "Under which Gajapati ruler did Odisha lose control over southern Andhra coast?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 2,
+    "explanation": "Prataparudra Deva’s reign saw the loss of these territories to Vijayanagara."
+  },
+  {
+    "question": "The Somavamsis introduced which prominent architectural feature into Odisha temples?",
+    "options": ["Well-developed Jagamohana", "Bronze cladding", "Wooden roofs", "Persian arches"],
+    "answer": 0,
+    "explanation": "Somavamsis expanded the assembly hall or Jagamohana structure."
+  },
+  {
+    "question": "The 'Aruna Stambha' in front of the Jagannath Temple was originally from:",
+    "options": ["Sun Temple, Konark", "Lingaraj Temple", "Rajarani Temple", "Megheswar Temple"],
+    "answer": 0,
+    "explanation": "It was relocated from Konark Sun Temple to Puri."
+  },
+  {
+    "question": "Which Maratha-era office managed temple lands and endowments?",
+    "options": ["Kachari", "Pandit Sabha", "Chowki", "Mandap"],
+    "answer": 0,
+    "explanation": "Kachari ensured management of temple property and funds."
+  },
+  {
+    "question": "During Akbar’s reign, Odisha was governed as part of which Subah?",
+    "options": ["Bihar", "Bengal", "Allahabad", "Orissa"],
+    "answer": 1,
+    "explanation": "The Bengal Subah included Odisha administratively."
+  },
+  {
+    "question": "Which Ganga ruler restored Jagannath Temple after natural calamity damage?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva II", "Bhanudeva IV", "Kapilendra Deva"],
+    "answer": 1,
+    "explanation": "Narasingha Deva II carried out major restoration works."
+  },
+  {
+    "question": "The 'Chandrashekhar' idol in Lingaraj Temple is a form of:",
+    "options": ["Jagannath", "Shiva", "Vishnu", "Surya"],
+    "answer": 1,
+    "explanation": "It is a manifestation of Lord Shiva."
+  },
+  {
+    "question": "Which Somavamsi king assumed the title 'Tri-Kalingadhipati'?",
+    "options": ["Yayati Keshari", "Udyotakesari", "Janmejaya I", "Mahasivagupta"],
+    "answer": 0,
+    "explanation": "Yayati Keshari used the title reflecting sovereignty over three Kalingas."
+  },
+  {
+    "question": "The British captured Cuttack in 1803 from which Maratha general?",
+    "options": ["Haripant Bhosle", "Raghuji Bhonsle II", "Daulat Rao Scindia", "Syaji Rao Bhonsle"],
+    "answer": 1,
+    "explanation": "Raghuji Bhonsle II’s defeat led to British control of Cuttack."
+  },
+  {
+    "question": "Who among the following was a contemporary of Narasingha Deva I?",
+    "options": ["Alauddin Khilji", "Gyasuddin Balban", "Iltutmish", "Muhammad bin Tughlaq"],
+    "answer": 1,
+    "explanation": "Gyasuddin Balban ruled Delhi when Narasingha Deva I reigned in Odisha."
+  },
+  {
+    "question": "Pattachitra paintings traditionally depict themes from:",
+    "options": ["Ramayana", "Mahabharata", "Krishna and Jagannath lore", "All of the above"],
+    "answer": 3,
+    "explanation": "They feature episodes from Hindu epics and Jagannath cult stories."
+  },
+  {
+    "question": "The 'Bada Pokhari' at Barabati Fort served as:",
+    "options": ["Temple tank", "Military water reservoir", "Pilgrim bathing site", "City moat"],
+    "answer": 1,
+    "explanation": "It functioned as a large reservoir for the fort’s garrison."
+  },
+  {
+    "question": "Which Eastern Ganga ruler invited craftsmen from South India to work on Jagannath Temple?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva I"],
+    "answer": 0,
+    "explanation": "Chodaganga brought artisans from Andhra for temple construction."
+  },
+  {
+    "question": "During Mughal rule, which Odisha port was important for salt export?",
+    "options": ["Balasore", "Puri", "Chandabali", "Paradeep"],
+    "answer": 0,
+    "explanation": "Balasore handled much of the salt trade."
+  },
+  {
+    "question": "Which Gajapati king was a devotee of Chaitanya Mahaprabhu?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Mukunda Deva", "Purushottama Deva"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva met and honoured the saint Chaitanya."
+  },
+  {
+    "question": "The Somavamsis are credited with popularising which architectural element?",
+    "options": ["Tall curvilinear spires", "Sculpted stone doorways", "Metal temple domes", "Circular sanctums"],
+    "answer": 0,
+    "explanation": "They popularised tall curvilinear Rekha Deula spires."
+  },
+  {
+    "question": "The main sanctum at Konark once held:",
+    "options": ["The idol of Surya", "Three Jagannath deities", "A massive Shivalinga", "Vishnu’s image"],
+    "answer": 0,
+    "explanation": "It housed a giant image of Surya, now lost."
+  },
+  {
+    "question": "Which Maratha governor faced British attack on Barabati Fort?",
+    "options": ["Haripant Bhosle", "Raghunath Mahadji", "Raghuji Bhonsle II", "Nilakanth Rao"],
+    "answer": 3,
+    "explanation": "Nilakanth Rao defended Cuttack before its fall in 1803."
+  },
+  {
+    "question": "Which Gajapati ruler led the conquest of southern Bengal up to Gauda?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva extended Gajapati control over large parts of Bengal including Gauda."
+  },
+  {
+    "question": "The small shrines surrounding the Lingaraj Temple are dedicated to:",
+    "options": ["Forms of Vishnu", "Different aspects of Shiva", "Navagrahas", "Buddhist deities"],
+    "answer": 1,
+    "explanation": "Most of the subsidiary shrines in the Lingaraj Temple complex depict various aspects of Lord Shiva."
+  },
+  {
+    "question": "Who succeeded Purushottama Deva as the ruler of Odisha?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Mukunda Deva", "Bhanudeva IV"],
+    "answer": 1,
+    "explanation": "Prataparudra Deva ascended the throne after Purushottama Deva."
+  },
+  {
+    "question": "Which Eastern Ganga ruler faced invasions from the Sultan of Delhi, Ghiyasuddin Tughlaq?",
+    "options": ["Narasingha Deva I", "Narasingha Deva II", "Bhanudeva III", "Anangabhima Deva III"],
+    "answer": 2,
+    "explanation": "Bhanudeva III faced raids from Ghiyasuddin Tughlaq’s forces."
+  },
+  {
+    "question": "The famous sculpture of Konark depicting a war elephant trampling enemies symbolises:",
+    "options": ["Military vanity", "Gajapati power", "Mythological scene", "Famine relief"],
+    "answer": 1,
+    "explanation": "It reflects the might of the Gajapati army and royal victory."
+  },
+  {
+    "question": "Who was the last independent king of the Gajapati dynasty before Mughal conquest?",
+    "options": ["Mukunda Deva", "Prataparudra Deva", "Kapilendra Deva", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Mukunda Deva was defeated in 1568, marking the end of independent Gajapati rule."
+  },
+  {
+    "question": "The 'Khakhara Deula' style in Odisha temple architecture is generally associated with:",
+    "options": ["Shiva temples", "Vishnu temples", "Shakti temples", "Jagannath temples"],
+    "answer": 2,
+    "explanation": "Khakhara style, with its semi-cylindrical roof, is linked to goddess worship."
+  },
+  {
+    "question": "Which Maratha-British treaty confirmed the cession of Odisha to the British?",
+    "options": ["Treaty of Devgaon", "Treaty of Purandar", "Treaty of Salbai", "Treaty of Bassein"],
+    "answer": 0,
+    "explanation": "The Treaty of Devgaon in 1803 formalised British control over Odisha."
+  },
+  {
+    "question": "Who built the Jagmohan of Lingaraj Temple?",
+    "options": ["Yayati Keshari", "Anantavarman Chodaganga", "Narasingha Deva I", "Udyotakesari"],
+    "answer": 3,
+    "explanation": "The assembly hall or Jagamohana of Lingaraj Temple was built by Udyotakesari."
+  },
+  {
+    "question": "During Mughal period, the annual Ratha Yatra of Puri was supported by grants from:",
+    "options": ["Emperor Akbar", "Emperor Aurangzeb", "Governor Murshid Quli Khan", "Prince Dara Shikoh"],
+    "answer": 0,
+    "explanation": "Akbar granted land revenue to help conduct the Ratha Yatra at Jagannath Temple."
+  },
+  {
+    "question": "Which Eastern Ganga king founded the city of Baranasi Kataka (modern Cuttack)?",
+    "options": ["Anangabhima Deva III", "Kapilendra Deva", "Narasingha Deva I", "Anantavarman Chodaganga"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III established Cuttack as a fortified city known as Baranasi Kataka."
+  },
+  {
+    "question": "The Rajarani Temple in Bhubaneswar gets its name from:",
+    "options": ["Royal patronage", "Local stone type", "A queen’s dedication", "Depictions of royal couples"],
+    "answer": 1,
+    "explanation": "It is believed to be named after the reddish-gold sandstone known locally as Rajarani."
+  },
+  {
+    "question": "Who among the following was the most famous Somavamsi ruler?",
+    "options": ["Karnadeva", "Yayati Keshari", "Janmejaya II", "Udyotakesari"],
+    "answer": 1,
+    "explanation": "Yayati Keshari greatly expanded the kingdom and built monumental temples."
+  },
+  {
+    "question": "Which Maratha governor oversaw pilgrim tax reforms in Puri?",
+    "options": ["Raghuji Bhonsle", "Haripant Bhosle", "Nilakanth Rao", "Balwant Rao"],
+    "answer": 1,
+    "explanation": "Haripant Bhosle restructured the levying of pilgrim taxes."
+  },
+  {
+    "question": "Under which ruler was the Natamandira of the Sun Temple at Konark constructed?",
+    "options": ["Narasingha Deva I", "Bhanudeva I", "Anangabhima Deva III", "Kapilendra Deva"],
+    "answer": 0,
+    "explanation": "Narasingha Deva I is credited with the construction of the Natamandira."
+  },
+  {
+    "question": "The Maratha capital at Cuttack was housed within which fort?",
+    "options": ["Barabati Fort", "Ali Fort", "Raibania Fort", "Pipli Fort"],
+    "answer": 0,
+    "explanation": "Barabati Fort in Cuttack served as the administrative centre."
+  },
+  {
+    "question": "Who was the last ruler of the Somavamsi dynasty?",
+    "options": ["Yayati II", "Janmejaya II", "Udyotakesari", "Mahasivagupta"],
+    "answer": 1,
+    "explanation": "Janmejaya II was the last major Somavamsi ruler before Eastern Ganga rule."
+  },
+  {
+    "question": "Which significant naval battle did the Gajapatis fight against Vijayanagara?",
+    "options": ["Battle of Chilika Lake", "Battle of Kottayam", "Battle of Masulipatnam", "Battle of Raibania"],
+    "answer": 0,
+    "explanation": "The Battle of Chilika Lake was a notable naval engagement between Gajapatis and Vijayanagara."
+  },
+  {
+    "question": "The Jagannath Temple compound has how many main gates?",
+    "options": ["2", "4", "6", "8"],
+    "answer": 1,
+    "explanation": "There are four main entrances known as Singhadwara, Ashwadwara, Vyaghradwara, and Hastidwara."
+  },
+  {
+    "question": "Which Eastern Ganga king shifted the administration to Cuttack after facing coastal threats?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva II", "Bhanudeva I", "Anantavarman Chodaganga"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III fortified Cuttack to protect against coastal incursions."
+  },
+  {
+    "question": "During Mughal era, which Odisha port was frequented by Dutch traders?",
+    "options": ["Balasore", "Puri", "Chandabali", "Paradeep"],
+    "answer": 0,
+    "explanation": "The Dutch East India Company established trading posts in Balasore."
+  },
+  {
+    "question": "The 'Simhadwara' of the Jagannath Temple is guarded by:",
+    "options": ["Two stone lions", "Two elephants", "Two mythical birds", "Two human figures"],
+    "answer": 0,
+    "explanation": "Two giant stone lions flank the main eastern entrance."
+  },
+  {
+    "question": "The main deity in Konark Sun Temple is shown riding:",
+    "options": ["A chariot drawn by horses", "A lion", "A giant bird", "An elephant"],
+    "answer": 0,
+    "explanation": "The Sun God is depicted riding a chariot pulled by seven horses."
+  },
+  {
+    "question": "Who succeeded Mukunda Deva after Afghan occupation?",
+    "options": ["Ramachandra Deva I", "Akbar", "Daud Khan", "Qasim Khan"],
+    "answer": 0,
+    "explanation": "Ramachandra Deva I, a vassal under the Mughals, took control of Puri."
+  },
+  {
+    "question": "The Somavamsis are known to have built which sacred water tank in Bhubaneswar?",
+    "options": ["Bindusagar", "Narendrapokhari", "Markandeya Tank", "Ganga Sagar"],
+    "answer": 0,
+    "explanation": "Bindusagar tank near Lingaraj Temple is attributed to Somavamsi period."
+  },
+  {
+    "question": "Which Maratha-era fort near Chilika was strategic for controlling lake routes?",
+    "options": ["Banki Fort", "Ali Fort", "Khurda Fort", "Huma Fort"],
+    "answer": 0,
+    "explanation": "Banki Fort served to monitor and control access to Chilika Lake."
+  },
+  {
+    "question": "Under which Eastern Ganga ruler did Odisha face raids from the Bengal Sultanate?",
+    "options": ["Bhanudeva IV", "Anangabhima Deva III", "Narasingha Deva II", "Bhanudeva II"],
+    "answer": 0,
+    "explanation": "Bhanudeva IV’s reign saw incursions from Bengal."
+  },
+  {
+    "question": "Which Mughal subahdar repaired Jagannath Temple after coastal storms?",
+    "options": ["Man Singh I", "Shaista Khan", "Qasim Khan", "Islam Khan"],
+    "answer": 2,
+    "explanation": "Qasim Khan is reported to have undertaken temple repair works."
+  },
+  {
+    "question": "The Natamandira is generally located between which two parts of an Odisha temple?",
+    "options": ["Jagamohana and sanctum", "Jagamohana and Bhogamandapa", "Sanctum and kitchen", "Kitchen and entrance gate"],
+    "answer": 1,
+    "explanation": "It usually lies between the assembly hall (Jagamohana) and the Bhogamandapa."
+  },
+  {
+    "question": "Kapilendra Deva claimed his empire extended from:",
+    "options": ["Ganga to Godavari", "Ganga to Krishna", "Ganga to Kaveri", "Ganga to Narmada"],
+    "answer": 2,
+    "explanation": "He boasted of dominion from the Ganga in the north to the Kaveri in the south."
+  },
+  {
+    "question": "During Maratha rule, which European power controlled trade in Pipili?",
+    "options": ["Dutch", "British", "French", "Portuguese"],
+    "answer": 3,
+    "explanation": "Portuguese traders were active in Pipili during Maratha period."
+  },
+  {
+    "question": "The Kanchi-Kaveri expedition is associated with which temple legend?",
+    "options": ["Marriage of Lord Jagannath with Goddess Padmavati", "Victory of Durga over demons", "Krishna lifting Govardhan", "Rama’s return from Lanka"],
+    "answer": 0,
+    "explanation": "It relates to Purushottama Deva’s victory and marriage alliance symbolised in Jagannath lore."
+  },
+  {
+    "question": "Which Somavamsi king built the Megheswar Temple?",
+    "options": ["Yayati Keshari", "Udyotakesari", "Janmejaya I", "Mahasivagupta"],
+    "answer": 3,
+    "explanation": "Mahasivagupta commissioned the Megheswar Temple."
+  },
+  {
+    "question": "In Konark Sun Temple, erotic sculptures are found mainly on:",
+    "options": ["Outer walls of Jagamohana", "Sanctum door lintel", "Natamandira pillars", "Kitchen walls"],
+    "answer": 0,
+    "explanation": "Such carvings are located on the exterior walls of the Jagamohana."
+  },
+  {
+    "question": "Which Gajapati ruler introduced the offering of 'Chandan' to chariots in Ratha Yatra?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Purushottama Deva initiated this ritual adornment."
+  },
+  {
+    "question": "During Mughal rule, which river port in Odisha was important for military logistics?",
+    "options": ["Balasore", "Jobra (Cuttack)", "Pipili", "Chandabali"],
+    "answer": 1,
+    "explanation": "The Jobra ghat on Mahanadi at Cuttack was key for troop movements."
+  },
+  {
+    "question": "The Eastern Ganga kings maintained close political ties with which southern dynasty?",
+    "options": ["Cholas", "Pallavas", "Kakatiyas", "Hoysalas"],
+    "answer": 0,
+    "explanation": "They often allied with the Cholas through marriage and diplomacy."
+  },
+  {
+    "question": "Which Gajapati ruler recovered the idol of Lord Jagannath from coastal plunderers and reinstated it in the temple?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Purushottama Deva restored the deity after it was removed during conflicts."
+  },
+  {
+    "question": "The Madala Panji chronicles temple events starting from the reign of which ruler?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Kapilendra Deva", "Bhanudeva I"],
+    "answer": 0,
+    "explanation": "The Madala Panji records at Puri begin from the time of Anantavarman Chodaganga Deva."
+  },
+  {
+    "question": "Which Eastern Ganga ruler fought against the Kalachuri ruler Jajalladeva?",
+    "options": ["Anangabhima Deva III", "Anantavarman Chodaganga", "Narasingha Deva I", "Bhanudeva II"],
+    "answer": 1,
+    "explanation": "Anantavarman Chodaganga battled Jajalladeva of the Kalachuris for regional dominance."
+  },
+  {
+    "question": "During Mughal rule, the Jagannath Temple received endowments known as:",
+    "options": ["Madad-i-Mash", "Jagir", "Muafi", "Iqtas"],
+    "answer": 0,
+    "explanation": "Madad-i-Mash grants were given by Mughal rulers to support temple services."
+  },
+  {
+    "question": "Who shifted the capital from Cuttack to Khurda in the late medieval period?",
+    "options": ["Mukunda Deva", "Ramachandra Deva I", "Divyasingha Deva I", "Bhagiratha Deva"],
+    "answer": 2,
+    "explanation": "King Divyasingha Deva I moved the seat to Khurda for strategic reasons."
+  },
+  {
+    "question": "The Marathas primarily managed Puri affairs through which official?",
+    "options": ["Subahdar", "Sarbarakar", "Kachari officer", "Kotwal"],
+    "answer": 2,
+    "explanation": "The Kachari officer under Marathas oversaw temple and pilgrim matters."
+  },
+  {
+    "question": "Which Somavamsi king issued coins with Shaiva emblems?",
+    "options": ["Janmejaya I", "Udyotakesari", "Yayati Keshari", "Mahasivagupta"],
+    "answer": 3,
+    "explanation": "Mahasivagupta’s coins bore Shaivite symbols reflecting the dynasty’s devotion."
+  },
+  {
+    "question": "The Lion Capital in front of Sun Temple, Konark, symbolises:",
+    "options": ["Royal power", "Victory of truth", "Religious unity", "Prosperity"],
+    "answer": 0,
+    "explanation": "It depicts the might and authority of the ruling dynasty."
+  },
+  {
+    "question": "Who was the last prominent Eastern Ganga ruler before Gajapati takeover?",
+    "options": ["Bhanudeva IV", "Narasingha Deva II", "Anangabhima Deva III", "Bhanudeva III"],
+    "answer": 0,
+    "explanation": "Bhanudeva IV’s weak rule ended with Kapilendra Deva’s rise."
+  },
+  {
+    "question": "Which Mughal prince visited Puri and made offerings at Jagannath Temple?",
+    "options": ["Dara Shikoh", "Aurangzeb", "Shah Shuja", "Murad Baksh"],
+    "answer": 0,
+    "explanation": "Prince Dara Shikoh known for his syncretic approach visited Puri."
+  },
+  {
+    "question": "Under Marathas, which commodity was the major source of revenue from Odisha?",
+    "options": ["Salt", "Rice", "Textiles", "Areca nut"],
+    "answer": 0,
+    "explanation": "Salt trade provided substantial revenue for the Maratha administration."
+  },
+  {
+    "question": "Who constructed the Bhogamandapa of Jagannath Temple?",
+    "options": ["Anangabhima Deva III", "Kapilendra Deva", "Purushottama Deva", "Narasingha Deva II"],
+    "answer": 2,
+    "explanation": "Purushottama Deva added the Bhogamandapa to the temple layout."
+  },
+  {
+    "question": "The fortified complex of Raibania had how many forts according to historical sources?",
+    "options": ["2", "3", "4", "5"],
+    "answer": 2,
+    "explanation": "Raibania comprised four main forts for layered defence."
+  },
+  {
+    "question": "Which Eastern Ganga king’s reign saw the construction of Ananta Vasudeva Temple at Bhubaneswar?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva I", "Anantavarman Chodaganga"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III built this temple dedicated to Lord Vishnu."
+  },
+  {
+    "question": "The Mughal administration in Odisha was headquartered at:",
+    "options": ["Bhubaneswar", "Balasore", "Cuttack", "Jajpur"],
+    "answer": 2,
+    "explanation": "Cuttack, with Barabati Fort, served as the Mughal HQ."
+  },
+  {
+    "question": "Which Gajapati ruler is associated with the expansion of Jagannath Temple’s rituals to include Chaitanya’s sect?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Mukunda Deva", "Purushottama Deva"],
+    "answer": 1,
+    "explanation": "Prataparudra embraced Gaudiya Vaishnavism’s influence on temple practices."
+  },
+  {
+    "question": "The 'Nilachakra' atop Jagannath Temple is made of:",
+    "options": ["Iron", "Ashtadhatu", "Copper", "Bronze"],
+    "answer": 1,
+    "explanation": "The Nilachakra is an alloy of eight metals (Ashtadhatu)."
+  },
+  {
+    "question": "Which Maratha fort guarded the northern approach to Cuttack?",
+    "options": ["Raibania Fort", "Khurda Fort", "Ali Fort", "Banki Fort"],
+    "answer": 0,
+    "explanation": "Raibania Fort secured northern Odisha from enemy incursions."
+  },
+  {
+    "question": "Who completed the outer walls of the Sun Temple at Konark?",
+    "options": ["Narasingha Deva I", "Bhanudeva I", "Narasingha Deva II", "Anangabhima Deva III"],
+    "answer": 1,
+    "explanation": "Bhanudeva I completed major portions after Narasingha Deva I."
+  },
+  {
+    "question": "During Mughal period, which European group first set up a factory in Balasore?",
+    "options": ["British", "Dutch", "French", "Portuguese"],
+    "answer": 3,
+    "explanation": "The Portuguese were among the first to establish a base at Balasore."
+  },
+  {
+    "question": "The Somavamsis are credited with introducing which sculpture type in temple walls?",
+    "options": ["Erotic Mithuna figures", "Gothic arches", "Glazed tiles", "Marble inlays"],
+    "answer": 0,
+    "explanation": "Mithuna figures symbolising fertility became common in their temples."
+  },
+  {
+    "question": "Mukunda Deva’s reign ended with the invasion of which Afghan ruler?",
+    "options": ["Daud Khan Karrani", "Sher Shah Suri", "Suleiman Kararani", "Islam Shah Suri"],
+    "answer": 2,
+    "explanation": "Suleiman Kararani invaded in 1568, defeating Mukunda Deva."
+  },
+  {
+    "question": "The Marathas maintained a mint in Odisha located at:",
+    "options": ["Cuttack", "Puri", "Balasore", "Jajpur"],
+    "answer": 0,
+    "explanation": "They minted coins at Cuttack to facilitate trade and revenue."
+  },
+  {
+    "question": "The Jagannath Temple’s kitchen cooks food in tonnes daily using:",
+    "options": ["Steam in stacked clay pots", "Large metal containers", "Solar panels", "Underground ovens"],
+    "answer": 0,
+    "explanation": "Food is steam-cooked in earthen pots stacked vertically."
+  },
+  {
+    "question": "Under which ruler did the Gajapati Empire reach its maximum territory?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra ruled from the Ganga to the Kaveri at its peak."
+  },
+  {
+    "question": "The Kanchi-Kaveri festival in Puri is linked to the marriage of Lord Jagannath to:",
+    "options": ["Goddess Padmavati", "Goddess Lakshmi", "Goddess Vimala", "Goddess Subhadra"],
+    "answer": 0,
+    "explanation": "It commemorates Jagannath’s symbolic marriage to Padmavati."
+  },
+  {
+    "question": "Which Eastern Ganga ruler used the title 'Paramamahesvara'?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva II", "Anantavarman Chodaganga"],
+    "answer": 0,
+    "explanation": "This Shaivite title was taken by Anangabhima Deva III despite Vaishnavite leanings."
+  },
+  {
+    "question": "During Mughal rule, Odisha’s salt was exported mainly to:",
+    "options": ["Bengal", "Deccan", "Gujarat", "Ceylon"],
+    "answer": 0,
+    "explanation": "Bengal was a prime market for Odisha’s salt industry."
+  },
+  {
+    "question": "Which fort did the British attack first during the conquest of Odisha in 1803?",
+    "options": ["Raibania Fort", "Ali Fort", "Barabati Fort", "Banki Fort"],
+    "answer": 2,
+    "explanation": "The British targeted Barabati Fort as the key administrative centre."
+  },
+  {
+    "question": "The architectural layout of Odisha’s large temples follows which directional plan?",
+    "options": ["Square with cardinal alignments", "Circular", "Random", "Hexagonal"],
+    "answer": 0,
+    "explanation": "Temples are aligned to cardinal directions with a square base."
+  },
+  {
+    "question": "Who introduced the custom of sweeping the chariot floors during Ratha Yatra?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 2,
+    "explanation": "Prataparudra Deva began the Chhera Pahanra ritual."
+  },
+  {
+    "question": "The Somavamsis migrated into Odisha from which present-day state?",
+    "options": ["Chhattisgarh", "Jharkhand", "Andhra Pradesh", "Madhya Pradesh"],
+    "answer": 0,
+    "explanation": "They moved from Dakshina Kosala, in modern Chhattisgarh."
+  },
+  {
+    "question": "Which Gajapati ruler is associated with the expansion of temple services to include performances of the Gotipua dance?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Purushottama Deva introduced new cultural performances, including early forms of Gotipua dance, in temple rituals."
+  },
+  {
+    "question": "The 'Baisi Pahacha' leading to the sanctum of Jagannath Temple consists of how many steps?",
+    "options": ["18", "20", "22", "24"],
+    "answer": 2,
+    "explanation": "Baisi Pahacha literally means 22 steps that lead into the sanctum area."
+  },
+  {
+    "question": "Which Eastern Ganga ruler fought prolonged wars against the Kakatiya dynasty?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva II"],
+    "answer": 0,
+    "explanation": "Anantavarman Chodaganga engaged in military campaigns against the Kakatiyas."
+  },
+  {
+    "question": "During Mughal rule, Odisha was subdivided into administrative units called:",
+    "options": ["Sarkars", "Prants", "Mandals", "Zilas"],
+    "answer": 0,
+    "explanation": "Mughal Odisha was divided into several Sarkars under the Bengal Subah."
+  },
+  {
+    "question": "Which Maratha governor of Odisha was defeated by the British at Barabati Fort in 1803?",
+    "options": ["Raghuji Bhonsle II", "Nilakanth Rao", "Haripant Bhosle", "Raghunath Rao"],
+    "answer": 1,
+    "explanation": "Nilakanth Rao was the Maratha governor when the British took Barabati Fort."
+  },
+  {
+    "question": "The Sun Temple at Konark was designed in the shape of which divine vehicle?",
+    "options": ["Garuda", "Chariot of the Sun God", "Lion mount", "Elephant mount"],
+    "answer": 1,
+    "explanation": "The Konark Sun Temple is in the shape of the solar chariot drawn by seven horses."
+  },
+  {
+    "question": "Which Somavamsi ruler defeated the Kalachuris and strengthened control over Utkala?",
+    "options": ["Yayati Keshari", "Janmejaya II", "Udyotakesari", "Mahasivagupta"],
+    "answer": 0,
+    "explanation": "Yayati Keshari consolidated power after defeating the Kalachuris."
+  },
+  {
+    "question": "Who founded the Bhoi dynasty after the fall of the Gajapatis?",
+    "options": ["Ramachandra Deva I", "Govinda Vidyadhara", "Mukunda Deva", "Divyasingha Deva I"],
+    "answer": 1,
+    "explanation": "Govinda Vidyadhara established the Bhoi dynasty post-Gajapati decline."
+  },
+  {
+    "question": "The 'Chandana Yatra' festival at Puri marks the ceremonial sailing of deities on:",
+    "options": ["Jagannath Temple tanks", "Mahanadi River", "Chilika Lake", "Balighai Beach"],
+    "answer": 0,
+    "explanation": "It involves floating the deities' replicas in temple tanks."
+  },
+  {
+    "question": "Which Eastern Ganga ruler assumed the title 'Sakala Kalingadhipati'?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Kapilendra Deva", "Anantavarman Chodaganga"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III took this title meaning 'Lord of All Kalinga'."
+  },
+  {
+    "question": "Under whose patronage did the Odissi dance style flourish in Jagannath Temple?",
+    "options": ["Gajapati rulers", "Mughal governors", "Maratha Peshwas", "British administrators"],
+    "answer": 0,
+    "explanation": "Gajapati rulers institutionalised Odissi dances as part of daily temple rituals."
+  },
+  {
+    "question": "Which fort in northern Odisha was the largest medieval fort complex in eastern India?",
+    "options": ["Raibania Fort", "Barabati Fort", "Khurda Fort", "Ali Fort"],
+    "answer": 0,
+    "explanation": "Raibania Fort is the largest medieval fortification in eastern India."
+  },
+  {
+    "question": "In Odisha temples, the term 'Deula' refers to:",
+    "options": ["Sanctum tower", "Outer courtyard", "Assembly hall", "Kitchen area"],
+    "answer": 0,
+    "explanation": "Deula specifically refers to the sanctum and its spire."
+  },
+  {
+    "question": "Which Mughal emperor annexed Odisha into the Bengal Subah?",
+    "options": ["Babur", "Akbar", "Aurangzeb", "Shah Jahan"],
+    "answer": 1,
+    "explanation": "Akbar brought Odisha under Bengal Subah administration."
+  },
+  {
+    "question": "The Marathas took control of Odisha from which previous rulers?",
+    "options": ["Afghans of Bengal", "Mughals", "Bhoi dynasty", "British"],
+    "answer": 1,
+    "explanation": "Odisha passed from Mughal to Maratha control in the mid-18th century."
+  },
+  {
+    "question": "Which Gajapati-era temple tank in Puri is used for the Chandan Yatra festival?",
+    "options": ["Bindusagar", "Narendra Tank", "Indradyumna Tank", "Markandeya Tank"],
+    "answer": 1,
+    "explanation": "Narendra Tank hosts Chandan Yatra's boat festival."
+  },
+  {
+    "question": "The 'Bhubaneshwari' shrine within Lingaraj Temple is dedicated to:",
+    "options": ["Durga", "Lakshmi", "Parvati", "Saraswati"],
+    "answer": 2,
+    "explanation": "Bhubaneshwari is a form of Goddess Parvati."
+  },
+  {
+    "question": "Which Eastern Ganga ruler fought back repeated invasions by the Bengal Sultanate?",
+    "options": ["Narasingha Deva I", "Anangabhima Deva III", "Bhanudeva IV", "Anantavarman Chodaganga"],
+    "answer": 0,
+    "explanation": "Narasingha Deva I defended Odisha from multiple Bengal Sultanate invasions."
+  },
+  {
+    "question": "The Mughal highway connecting Cuttack to Murshidabad was part of which larger road system?",
+    "options": ["Uttarapath", "Dakshinapath", "Grand Trunk Road", "Imperial Rajmarg"],
+    "answer": 2,
+    "explanation": "The Grand Trunk Road extended branches to connect Odisha’s Mughal centres."
+  },
+  {
+    "question": "The Maratha Kachari office in Puri was responsible for collecting:",
+    "options": ["Land revenue", "Pilgrim tax", "Salt tax", "Port duty"],
+    "answer": 1,
+    "explanation": "They managed pilgrim tax collection at Puri Temple."
+  },
+  {
+    "question": "Kapilendra Deva's copperplate inscriptions are notable for being in:",
+    "options": ["Sanskrit", "Odia", "Persian", "Telugu"],
+    "answer": 1,
+    "explanation": "He issued several copperplates in Odia language."
+  },
+  {
+    "question": "Which Somavamsi-era temple in Bhubaneswar is dedicated to Lord Vishnu?",
+    "options": ["Ananta Vasudeva Temple", "Parasurameswara Temple", "Mukteswara Temple", "Rajarani Temple"],
+    "answer": 0,
+    "explanation": "Ananta Vasudeva Temple was built by the Somavamsis for Vishnu worship."
+  },
+  {
+    "question": "Under Mughal rule, who was the first Rajput governor of Bengal including Odisha?",
+    "options": ["Man Singh I", "Raja Todar Mal", "Kunwar Singh", "Raja Birbal"],
+    "answer": 0,
+    "explanation": "Man Singh I governed Bengal Subah which included Odisha."
+  },
+  {
+    "question": "Which Maratha general negotiated with the British before ceding Odisha?",
+    "options": ["Bajirao II", "Daulat Rao Scindia", "Raghuji Bhonsle II", "Haripant Bhosle"],
+    "answer": 2,
+    "explanation": "Raghuji Bhonsle II's defeat led to the cession of Odisha to the British."
+  },
+  {
+    "question": "The Mukteswara Temple archway features carvings of:",
+    "options": ["Mythological scenes and floral designs", "Military battles", "Royal coronations", "Foreign traders"],
+    "answer": 0,
+    "explanation": "Delicate floral motifs and mythological narratives adorn the archway."
+  },
+  {
+    "question": "Which Eastern Ganga ruler commissioned the construction of the Simhachalam Temple?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Narasingha Deva I", "Kapilendra Deva"],
+    "answer": 0,
+    "explanation": "Chodaganga Deva built the Simhachalam temple dedicated to Lord Narasimha."
+  },
+  {
+    "question": "During medieval times, Odisha’s main maritime trade was through ports on which coast?",
+    "options": ["East coast", "Konkan coast", "Coromandel coast", "Malabar coast"],
+    "answer": 0,
+    "explanation": "Its strategic ports were situated along the east coast of India."
+  },
+  {
+    "question": "Which Gajapati ruler constructed the inner enclosure wall of the Jagannath Temple?",
+    "options": ["Kapilendra Deva", "Prataparudra Deva", "Purushottama Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva fortified the temple complex with inner walls."
+  },
+  {
+    "question": "The 'Anasara' period in Puri happens after which ritual?",
+    "options": ["Snana Purnima", "Chandan Yatra", "Chhera Pahanra", "Dol Yatra"],
+    "answer": 0,
+    "explanation": "It follows the bathing ceremony of Snana Purnima."
+  },
+  {
+    "question": "Which Maratha fort in Odisha was built to monitor Chilika Lake?",
+    "options": ["Banki Fort", "Ali Fort", "Khurda Fort", "Raibania Fort"],
+    "answer": 0,
+    "explanation": "Banki Fort served as a key lookout over Chilika during Maratha rule."
+  },
+  {
+    "question": "The Somavamsi ruler Udyotakesari constructed which important temple?",
+    "options": ["Brahmeswara Temple", "Lingaraj Temple", "Ananta Vasudeva Temple", "Megheswar Temple"],
+    "answer": 0,
+    "explanation": "He built the Brahmeswara Temple in the 11th century."
+  },
+  {
+    "question": "The Mughals referred to Odisha in official records as:",
+    "options": ["Utkal", "Jajnagar", "Kalinga", "Orissa"],
+    "answer": 1,
+    "explanation": "They often used the term Jajnagar in imperial chronicles."
+  },
+  {
+    "question": "Under which Eastern Ganga ruler was the famous Sun Temple at Konark constructed?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Bhanudeva I", "Kapilendra Deva"],
+    "answer": 1,
+    "explanation": "Narasingha Deva I commissioned the Konark Sun Temple."
+  },
+  {
+    "question": "Which Gajapati king is credited with popularising the Boita Bandana tradition?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva encouraged naval expeditions celebrated as Boita Bandana."
+  },
+  {
+    "question": "The Maratha province of Odisha was known officially as:",
+    "options": ["Orissa Subah", "Cuttack Sarkar", "Utkal Pradesh", "Jagannath Kshetra"],
+    "answer": 0,
+    "explanation": "They referred to the province as Orissa Subah in Marathi records."
+  },
+  {
+    "question": "Who ordered the relocation of 'Aruna Stambha' from Konark to Puri?",
+    "options": ["Raja of Khurda", "Kapilendra Deva", "Mukunda Deva", "Bhoi dynasty rulers"],
+    "answer": 0,
+    "explanation": "The Raja of Khurda moved the pillar to Puri after Konark’s decline."
+  },
+  {
+    "question": "The Jagannath Temple’s kitchen uses firewood primarily from which type of tree?",
+    "options": ["Mango", "Casuarina", "Neem", "Sal"],
+    "answer": 3,
+    "explanation": "Sal wood is used as fuel for the temple kitchen."
+  },{
+    "question": "Who built the Sun Temple at Konark?",
+    "options": ["Narasingha Deva I", "Anangabhima Deva III", "Kapilendra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Narasingha Deva I of the Eastern Ganga dynasty built the Sun Temple at Konark."
+  },
+  {
+    "question": "The Jagannath Temple at Puri was started by which king?",
+    "options": ["Anantavarman Chodaganga", "Kapilendra Deva", "Purushottama Deva", "Narasingha Deva II"],
+    "answer": 0,
+    "explanation": "Anantavarman Chodaganga began construction of the Jagannath Temple."
+  },
+  {
+    "question": "Which dynasty built the Lingaraj Temple in Bhubaneswar?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Bhoi"],
+    "answer": 0,
+    "explanation": "The Somavamsi dynasty built the Lingaraj Temple."
+  },
+  {
+    "question": "The capital of the Gajapati dynasty was at:",
+    "options": ["Khurda", "Cuttack", "Bhubaneswar", "Jajpur"],
+    "answer": 1,
+    "explanation": "Cuttack was the main capital of the Gajapati dynasty."
+  },
+  {
+    "question": "Who was the founder of the Gajapati dynasty?",
+    "options": ["Kapilendra Deva", "Mukunda Deva", "Prataparudra Deva", "Anangabhima Deva III"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva established the Gajapati dynasty in Odisha."
+  },
+  {
+    "question": "Konark Sun Temple is dedicated to which god?",
+    "options": ["Shiva", "Vishnu", "Surya", "Jagannath"],
+    "answer": 2,
+    "explanation": "It is dedicated to Surya, the Sun God."
+  },
+  {
+    "question": "The 'Baisi Pahacha' in Puri Temple refers to:",
+    "options": ["22 steps", "Temple towers", "Chariot wheels", "Temple pillars"],
+    "answer": 0,
+    "explanation": "'Baisi Pahacha' means 22 steps leading to the sanctum."
+  },
+  {
+    "question": "Which festival is famous in the Jagannath Temple?",
+    "options": ["Ratha Yatra", "Diwali", "Makar Sankranti", "Holi"],
+    "answer": 0,
+    "explanation": "Ratha Yatra or Chariot Festival is the most famous festival of the Jagannath Temple."
+  },
+  {
+    "question": "Which fort in Cuttack was built by the Gajapati kings?",
+    "options": ["Raibania Fort", "Barabati Fort", "Ali Fort", "Banki Fort"],
+    "answer": 1,
+    "explanation": "Barabati Fort in Cuttack was built by the Gajapati rulers."
+  },
+  {
+    "question": "The Marathas took control of Odisha from which rulers?",
+    "options": ["British", "Mughals", "Bhoi", "Afghans"],
+    "answer": 1,
+    "explanation": "The Marathas took Odisha from the Mughals in the 18th century."
+  },
+  {
+    "question": "Who defeated the last independent Hindu ruler of Odisha, Mukunda Deva?",
+    "options": ["Suleiman Kararani", "Aurangzeb", "Man Singh", "Sher Shah Suri"],
+    "answer": 0,
+    "explanation": "Suleiman Kararani, the Afghan ruler of Bengal, defeated Mukunda Deva in 1568."
+  },
+  {
+    "question": "Bindusagar tank is associated with which temple?",
+    "options": ["Lingaraj Temple", "Jagannath Temple", "Sun Temple", "Mukteswara Temple"],
+    "answer": 0,
+    "explanation": "Bindusagar is the sacred tank of the Lingaraj Temple in Bhubaneswar."
+  },
+  {
+    "question": "Which dynasty ruled Odisha before the Eastern Gangas?",
+    "options": ["Bhauma-Kara", "Somavamsi", "Bhoi", "Keshari"],
+    "answer": 1,
+    "explanation": "The Somavamsi dynasty ruled before the Eastern Ganga dynasty."
+  },
+  {
+    "question": "The Mukteswara Temple is called the 'Gem of Odisha architecture' for its:",
+    "options": ["Large size", "Elegant Torana", "Marble statues", "Painted walls"],
+    "answer": 1,
+    "explanation": "It is famous for its exquisitely carved arched gateway."
+  },
+  {
+    "question": "Which Mughal emperor added Odisha to the Bengal Subah?",
+    "options": ["Akbar", "Aurangzeb", "Shah Jahan", "Humayun"],
+    "answer": 0,
+    "explanation": "Akbar annexed Odisha and made it part of Bengal Subah."
+  },
+  {
+    "question": "Who fought the Battle of Chilika Lake against Vijayanagara forces?",
+    "options": ["Prataparudra Deva", "Kapilendra Deva", "Purushottama Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Prataparudra Deva fought this naval battle against Vijayanagara."
+  },
+  {
+    "question": "Which dynasty built the Brahmeswar Temple?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Maratha"],
+    "answer": 0,
+    "explanation": "The Somavamsi dynasty built the Brahmeswar Temple."
+  },
+  {
+    "question": "The 'Simhadwara' of Jagannath Temple is also called:",
+    "options": ["Tiger Gate", "Lion Gate", "Elephant Gate", "Bird Gate"],
+    "answer": 1,
+    "explanation": "Simhadwara means Lion Gate, the main entrance of Jagannath Temple."
+  },
+  {
+    "question": "Raibania Fort is located in which district?",
+    "options": ["Cuttack", "Balasore", "Puri", "Jajpur"],
+    "answer": 1,
+    "explanation": "Raibania Fort is situated in Balasore district."
+  },
+  {
+    "question": "The Maratha rule in Odisha ended in which year?",
+    "options": ["1803", "1857", "1780", "1817"],
+    "answer": 0,
+    "explanation": "British captured Odisha from Marathas in 1803."
+  },
+  {
+    "question": "Which king completed the Jagannath Temple after Chodaganga?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Kapilendra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III completed the Jagannath Temple."
+  },
+  {
+    "question": "The kitchen of Jagannath Temple is famous because it is the:",
+    "options": ["Largest in the world", "Oldest in India", "Cleanest in Odisha", "First solar-powered"],
+    "answer": 0,
+    "explanation": "It’s regarded as the largest temple kitchen in the world."
+  },
+  {
+    "question": "Which ruler founded Cuttack as a fortified capital?",
+    "options": ["Anangabhima Deva III", "Kapilendra Deva", "Narasingha Deva I", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III founded Cuttack as a fortified city."
+  },
+  {
+    "question": "The Konark Temple is also called the:",
+    "options": ["White Pagoda", "Golden Temple", "Black Pagoda", "Sun Palace"],
+    "answer": 2,
+    "explanation": "It is known as the Black Pagoda due to its dark stone and appearance."
+  },
+  {
+    "question": "Which dynasty built the Ananta Vasudeva Temple?",
+    "options": ["Eastern Ganga", "Somavamsi", "Gajapati", "Maratha"],
+    "answer": 0,
+    "explanation": "The Eastern Ganga dynasty built Ananta Vasudeva Temple in Bhubaneswar."
+  },
+  {
+    "question": "Who led the Maratha administration in Odisha from Cuttack?",
+    "options": ["Haripant Bhosle", "Raghuji Bhonsle", "Baji Rao II", "Daulat Rao Scindia"],
+    "answer": 0,
+    "explanation": "Haripant Bhosle managed Odisha’s administration from Cuttack."
+  },
+  {
+    "question": "Bindusagar is located in front of which temple?",
+    "options": ["Lingaraj Temple", "Rajarani Temple", "Mukteswara Temple", "Parasurameswara Temple"],
+    "answer": 0,
+    "explanation": "Bindusagar tank is in front of the Lingaraj Temple."
+  },
+  {
+    "question": "Which king was the last major ruler of the Somavamsi dynasty?",
+    "options": ["Janmejaya II", "Yayati Keshari", "Udyotakesari", "Mahasivagupta"],
+    "answer": 0,
+    "explanation": "Janmejaya II was the last major Somavamsi ruler in Odisha."
+  },
+  {
+    "question": "Which temple is called the 'Gem of Odisha architecture'?",
+    "options": ["Mukteswara Temple", "Brahmeswar Temple", "Sun Temple", "Lingaraj Temple"],
+    "answer": 0,
+    "explanation": "Mukteswara Temple is known as the 'Gem of Odisha architecture'."
+  },
+  {
+    "question": "The Marathas referred to their Odisha province as:",
+    "options": ["Orissa Subah", "Khurda Desh", "Jagannath Kshetra", "Utkal Pradesh"],
+    "answer": 0,
+    "explanation": "They called it Orissa Subah in official Marathi records."
+  },
+  {
+    "question": "Kapilendra Deva claimed his empire stretched from Ganga to:",
+    "options": ["Godavari", "Krishna", "Kaveri", "Narmada"],
+    "answer": 2,
+    "explanation": "Kapilendra Deva claimed rule from Ganga to Kaveri."
+  },
+  {
+    "question": "Which gate is the main entrance to Jagannath Temple?",
+    "options": ["Singhadwara", "Hastidwara", "Vyaghradwara", "Ashwadwara"],
+    "answer": 0,
+    "explanation": "Singhadwara or Lion Gate is the main entrance of the temple."
+  },
+  {
+    "question": "Which dynasty patronised the construction of Konark Temple?",
+    "options": ["Eastern Ganga", "Gajapati", "Bhoi", "Mughal"],
+    "answer": 0,
+    "explanation": "The Eastern Ganga dynasty built the Konark Sun Temple."
+  },
+  {
+    "question": "Who was the last independent ruler of Odisha?",
+    "options": ["Kapilendra Deva", "Mukunda Deva", "Prataparudra Deva", "Purushottama Deva"],
+    "answer": 1,
+    "explanation": "Mukunda Deva was defeated in 1568, ending Odisha’s independence."
+  },
+  {
+    "question": "Ali Fort was built by which rulers?",
+    "options": ["Marathas", "Mughals", "Gajapatis", "Somavamsis"],
+    "answer": 0,
+    "explanation": "Marathas built Ali Fort as a coastal defence structure."
+  },
+  {
+    "question": "Which dynasty ruled before the Gajapati dynasty?",
+    "options": ["Eastern Ganga", "Bhoi", "Somavamsi", "Maratha"],
+    "answer": 0,
+    "explanation": "The Eastern Ganga dynasty preceded the Gajapati rulers."
+  },
+  {
+    "question": "Raibania Fort was built during the reign of:",
+    "options": ["Kapilendra Deva", "Narasingha Deva I", "Mukunda Deva", "Purushottama Deva"],
+    "answer": 1,
+    "explanation": "Narasingha Deva I built this fort in northern Odisha."
+  },
+  {
+    "question": "Which river flows near Cuttack city?",
+    "options": ["Mahanadi", "Baitarani", "Rushikulya", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "Cuttack is located near the Mahanadi river."
+  },
+  {
+    "question": "Which Eastern Ganga ruler allied with the Chola dynasty through marriage?",
+    "options": ["Anantavarman Chodaganga", "Anangabhima Deva III", "Bhanudeva II", "Kapilendra Deva"],
+    "answer": 0,
+    "explanation": "Anantavarman Chodaganga had matrimonial alliances with the Cholas."
+  },
+  {
+    "question": "The Jagannath Temple kitchen uses which fuel type?",
+    "options": ["Coal", "Gas", "Sal wood", "Coconut shells"],
+    "answer": 2,
+    "explanation": "Sal wood is the primary fuel for temple cooking."
+  },
+  {
+    "question": "Which major lake lies in southern Odisha?",
+    "options": ["Chilika Lake", "Dal Lake", "Kolleru Lake", "Pulicat Lake"],
+    "answer": 0,
+    "explanation": "Chilika Lake is the largest coastal lagoon in India."
+  },
+  {
+    "question": "The Konark wheels also function as:",
+    "options": ["Sundials", "Drums", "Carving bases", "Platforms"],
+    "answer": 0,
+    "explanation": "The Konark wheels are giant sundials."
+  },
+  {
+    "question": "Which king completed the outer enclosure wall of Jagannath Temple?",
+    "options": ["Kapilendra Deva", "Mukunda Deva", "Narasingha Deva II", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva strengthened the temple complex with outer walls."
+  },
+  {
+    "question": "Which dynasty was responsible for building the Ananda Bazaar inside Jagannath Temple?",
+    "options": ["Gajapati", "Eastern Ganga", "Somavamsi", "Bhoi"],
+    "answer": 0,
+    "explanation": "The Gajapati kings created Ananda Bazaar for distributing temple Mahaprasad."
+  },
+  {
+    "question": "Who was the founder of the Somavamsi dynasty in Odisha?",
+    "options": ["Janmejaya I", "Yayati Keshari", "Mahasivagupta", "Anantavarman"],
+    "answer": 0,
+    "explanation": "Janmejaya I is considered the founder of Somavamsi rule in Odisha."
+  },
+  {
+    "question": "Which temple in Bhubaneswar is dedicated to Lord Vishnu?",
+    "options": ["Ananta Vasudeva Temple", "Lingaraj Temple", "Mukteswara Temple", "Rajarani Temple"],
+    "answer": 0,
+    "explanation": "Ananta Vasudeva Temple is dedicated to Lord Vishnu and built during the Eastern Ganga period."
+  },
+  {
+    "question": "The main deity at Lingaraj Temple is worshipped as a form of:",
+    "options": ["Vishnu", "Shiva", "Durga", "Surya"],
+    "answer": 1,
+    "explanation": "Lord Shiva is worshipped as Lingaraj in this famous temple."
+  },
+  {
+    "question": "Who was the last independent ruler of the Gajapati dynasty?",
+    "options": ["Mukunda Deva", "Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva"],
+    "answer": 0,
+    "explanation": "Mukunda Deva was defeated in 1568, ending independent Gajapati rule."
+  },
+  {
+    "question": "Under whose rule was the Mukteswara Temple built?",
+    "options": ["Somavamsi dynasty", "Eastern Ganga dynasty", "Gajapati dynasty", "Maratha rule"],
+    "answer": 0,
+    "explanation": "The Mukteswara Temple was built during the Somavamsi period."
+  },
+  {
+    "question": "Which festival marks the symbolic marriage of Lord Jagannath?",
+    "options": ["Kanchi-Kaveri Utsav", "Ratha Yatra", "Chandan Yatra", "Dol Yatra"],
+    "answer": 0,
+    "explanation": "The Kanchi-Kaveri festival celebrates the symbolic marriage of Lord Jagannath to Goddess Padmavati."
+  },
+  {
+    "question": "The Marathas administered Odisha from which city?",
+    "options": ["Puri", "Cuttack", "Balasore", "Khurda"],
+    "answer": 1,
+    "explanation": "The Maratha administration was based in Cuttack."
+  },
+  {
+    "question": "Which dynasty built the Raibania Fort complex?",
+    "options": ["Eastern Ganga", "Gajapati", "Maratha", "Somavamsi"],
+    "answer": 0,
+    "explanation": "The Raibania Fort complex in Balasore was built by the Eastern Ganga rulers."
+  },
+  {
+    "question": "The Sun Temple at Konark is also known as the:",
+    "options": ["Black Pagoda", "White Pagoda", "Golden Temple", "Stone Chariot"],
+    "answer": 0,
+    "explanation": "It is called the Black Pagoda because of its dark appearance and maritime landmark status."
+  },
+  {
+    "question": "Which river flows beside the city of Cuttack?",
+    "options": ["Baitarani", "Mahanadi", "Subarnarekha", "Rushikulya"],
+    "answer": 1,
+    "explanation": "Cuttack lies on the banks of the Mahanadi River."
+  },
+  {
+    "question": "Who moved the capital of Odisha from Cuttack to Khurda?",
+    "options": ["Mukunda Deva", "Divyasingha Deva I", "Kapilendra Deva", "Anangabhima Deva III"],
+    "answer": 1,
+    "explanation": "Divyasingha Deva I moved the capital to Khurda for safety."
+  },
+  {
+    "question": "Which temple is famous for its detailed erotic carvings?",
+    "options": ["Sun Temple at Konark", "Rajarani Temple", "Mukteswara Temple", "Parasurameswara Temple"],
+    "answer": 0,
+    "explanation": "The Sun Temple at Konark is known for its erotic sculptures along with other themes."
+  },
+  {
+    "question": "Under which ruler did the Gajapati kingdom reach its largest size?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva extended the empire from the Ganga to the Kaveri."
+  },
+  {
+    "question": "The Jagannath Temple's main entrance is guarded by:",
+    "options": ["Elephants", "Lions", "Horses", "Tigers"],
+    "answer": 1,
+    "explanation": "Two giant stone lions guard the Singhadwara or Lion Gate."
+  },
+  {
+    "question": "Which Mughal governor protected the Jagannath Temple during his tenure?",
+    "options": ["Man Singh I", "Shaista Khan", "Aurangzeb", "Qasim Khan"],
+    "answer": 0,
+    "explanation": "Man Singh I was known for safeguarding Jagannath Temple."
+  },
+  {
+    "question": "Who founded the Bhoi dynasty?",
+    "options": ["Govinda Vidyadhara", "Mukunda Deva", "Kapilendra Deva", "Ramachandra Deva I"],
+    "answer": 0,
+    "explanation": "Govinda Vidyadhara founded the Bhoi dynasty after the decline of the Gajapatis."
+  },
+  {
+    "question": "Which Maratha-era fort in Odisha was a coastal defence point?",
+    "options": ["Ali Fort", "Barabati Fort", "Raibania Fort", "Banki Fort"],
+    "answer": 0,
+    "explanation": "Ali Fort was built by the Marathas as a coastal defence."
+  },
+  {
+    "question": "The sacred tank in Puri used for Chandan Yatra is:",
+    "options": ["Bindusagar", "Narendra Tank", "Markandeya Tank", "Indradyumna Tank"],
+    "answer": 1,
+    "explanation": "Narendra Tank is used for the Chandan Yatra boat festival."
+  },
+  {
+    "question": "The Sun Temple at Konark was constructed during which century?",
+    "options": ["11th century", "12th century", "13th century", "15th century"],
+    "answer": 2,
+    "explanation": "It was built in the 13th century by Narasingha Deva I."
+  },
+  {
+    "question": "Which dynasty built the Ananta Vasudeva Temple?",
+    "options": ["Eastern Ganga", "Somavamsi", "Gajapati", "Maratha"],
+    "answer": 0,
+    "explanation": "Anantavarman Chodaganga of the Eastern Ganga dynasty built the Ananta Vasudeva Temple."
+  },
+  {
+    "question": "Raibania Fort was built during the reign of:",
+    "options": ["Narasingha Deva I", "Mukunda Deva", "Kapilendra Deva", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Narasingha Deva I constructed Raibania Fort in Balasore."
+  },
+  {
+    "question": "Who was the first Rajput governor of Bengal Subah which included Odisha?",
+    "options": ["Kunwar Singh", "Man Singh I", "Raja Todar Mal", "Birbal"],
+    "answer": 1,
+    "explanation": "Man Singh I served as the Bengal Subahdar, which included Odisha."
+  },
+  {
+    "question": "Which material was primarily used in the construction of medieval Odisha temples?",
+    "options": ["Marble", "Sandstone", "Granite", "Limestone"],
+    "answer": 1,
+    "explanation": "Sandstone was the main material used in temple architecture."
+  },
+  {
+    "question": "Which festival at Puri involves chariots of the deities?",
+    "options": ["Ratha Yatra", "Chandan Yatra", "Dol Yatra", "Raja Festival"],
+    "answer": 0,
+    "explanation": "Ratha Yatra is the annual chariot festival of Jagannath, Balabhadra, and Subhadra."
+  },
+  {
+    "question": "Mukteswara Temple is famous for which unique feature?",
+    "options": ["Carved Torana", "Golden Kalasha", "Marble walls", "Silver doors"],
+    "answer": 0,
+    "explanation": "It has a beautifully carved arched gateway or Torana."
+  },
+  {
+    "question": "Which Somavamsi ruler built the Brahmeswar Temple?",
+    "options": ["Udyotakesari", "Yayati Keshari", "Janmejaya II", "Mahasivagupta"],
+    "answer": 0,
+    "explanation": "Udyotakesari constructed the Brahmeswar Temple in Bhubaneswar."
+  },
+  {
+    "question": "Who annexed Odisha into the Mughal Empire?",
+    "options": ["Akbar", "Aurangzeb", "Sher Shah Suri", "Bahadur Shah"],
+    "answer": 0,
+    "explanation": "Akbar annexed Odisha into the Bengal Subah."
+  },
+  {
+    "question": "Which Maratha leader oversaw Odisha from Nagpur?",
+    "options": ["Haripant Bhosle", "Raghuji Bhonsle", "Baji Rao I", "Nilakanth Rao"],
+    "answer": 1,
+    "explanation": "Raghuji Bhonsle administered Odisha from Nagpur."
+  },
+  {
+    "question": "The 'Singhadwara' at Jagannath Temple means:",
+    "options": ["Gate of Tigers", "Lion Gate", "Elephant Gate", "Horse Gate"],
+    "answer": 1,
+    "explanation": "Singhadwara translates to the Lion Gate."
+  },
+  {
+    "question": "Cuttack city is famously called the city of:",
+    "options": ["Temples", "Silver Filigree", "Lakes", "Forts"],
+    "answer": 1,
+    "explanation": "Cuttack is known for its silver filigree (Tarakasi) work."
+  },
+  {
+    "question": "Which king built the outer walls of the Jagannath Temple complex?",
+    "options": ["Kapilendra Deva", "Mukunda Deva", "Narasingha Deva II", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Kapilendra Deva fortified the temple with outer walls."
+  },
+  {
+    "question": "The Jagannath Temple is located in which district?",
+    "options": ["Puri", "Cuttack", "Bhubaneswar", "Jajpur"],
+    "answer": 0,
+    "explanation": "Puri district is home to the Jagannath Temple."
+  },
+  {
+    "question": "Which Eastern Ganga ruler began construction of Ananta Vasudeva Temple?",
+    "options": ["Anangabhima Deva III", "Narasingha Deva I", "Kapilendra Deva", "Bhanudeva I"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III started the Ananta Vasudeva temple construction."
+  },
+  {
+    "question": "Under whose reign was Odisha ceded to the British?",
+    "options": ["Raghuji Bhonsle II", "Nilakanth Rao", "Haripant Bhosle", "Baji Rao II"],
+    "answer": 0,
+    "explanation": "Raghuji Bhonsle II ceded Odisha to the British in 1803."
+  },
+  {
+    "question": "The 'Bhogamandapa' in temples is used for:",
+    "options": ["Dance performances", "Food offerings", "Storing chariots", "Housing priests"],
+    "answer": 1,
+    "explanation": "Bhogamandapa is the hall for presenting food offerings to the deity."
+  },
+  {
+    "question": "Which form of Lord Jagannath’s idol is seen during the Snana Purnima?",
+    "options": ["Navakalevara", "Hati Vesha", "Padma Vesha", "Raj Vesha"],
+    "answer": 1,
+    "explanation": "During Snana Purnima, the Hati Vesha or elephant attire is used."
+  },
+  {
+    "question": "Which dynasty built the famous Jagannath Temple at Puri?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Maratha"],
+    "answer": 1,
+    "explanation": "The Eastern Ganga dynasty under Anantavarman Chodaganga built the Jagannath Temple."
+  },
+  {
+    "question": "The Lingaraj Temple is dedicated to which deity?",
+    "options": ["Jagannath", "Vishnu", "Shiva", "Surya"],
+    "answer": 2,
+    "explanation": "Lord Shiva is worshipped at the Lingaraj Temple in Bhubaneswar."
+  },
+  {
+    "question": "Which festival celebrates the chariot journey of Lord Jagannath in Puri?",
+    "options": ["Ratha Yatra", "Holi", "Diwali", "Durga Puja"],
+    "answer": 0,
+    "explanation": "Ratha Yatra is the annual chariot procession of Lord Jagannath, Balabhadra, and Subhadra."
+  },
+  {
+    "question": "Which king founded the city of Cuttack?",
+    "options": ["Anangabhima Deva III", "Kapilendra Deva", "Narasingha Deva I", "Mukunda Deva"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III founded Cuttack as a fortified city."
+  },
+  {
+    "question": "The Black Pagoda refers to which temple?",
+    "options": ["Lingaraj Temple", "Sun Temple, Konark", "Jagannath Temple", "Mukteswara Temple"],
+    "answer": 1,
+    "explanation": "The Sun Temple at Konark is also called the Black Pagoda."
+  },
+  {
+    "question": "Who was the founder of the Eastern Ganga dynasty?",
+    "options": ["Anantavarman Vajrahasta", "Anantavarman Chodaganga", "Narasingha Deva I", "Bhanudeva I"],
+    "answer": 0,
+    "explanation": "Anantavarman Vajrahasta founded the Eastern Ganga dynasty."
+  },
+  {
+    "question": "Which Maratha leader administered Odisha from Cuttack?",
+    "options": ["Haripant Bhosle", "Raghuji Bhonsle", "Nilakanth Rao", "Baji Rao II"],
+    "answer": 0,
+    "explanation": "Haripant Bhosle managed Odisha's administration from Cuttack during Maratha rule."
+  },
+  {
+    "question": "The sacred Bindusagar tank is located near which temple?",
+    "options": ["Mukteswara Temple", "Jagannath Temple", "Lingaraj Temple", "Rajarani Temple"],
+    "answer": 2,
+    "explanation": "Bindusagar tank is located near Lingaraj Temple in Bhubaneswar."
+  },
+  {
+    "question": "Who defeated the last Hindu king of Odisha, Mukunda Deva?",
+    "options": ["Suleiman Kararani", "Akbar", "Man Singh I", "Aurangzeb"],
+    "answer": 0,
+    "explanation": "Suleiman Kararani, the Afghan ruler of Bengal, defeated Mukunda Deva in 1568."
+  },
+  {
+    "question": "Which deity is worshipped at the Ananta Vasudeva Temple in Bhubaneswar?",
+    "options": ["Shiva", "Vishnu", "Jagannath", "Surya"],
+    "answer": 1,
+    "explanation": "Ananta Vasudeva Temple is dedicated to Lord Vishnu."
+  },
+  {
+    "question": "The Singhadwara is the main gate of which temple?",
+    "options": ["Lingaraj Temple", "Mukteswara Temple", "Jagannath Temple", "Sun Temple"],
+    "answer": 2,
+    "explanation": "Singhadwara or Lion Gate is the main entrance of Jagannath Temple."
+  },
+  {
+    "question": "Which fort in Odisha was built to defend the northern frontier?",
+    "options": ["Barabati Fort", "Raibania Fort", "Ali Fort", "Banki Fort"],
+    "answer": 1,
+    "explanation": "Raibania Fort in Balasore was a key northern defence fortification."
+  },
+  {
+    "question": "Who shifted the capital of Odisha from Cuttack to Khurda?",
+    "options": ["Divyasingha Deva I", "Kapilendra Deva", "Mukunda Deva", "Purushottama Deva"],
+    "answer": 0,
+    "explanation": "Divyasingha Deva I moved the capital to Khurda."
+  },
+  {
+    "question": "Which Mughal emperor annexed Odisha into the Bengal Subah?",
+    "options": ["Akbar", "Aurangzeb", "Jahangir", "Shah Jahan"],
+    "answer": 0,
+    "explanation": "Akbar added Odisha to the Bengal Subah."
+  },
+  {
+    "question": "Which ruler was known for the Kanchi-Kaveri expedition?",
+    "options": ["Kapilendra Deva", "Purushottama Deva", "Prataparudra Deva", "Mukunda Deva"],
+    "answer": 1,
+    "explanation": "Purushottama Deva led the Kanchi-Kaveri expedition."
+  },
+  {
+    "question": "Which temple is known as the 'Gem of Odisha Architecture'?",
+    "options": ["Mukteswara Temple", "Rajarani Temple", "Sun Temple", "Lingaraj Temple"],
+    "answer": 0,
+    "explanation": "Mukteswara Temple is called the 'Gem of Odisha Architecture'."
+  },
+  {
+    "question": "The Maratha rule in Odisha ended in which year?",
+    "options": ["1803", "1857", "1817", "1799"],
+    "answer": 0,
+    "explanation": "Odisha came under British control after 1803."
+  },
+  {
+    "question": "The main festival of the Sun Temple at Konark is dedicated to which god?",
+    "options": ["Shiva", "Surya", "Vishnu", "Jagannath"],
+    "answer": 1,
+    "explanation": "The Konark Temple is dedicated to Surya, the Sun God."
+  },
+  {
+    "question": "Which dynasty preceded the Gajapati dynasty?",
+    "options": ["Eastern Ganga", "Somavamsi", "Bhoi", "Maratha"],
+    "answer": 0,
+    "explanation": "The Eastern Ganga dynasty ruled before the Gajapati dynasty."
+  },
+  {
+    "question": "Which fort in Cuttack was the seat of power during the Gajapati dynasty?",
+    "options": ["Raibania Fort", "Barabati Fort", "Ali Fort", "Khurda Fort"],
+    "answer": 1,
+    "explanation": "Barabati Fort served as the seat of power during the Gajapati rule."
+  },
+  {
+    "question": "The Jagmohana in an Odisha temple refers to:",
+    "options": ["Sanctum tower", "Assembly hall", "Kitchen", "Outer wall"],
+    "answer": 1,
+    "explanation": "The Jagmohana is the assembly hall for devotees."
+  },
+  {
+    "question": "Who founded the Bhoi dynasty?",
+    "options": ["Govinda Vidyadhara", "Mukunda Deva", "Ramachandra Deva I", "Kapilendra Deva"],
+    "answer": 0,
+    "explanation": "Govinda Vidyadhara founded the Bhoi dynasty in Odisha."
+  },
+  {
+    "question": "Which large lake in Odisha is famous for bird migration?",
+    "options": ["Dal Lake", "Chilika Lake", "Pulicat Lake", "Kolleru Lake"],
+    "answer": 1,
+    "explanation": "Chilika Lake is Asia's largest coastal lagoon and a bird sanctuary."
+  },
+  {
+    "question": "Bindusagar tank is associated with which temple rituals?",
+    "options": ["Lingaraj Temple", "Jagannath Temple", "Konark Temple", "Rajarani Temple"],
+    "answer": 0,
+    "explanation": "It plays an important role in Lingaraj Temple rituals."
+  },
+  {
+    "question": "The outer walls of Konark Sun Temple depict scenes from:",
+    "options": ["Ramayana", "Mahabharata", "Everyday life and mythology", "Buddha's life"],
+    "answer": 2,
+    "explanation": "They depict daily life activities, dancers, and mythological stories."
+  },
+  {
+    "question": "Which Mughal governor was known for protecting Jagannath Temple?",
+    "options": ["Man Singh I", "Shaista Khan", "Qasim Khan", "Aurangzeb"],
+    "answer": 0,
+    "explanation": "Man Singh I ensured the temple's safety and upkeep."
+  },
+  {
+    "question": "Konark Sun Temple is located in which district?",
+    "options": ["Puri", "Cuttack", "Bhubaneswar", "Balasore"],
+    "answer": 0,
+    "explanation": "It is located in Puri district of Odisha."
+  },
+  {
+    "question": "Mukunda Deva was defeated in which year?",
+    "options": ["1568", "1576", "1600", "1556"],
+    "answer": 0,
+    "explanation": "Mukunda Deva was defeated in 1568 by Afghan forces."
+  },
+  {
+    "question": "Which Maratha governor supervised pilgrim taxes in Puri?",
+    "options": ["Haripant Bhosle", "Nilakanth Rao", "Raghuji Bhonsle", "Baji Rao II"],
+    "answer": 0,
+    "explanation": "Haripant Bhosle oversaw pilgrim tax administration."
+  },
+  {
+    "question": "The Jagannath Temple kitchen cooks food using which method?",
+    "options": ["Gas stoves", "Firewood and clay pots", "Electric ovens", "Solar cookers"],
+    "answer": 1,
+    "explanation": "Food is cooked in clay pots over wood fire in the temple kitchen."
+  },
+  {
+    "question": "Who built the Megheswar Temple in Bhubaneswar?",
+    "options": ["Somavamsi rulers", "Eastern Ganga rulers", "Gajapati rulers", "Bhoi rulers"],
+    "answer": 0,
+    "explanation": "The Somavamsis constructed Megheswar Temple."
+  },
+  {
+    "question": "The Marathas ceded Odisha to the British under which treaty?",
+    "options": ["Treaty of Deogaon", "Treaty of Salbai", "Treaty of Purandar", "Treaty of Surat"],
+    "answer": 0,
+    "explanation": "The Treaty of Deogaon in 1803 transferred Odisha to the British."
+  },
+  {
+    "question": "Which dynasty built the Mukteswara Temple?",
+    "options": ["Somavamsi", "Eastern Ganga", "Gajapati", "Bhoi"],
+    "answer": 0,
+    "explanation": "The Mukteswara Temple was built by the Somavamsis."
+  },
+  {
+    "question": "Which year did the British take Cuttack from the Marathas?",
+    "options": ["1803", "1817", "1799", "1825"],
+    "answer": 0,
+    "explanation": "The British took control of Cuttack in 1803."
+  },
+  {
+    "question": "Jagannath Temple rituals include the annual ‘Snana Purnima’, which is:",
+    "options": ["Ceremonial boat ride", "Annual bathing festival", "Chariot pulling", "Lamp lighting"],
+    "answer": 1,
+    "explanation": "Snana Purnima is the bathing festival of Lord Jagannath."
+  },
+  {
+    "question": "The Rajarani Temple in Bhubaneswar is famous for its:",
+    "options": ["No presiding deity", "Golden spire", "Silver gates", "Painted walls"],
+    "answer": 0,
+    "explanation": "It has no deity inside and is known for beautiful sculptural work."
+  },
+  {
+    "question": "Which Eastern Ganga ruler completed the Jagannath Temple?",
+    "options": ["Anangabhima Deva III", "Anantavarman Chodaganga", "Narasingha Deva I", "Bhanudeva I"],
+    "answer": 0,
+    "explanation": "Anangabhima Deva III completed the Jagannath Temple."
+  }
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>
