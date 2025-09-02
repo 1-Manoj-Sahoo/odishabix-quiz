@@ -1,0 +1,823 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odisha July CA Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+	header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
+    text-align: center;
+    padding: 8px 8px;
+    background-color: rgba(0,0,0,1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+	}
+
+	header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    letter-spacing: 2px;
+    color: #ffcc00;
+	}
+
+	header h1 .header-link {
+    color: #ffcc00;
+    text-decoration: none;
+    user-select: none;
+	}
+
+	header h1 .header-link:hover,
+	header h1 .header-link:focus {
+     text-decoration: none;
+	}
+	header p {
+        margin-top: 2px;
+        font-size: 1.2rem;
+        color: #ffee99;
+    }
+	.container.mt-5.mb-5 {
+    margin-top: 100px !important;
+	}
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+	<header>
+  		<h1><a href="index.html" class="header-link">ODISHABIX</a></h1>
+		 <p>Prepare Better, Achieve faster</p>
+	</header>
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Odisha July CA</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+  {
+    "question": "Where was the second edition of Kala Utsav 2025 – Artists in Residence Programme held?",
+    "options": ["India Gate", "Rashtrapati Bhavan", "Jantar Mantar", "Red Fort"],
+    "answer": 1,
+    "explanation": "The second edition of Kala Utsav 2025 – Artists in Residence Programme was held in Rashtrapati Bhavan, featuring indigenous art forms: Sohrai Art, Pattachitra, and Patua Painting."
+  },
+  {
+    "question": "The Shaktishree programme has been launched by which state government?",
+    "options": ["Rajasthan", "Chhattisgarh", "Odisha", "Uttarakhand"],
+    "answer": 2,
+    "explanation": "The Shaktishree programme was launched by the Odisha state government to ensure the safety of girl students in colleges and universities."
+  },
+  {
+    "question": "Kalinga Maritime Museum is going to be set up in which district of Odisha?",
+    "options": ["Ganjam", "Jagatsinghpur", "Kendrapara", "Balasore"],
+    "answer": 1,
+    "explanation": "The Kalinga Maritime Museum is planned to be set up at Paradip in Jagatsinghpur district of Odisha."
+  },
+  {
+    "question": "The ancient Swapneswar Mahadev Temple in Punjiama village under Banapur block has officially been declared a protected monument by ASI in which district of Odisha?",
+    "options": ["Gajapati", "Cuttack", "Khordha", "Dhenkanal"],
+    "answer": 2,
+    "explanation": "The Swapneswar Mahadev Temple in Punjiama village under Banapur block has been declared a protected monument by ASI in Khordha district."
+  },
+  {
+    "question": "Badalgiri Waterfall is located in which district of Odisha?",
+    "options": ["Mayurbhanj", "Sundargarh", "Koraput", "Kandhamal"],
+    "answer": 3,
+    "explanation": "The Badalgiri Waterfall is located in Kandhamal district of Odisha."
+  },
+  {
+    "question": "Which state will host the Energy Ministers’ Conclave by the end of this year?",
+    "options": ["Bihar", "Chhattisgarh", "Andhra Pradesh", "Odisha"],
+    "answer": 3,
+    "explanation": "Odisha is set to host the Energy Ministers’ Conclave under the chairmanship of Deputy CM Kanak Vardhan Singh Deo."
+  },
+  {
+    "question": "A temporary earthen dam or cofferdam of the under-construction Kanupur Irrigation Project is located in which district of Odisha?",
+    "options": ["Mayurbhanj", "Keonjhar", "Nuapada", "Nayagarh"],
+    "answer": 1,
+    "explanation": "The cofferdam of the Kanupur Irrigation Project is located in Keonjhar district of Odisha."
+  },
+  {
+    "question": "Under 'Mukhya Mantri Bayu Swasthya Seva' scheme, which district was assisted in July 2025?",
+    "options": ["Koraput", "Rayagada", "Nabarangpur", "Kandhamal"],
+    "answer": 3,
+    "explanation": "Under this scheme, Kandhamal district was assisted in July 2025 by doctors from SCB Medical College, Cuttack."
+  },
+  {
+    "question": "Which state was awarded as best state for agriculture at the 16th Agriculture Leadership Conclave?",
+    "options": ["Madhya Pradesh", "Uttar Pradesh", "Odisha", "Andhra Pradesh"],
+    "answer": 2,
+    "explanation": "Odisha was awarded as the best state for agriculture at the 16th Agriculture Leadership Conclave."
+  },
+  {
+    "question": "In which country will the World University Games 2025 be held?",
+    "options": ["Australia", "India", "Germany", "Jordan"],
+    "answer": 2,
+    "explanation": "The World University Games 2025 will be held in Germany, with 42 players from Odisha representing India."
+  },
+  {
+    "question": "To boost aviation infrastructure, Odisha Govt has completed all formalities for establishing the state’s first MRO facility in:",
+    "options": ["Bhubaneswar", "Rourkela", "Paradip", "Jajpur"],
+    "answer": 0,
+    "explanation": "Odisha will establish its first Maintenance, Repair, and Overhaul (MRO) facility in Bhubaneswar."
+  },
+  {
+    "question": "Which University of India launched online sand art courses in collaboration with Sudarsan Pattnaik?",
+    "options": ["IGNOU", "Jamia Millia Islamia", "JNU", "Nalanda University"],
+    "answer": 0,
+    "explanation": "Indira Gandhi National Open University (IGNOU) launched online sand art courses with Sudarsan Pattnaik."
+  },
+  {
+    "question": "Where was the National Conference on 'Good Governance Practices' 2025 held?",
+    "options": ["New Delhi", "Odisha", "Madhya Pradesh", "Uttar Pradesh"],
+    "answer": 1,
+    "explanation": "The National Conference on Good Governance Practices 2025 was held in Bhubaneswar, Odisha."
+  },
+  {
+    "question": "Sahani cup is related to which sport?",
+    "options": ["Cricket", "Badminton", "Football", "Hockey"],
+    "answer": 2,
+    "explanation": "Sahani Cup is related to Football, played across four zones of Odisha."
+  },
+  {
+    "question": "Dr. B.C. Roy Trophy 2025–26 is related to which sport?",
+    "options": ["Cricket", "Badminton", "Football", "Hockey"],
+    "answer": 2,
+    "explanation": "The Dr. B.C. Roy Trophy 2025–26 is related to Football and played by Odisha Junior Boys Team."
+  },
+  {
+    "question": "Siali Beach, recently in news, is located in which district of Odisha?",
+    "options": ["Balasore", "Kendrapara", "Jagatsinghpur", "Ganjam"],
+    "answer": 3,
+    "explanation": "Siali Beach is located in Ganjam district of Odisha."
+  },
+  {
+    "question": "Sudarsan Pattnaik created a 20-foot sand tiger sculpture on Puri beach for International Tiger Day, collaborating with which organisation?",
+    "options": ["WWF", "PETA", "WRRC", "The Animal Welfare Board of India"],
+    "answer": 0,
+    "explanation": "Sudarsan Pattnaik collaborated with WWF for International Tiger Day to promote tiger conservation."
+  },
+  {
+    "question": "Where did Typhoon Wipha make landfall?",
+    "options": ["Thailand", "Laos", "Northern Vietnam", "Philippines"],
+    "answer": 2,
+    "explanation": "Typhoon Wipha made landfall in Northern Vietnam, affecting several Asian countries."
+  },
+  {
+    "question": "The ‘GARIMA’ initiative of Odisha is related to:",
+    "options": ["Anganwadi Workers", "SHGs", "Subhadra beneficiary", "Sanitation Workers"],
+    "answer": 3,
+    "explanation": "The ‘GARIMA’ initiative of Odisha is related to sanitation workers, ensuring safety and dignity."
+  },
+  {
+    "question": "Who is the current Vice Chancellor of Fakir Mohan University?",
+    "options": ["Santosh Kumar Tripathy", "Jagneshwar Dandapat", "Ashwini Kumar Pujahari", "Manas Ranjan Sahoo"],
+    "answer": 1,
+    "explanation": "Jagneshwar Dandapat is the current Vice Chancellor of Fakir Mohan University."
+  },
+  {
+    "question": "Which district of Odisha is emerging as a Jackfruit economy district under the Odisha Jackfruit Mission?",
+    "options": ["Sundargarh", "Malkangiri", "Mayurbhanj", "Kandhamal"],
+    "answer": 3,
+    "explanation": "Kandhamal district is emerging as a Jackfruit economy district under the Odisha Jackfruit Mission, also known for turmeric and ginger."
+  },
+  {
+    "question": "As of July 2025, how many blocks of Odisha come under the Aspirational Block Programme of the NITI Aayog?",
+    "options": ["20", "30", "40", "11"],
+    "answer": 3,
+    "explanation": "As of July 2025, eleven blocks of Odisha are included in the Aspirational Block Programme of NITI Aayog (5 in Keonjhar, 6 in Mayurbhanj)."
+  },
+  {
+    "question": "Who has been awarded Kalinga Ratna Award 2024 on the 600th birth anniversary celebrations of Adikabi Sarala Das?",
+    "options": ["Bijay Nayak", "Dharmendra Pradhan", "Naveen Pattnaik", "Mohan Charan Majhi"],
+    "answer": 3,
+    "explanation": "Mohan Charan Majhi received the Kalinga Ratna Award 2024 on the 600th birth anniversary of Adikabi Sarala Das."
+  },
+  {
+    "question": "Which state signed 33 MoUs worth $902 million to boost its textile sector during the Odisha-TEX 2025 summit?",
+    "options": ["Gujarat", "Maharashtra", "Odisha", "Tamil Nadu"],
+    "answer": 2,
+    "explanation": "Odisha signed 33 MoUs worth $902 million to boost its textile sector during the Odisha-TEX 2025 summit in Bhubaneswar."
+  },
+  {
+    "question": "From which state were the Prithvi-II and Agni-I ballistic missiles successfully test-fired on July 17, 2025?",
+    "options": ["Andhra Pradesh", "Tamil Nadu", "Odisha", "Ladakh"],
+    "answer": 2,
+    "explanation": "Prithvi-II and Agni-I missiles were successfully test-fired from Chandipur, Odisha on July 17, 2025."
+  },
+  {
+    "question": "What position will Puri hold among Odisha’s municipal corporations after its upgradation?",
+    "options": ["Fourth", "Fifth", "Seventh", "Sixth"],
+    "answer": 3,
+    "explanation": "Puri will become the sixth municipal corporation in Odisha after its upgradation in July 2025."
+  },
+  {
+    "question": "What is the name of the Beyond Visual Range Air-to-Air Missile (BVRAAM) tested by ADA?",
+    "options": ["BrahMos", "Agni", "Astra", "Nirbhay"],
+    "answer": 2,
+    "explanation": "India tested the Astra Beyond Visual Range Air-to-Air Missile (BVRAAM) from a Sukhoi-30 aircraft in Odisha."
+  },
+  {
+    "question": "Which mobile application was launched by the Odisha government to digitally empower Anganwadi Centres?",
+    "options": ["AWESOME", "Shakti Swarupini", "GARIMA App", "Shaktishree App"],
+    "answer": 0,
+    "explanation": "The Odisha government launched ‘AWESOME’ (Anganwadi Welfare & Services Oversight Monitoring Everywhere) to empower Anganwadi Centres."
+  },
+  {
+    "question": "What is the target number of trees Odisha aims to plant under the 'Ek Ped Maa Ke Naam' campaign (2nd edition)?",
+    "options": ["6.88 crore trees", "7.5 crore trees", "75 lakh trees", "18 lakh trees"],
+    "answer": 1,
+    "explanation": "Odisha aims to plant 7.5 crore trees under the 'Ek Ped Maa Ke Naam' campaign (2nd edition)."
+  },
+  {
+    "question": "Which city is home to the recently established Shabari Sanskrutik Bhawan?",
+    "options": ["Rayagada", "Koraput", "Bhubaneswar", "Malkangiri"],
+    "answer": 2,
+    "explanation": "Shabari Sanskrutik Bhawan was set up in Bhubaneswar to support tribal youth education and cultural development."
+  },
+  {
+    "question": "Which organization signed an MoU with the Odisha Government for the WINDS project?",
+    "options": ["IMD", "Skymet Weather", "ISRO", "National Centre for Medium-Range Weather Forecasting"],
+    "answer": 1,
+    "explanation": "Skymet Weather signed an MoU with the Odisha Government for the Weather Information Network Data System (WINDS) project."
+  },
+  {
+    "question": "The ECRICC project in Odisha was awarded the first prize in the government sector at which event?",
+    "options": ["IITM", "Seafood Expo Bharat 2025", "Agriculture Leadership Conclave", "Good Governance Conference"],
+    "answer": 1,
+    "explanation": "The ECRICC project in Odisha won first prize at Seafood Expo Bharat 2025 in Chennai."
+  },
+  {
+    "question": "Cuttack’s silver filigree, known as Tarakasi, was showcased at the Bharat Utsav 2025 in which city?",
+    "options": ["New Delhi", "London", "Moscow", "Berlin"],
+    "answer": 2,
+    "explanation": "Cuttack’s silver filigree (Tarakasi) was showcased at Bharat Utsav 2025 in Moscow, Russia."
+  },
+  {
+    "question": "Which two key sites of the Odisha Mining Corporation received the '5 Star Rating' award for 2023–24?",
+    "options": ["Talcher Coal Mines & Hirakud Dam", "Daitari Iron Ore Mines & Kodingamali Bauxite Mines", "Sukinda Chromite Mines & Gandhamardan Bauxite Mines", "NALCO Mines & Angul Coal Mines"],
+    "answer": 1,
+    "explanation": "OMC’s Daitari Iron Ore Mines and Kodingamali Bauxite Mines received the '5 Star Rating' award for 2023–24."
+  },
+  {
+    "question": "Which city in Odisha is set to host the World Athletics Continental Tour (Bronze Level) for the first time on August 10?",
+    "options": ["Cuttack", "Rourkela", "Bhubaneswar", "Ganjam"],
+    "answer": 2,
+    "explanation": "Bhubaneswar will host the World Athletics Continental Tour (Bronze Level) for the first time at Kalinga Stadium on August 10."
+  },
+  {
+    "question": "Which two Forest Protection Committees were jointly conferred the State-Level Award for Forest Protection?",
+    "options": ["Karlapat & Similipal", "Tulangpadar (Kalahandi) & Pahadpur (Karanjia)", "Satkosia & Chilika", "Bhitarkanika & Debrigarh"],
+    "answer": 1,
+    "explanation": "Tulangpadar (Kalahandi) and Pahadpur (Karanjia) Forest Protection Committees received the State-Level Award for Forest Protection."
+  },
+  {
+    "question": "How many medals did Odisha win at the Uganda Para Badminton International 2025?",
+    "options": ["1 Gold, 3 Bronze", "1 Silver, 3 Bronze", "4 Gold", "2 Silver, 2 Bronze"],
+    "answer": 1,
+    "explanation": "Odisha won 1 Silver and 3 Bronze medals at the Uganda Para Badminton International 2025."
+  },
+  {
+    "question": "How many total medals did Odisha win at the 24th Junior National Wushu Championship in Hyderabad?",
+    "options": ["1 gold, 6 other medals", "7 total medals, with 1 gold", "7 gold medals", "1 gold, 3 silver, 3 bronze"],
+    "answer": 1,
+    "explanation": "Odisha won 7 total medals, including 1 gold by Sonakshi Mohanty, at the 24th Junior National Wushu Championship."
+  },
+  {
+    "question": "Union Minister Jual Oram announced his retirement from elections. How many times has he contested elections in total?",
+    "options": ["2 times", "8 times", "10 times", "5 times"],
+    "answer": 2,
+    "explanation": "Jual Oram has contested 10 times in total (2 Assembly and 8 Lok Sabha elections)."
+  },
+  {
+    "question": "How many medals did the Odisha Para Athletics Team secure at the Indian Open Para Athletics Meet in July 2025?",
+    "options": ["11 total (4 Gold, 5 Silver, 2 Bronze)", "3 total (2 Gold, 1 Silver)", "2 total (1 Gold, 1 Silver)", "8 total (7 Gold, 1 Silver)"],
+    "answer": 0,
+    "explanation": "The Odisha Para Athletics Team won 11 medals (4 Gold, 5 Silver, 2 Bronze) at the Indian Open Para Athletics Meet in Bengaluru, July 2025."
+  },
+  {
+    "question": "Who became the first woman footballer from Odisha to successfully pass the AFC ‘A’ License Coaching Course?",
+    "options": ["Pyari Xaxa", "Sasmita Malik", "Sradhanjali Samantaray", "Sonakshi Mohanty"],
+    "answer": 2,
+    "explanation": "Sradhanjali Samantaray became the first woman footballer from Odisha to pass the AFC ‘A’ License Coaching Course."
+  },
+  {
+    "question": "What was the performance of the Odisha boys' and girls' teams at the 10th Junior (U-18) National Rugby 7's Championship in Uttarakhand?",
+    "options": ["Both boys and girls teams won the championship", "Both boys and girls teams secured the runners-up title", "Boys team won, girls team runners-up", "Girls team won, boys team runners-up"],
+    "answer": 1,
+    "explanation": "Both Odisha boys' and girls' teams secured the runners-up title at the 10th Junior National Rugby 7’s Championship in Uttarakhand."
+  },
+  {
+    "question": "How many total medals did Odisha's police personnel contribute to India’s tally at the 21st World Police And Fire Games 2025 in the USA?",
+    "options": ["20 (13 Gold, 3 Silver, 4 Bronze)", "8 (7 Gold, 1 Silver)", "4 (2 Gold, 2 Silver)", "1 (1 Gold)"],
+    "answer": 0,
+    "explanation": "Odisha’s police personnel contributed 20 medals (13 Gold, 3 Silver, 4 Bronze) at the 21st World Police and Fire Games 2025 in Alabama, USA."
+  },
+  {
+    "question": "Odisha received which two prestigious awards at the India International Travel Mart (IITM) in Chennai?",
+    "options": ["Best Cultural Destination & Green Tourism Award", "Responsible Tourism Initiative of the Year & Best Overall Exhibitor", "Emerging Tourist Destination & Digital Tourism Award", "Sustainable Tourism Award & Best Adventure Tourism"],
+    "answer": 1,
+    "explanation": "Odisha received 'Responsible Tourism Initiative of the Year' and 'Best Overall Exhibitor' awards at the India International Travel Mart (IITM) in Chennai."
+  },
+  {
+    "question": "Which new police district was approved by the Odisha Cabinet through the bifurcation of Mayurbhanj police district?",
+    "options": ["Karanjia Police District", "Rairangpur Police District", "Udala Police District", "Baripada Police District"],
+    "answer": 1,
+    "explanation": "Odisha Cabinet approved the creation of Rairangpur Police District through bifurcation of Mayurbhanj district."
+  },
+  {
+    "question": "What is the total outlay of the 'SAMRUDHA SAHAR' Scheme approved by Odisha Cabinet?",
+    "options": ["Rs. 4,114 crores", "Rs. 765.30 crores", "Rs. 4,879.30 crores", "Rs. 10,000 crores"],
+    "answer": 2,
+    "explanation": "The SAMRUDHA SAHAR Scheme was approved with a total outlay of Rs. 4,879.30 crores for planned urbanisation and balanced development."
+  },
+  {
+    "question": "Which two NACs in Ganjam received the Swachh Sehar Award in the Swachh Survekshan Awards 2024–25?",
+    "options": ["Bhubaneswar & Rourkela", "Indore & Surat", "ASKA NAC & Chikiti NAC", "Ahmedabad & Bhopal"],
+    "answer": 2,
+    "explanation": "ASKA NAC and Chikiti NAC in Ganjam received the Swachh Sehar Award from the President of India in Swachh Survekshan 2024–25."
+  },
+  {
+    "question": "What is the primary objective of the Mukhyamantri Kamadhenu Yojana launched by Odisha?",
+    "options": ["Financial help for crops", "Enhance milk production by providing high-yielding cows", "Promote organic farming", "Establish dairy units"],
+    "answer": 1,
+    "explanation": "The Mukhyamantri Kamadhenu Yojana aims to enhance milk production by providing 10,000 high-yielding breed cows to farmers."
+  },
+  {
+    "question": "Who became the first World Athletics Bronze Level Referee from Odisha after passing the exam?",
+    "options": ["Himanshu Shekhar Khatua", "Prabodha Kumar Mohanty", "Gobinda Chand", "Sutavya Karmakar"],
+    "answer": 1,
+    "explanation": "Prabodha Kumar Mohanty became the first World Athletics Bronze Level Referee from Odisha after passing the global referee exam."
+  },
+  {
+    "question": "Who was conferred with the Baishnaba Pani Kala Samman by Utkal Sahitya Samaj?",
+    "options": ["Dr. Achyuta Samanta", "Sudarsan Pattnaik", "Himanshu Shekhar Khatua", "Rabi Narayan Naik"],
+    "answer": 2,
+    "explanation": "Himanshu Shekhar Khatua, film director and academician, was conferred with the Baishnaba Pani Kala Samman by Utkal Sahitya Samaj."
+  },
+  {
+    "question": "Which two Jindal Sports Hostel athletes secured double gold medals for India at the Moscow Wushu Star International Championship 2025?",
+    "options": ["Sonakshi Mohanty & Kashyapi Sonowal", "Prem Munda & Rajkumar Munda", "Pyari Xaxa & Sasmita Malik", "Ashok Dandasena & Susmita Tigga"],
+    "answer": 1,
+    "explanation": "Prem Munda and Rajkumar Munda of Jindal Sports Hostel won double gold medals for India at Moscow Wushu Star Championship 2025."
+  },
+  {
+    "question": "Which port in Odisha handled the largest cargo (150.41 MTPA) among all major ports in India in FY 2024–25?",
+    "options": ["Dhamra Port", "Gopalpur Port", "Paradip Port Authority", "None"],
+    "answer": 2,
+    "explanation": "Paradip Port Authority handled 150.41 MTPA cargo in FY 2024–25, the highest among major ports in India."
+  },
+  {
+    "question": "What is the total amount announced by Odisha government for awards to best-performing Panchayati Raj Institutions?",
+    "options": ["Rs 1.5 crore", "Rs 2.5 crore", "Rs 4 crore", "Rs 10 crore"],
+    "answer": 2,
+    "explanation": "Odisha government announced Rs 4 crore as awards for best-performing Panchayati Raj Institutions."
+  },
+  {
+    "question": "How much funding has the National CAMPA Authority approved for Odisha’s afforestation projects for 2024–26?",
+    "options": ["Rs 1,112.92 crore", "Rs 984.84 crore", "More than Rs 2,000 crore", "Exactly Rs 2,100 crore"],
+    "answer": 2,
+    "explanation": "The National CAMPA Authority approved more than Rs 2,000 crore for Odisha’s afforestation and forest conservation projects."
+  },
+  {
+    "question": "Which indigenously developed missile was successfully flight-tested twice by DRDO from APJ Abdul Kalam Island in July 2025?",
+    "options": ["Agni", "BrahMos", "Pralay", "Astra"],
+    "answer": 2,
+    "explanation": "DRDO successfully tested the Pralay missile twice from APJ Abdul Kalam Island off Odisha coast in July 2025."
+  },
+  {
+    "question": "In which block and district of Odisha has a grim malnutrition situation emerged with over 3,600 malnourished children?",
+    "options": ["Banapur, Khordha", "Koida, Sundargarh", "Basudevpur, Keonjhar", "Punjiama, Khordha"],
+    "answer": 1,
+    "explanation": "Koida block in Sundargarh district reported over 3,633 malnourished children, similar to Nagada in Jajpur."
+  },
+  {
+    "question": "KIIT-DU signed MoUs with two international institutions from which countries?",
+    "options": ["Australia & Germany", "China & UAE", "Malta & Bulgaria", "USA & UK"],
+    "answer": 2,
+    "explanation": "KIIT-DU signed MoUs with the American University of Malta (Malta) and Burgas Free University (Bulgaria)."
+  },
+  {
+    "question": "Researchers from NIT Rourkela collaborated with UAE University & Sun Yat-sen University, China to study Mars. What was the focus?",
+    "options": ["Liquid water on Mars", "Martian weather phenomena", "Geological composition", "New propulsion systems"],
+    "answer": 1,
+    "explanation": "NIT Rourkela researchers focused on studying Martian weather phenomena like dust devils, storms, and water-ice clouds."
+  },
+  {
+    "question": "Who has been appointed as the new Chief Justice of Orissa High Court in July 2025?",
+    "options": ["Justice Subhasis Talapatra", "Justice Chakradhari Sharan Singh", "Justice S. Muralidhar", "Justice K.S. Jhaveri"],
+    "answer": 1,
+    "explanation": "Justice Chakradhari Sharan Singh was appointed as the new Chief Justice of Orissa High Court in July 2025."
+  },
+  {
+    "question": "Which state topped in implementing PMGSY-III as of July 2025?",
+    "options": ["Madhya Pradesh", "Odisha", "Uttar Pradesh", "Chhattisgarh"],
+    "answer": 1,
+    "explanation": "Odisha topped in implementing PMGSY-III (Pradhan Mantri Gram Sadak Yojana Phase-III) as of July 2025."
+  },
+  {
+    "question": "The ‘Parichay’ scheme launched in Odisha is related to which field?",
+    "options": ["Sports", "Skill Development", "Education", "Health"],
+    "answer": 2,
+    "explanation": "The ‘Parichay’ scheme launched in Odisha is related to Education for the holistic development of students."
+  },
+  {
+    "question": "Which river’s bank was chosen for the foundation stone laying of Odisha’s first river cruise service?",
+    "options": ["Mahanadi", "Brahmani", "Rushikulya", "Subarnarekha"],
+    "answer": 0,
+    "explanation": "The foundation stone of Odisha’s first river cruise service was laid on the banks of Mahanadi river."
+  },
+  {
+    "question": "Which new health programme was launched by Odisha government for non-communicable diseases?",
+    "options": ["Swasthya Odisha Mission", "Nirogi Odisha", "Biju Swasthya Suraksha", "Healthy Odisha 2036"],
+    "answer": 1,
+    "explanation": "The Odisha government launched ‘Nirogi Odisha’ programme for tackling non-communicable diseases."
+  },
+  {
+    "question": "Which Odia film won the National Film Award for Best Feature Film in Odia (2024)?",
+    "options": ["Pratikshya", "Pushkara", "Adieu Godard", "Tora Mora Katha Heba Chupchap"],
+    "answer": 0,
+    "explanation": "The Odia film ‘Pratikshya’ won the National Film Award for Best Feature Film in Odia for 2024."
+  },
+  {
+    "question": "Which city hosted the International Convention on Millets and Organics (ICMO) 2025?",
+    "options": ["Bhubaneswar", "Raipur", "New Delhi", "Bengaluru"],
+    "answer": 3,
+    "explanation": "The International Convention on Millets and Organics (ICMO) 2025 was hosted in Bengaluru."
+  },
+  {
+    "question": "Who was awarded the prestigious ‘Kabi Samrat Upendra Bhanja National Award 2025’?",
+    "options": ["Ramachandra Behera", "Pratibha Ray", "Haraprasad Das", "Hara Prasad Parichha Pattnaik"],
+    "answer": 3,
+    "explanation": "Hara Prasad Parichha Pattnaik was awarded the ‘Kabi Samrat Upendra Bhanja National Award 2025’."
+  },
+  {
+    "question": "The ‘Ama Odisha Nabin Odisha’ scheme primarily focuses on:",
+    "options": ["Women empowerment", "Village development", "Urban housing", "Education reforms"],
+    "answer": 1,
+    "explanation": "The ‘Ama Odisha Nabin Odisha’ scheme primarily focuses on holistic village development across Odisha."
+  },
+  {
+    "question": "Which Odia author received the Kuvempu Rashtriya Puraskar 2024?",
+    "options": ["Ramachandra Behera", "Pratibha Ray", "Haraprasad Das", "Sitakant Mahapatra"],
+    "answer": 1,
+    "explanation": "Eminent Odia author Pratibha Ray was honoured with the Kuvempu Rashtriya Puraskar 2024."
+  },
+  {
+    "question": "Which temple in Odisha was included in the PRASAD Scheme in July 2025?",
+    "options": ["Jagannath Temple, Puri", "Samaleswari Temple, Sambalpur", "Lingaraj Temple, Bhubaneswar", "Maa Tara Tarini Temple, Ganjam"],
+    "answer": 3,
+    "explanation": "Maa Tara Tarini Temple in Ganjam was included under the PRASAD Scheme in July 2025."
+  },
+  {
+    "question": "Which Indian state signed an MoU with the World Food Programme (WFP) to strengthen food security?",
+    "options": ["Odisha", "Bihar", "Jharkhand", "Madhya Pradesh"],
+    "answer": "1",
+    "explanation": "Odisha signed an MoU with the World Food Programme to strengthen food security in the state."
+  },
+  {
+    "question": "Who is the author of the book ‘The Life and Times of Draupadi Murmu’?",
+    "options": ["Sangita Mishra", "Saswati Sarangi", "Ram Madhav", "Pradeep Kumar Nayak"],
+    "answer": "2",
+    "explanation": "The book ‘The Life and Times of Draupadi Murmu’ is authored by Saswati Sarangi."
+  },
+  {
+    "question": "Which Odia cricketer was selected for India’s squad in the ICC Women’s World Cup 2025?",
+    "options": ["Subhranshu Senapati", "Priyanka Priyadarshini", "Sushree Dibyadarshini", "Madhuri Meheta"],
+    "answer": "3",
+    "explanation": "Odisha cricketer Sushree Dibyadarshini was selected for India’s squad in the ICC Women’s World Cup 2025."
+  },
+  {
+    "question": "The ‘Annapurna Financial Literacy Programme’ launched in Odisha is mainly aimed at:",
+    "options": ["Bank employees", "Women SHGs", "College students", "Senior citizens"],
+    "answer": "2",
+    "explanation": "The ‘Annapurna Financial Literacy Programme’ is mainly aimed at Women Self-Help Groups (SHGs)."
+  },
+  {
+    "question": "Which new airport got operational approval in Odisha in July 2025?",
+    "options": ["Rourkela", "Jeypore", "Utkela", "Rangeilunda"],
+    "answer": "3",
+    "explanation": "Utkela airport in Kalahandi district received operational approval in July 2025."
+  },
+  {
+    "question": "Which Odia athlete won Gold in the 400m race at the National Athletics Championship 2025?",
+    "options": ["Dutee Chand", "Jayanti Behera", "Srabani Nanda", "Amiya Mallick"],
+    "answer": "2",
+    "explanation": "Para-athlete Jayanti Behera from Odisha won Gold in the 400m race at the National Athletics Championship 2025."
+  },
+  {
+    "question": "What is the primary focus of the ‘Mo Ghara’ scheme launched by Odisha government?",
+    "options": ["Urban Housing", "Rural Housing", "Education loans", "Healthcare insurance"],
+    "answer": "2",
+    "explanation": "The ‘Mo Ghara’ scheme focuses on providing affordable rural housing in Odisha."
+  },
+  {
+    "question": "Which district hosted the first edition of ‘Adarsha Krushak Mela’ in Odisha?",
+    "options": ["Sambalpur", "Kalahandi", "Balasore", "Mayurbhanj"],
+    "answer": "1",
+    "explanation": "Sambalpur hosted the first edition of ‘Adarsha Krushak Mela’ in Odisha."
+  },
+  {
+    "question": "Which state partnered with Odisha for renewable energy development in July 2025?",
+    "options": ["Gujarat", "Tamil Nadu", "Rajasthan", "Madhya Pradesh"],
+    "answer": "1",
+    "explanation": "Odisha partnered with Gujarat for renewable energy development in July 2025."
+  },
+   {
+    "question": "Who was appointed as the new Governor of Odisha in July 2025?",
+    "options": ["Raghubar Das", "Ganeshi Lal", "S.C. Jamir", "Biswa Bhusan Harichandan"],
+    "answer": "1",
+    "explanation": "Raghubar Das was appointed as the new Governor of Odisha in July 2025."
+  },
+  {
+    "question": "Which Odia writer received the Sahitya Akademi Award 2024?",
+    "options": ["Pratibha Ray", "Manoj Das", "Yashodhara Mishra", "Ramachandra Behera"],
+    "answer": "3",
+    "explanation": "Odia writer Yashodhara Mishra received the Sahitya Akademi Award 2024."
+  },
+  {
+    "question": "Which Odia hockey player was included in India’s squad for the FIH Pro League 2025?",
+    "options": ["Amit Rohidas", "Birendra Lakra", "Dipsan Tirkey", "Nilam Sanjeep Xess"],
+    "answer": "1",
+    "explanation": "Odia hockey player Amit Rohidas was included in India’s squad for FIH Pro League 2025."
+  },
+  {
+    "question": "Which district of Odisha launched the ‘Mission Zero F’ campaign to reduce infant mortality?",
+    "options": ["Malkangiri", "Rayagada", "Kandhamal", "Nabarangpur"],
+    "answer": "1",
+    "explanation": "Malkangiri district launched the ‘Mission Zero F’ campaign to reduce infant mortality rate."
+  },
+  {
+    "question": "Which new university was inaugurated in Odisha in July 2025?",
+    "options": ["Odisha Skill University", "Balangir University", "Kalahandi University", "Berhampur University"],
+    "answer": "2",
+    "explanation": "Balangir University was inaugurated in Odisha in July 2025."
+  },
+  {
+    "question": "The ‘Mo Bus’ service of Odisha was extended to which new city in July 2025?",
+    "options": ["Rourkela", "Berhampur", "Sambalpur", "Balasore"],
+    "answer": "2",
+    "explanation": "The ‘Mo Bus’ service was extended to Berhampur city in July 2025."
+  },
+  {
+    "question": "Which Odia scientist received the Shanti Swarup Bhatnagar Award 2025?",
+    "options": ["Rasmita Ratho", "Sanghamitra Mohanty", "Satyajit Rath", "Subhranshu Sekhar Panda"],
+    "answer": "4",
+    "explanation": "Odia scientist Subhranshu Sekhar Panda received the Shanti Swarup Bhatnagar Award 2025."
+  },
+  {
+    "question": "Which state collaborated with Odisha to develop coastal highway projects?",
+    "options": ["West Bengal", "Andhra Pradesh", "Tamil Nadu", "Jharkhand"],
+    "answer": "2",
+    "explanation": "Andhra Pradesh collaborated with Odisha for developing coastal highway projects."
+  },
+  {
+    "question": "Which Odia player won a medal at the Asian Wrestling Championship 2025?",
+    "options": ["Anshu Malik", "Ritu Phogat", "Samarendra Pradhan", "Vinesh Phogat"],
+    "answer": "3",
+    "explanation": "Odia wrestler Samarendra Pradhan won a medal at the Asian Wrestling Championship 2025."
+  },
+  {
+    "question": "Which district hosted Odisha’s first Millet Food Festival in 2025?",
+    "options": ["Koraput", "Kandhamal", "Sundargarh", "Balangir"],
+    "answer": "1",
+    "explanation": "Koraput hosted Odisha’s first Millet Food Festival in 2025."
+  },
+  {
+    "question": "Which Odia film director received the National Film Award for Best Director 2024?",
+    "options": ["Himanshu Shekhar Khatua", "Sabyasachi Mohapatra", "Amarendra Mohanty", "Nila Madhab Panda"],
+    "answer": "4",
+    "explanation": "Odia filmmaker Nila Madhab Panda received the National Film Award for Best Director 2024."
+  },
+  {
+    "question": "Which district of Odisha achieved 100% electrification in July 2025?",
+    "options": ["Kalahandi", "Nuapada", "Rayagada", "Malkangiri"],
+    "answer": "2",
+    "explanation": "Nuapada district achieved 100% electrification in July 2025."
+  },
+  {
+    "question": "Which Odia sportsperson was conferred with the Arjuna Award 2025?",
+    "options": ["Dutee Chand", "Deep Grace Ekka", "Nilam Sanjeep Xess", "Srabani Nanda"],
+    "answer": "2",
+    "explanation": "Hockey player Deep Grace Ekka from Odisha was conferred with the Arjuna Award 2025."
+  },
+  {
+    "question": "Which scheme was launched by Odisha government to support artisans in July 2025?",
+    "options": ["Kala Samman Yojana", "Handicraft Development Mission", "Mo Kala Abhiyan", "Artisan Credit Scheme"],
+    "answer": "3",
+    "explanation": "Odisha government launched ‘Mo Kala Abhiyan’ to support artisans in July 2025."
+  },
+  {
+    "question": "Which Odia player won Gold at the World Weightlifting Championship 2025?",
+    "options": ["Jhili Dalabehera", "Mirabai Chanu", "Punam Yadav", "Santoshi Matsa"],
+    "answer": "1",
+    "explanation": "Odisha’s Jhili Dalabehera won Gold at the World Weightlifting Championship 2025."
+  },
+  {
+    "question": "Which festival of Odisha was given GI tag in July 2025?",
+    "options": ["Ratha Yatra", "Chhau Dance", "Nuakhai", "Boita Bandana"],
+    "answer": "3",
+    "explanation": "The festival ‘Nuakhai’ of Western Odisha was given GI tag in July 2025."
+  },
+  {
+    "question": "Which Odia mountaineer successfully climbed Mount Elbrus in July 2025?",
+    "options": ["Kalpana Dash", "Lipika Rath", "Binita Sahu", "Anandita Nayak"],
+    "answer": "3",
+    "explanation": "Odia mountaineer Binita Sahu successfully climbed Mount Elbrus in July 2025."
+  },
+  {
+    "question": "Which Odisha district became the first to implement 5G-enabled classrooms?",
+    "options": ["Khordha", "Cuttack", "Sambalpur", "Balasore"],
+    "answer": "1",
+    "explanation": "Khordha district became the first in Odisha to implement 5G-enabled classrooms."
+  },
+  {
+    "question": "Which Odia author received the Atibadi Jagannath Das Samman 2025?",
+    "options": ["Sitakant Mahapatra", "Pratibha Ray", "Haraprasad Das", "Ramachandra Behera"],
+    "answer": "1",
+    "explanation": "Sitakant Mahapatra was awarded the Atibadi Jagannath Das Samman 2025."
+  },
+  {
+    "question": "Which Odisha city was declared as India’s first fully solar-powered city in 2025?",
+    "options": ["Bhubaneswar", "Cuttack", "Puri", "Rourkela"],
+    "answer": "3",
+    "explanation": "Puri was declared as India’s first fully solar-powered city in 2025."
+  }
+];  
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>
+

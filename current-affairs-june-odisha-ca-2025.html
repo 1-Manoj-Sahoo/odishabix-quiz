@@ -1,0 +1,835 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odisha June CA Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+	header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
+    text-align: center;
+    padding: 8px 8px;
+    background-color: rgba(0,0,0,1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+	}
+
+	header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    letter-spacing: 2px;
+    color: #ffcc00;
+	}
+
+	header h1 .header-link {
+    color: #ffcc00;
+    text-decoration: none;
+    user-select: none;
+	}
+
+	header h1 .header-link:hover,
+	header h1 .header-link:focus {
+     text-decoration: none;
+	}
+	header p {
+        margin-top: 2px;
+        font-size: 1.2rem;
+        color: #ffee99;
+    }
+	.container.mt-5.mb-5 {
+    margin-top: 100px !important;
+	}
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+	<header>
+  		<h1><a href="index.html" class="header-link">ODISHABIX</a></h1>
+		 <p>Prepare Better, Achieve faster</p>
+	</header>
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Odisha june CA</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+  {
+    "question": "Which inland water body's mud crab fishery in India is being considered for Marine Stewardship Council (MSC) certification?",
+    "options": ["Loktak Lake", "Vembanad Lake", "Chilika Lake", "Pulicat Lake"],
+    "answer": 2,
+    "explanation": "The mud crab fishery of Chilika Lake is the first inland fishery in India to be considered for a globally recognized eco-label like the MSC certification."
+  },
+  {
+    "question": "Prime Minister Narendra Modi launched the 'Baraputra Aitihya Gram Yojana' in which state?",
+    "options": ["Uttarakhand", "Rajasthan", "Maharashtra", "Odisha"],
+    "answer": 3,
+    "explanation": "PM Modi launched the 'Baraputra Aitihya Gram Yojana' in Odisha to convert the birthplaces of Odia icons into cultural monuments."
+  },
+  {
+    "question": "The ‘ECoR Yatra’ app was primarily launched to assist pilgrims traveling to which destination?",
+    "options": ["Varanasi", "Tirupati", "Vaishno Devi", "Puri"],
+    "answer": 3,
+    "explanation": "The ‘ECoR Yatra’ app was launched by East Coast Railway to assist pilgrims traveling to Puri."
+  },
+  {
+    "question": "Who inaugurated Odisha's first Deep Neural Network for aerospace and defence laboratory?",
+    "options": ["Kanak Vardhan Singh Deo", "Mohan Majhi", "Bibhuti Bhusan Jena", "Krushna Chandra Mahapatra"],
+    "answer": 1,
+    "explanation": "Mohan Majhi inaugurated Odisha’s first Deep Neural Network for aerospace and defence laboratory at Krystellar Defence and Aerospace."
+  },
+  {
+    "question": "Who was honored with the UN Sasakawa award 2025 for disaster risk reduction?",
+    "options": ["Mrutyunjay Mohapatra", "V. Narayanan", "Jitendra Singh", "Samir V. Kamat"],
+    "answer": 0,
+    "explanation": "Mrutyunjay Mohapatra, DG of IMD, known as the 'Cyclone Man of India', was honored with the UN Sasakawa award 2025."
+  },
+  {
+    "question": "Which gram panchayat received the Jury Award for exceptional digital initiatives in the National e-Governance Awards 2025?",
+    "options": ["Suakati Gram Panchayat, Keonjhar, Odisha", "Rohini Gram Panchayat, Dhule, Maharashtra", "Majlishpur Gram Panchayat, Tripura", "All of the above"],
+    "answer": 0,
+    "explanation": "Suakati Gram Panchayat, Keonjhar, Odisha received the Jury Award for exceptional digital initiatives in the National e-Governance Awards 2025."
+  },
+  {
+    "question": "Mohammad Rafiq, former MLA and senior BJP leader, who passed away recently, belonged to which constituency?",
+    "options": ["Melchamunda, Bargarh", "Raghunathpali, Sundargarh", "Telkoi, Keonjhar", "Bangriposi, Mayurbhanj"],
+    "answer": 0,
+    "explanation": "Mohammad Rafiq was elected from the Melchamunda constituency in Bargarh from 2004 to 2009."
+  },
+  {
+    "question": "Odisha's Shriyanka Sadangi is set to represent India in the ISSF World Cup 2025. She is related to which sport?",
+    "options": ["Soccer", "Shooting", "Swimming", "Sprinter"],
+    "answer": 1,
+    "explanation": "Shriyanka Sadangi is a shooter representing India in the ISSF World Cup 2025."
+  },
+  {
+    "question": "What is the sex ratio at birth in Odisha, according to the CRS report by the Ministry of Home Affairs?",
+    "options": ["929/1000", "930/1000", "931/1000", "933/1000"],
+    "answer": 2,
+    "explanation": "According to the CRS report, the sex ratio at birth in Odisha is 931/1000."
+  },
+  {
+    "question": "In which country was the World Para Athletics Grand Prix, where Odisha para athlete Suchitra Parida bagged medals, organized?",
+    "options": ["France", "Germany", "Jordan", "Japan"],
+    "answer": 0,
+    "explanation": "The World Para Athletics Grand Prix where Suchitra Parida won medals was organized in Paris, France."
+  },
+  {
+    "question": "Odisha Governor Hari Babu Kambhampati led a delegation to which country in June 2025?",
+    "options": ["Vietnam", "Philippines", "Singapore", "Thailand"],
+    "answer": 0,
+    "explanation": "Odisha Governor Hari Babu Kambhampati led a delegation to Vietnam in June 2025."
+  },
+  {
+    "question": "The Chheligada Irrigation Project, recently approved, is located in which district(s) of Odisha?",
+    "options": ["Ganjam", "Gajapati and Ganjam", "Koraput", "Malkangiri"],
+    "answer": 1,
+    "explanation": "The Chheligada Irrigation Project will benefit Gajapati and Ganjam districts."
+  },
+  {
+    "question": "What was the increase in the Indian Bison population in Debrigarh Wildlife Sanctuary?",
+    "options": ["119", "129", "139", "149"],
+    "answer": 1,
+    "explanation": "The Indian Bison population increased by 129, from 659 to 788 individuals."
+  },
+  {
+    "question": "On World Environment Day 2025, Odisha CM announced plans to plant how many saplings?",
+    "options": ["7.5 Cr", "6.5 Cr", "5.5 Cr", "4.5 Cr"],
+    "answer": 0,
+    "explanation": "On World Environment Day 2025, Odisha CM announced a plan to plant 7.5 crore saplings."
+  },
+  {
+    "question": "Medha Patkar, detained at Rayagada Railway Station, is primarily known as what?",
+    "options": ["Environmentalist", "Politician", "Priest", "Author"],
+    "answer": 0,
+    "explanation": "Medha Patkar is an environmentalist known for her activism."
+  },
+  {
+    "question": "In which district is the Maa Kichakeswari temple located?",
+    "options": ["Kalahandi", "Mayurbhanj", "Keonjhar", "Jajpur"],
+    "answer": 1,
+    "explanation": "The Maa Kichakeswari temple is located in Mayurbhanj district."
+  },
+  {
+    "question": "Pranati Nayak is related to which sport?",
+    "options": ["Gymnastics", "Cycling", "Sprinter", "Hockey"],
+    "answer": 0,
+    "explanation": "Pranati Nayak is an Indian gymnast who won a bronze medal at the Asian Artistic Gymnastics Championships."
+  },
+  {
+    "question": "Which IIT collaborated with the Odisha government to leverage AI for water resource management?",
+    "options": ["IIT Delhi", "IIT Kanpur", "IIT Bhubaneswar", "IIT Madras"],
+    "answer": 2,
+    "explanation": "IIT Bhubaneswar collaborated with the Odisha government to use AI for water resource monitoring."
+  },
+  {
+    "question": "Which district of Odisha has been honored with 1st Rank for 'Overall Performance in Revenue Administration'?",
+    "options": ["Jajpur", "Bhadrak", "Jagatsinghpur", "Angul"],
+    "answer": 1,
+    "explanation": "Bhadrak district secured 1st Rank for its overall performance in revenue administration."
+  },
+  {
+    "question": "Which state recently started the initiative 'Revival and Sustainable Intensification of Forgotten Food and Neglected Crops'?",
+    "options": ["Jharkhand", "Madhya Pradesh", "Odisha", "Maharashtra"],
+    "answer": 2,
+    "explanation": "Odisha started the initiative for the revival and sustainable intensification of forgotten foods and neglected crops."
+  },
+  {
+    "question": "Which edition of International Day of Yoga 2025 was observed at Bhubaneswar Airport?",
+    "options": ["9th", "10th", "11th", "12th"],
+    "answer": 1,
+    "explanation": "The 10th edition of International Day of Yoga 2025 was observed at Bhubaneswar Airport with the theme 'One Earth, One Health'."
+  },
+  {
+    "question": "What is the reference date for the population census to be conducted across India by 2027?",
+    "options": ["February 1, 2027", "March 1, 2027", "June 1, 2027", "July 1, 2027"],
+    "answer": 1,
+    "explanation": "The reference date for the 2027 population census is March 1, 2027, except for some non-synchronous areas where it will be October 1, 2026."
+  },
+  {
+    "question": "Which of the following banks was NOT de-empanelled by the Odisha Government in June 2025?",
+    "options": ["HDFC Bank", "ICICI Bank", "AXIS Bank", "YES Bank"],
+    "answer": 3,
+    "explanation": "HDFC Bank, ICICI Bank, and AXIS Bank were de-empanelled, but YES Bank was not."
+  },
+  {
+    "question": "Sishu Vatikas were opened at 45,000 government primary schools in Odisha for children in which age group?",
+    "options": ["3 to 4", "4 to 5", "5 to 6", "6 to 7"],
+    "answer": 1,
+    "explanation": "Sishu Vatikas were opened for pre-school education for children aged 4 to 5 years."
+  },
+  {
+    "question": "In which year was the Pradhan Mantri Awas Yojana (Urban) launched?",
+    "options": ["2014", "2015", "2018", "2019"],
+    "answer": 1,
+    "explanation": "The Pradhan Mantri Awas Yojana (Urban) was launched in 2015."
+  },
+  {
+    "question": "In which district is the Tara Tarini temple located?",
+    "options": ["Jagatsinghpur", "Koraput", "Jajpur", "Ganjam"],
+    "answer": 3,
+    "explanation": "The Tara Tarini temple is located in Ganjam district."
+  },
+  {
+    "question": "Who authored the book 'Shree Jagannath Mandira Swatalipi'?",
+    "options": ["Pitambar Acharya", "Dr. Hari babu Kambhampati", "Gajendra Singh Shekhawat", "Dharmendra Pradhan"],
+    "answer": 0,
+    "explanation": "The book 'Shree Jagannath Mandira Swatalipi' was authored by Pitambar Acharya."
+  },
+  {
+    "question": "How many years of the crocodile conservation project at Bhitarkanika National Park were completed in June 2025?",
+    "options": ["70 years", "60 years", "50 years", "30 years"],
+    "answer": 2,
+    "explanation": "The crocodile conservation project at Bhitarkanika completed 50 years in June 2025."
+  },
+  {
+    "question": "Which football club won the CM Trophy 2025 football championship (Under-15) in Odisha?",
+    "options": ["Bhubaneswar FC", "Bargarh FC", "Odisha FC", "Rourkela FC"],
+    "answer": 1,
+    "explanation": "Bargarh FC emerged victorious in the CM Trophy 2025 (U-15) championship."
+  },
+  {
+    "question": "What is the name of the new rural development initiative to develop villages of renowned personalities in Odisha?",
+    "options": ["Baraputra Aitihya Gram Yojana", "Viksit Odisha Gram Yojana", "Mahapurush Adarsh Gram Yojana", "Gram Samriddhi Yojana"],
+    "answer": 2,
+    "explanation": "The Odisha government is launching 'Mahapurush Adarsh Gram Yojana' to develop native villages of renowned personalities."
+  },
+  {
+    "question": "Who represented India at the 9th Jiu-Jitsu Asian Championship in Jordan and won medals?",
+    "options": ["Srabani Nanda", "Shriyanka Sadangi", "Anupama Swain", "Suchitra Parida"],
+    "answer": 2,
+    "explanation": "Anupama Swain won a silver and a bronze medal at the 9th Jiu-Jitsu Asian Championship in Jordan."
+  },
+  {
+    "question": "Which senior IPS officer was appointed as the new Chairman of the Rajasthan Public Service Commission (RPSC)?",
+    "options": ["Mohan Majhi", "Saswata Mishra", "Utkal Ranjan Sahoo", "Mirdha Toppo"],
+    "answer": 2,
+    "explanation": "Utkal Ranjan Sahoo was appointed as the new Chairman of the Rajasthan Public Service Commission."
+  },
+  {
+    "question": "Odia sprinter Srabani Nanda was part of which Indian team that won silver at the Asian Athletics Championship 2025?",
+    "options": ["4×400m relay team", "100m dash team", "4×100m relay team", "Long jump team"],
+    "answer": 2,
+    "explanation": "Srabani Nanda was part of the Indian women's 4×100m relay team that won silver."
+  },
+  {
+    "question": "Which new international direct flight route was flagged off from Biju Patnaik International Airport (BPIA)?",
+    "options": ["BBSR-Singapore", "BBSR-Dubai", "BBSR-Bangkok", "BBSR-Abu Dhabi"],
+    "answer": 3,
+    "explanation": "The inaugural direct flight from Bhubaneswar to Abu Dhabi was flagged off, making it the 4th international route."
+  },
+  {
+    "question": "What programme was launched in Odisha's Keonjhar to combat malnutrition among tribal children?",
+    "options": ["Mission Vatsalya", "Yashoda", "Indradhanu programme", "Ashirbad"],
+    "answer": 2,
+    "explanation": "The Indradhanu programme was launched in Keonjhar to combat malnutrition among tribal children."
+  },
+  {
+    "question": "Waaree Energies Limited reaffirmed its solar panel manufacturing project in which Odisha district?",
+    "options": ["Keonjhar", "Mayurbhanj", "Dhenkanal", "Rayagada"],
+    "answer": 2,
+    "explanation": "Waaree Energies Limited is setting up its solar panel project in Dhenkanal district."
+  },
+  {
+    "question": "Which web portal was launched by Pravati Parida for child welfare services?",
+    "options": ["Mission Vatsalya portal", "Yashoda portal", "Ashirbad portal", "Amari Shishu web portal"],
+    "answer": 3,
+    "explanation": "Pravati Parida launched the 'Amari Shishu web portal' for child welfare services."
+  },
+  {
+    "question": "According to Odisha's Revenue and Disaster Management Department, Aadhaar is mandatory for applying for which documents?",
+    "options": ["Caste certificates", "Income certificates", "Land records", "All of the above"],
+    "answer": 3,
+    "explanation": "Citizens must provide Aadhaar for caste, income, legal heir certificates, and land records."
+  },
+  {
+    "question": "How many land classifications (Kisams) has the Odisha government reduced from 7797?",
+    "options": ["7797 to 50", "7797 to 100", "7797 to 22", "7797 to 150"],
+    "answer": 2,
+    "explanation": "The Odisha government reduced Kisams from 7797 to just 22 for efficiency."
+  },
+  {
+    "question": "Mukunda Rana, known as the ‘Wizard of Clay’, is a terracotta artist from which district?",
+    "options": ["Balangir", "Sambalpur", "Subarnapur", "Ganjam"],
+    "answer": 2,
+    "explanation": "Mukunda Rana, the 'Wizard of Clay', is a terracotta artist from Subarnapur district."
+  },
+  {
+    "question": "Where was the state-level ‘Adivasi Shakti Samavesh’ inaugurated by CM Majhi to mark the first anniversary of the BJP government in Odisha?",
+    "options": ["Bhubaneswar", "Sambalpur", "Baripada, Mayurbhanj", "Keonjhar"],
+    "answer": 2,
+    "explanation": "CM Majhi inaugurated the state-level ‘Adivasi Shakti Samavesh’ at Baripada in Mayurbhanj district."
+  },
+  {
+    "question": "What is the compensation amount for human death due to wildlife attack in Odisha?",
+    "options": ["₹5,00,000", "₹10,00,000", "₹15,00,000", "₹20,00,000"],
+    "answer": 1,
+    "explanation": "The compensation for human death due to wildlife attack in Odisha is ₹10 lakh."
+  },
+  {
+    "question": "What grade was Gangadhar Meher University (GMU) in Sambalpur awarded by NAAC?",
+    "options": ["A", "B+", "B++", "A+"],
+    "answer": 2,
+    "explanation": "Gangadhar Meher University (GMU) in Sambalpur was awarded a B++ grade by NAAC."
+  },
+  {
+    "question": "Who emerged as the champion of the 38th National Under-9 Open Chess Championship at Gurugram?",
+    "options": ["Fagu Baskey", "Sattwik Swain", "Rajkishore Padhi", "Subrat Senapati"],
+    "answer": 1,
+    "explanation": "Odisha’s Sattwik Swain won the 38th National Under-9 Open Chess Championship at Gurugram."
+  },
+  {
+    "question": "Which company secured the largest contract in Bhubaneswar Metro's Phase 1 project?",
+    "options": ["L&T Construction", "Tata Projects Ltd.", "Ceigall India Ltd (CIL)", "Afcons Infrastructure"],
+    "answer": 2,
+    "explanation": "Ceigall India Ltd (CIL) secured the largest contract in Bhubaneswar Metro's Phase 1 project."
+  },
+  {
+    "question": "Who set a new world record for the 'Fastest Laparoscopic Surgery' with a time of 3 minutes and 23 seconds?",
+    "options": ["Dr. Kiflain Nawaz", "Dr. Swati Nayak", "Dr. Ranjan Paul Chowdhury", "Dr. Sureswar Mohanty"],
+    "answer": 2,
+    "explanation": "Dr. Ranjan Paul Chowdhury set a new world record for the 'Fastest Laparoscopic Surgery' in 3 minutes 23 seconds."
+  },
+  {
+    "question": "Who was appointed as the Special Secretary to CM Majhi?",
+    "options": ["Saswata Mishra", "Mirdha Toppo", "Utkal Ranjan Sahoo", "Nikhil Pavan Kalyan"],
+    "answer": 1,
+    "explanation": "Mirdha Toppo, an OAS officer, was appointed as the Special Secretary to CM Majhi."
+  },
+  {
+    "question": "Where was the 'Shilp Samagam Mela', organized by the Centre’s Social Justice and Empowerment Ministry, inaugurated?",
+    "options": ["Baripada", "Sambalpur", "Biju Patnaik Playground, Baramunda", "Dhenkanal"],
+    "answer": 2,
+    "explanation": "The 'Shilp Samagam Mela' was inaugurated at Biju Patnaik Playground, Baramunda."
+  },
+  {
+    "question": "Which university is set to become the focal point for research on Kewda flower cultivation in Ganjam district?",
+    "options": ["Utkal University", "Fakir Mohan University", "Sambalpur University", "Berhampur University"],
+    "answer": 3,
+    "explanation": "Berhampur University is set to lead research on Kewda flower cultivation in Ganjam."
+  },
+  {
+    "question": "By when is the Polavaram Project expected to be completed?",
+    "options": ["End of 2025", "End of 2026", "End of 2027", "End of 2028"],
+    "answer": 2,
+    "explanation": "The Polavaram Project is expected to be completed by the end of 2027."
+  },
+  {
+    "question": "When was the 97th death anniversary of Utkalmani Gopabandhu Das observed?",
+    "options": ["June 20", "June 22", "June 26", "June 30"],
+    "answer": 2,
+    "explanation": "The 97th death anniversary of Utkalmani Gopabandhu Das was observed on June 26."
+  },
+  {
+    "question": "Which institution will collaborate to preserve the 150-year-old Chandrasekhar Behera Zilla School in Sambalpur?",
+    "options": ["IIT Bhubaneswar", "IIM Sambalpur", "Gangadhar Meher University", "Berhampur University"],
+    "answer": 1,
+    "explanation": "IIM Sambalpur will collaborate to preserve the 150-year-old Chandrasekhar Behera Zilla School."
+  },
+  {
+    "question": "Who has been appointed as the Principal Secretary to Odisha CM and Chairman of IDCO?",
+    "options": ["Mirdha Toppo", "Nikhil Pavan Kalyan", "Saswata Mishra", "Utkal Ranjan Sahoo"],
+    "answer": 2,
+    "explanation": "Saswata Mishra was appointed Principal Secretary to Odisha CM and also Chairman of IDCO."
+  },
+  {
+    "question": "What is the title of the Odia feature film unveiled at the 78th Cannes Film Festival?",
+    "options": ["I Like It Hot", "Jagannath Leela", "Baghuni (Dance Like a Tiger)", "Puri Express"],
+    "answer": 2,
+    "explanation": "The Odia film 'Baghuni (Dance Like a Tiger)' had its first-look motion poster unveiled at Cannes."
+  },
+  {
+    "question": "Who is India's first K-pop idol and Odisha native, who performed in Blackswan’s single 'I Like It Hot'?",
+    "options": ["Pranati Nayak", "Shriyanka Sadangi", "Sriya Lenka", "Sonalika Mishra"],
+    "answer": 2,
+    "explanation": "Sriya Lenka, from Odisha, is India's first K-pop idol and performed in Blackswan’s 'I Like It Hot'."
+  },
+  {
+    "question": "Which plants will be planted near traffic signals across Odisha to improve air quality?",
+    "options": ["Neem", "Banyan", "Tulsi (holy basil)", "Mango"],
+    "answer": 2,
+    "explanation": "Tulsi (holy basil) plants will be planted near traffic signals across Odisha."
+  },
+  {
+    "question": "Who is Sonalika Mishra, a young woman from Cuttack district?",
+    "options": ["India's first K-pop idol", "A celebrated environmentalist", "A commercial pilot", "A renowned athlete"],
+    "answer": 2,
+    "explanation": "Sonalika Mishra, from Cuttack, has become a licensed commercial pilot after DGCA exams and training."
+  },
+  {
+    "question": "Under which scheme is Muniguda Railway Station in Rayagada being modernized?",
+    "options": ["Pradhan Mantri Rail Vikas Yojana", "Amrit Bharat Station Scheme (ABSS)", "Odisha Rail Project", "Smart City Railway Initiative"],
+    "answer": 1,
+    "explanation": "Muniguda Railway Station is being modernized under the Amrit Bharat Station Scheme (ABSS)."
+  },
+  {
+    "question": "Who has joined the Indian Junior Men’s Hockey Team as Assistant Coach?",
+    "options": ["PR Sreejesh", "Birendra Lakra", "Harry McNulty", "Brison Fernandes"],
+    "answer": 1,
+    "explanation": "Birendra Lakra has joined the Indian Junior Men’s Hockey Team as Assistant Coach."
+  },
+  {
+    "question": "Which swimmer won gold in the women’s 100m butterfly at the 78th Senior National Aquatic Championship?",
+    "options": ["Mannata Mishra", "Pratyasha Ray", "Shristi Upadhaya", "Dhinidhi Desinghu"],
+    "answer": 2,
+    "explanation": "Shristi Upadhaya clinched gold in the women’s 100m butterfly at the Senior National Aquatic Championship."
+  },
+  {
+    "question": "Which state topped the medal tally at the 78th Senior National Aquatic Championship held in Bhubaneswar?",
+    "options": ["Odisha", "Tamil Nadu", "Maharashtra", "Karnataka"],
+    "answer": 3,
+    "explanation": "Karnataka topped the standings with 41 medals at the 78th Senior National Aquatic Championship held in Bhubaneswar."
+  },
+  {
+    "question": "Who won gold and achieved a record of 4 minutes 24.64 seconds in a swimming event at the 78th Senior National Aquatic Championship?",
+    "options": ["Vihitha Narayan Loganathan", "Meenakshi Menon", "Trisha Sindhu S", "Shaon Ganguly"],
+    "answer": 3,
+    "explanation": "Shaon Ganguly won gold with a record of 4 minutes 24.64 seconds."
+  },
+  {
+    "question": "Which team was the champion of the 1st Rugby Premier League, held in Mumbai from June 15-29?",
+    "options": ["Kalinga Black Tigers", "Hyderabad", "Delhi Redz", "Chennai Bulls"],
+    "answer": 3,
+    "explanation": "The Chennai Bulls emerged as champions of the 1st Rugby Premier League."
+  },
+  {
+    "question": "Who was awarded the 'Woman Indian Player of the Year' at the Indian Football Awards 2025?",
+    "options": ["Naorem Priyanka Devi", "Pyari Xaxa (Odisha FC)", "Ajaraie", "Sonalika Mishra"],
+    "answer": 1,
+    "explanation": "Pyari Xaxa (Odisha FC) was awarded 'Woman Indian Player of the Year' at the Indian Football Awards 2025."
+  },
+  {
+    "question": "For what literary work was Subrat Senapati selected for the Sahitya Akademi Yuva Puraskar?",
+    "options": ["Poetry collection 'Ala Saon Inj'", "Children's literary work 'Kete Phula Phutichhi'", "Anthology of short stories 'Kadamba bana'", "Historical novel"],
+    "answer": 2,
+    "explanation": "Subrat Senapati was selected for the Sahitya Akademi Yuva Puraskar for his short story anthology 'Kadamba bana'."
+  },
+  {
+    "question": "What was PM Modi's gift to German Chancellor Friedrich Merz during his visit?",
+    "options": ["Handcrafted Silver Filigree Clutch Purse", "Traditional Pattachitra painting", "Sandstone replica of the iconic Konark Wheel", "Bronze statue of a dancing girl"],
+    "answer": 2,
+    "explanation": "PM Modi gifted a sandstone replica of the iconic Konark Wheel to German Chancellor Friedrich Merz."
+  },
+  {
+    "question": "On June 20, PM Modi laid the foundation stones and inaugurated railway projects worth how much in Odisha?",
+    "options": ["Rs 18,653 crore", "Rs 6,000 crore", "Rs 2,756 crore", "Rs 1,100 crore"],
+    "answer": 2,
+    "explanation": "PM Modi laid the foundation stones and inaugurated railway projects worth Rs 2,756 crore in Odisha."
+  },
+  {
+    "question": "Who was the woman entrepreneur from Malkangiri district honored by PM Modi during his visit to Odisha?",
+    "options": ["Lusa Gannik", "Tisya Panigrahi", "Samari Jhigidi", "Sonalika Mishra"],
+    "answer": 2,
+    "explanation": "Samari Jhigidi, a woman entrepreneur from Malkangiri district, was honored by PM Modi."
+  },
+  {
+    "question": "Which of the following is NOT one of Odisha’s six catalytic strategic growth areas in Vision 2036 & 2047?",
+    "options": ["Advanced Manufacturing", "Tourism & Culture", "Digital Economy", "Education & Skill Development"],
+    "answer": 3,
+    "explanation": "Education & Skill Development is not listed as a catalytic sector, though it is part of institutional reforms."
+  },
+  {
+    "question": "What are some of Odisha’s top aspirations for Vision 2036 & 2047?",
+    "options": ["Achieving 70% literacy", "Elevating female workforce participation to 50%", "Ranking among top three states in health and gender equality", "Achieving 100% literacy and 70% female workforce participation"],
+    "answer": 3,
+    "explanation": "Odisha aspires to achieve 100% literacy and 70% female workforce participation under Vision 2036 & 2047."
+  },
+  {
+    "question": "What is the primary role of the newly formed ‘Odisha Vision Cell’?",
+    "options": ["Conduct public awareness campaigns", "Manage financial allocations", "Oversee implementation of Vision-2036 and Vision-2047", "Draft new policies"],
+    "answer": 2,
+    "explanation": "The Odisha Vision Cell oversees implementation of Vision-2036 and Vision-2047."
+  },
+  {
+    "question": "In which district of Telangana did a massive reactor explosion occur, killing eight workers including one from Odisha?",
+    "options": ["Hyderabad", "Sangareddy", "Rangareddy", "Warangal"],
+    "answer": 1,
+    "explanation": "The reactor explosion occurred in Sangareddy district, Telangana, killing eight workers."
+  },
+  {
+    "question": "What was Odisha Women's achievement in the 1st Masters Cup Hockey held in Chennai?",
+    "options": ["Bronze medal", "Positioned 4th", "Gold medal", "Silver medal"],
+    "answer": 2,
+    "explanation": "Odisha Women's team won the gold medal at the 1st Masters Cup Hockey in Chennai."
+  },
+  {
+    "question": "Who has been chosen for the Lifetime Achievement Award by the Neurological Society of India (NSI) in 2025?",
+    "options": ["Dr. Kiflain Nawaz", "Dr. Ranjan Paul Chowdhury", "Sureswar Mohanty", "Dr. Swati Nayak"],
+    "answer": 2,
+    "explanation": "Sureswar Mohanty was chosen for the Lifetime Achievement Award by NSI in 2025."
+  },
+  {
+    "question": "What is the total investment planned for the Mukhyamantri Sahari Bikash Yojana (MSBY) over five years?",
+    "options": ["₹1,100 crore", "₹2,756 crore", "₹6,000 crore", "₹18,653 crore"],
+    "answer": 2,
+    "explanation": "The government plans to invest ₹6,000 crore over five years under MSBY."
+  },
+  {
+    "question": "Who is Dr. Kiflain Nawaz, who won the Iconic Peace Award in New Delhi?",
+    "options": ["Environmentalist", "Politician", "Dedicated healthcare professional", "Author"],
+    "answer": 2,
+    "explanation": "Dr. Kiflain Nawaz is a dedicated healthcare professional recognized with the Iconic Peace Award."
+  },
+  {
+    "question": "Which agricultural scientist from Odisha was featured in the comic book 'Her Story' and won the Norman Borlaug Award in 2023?",
+    "options": ["Susmita Bagchi", "Sonalika Mishra", "Dr. Swati Nayak", "Sriya Lenka"],
+    "answer": 2,
+    "explanation": "Dr. Swati Nayak, an agricultural scientist from Odisha, won the Norman Borlaug Award in 2023."
+  },
+  {
+    "question": "What was AIIMS Bhubaneswar's ranking among the Top 10 Emerging Medical Colleges in India (India Today-MDRA 2025)?",
+    "options": ["1st", "2nd", "5th", "12th"],
+    "answer": 1,
+    "explanation": "AIIMS Bhubaneswar ranked 2nd among Top 10 Emerging Medical Colleges in India."
+  },
+  {
+    "question": "How many new medical colleges has the Odisha government approved for 2025–26?",
+    "options": ["Six", "Seven", "Eight", "Nine"],
+    "answer": 3,
+    "explanation": "The Odisha government approved nine new medical colleges for 2025–26."
+  },
+  {
+    "question": "Which state is the first in India to integrate AI in the healthcare sector?",
+    "options": ["Maharashtra", "Karnataka", "Tamil Nadu", "Odisha"],
+    "answer": 3,
+    "explanation": "Odisha is the first state in India to integrate AI in healthcare."
+  },
+  {
+    "question": "Who won the title of Mrs. India Worldwide 2025 and also received the subtitle of Mrs. Fashion Icon?",
+    "options": ["Susmita Bagchi", "Sriya Lenka", "Sonalika Mishra", "Sangita Nayak"],
+    "answer": 3,
+    "explanation": "Sangita Nayak won Mrs. India Worldwide 2025 and also received the subtitle Mrs. Fashion Icon."
+  },
+  {
+    "question": "What is the total investment announced for major port projects in Odisha including Gopalpur Port expansion?",
+    "options": ["₹16,554 crore", "₹18,654 crore", "₹25,000 crore", "₹6,000 crore"],
+    "answer": 1,
+    "explanation": "A total investment of ₹18,654 crore was announced for major port projects including Gopalpur Port expansion."
+  },
+  {
+    "question": "By when is the Sewage Treatment Plant (STP) at Rourkela Steel Plant expected to be commissioned?",
+    "options": ["First week of July", "Second week of July", "Third week of July", "End of July"],
+    "answer": 2,
+    "explanation": "The STP at Rourkela Steel Plant is expected to be commissioned in the third week of July."
+  },
+  {
+    "question": "By what year does Odisha aim for at least 50% BEVs in new vehicle registrations?",
+    "options": ["2021", "2025", "2030", "2036"],
+    "answer": 3,
+    "explanation": "Odisha aims for at least 50% BEVs in new vehicle registrations by 2036."
+  },
+  {
+    "question": "Who is the second most generous woman philanthropist in India with a donation of ₹90 crore in 2025?",
+    "options": ["Archana Devi Singh Rai", "Sonalika Mishra", "Susmita Bagchi", "Sriya Lenka"],
+    "answer": 2,
+    "explanation": "Susmita Bagchi, co-founder of Mindtree, donated ₹90 crore and is the second most generous woman philanthropist in India."
+  },
+  {
+    "question": "Who was formally crowned as the first woman Zamindar of the Loisingha estate in Balangir?",
+    "options": ["Samari Jhigidi", "Lusa Gannik", "Archana Devi Singh Rai", "Tisya Panigrahi"],
+    "answer": 2,
+    "explanation": "Archana Devi Singh Rai was crowned as the first woman Zamindar of Loisingha estate in Balangir."
+  },
+  {
+    "question": "Which Odia co-founder was NOT named in Forbes Asia 30 Under 30 list 2025?",
+    "options": ["Bodhisattaw Sanghapriya", "Anil Pradhan", "Apurwa Masook", "Sonalika Mishra"],
+    "answer": 3,
+    "explanation": "Sonalika Mishra was not named in the Forbes Asia 30 Under 30 list 2025."
+  },
+  {
+    "question": "In which country was the Moscow Wushu Star International Championship 2025 held?",
+    "options": ["India", "Germany", "Russia", "Japan"],
+    "answer": 2,
+    "explanation": "The Moscow Wushu Star International Championship 2025 was held in Russia."
+  },
+  {
+    "question": "Who is Tisya Panigrahi, the 15-year-old Odia girl from Sambalpur?",
+    "options": ["A K-pop idol", "A professional swimmer", "A recreational diver", "An environmental activist"],
+    "answer": 2,
+    "explanation": "Tisya Panigrahi is a recreational diver who dived 100 feet deep in the Daymaniyat Islands, Oman."
+  },
+  {
+    "question": "What essential food items will be provided at subsidized rates through ‘Jan Poshan Kendras’ in Odisha?",
+    "options": ["Rice and Atta", "Sugar and Salt", "Pulses", "All of the above"],
+    "answer": 3,
+    "explanation": "Rice, atta, sugar, salt, and pulses will be provided at subsidized rates through Jan Poshan Kendras."
+  },
+  {
+    "question": "Which institute from Rayagada won the Outstanding Agricultural Institute Award at ET Education Excellence Awards 2025?",
+    "options": ["IIT Bhubaneswar", "MITS Institute of Professional Studies (MIPS)", "Berhampur University", "Gangadhar Meher University"],
+    "answer": 1,
+    "explanation": "MITS Institute of Professional Studies (MIPS), Rayagada won the Outstanding Agricultural Institute Award."
+  },
+  {
+    "question": "At how many locations will Odisha install advanced weather radars?",
+    "options": ["One", "Two", "Three", "Four"],
+    "answer": 2,
+    "explanation": "The Odisha government will install advanced weather radars at three locations: Sambalpur, Balasore, and Bhubaneswar."
+  },
+  {
+    "question": "Which global workforce management leader unveiled its innovation centre in Bhubaneswar?",
+    "options": ["IBM", "TCS", "Wipro", "Logile"],
+    "answer": 3,
+    "explanation": "Logile, a global leader in workforce management, unveiled its innovation centre in Bhubaneswar."
+  },
+  {
+    "question": "What is the name of the new mobile app launched to simplify access to key revenue services in Odisha?",
+    "options": ["E-Registration app", "Odisha Land Portal", "My Sarkar App", "Revenue Sewa App"],
+    "answer": 0,
+    "explanation": "The E-Registration app was launched to simplify access to key revenue services in Odisha."
+  },
+  {
+    "question": "By 2036, how much additional renewable energy capacity does Odisha aim to add?",
+    "options": ["10.96 GW", "6.3 million metric tons", "15,000 MW", "2,100 MW"],
+    "answer": 2,
+    "explanation": "Odisha aims to add 15,000 MW of renewable energy capacity by 2036."
+  },
+  {
+    "question": "Who is the first President of India born post-1947, in Odisha?",
+    "options": ["Pratibha Patil", "Indira Gandhi", "Sonia Gandhi", "Droupadi Murmu"],
+    "answer": 3,
+    "explanation": "Droupadi Murmu, born in 1958 in Odisha, is the first President of India born post-1947."
+  },
+  {
+    "question": "What was Droupadi Murmu's original name before being renamed?",
+    "options": ["Saraswati Tudu", "Puti Tudu", "Janaki Tudu", "Sita Tudu"],
+    "answer": 1,
+    "explanation": "Droupadi Murmu’s original name was Puti Tudu before being renamed by a school teacher."
+  },
+  {
+    "question": "From which institution did Droupadi Murmu earn her BA?",
+    "options": ["Ravenshaw University", "Rama Devi Women's College, Bhubaneswar", "Utkal University", "Sambalpur University"],
+    "answer": 1,
+    "explanation": "Droupadi Murmu earned her BA from Rama Devi Women's College in Bhubaneswar."
+  },
+  {
+    "question": "Who authored the book 'Shree Jagannath Mandira Swatalipi'?",
+    "options": ["Pitambar Acharya", "Hari Babu Kambhampati", "Gajendra Singh Shekhawat", "Dharmendra Pradhan"],
+    "answer": 0,
+    "explanation": "Pitambar Acharya authored 'Shree Jagannath Mandira Swatalipi' about Jagannath temple traditions."
+  },
+  {
+    "question": "Which year marked the launch of the crocodile conservation project at Bhitarkanika National Park?",
+    "options": ["1975", "1985", "1990", "2000"],
+    "answer": 0,
+    "explanation": "The crocodile conservation project at Bhitarkanika National Park was launched in 1975."
+  }
+];  
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>
+
