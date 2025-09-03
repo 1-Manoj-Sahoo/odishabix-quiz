@@ -1,0 +1,1949 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>August odisha CA Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+	header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
+    text-align: center;
+    padding: 8px 8px;
+    background-color: rgba(0,0,0,1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+	}
+
+	header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    letter-spacing: 2px;
+    color: #ffcc00;
+	}
+
+	header h1 .header-link {
+    color: #ffcc00;
+    text-decoration: none;
+    user-select: none;
+	}
+
+	header h1 .header-link:hover,
+	header h1 .header-link:focus {
+     text-decoration: none;
+	}
+	header p {
+        margin-top: 2px;
+        font-size: 1.2rem;
+        color: #ffee99;
+    }
+	.container.mt-5.mb-5 {
+    margin-top: 100px !important;
+	}
+        .option-btn { margin-bottom: 10px; width: 100%; text-align: left; }
+        .correct { background-color: #198754!important; color: white!important; }
+        .incorrect { background-color: #dc3545!important; color: white!important; }
+        .explanation { margin-top: 10px; display: none; }
+        .timer { font-size: 1.2em; font-weight: bold; }
+        .search-box { width: 120px; }
+    </style>
+</head>
+<body class="bg-light">
+	<header>
+  		<h1><a href="index.html" class="header-link">ODISHABIX</a></h1>
+		 <p>Prepare Better, Achieve faster</p>
+	</header>
+    <div class="container mt-5 mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">August Odisha CA</h2>
+                    <input type="number" min="1" id="searchQuestion" class="form-control form-control-sm search-box" placeholder="Go to">
+                </div>
+                <div id="quiz-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound effects -->
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav"></audio>
+    <audio id="sound-wrong" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav"></audio>
+    <audio id="sound-timeup" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const originalQuestions = [
+	{
+    "question": "Bibhuti Bhusan Singh Mardaraj, former Deputy Speaker of the Odisha Assembly who recently passed away, represented which constituency?",
+    "options": ["G Udayagiri", "Bhograi", "Khandapada", "Karanjia"],
+    "answer": 2,
+    "explanation": "Bibhuti Bhusan Singh Mardaraj was elected as an MLA from the Khandapada Assembly constituency three times: in 1980, 1985, and 1995."
+  },
+  {
+    "question": "How many times was Bibhuti Bhusan Singh Mardaraj elected as an MLA from the Khandapada Assembly constituency?",
+    "options": ["One time", "Two times", "Three times", "Four times"],
+    "answer": 2,
+    "explanation": "He was elected as an MLA from the Khandapada Assembly constituency three times: in 1980, 1985, and 1995."
+  },
+  {
+    "question": "Which of the following key positions did Bibhuti Bhusan Singh Mardaraj hold in the state government during his career?",
+    "options": ["Chief Minister", "Governor", "Deputy Speaker and Minister", "Chief Secretary"],
+    "answer": 2,
+    "explanation": "Over his career, Bibhuti Bhusan Singh Mardaraj held several key positions, including that of Deputy Speaker and Minister in the state government."
+  },
+  {
+    "question": "Which Odia film received the 71st National Film Award for Best Odia Feature Film?",
+    "options": ["Mo Bou, Mo Gaan", "The Sea And Seven Villages", "Puskara", "Bou Buttu Bhuta"],
+    "answer": 2,
+    "explanation": "The Odia film ‘Puskara’ won the Best Odia Feature Film award at the 71st National Film Awards."
+  },
+  {
+    "question": "Who directed the Odia film ‘Puskara,’ which won the Best Odia Feature Film award at the 71st National Film Awards?",
+    "options": ["Himansu Sekhar Khatua", "Subash Sahoo", "Subhransu Das", "Sankar Tripathy"],
+    "answer": 2,
+    "explanation": "The Odia film ‘Puskara’ was directed by Subhransu Das and starred Sabyasachi and Supriya Nayak."
+  },
+  {
+    "question": "The Odia film ‘Puskara’ is based on the novel ‘Nadabindu’ by which eminent writer?",
+    "options": ["Sabyasachi", "Supriya Nayak", "Sankar Tripathy", "Subhransu Das"],
+    "answer": 2,
+    "explanation": "The film ‘Puskara’ is based on eminent writer Sankar Tripathy’s Odia novel ‘Nadabindu’ (2004)."
+  },
+  {
+    "question": "Which Odia film received a Special Mention in the Non-feature category at the 71st National Film Awards?",
+    "options": ["Puskara", "Mo Bou, Mo Gaan", "The Sea And Seven Villages", "Bou Buttu Bhuta"],
+    "answer": 2,
+    "explanation": "'The Sea And Seven Villages' (Odia), directed by Himansu Sekhar Khatua, received a Special Mention in the Non-feature category."
+  },
+  {
+    "question": "Which Odia film won the Best Biographical / Historical Reconstruction / Compilation Film award at the 71st National Film Awards?",
+    "options": ["Puskara", "Mo Bou, Mo Gaan", "The Sea And Seven Villages", "Nadabindu"],
+    "answer": 1,
+    "explanation": "'Mo Bou, Mo Gaan' (Odia), directed by Subash Sahoo, won the Best Biographical / Historical Reconstruction / Compilation Film award."
+  },
+  {
+    "question": "With which IIT is the Odisha government collaborating to develop a real-time Road Safety Dashboard titled “Road Awareness and Traffic Harmony”?",
+    "options": ["IIT Bhubaneswar", "IIT Kanpur", "IIT Ahmedabad", "IIT Madras"],
+    "answer": 3,
+    "explanation": "The Odisha government is collaborating with IIT Madras to develop a real-time Road Safety Dashboard, titled “Road Awareness and Traffic Harmony”."
+  },
+  {
+    "question": "Who has been appointed as the new Chairperson of the Odisha State Commission for Women?",
+    "options": ["Minati Behera", "Shovana Mohanty", "Babita Patra", "Madhuri Dixit"],
+    "answer": 1,
+    "explanation": "Shovana Mohanty from Karanjia under Remuna Block in Balasore was appointed as the new Chairperson of the Odisha State Commission for Women."
+  },
+  {
+    "question": "What is the tenure for the Chairperson of the Odisha State Commission for Women?",
+    "options": ["One year", "Two years", "Three years", "Four years"],
+    "answer": 2,
+    "explanation": "Shovana Mohanty will hold the post for a period of three years with effect from August 5, 2025."
+  },
+  {
+    "question": "Who was appointed as the Chairperson of the Odisha State Commission for Protection of Child Rights (OSCPCR)?",
+    "options": ["Shovana Mohanty", "Minati Behera", "Babita Patra", "Sagarika Nath"],
+    "answer": 2,
+    "explanation": "The Odisha Government also appointed Babita Patra as the Chairperson of Odisha State Commission for Protection of Child Rights (OSCPCR)."
+  },
+  {
+    "question": "What is the tenure for the Chairperson of the OSCPCR?",
+    "options": [
+      "Three years from the date of assumption of office or until they attain the age of 60 years, whichever is earlier.",
+      "Three years from the date of assumption of office or until she attains the age of 65 years, whichever is earlier.",
+      "Five years from the date of assumption of office.",
+      "Two years, non-renewable."
+    ],
+    "answer": 1,
+    "explanation": "Babita Patra will serve for a period of three years from the date of assumption of office or until she attains the age of 65 years, whichever is earlier."
+  },
+  {
+    "question": "Satyapal Malik, former Governor of Odisha and several other Indian states, passed away on which date?",
+    "options": ["August 1", "August 5", "August 15", "August 21"],
+    "answer": 1,
+    "explanation": "Satyapal Malik, former Governor of Odisha and several other Indian states, passed away on August 5."
+  },
+  {
+    "question": "When did Satyapal Malik hold the additional charge of Odisha governor?",
+    "options": ["2015", "2016", "2017", "2018"],
+    "answer": 3,
+    "explanation": "Satyapal Malik held the additional charge of Odisha governor from March 21, 2018, to May 28, 2018, while serving as the Governor of Bihar."
+  },
+  {
+    "question": "In which village and district of Uttar Pradesh was Satyapal Malik born?",
+    "options": ["Mayur Vihar, Berhampur", "Kalingi village, Daringbadi", "Hisawada village, Baghpat district", "Remuna Block, Balasore"],
+    "answer": 2,
+    "explanation": "Satyapal Malik was born on July 24, 1946, in Hisawada village of Uttar Pradesh’s Baghpat district."
+  },
+  {
+    "question": "When did Satyapal Malik begin his political career?",
+    "options": ["1968–69", "1980", "1989", "2018"],
+    "answer": 0,
+    "explanation": "He began his political journey as the president of the students' union in 1968–69."
+  },
+  {
+    "question": "In which legislative bodies did Satyapal Malik represent Uttar Pradesh?",
+    "options": ["Lok Sabha only", "Rajya Sabha only", "Both Rajya Sabha and Lok Sabha", "State Legislative Assembly"],
+    "answer": 2,
+    "explanation": "He represented Uttar Pradesh in the Rajya Sabha from 1980 to 1986 and again from 1986 to 1989. He later served as a Member of Parliament in the 9th Lok Sabha from Aligarh (1989–1991)."
+  },
+  {
+    "question": "What significant event occurred during Satyapal Malik's tenure as Governor of Jammu and Kashmir?",
+    "options": ["The state was granted special status.", "The state was bifurcated into two Union Territories.", "A new Chief Minister was appointed.", "Large-scale investments were made in the region."],
+    "answer": 1,
+    "explanation": "In August 2018, Malik was appointed as the Governor of Jammu and Kashmir. He served as the 10th and last Governor of the erstwhile state before its bifurcation into two Union Territories in 2019."
+  },
+  {
+    "question": "Which port received the “Major Port of the Year – Non-Containerised Cargo” award at the 15th All India Maritime and Logistics Awards (MALA) 2025?",
+    "options": ["Kolkata Port", "Paradip Port", "Mormugao Port", "Tuticorin Port"],
+    "answer": 1,
+    "explanation": "Paradip Port received the “Major Port of the Year – Non-Containerised Cargo” award at the 15th All India Maritime and Logistics Awards (MALA) 2025."
+  },
+  {
+    "question": "Where were the 15th All India Maritime and Logistics Awards (MALA) 2025 held?",
+    "options": ["Chennai", "Kolkata", "Mumbai", "Delhi"],
+    "answer": 2,
+    "explanation": "The 15th All India Maritime and Logistics Awards (MALA) 2025 were held in Mumbai on August 1."
+  },
+  {
+    "question": "The recently revived historic police outpost at Budaguda Village, established during British colonial rule, falls under which district?",
+    "options": ["Koraput", "Kandhamal", "Balasore", "Bhadrak"],
+    "answer": 0,
+    "explanation": "A historic police outpost at Budaguda Village, which roared back to life, comes under the Koraput district."
+  },
+  {
+    "question": "The historic police outpost at Budaguda Village, which was recently revived, had been shuttered since which year?",
+    "options": ["2010", "2015", "2017", "2020"],
+    "answer": 2,
+    "explanation": "The revival of the station, shuttered since 2017, has restored law and order in the area."
+  },
+  {
+    "question": "Which country hosted the World University Games 2025?",
+    "options": ["France", "USA", "Germany", "India"],
+    "answer": 2,
+    "explanation": "The World University Games 2025 were hosted in Rhine-Ruhr, Germany."
+  },
+  {
+    "question": "Which Indian university was felicitated for its athletes winning multiple medals at the World University Games 2025, making it the first in India to do so in 65 years?",
+    "options": ["Delhi University", "Mumbai University", "KIIT University", "Anna University"],
+    "answer": 2,
+    "explanation": "KIIT & KISS felicitated 11 athletes from KIIT University who represented India and won medals, making KIIT the first university in India to have won so many medals in WUG in the last 65 years."
+  },
+  {
+    "question": "Which state is going to host the India Edition of the Black Swan Summit in 2026?",
+    "options": ["Maharashtra", "Odisha", "Chhattisgarh", "Madhya Pradesh"],
+    "answer": 1,
+    "explanation": "Odisha is going to host the India Edition of the Black Swan Summit in 2026."
+  },
+  {
+    "question": "What disruptive technologies will be the primary focus of the Black Swan Summit in Odisha?",
+    "options": ["Biotechnology and nanotechnology", "Renewable energy and sustainable agriculture", "AI and quantum computing", "Robotics and advanced manufacturing"],
+    "answer": 2,
+    "explanation": "The Black Swan Summit in Odisha will focus on disruptive technologies like AI and quantum computing."
+  },
+  {
+    "question": "Which international platform spearheads the Black Swan Summit?",
+    "options": ["World Economic Forum (WEF)", "United Nations Development Programme (UNDP)", "Global Finance and Technology Network (GFTN)", "International Monetary Fund (IMF)"],
+    "answer": 2,
+    "explanation": "The Black Swan Summit is a flagship international platform spearheaded by the Global Finance and Technology Network (GFTN)."
+  },
+  {
+    "question": "When and where was the Black Swan Summit initially launched?",
+    "options": ["In Mumbai, India", "In Perth, Australia", "In New Delhi, India", "In Rhine-Ruhr, Germany"],
+    "answer": 1,
+    "explanation": "The Black Swan Summit was launched earlier this year in Perth, Australia."
+  },
+  {
+    "question": "Which state is set to launch India’s first Integrated Global Financial Technology Capability Hub (I-GFTCH)?",
+    "options": ["Odisha", "Maharashtra", "Rajasthan", "Andhra Pradesh"],
+    "answer": 0,
+    "explanation": "Odisha is set to launch India’s first Integrated Global Financial Technology Capability Hub (I-GFTCH)."
+  },
+  {
+    "question": "When and where will India’s first Integrated Global Financial Technology Capability Hub (I-GFTCH) be launched?",
+    "options": ["August 1 in Mumbai", "August 5 in New Delhi", "August 21 in Bhubaneswar", "August 2 in Ahmedabad"],
+    "answer": 2,
+    "explanation": "India’s first Integrated Global Financial Technology Capability Hub (I-GFTCH) will be launched in Bhubaneswar on August 21."
+  },
+  {
+    "question": "According to the source, what is the definition of \"fintech\"?",
+    "options": [
+      "A type of financial market where technology companies are traded.",
+      "A combination of \"financial\" and \"technology\" describing the use of technology to deliver financial services and products.",
+      "A government initiative to regulate financial institutions.",
+      "A new form of digital currency."
+    ],
+    "answer": 1,
+    "explanation": "The word “fintech” is simply a combination of the words “financial” and “technology”. It describes the use of technology to deliver financial services and products to consumers, covering areas like banking, insurance, and investing."
+  },
+  {
+    "question": "Which organizations are jointly developing the I-GFTCH initiative with the Odisha government?",
+    "options": [
+      "World Bank and IMF",
+      "Global Finance and Technology Network (GFTN) and Asian Institute of Digital Finance at NUS (NUS-AIDF)",
+      "IIT Madras and IIM Sambalpur",
+      "Ministry of Finance and NITI Aayog"
+    ],
+    "answer": 1,
+    "explanation": "The I-GFTCH initiative is jointly developed with the Global Finance and Technology Network (GFTN) and the Asian Institute of Digital Finance at the National University of Singapore (NUS-AIDF)."
+  },
+  {
+    "question": "What is the target for training graduates in FinTech and InsurTech through the I-GFTCH hub over the next five years?",
+    "options": ["Over 1,000 graduates", "Over 3,000 graduates", "Over 5,000 graduates", "Over 7,000 graduates"],
+    "answer": 3,
+    "explanation": "The hub is designed to train over 7,000 graduates in FinTech and InsurTech over the next five years."
+  },
+  {
+    "question": "When did Odisha sign the Memorandum of Understanding (MoU) with GFTN and NUS-AIDF that marked its journey to the global FinTech stage?",
+    "options": [
+      "During the visit of the Indian Prime Minister.",
+      "During the visit of the Singapore President Tharman Shanmugaratnam in January.",
+      "in August 2025 during the launch of I-GFTCH.",
+      "In October 2022."
+    ],
+    "answer": 1,
+    "explanation": "The state’s journey to the global FinTech stage began with the Memorandum of Understanding signed in January with GFTN and the Asian Institute of Digital Finance (AIDF) at the National University of Singapore (NUS) during the visit of Singapore President Tharman Shanmugaratnam."
+  },
+  {
+    "question": "Which state received the National Award as an Emerging State in Organ Donation?",
+    "options": ["Bihar", "Odisha", "Maharashtra", "Madhya Pradesh"],
+    "answer": 1,
+    "explanation": "Odisha received the National Award as an Emerging State in Organ Donation."
+  },
+  {
+    "question": "Who presented the National Award for Organ Donation to Odisha?",
+    "options": [
+      "The President of India",
+      "The Chief Minister of Odisha",
+      "Jagat Prakash Nadda, Union Minister of Health & Family Welfare and Chemicals & Fertilizers",
+      "The Director General of WHO"
+    ],
+    "answer": 2,
+    "explanation": "Jagat Prakash Nadda, Union Minister of Health & Family Welfare and Chemicals & Fertilizers, presented the award on the occasion of 15th Indian Organ Donation Day."
+  },
+  {
+    "question": "On what occasion was the National Award for Organ Donation presented?",
+    "options": ["10th National Health Day", "15th Indian Organ Donation Day", "5th Organ Transplant Awareness Week", "1st August, Maritime Day"],
+    "answer": 1,
+    "explanation": "The award was presented on the occasion of 15th Indian Organ Donation Day, August 3."
+  },
+  {
+    "question": "Where was the Virgin Land Security Summit held?",
+    "options": ["Bhubaneswar", "New Delhi", "Hyderabad", "Bhopal"],
+    "answer": 1,
+    "explanation": "The Virgin Land Security Summit was held at India International Centre, New Delhi."
+  },
+  {
+    "question": "Who from the Odisha government attended the Virgin Land Security Summit?",
+    "options": [
+      "Chief Minister Majhi",
+      "Deputy Chief Minister Kanak Vardhan Singh Deo",
+      "Health Minister Mukesh Mahaling",
+      "Textiles Minister Pradeep Bal Samant"
+    ],
+    "answer": 1,
+    "explanation": "Deputy Chief Minister and Minister of Agriculture & Farmers’ Empowerment, Energy Department, Kanak Vardhan Singh Deo, attended the Virgin Land Security Summit."
+  },
+  {
+    "question": "What percentage of Odisha’s cultivable land already uses minimal chemical fertilizers, making it ideal for organic farming?",
+    "options": ["15%", "25%", "32%", "50%"],
+    "answer": 2,
+    "explanation": "Nearly 32% of Odisha’s cultivable land already sees minimal chemical use, making it an ideal location for organic farming."
+  },
+  {
+    "question": "What is the mascot for the handloom fair “Ekta” (Exhibition-cum-Knowledge Sharing for Textile Advantage)?",
+    "options": ["Hastakala", "Vastra", "Resha", "Tantra"],
+    "answer": 2,
+    "explanation": "The mascot for the handloom fair “Ekta” is “Resha”."
+  },
+  {
+    "question": "Who inaugurated the handloom fair “Ekta” in Bhubaneswar?",
+    "options": ["The Governor of Odisha", "The Union Textiles Minister", "CM Majhi", "Madhuri Dixit"],
+    "answer": 2,
+    "explanation": "CM Majhi inaugurated the handloom fair “Ekta” at Janata Maidan, Bhubaneswar, emphasizing handlooms as a major pillar of Odia identity."
+  },
+  {
+    "question": "Who has been appointed as the brand ambassador for Odisha Handloom for one year?",
+    "options": ["Supriya Nayak", "Shovana Mohanty", "Madhuri Dixit", "Swasti Singh"],
+    "answer": 2,
+    "explanation": "Renowned actress Madhuri Dixit has been appointed as the brand ambassador for Odisha Handloom for one year."
+  },
+  {
+    "question": "Who is the Textiles, Handlooms, and Handicrafts Minister of Odisha?",
+    "options": ["Kanak Vardhan Singh Deo", "Mukesh Mahaling", "Pradeep Bal Samant", "Jagat Prakash Nadda"],
+    "answer": 2,
+    "explanation": "Pradeep Bal Samant is the Textiles, Handlooms, and Handicrafts Minister of Odisha."
+  },
+  {
+    "question": "When is the 11th National Handloom Day observed?",
+    "options": ["August 1", "August 3", "August 7", "August 15"],
+    "answer": 2,
+    "explanation": "The 11th National Handloom Day is observed on August 7, 2025."
+  },
+  {
+    "question": "What request did Odisha Health and Family Welfare Minister Mukesh Mahaling make to the Union Health Minister regarding MBBS seats for the academic year 2025–26?",
+    "options": [
+      "To reduce the number of MBBS seats.",
+      "To sanction 500 new MBBS seats in existing colleges.",
+      "To grant LoPs for 200 MBBS seats at PMPMC, Talcher, and GMC, Phulbani.",
+      "To establish a new AIIMS in Odisha."
+    ],
+    "answer": 2,
+    "explanation": "Odisha Health and Family Welfare Minister Mukesh Mahaling requested Letters of Permission (LoPs) for 200 MBBS seats at the Pavitra Mohan Pradhan Medical College (PMPMC), Talcher, and the Government Medical College (GMC), Phulbani, for the academic year 2025–26."
+  },
+  {
+    "question": "If the requests for new MBBS seats are granted, how many government medical colleges will Odisha have, and what will be the total number of MBBS seats in government institutions?",
+    "options": [
+      "15 colleges and 1,500 seats",
+      "16 colleges and 1,800 seats",
+      "14 colleges and 1,600 seats",
+      "18 colleges and 2,000 seats"
+    ],
+    "answer": 1,
+    "explanation": "Once the LoPs are granted, the number of government medical colleges in Odisha will increase from 14 to 16, and the total number of MBBS seats in government institutions will rise to 1,800."
+  },
+  {
+    "question": "Who is Sagarika Nath, and what new position has she been approved for in the National Investigation Agency (NIA)?",
+    "options": [
+      "A Chief Secretary, approved as Director General.",
+      "An IPS officer from Odisha cadre, approved as Superintendent of Police (SP).",
+      "A medical professional, approved as Head of Medical Research.",
+      "A legal expert, approved as Chief Prosecutor."
+    ],
+    "answer": 1,
+    "explanation": "The Ministry of Home Affairs has approved the appointment of IPS officer Sagarika Nath, a 2016 batch officer from the Odisha cadre, as Superintendent of Police (SP) in the National Investigation Agency (NIA)."
+  },
+  {
+    "question": "Who has been appointed as the new Collector of Boudh district?",
+    "options": ["Sagarika Nath", "Subas Pani", "Bibhuti Bhushan Nayak", "Mrutyunjay Mohapatra"],
+    "answer": 2,
+    "explanation": "Bibhuti Bhushan Nayak, a native of the remote Kalingi village in Daringbadi block of Kandhamal district, has been appointed as the new Collector of Boudh district."
+  },
+  {
+    "question": "What was UROSCOPIA 2025, and where was it held?",
+    "options": [
+      "A cultural festival held in Bhubaneswar.",
+      "A national operative workshop on advanced urological surgery held at AIIMS Bhubaneswar.",
+      "An international sports event held in Odisha.",
+      "A summit on climate change held in Sambalpur."
+    ],
+    "answer": 1,
+    "explanation": "UROSCOPIA 2025, a national operative workshop on advanced laparoscopic and retroperitoneoscopic urological surgery, concluded with resounding success at AIIMS Bhubaneswar."
+  },
+  {
+    "question": "Which two organizations signed an MoU to collaborate on research and training in climate change and sustainability?",
+    "options": [
+      "IIT Madras and CEEW",
+      "IIM Sambalpur and CEEW",
+      "NUS-AIDF and GFTN",
+      "AIIMS Bhubaneswar and Ministry of Health"
+    ],
+    "answer": 1,
+    "explanation": "IIM Sambalpur and the Council on Energy, Environment and Water (CEEW) have signed an MoU to collaborate on research initiatives, executive training programs, and academic exchanges in the areas of climate change and sustainability."
+  },
+  {
+    "question": "How many farmers in Odisha received PM Kisan benefits, and what was the total amount distributed by the Odisha CM on August 2?",
+    "options": [
+      "9.7 crore farmers, Rs 697 Crore",
+      "34.85 lakh farmers, Rs 697 Crore",
+      "34.85 lakh farmers, Rs 9.7 Crore",
+      "9.7 crore farmers, Rs 34.85 Crore"
+    ],
+    "answer": 1,
+    "explanation": "Odisha CM distributed Rs 697 Crore PM Kisan Benefits to 34.85 Lakh Farmers on August 2."
+  },
+  {
+    "question": "Who was Subas Pani, and what notable positions did he hold in the Government of India?",
+    "options": [
+      "A former Governor, and Union Minister of Health.",
+      "A former Chief Secretary of Odisha, who served as Deputy Election Commissioner and Secretary in various central ministries.",
+      "A film director, who won a National Film Award.",
+      "A renowned scientist, who developed new technologies."
+    ],
+    "answer": 1,
+    "explanation": "Former Chief Secretary Subas Pani passed away. He held notable positions such as Deputy Election Commissioner, Election Commission of India, Secretary Rural Development and Land Resources, and Secretary, Planning Commission in the Government of India."
+  },
+  {
+    "question": "How many migrant workers from Odisha were killed in a granite quarry mishap in Andhra Pradesh?",
+    "options": ["3", "6", "9", "12"],
+    "answer": 1,
+    "explanation": "Six migrant workers from Odisha were killed in a granite quarry mishap in Andhra Pradesh’s Bapatla district."
+  },
+  {
+    "question": "What new color code has the Odisha Government mandated for all government buildings?",
+    "options": ["Blue and white shades", "Green and yellow shades", "Saffron-themed shades", "Red and black shades"],
+    "answer": 2,
+    "explanation": "The Odisha Government has officially notified a new colour code for all government buildings, mandating the use of saffron-themed shades for both newly constructed and renovated structures across the state."
+  },
+  {
+    "question": "Who has been re-employed as the Director General (DG) of India Meteorological Department (IMD) for two years, and what is his common appellation?",
+    "options": [
+      "Bibhuti Bhusan Singh Mardaraj, \"Weather Guru\"",
+      "Mrutyunjay Mohapatra, \"Cyclone Man of India\"",
+      "Subas Pani, \"Planning Strategist\"",
+      "Himansu Sekhar Khatua, \"Film Maestro\""
+    ],
+    "answer": 1,
+    "explanation": "Mrutyunjay Mohapatra has been re-employed as the Director General (DG) of India Meteorological Department (IMD) for two years and is commonly known as the \"Cyclone Man of India\"."
+  },
+  {
+    "question": "Who won a bronze medal in the 48 kg category at the 12th Asian Junior Wushu Championship in China, and who felicitated her?",
+    "options": [
+      "Suru Tiria, by the President of India.",
+      "Sweta Rani Mahanta, by the Odisha CM.",
+      "Sai Swarup Swain, by the Sports Minister.",
+      "Swasti Singh, by the National Cycling Federation."
+    ],
+    "answer": 1,
+    "explanation": "Sweta Rani Mahanta of the Jindal Sports Hostel was felicitated by Odisha CM for clinching the bronze medal in the 48 kg category at the 12th Asian Junior Wushu Championship held in China."
+  },
+  {
+    "question": "Who is Suru Tiria, and why was she invited to the ‘At Home’ reception at Rashtrapati Bhavan on August 15, 2025?",
+    "options": [
+      "An athlete, for winning a medal.",
+      "A tribal woman from Mayurbhanj, invited as part of Independence Day celebrations.",
+      "A film actress, for her contribution to Odia cinema.",
+      "A government official, for her service."
+    ],
+    "answer": 1,
+    "explanation": "Suru Tiria, a humble tribal woman from Basaghutu village in Kusumi block of Rairangpur sub-division (Mayurbhanj), was invited to attend the prestigious ‘At Home’ reception at Rashtrapati Bhavan on August 15, 2025, as part of the Independence Day celebrations."
+  },
+  {
+    "question": "What is the purpose of the \"Godabarish Mishra Adarsha Prathamika Vidyalaya scheme,\" and how many schools are planned for the first phase?",
+    "options": [
+      "To establish secondary schools, 500 in the first phase.",
+      "To set up ideal primary schools, 835 in the first phase.",
+      "To renovate existing colleges, 100 in the first phase.",
+      "To build vocational training centers, 200 in the first phase."
+    ],
+    "answer": 1,
+    "explanation": "The \"Godabarish Mishra Adarsha Prathamika Vidyalaya scheme\" plans for 835 schools to be set up in the first phase."
+  },
+  {
+    "question": "Which team won the 64th Sahani Cup in football?",
+    "options": ["Sambalpur", "Keonjhar", "Cuttack", "Bhubaneswar"],
+    "answer": 2,
+    "explanation": "Cuttack won the 64th Sahani Cup in football by defeating Sambalpur in Keonjhar."
+  },
+  {
+    "question": "Who bagged a gold medal in swimming at the 51st Jr National Aquatic Championship in Ahmedabad?",
+    "options": ["Swasti Singh", "Rakesh Roshan Pradhan", "Sai Swarup Swain", "Sweta Rani Mahanta"],
+    "answer": 2,
+    "explanation": "Sai Swarup Swain bagged a gold medal in swimming at the 51st Jr National Aquatic Championship in Ahmedabad, Gujarat, creating history in achieving gold."
+  },
+  {
+    "question": "Who set a new national record in women's elite 4km cycling with a time of 5:01.475?",
+    "options": ["Sweta Rani Mahanta", "Sai Swarup Swain", "Swasti Singh", "Madhuri Dixit"],
+    "answer": 2,
+    "explanation": "Cyclist Swasti Singh set a new national record in the women's elite 4km cycling with a time of 5:01.475 at the Indira Gandhi Sports Complex, New Delhi."
+  },
+  {
+    "question": "Who won the title in the 2nd Greenbaize classic All-Odisha 10 red Snooker Tournament?",
+    "options": ["Sai Swarup Swain", "Rakesh Roshan Pradhan", "Swasti Singh", "Bibhuti Bhushan Nayak"],
+    "answer": 1,
+    "explanation": "Rakesh Roshan Pradhan won the title in the 2nd Greenbaize classic All-Odisha 10 red Snooker Tournament."
+  },
+   {
+    "question": "Six meritorious students from Odisha, along with a teacher, are set to represent the state in the SAKURA Science High School Programme (SSHP) from August 16 to 23, 2025. Which country will host this prestigious program?",
+    "options": ["China", "South Korea", "Indonesia", "Japan"],
+    "answer": 3,
+    "explanation": "Six meritorious students from different districts of Odisha, along with a teacher, will represent the state in the prestigious SAKURA Science High School Programme (SSHP) in Japan from August 16 to 23, 2025."
+  },
+  {
+    "question": "Which Indian state received the National Award For Oral Health and Tobacco-Free Youth Initiatives from the Ministry of Health and Family Welfare, Govt of India?",
+    "options": ["Uttar Pradesh", "Odisha", "Jharkhand", "Bihar"],
+    "answer": 1,
+    "explanation": "Odisha received the National Award For Oral Health, Tobacco-Free Youth Initiatives from the Ministry of Health and Family Welfare, Govt of India, for its outstanding efforts during World Oral Health Day 2025 and the Tobacco-Free Youth Campaign 2.0 at AIIMS New Delhi."
+  },
+  {
+    "question": "Union Education Minister Dharmendra Pradhan inaugurated Odisha’s first seawater desalination plant. In which specific location was it inaugurated?",
+    "options": ["Matikhalo", "Badaputi", "Arjyapalli", "Uppalaputi"],
+    "answer": 2,
+    "explanation": "Union Education Minister Dharmendra Pradhan inaugurated Odisha’s first seawater desalination plant at Arjyapalli, Chhatrapur in Ganjam district."
+  },
+  {
+    "question": "Odisha's first seawater desalination plant, located in Chhatrapur, Ganjam district, was developed by which entity and utilizes what technology to produce potable water?",
+    "options": [
+      "Odisha Water Board; Nanofiltration",
+      "Indian Rare Earths Limited (IREL) unit OSCOM; Reverse Osmosis (RO)",
+      "Central Public Works Department (CPWD); Distillation",
+      "Tata Steel; Multi-stage Flash (MSF) distillation"
+    ],
+    "answer": 1,
+    "explanation": "The plant was developed by the Odisha Sands Complex (OSCOM), a unit of Indian Rare Earths Limited (IREL), and will produce 4.5 million litres of potable water daily using reverse osmosis (RO) technology."
+  },
+  {
+    "question": "If India successfully bids to host the 2030 Commonwealth Games, how many years will have passed since the last time India hosted this mega event?",
+    "options": ["15 years", "20 years", "25 years", "30 years"],
+    "answer": 1,
+    "explanation": "If India hosts the 2030 Commonwealth Games, the mega event will come to India again after 20 years, as New Delhi last hosted it in 2010."
+  },
+  {
+    "question": "Which organization has officially decided to bid for the 2030 Commonwealth Games?",
+    "options": ["Ministry of Youth Affairs and Sports", "Indian Olympic Association (IOA)", "Commonwealth Games Federation (CGF)", "Sports Authority of India (SAI)"],
+    "answer": 1,
+    "explanation": "The Indian Olympic Association (IOA) has officially decided to bid for the 2030 Commonwealth Games during a meeting in New Delhi."
+  },
+  {
+    "question": "The Indian Olympic Association (IOA) is in active dialogue with which international committee for hosting the 2036 Summer Olympic Games in Ahmedabad?",
+    "options": ["World Olympic Committee (WOC)", "International Games Commission (IGC)", "International Olympic Committee's (IOC) Future Games Commission", "Global Sports Governing Body (GSGB)"],
+    "answer": 2,
+    "explanation": "The IOA is currently in active dialogue with the International Olympic Committee's (IOC) Future Games Commission for hosting the 2036 Summer Olympic Games in Ahmedabad."
+  },
+  {
+    "question": "Besides Ahmedabad, which other cities did IOA president PT Usha mention as potential host cities for the 2030 Commonwealth Games, citing their good facilities?",
+    "options": ["Mumbai and Kolkata", "Chennai and Bengaluru", "Bhubaneswar and Delhi", "Hyderabad and Pune"],
+    "answer": 2,
+    "explanation": "IOA president PT Usha mentioned Bhubaneswar and Delhi as potential host cities for the 2030 Commonwealth Games, citing their good facilities."
+  },
+  {
+    "question": "When did New Delhi last host the Commonwealth Games, and which other major Asian sporting events has it hosted?",
+    "options": [
+      "2000; Asian Games in 1960",
+      "2010; Asian Games in 1950 and 1982",
+      "2005; Asian Games in 1970 and 1990",
+      "2015; Asian Games in 1948 and 1978"
+    ],
+    "answer": 1,
+    "explanation": "New Delhi hosted the Commonwealth Games in 2010 and has twice hosted the Asian Games in 1950 and 1982."
+  },
+  {
+    "question": "\"Operation Garuda,\" recently in the news, was launched on August 1, 2025, with what primary objective?",
+    "options": ["To promote tourism", "To crackdown crime", "To conduct disaster relief", "To enhance border security"],
+    "answer": 1,
+    "explanation": "Operation Garuda was launched on August 1, 2025, with the primary objective to crackdown crime."
+  },
+  {
+    "question": "Ranipur Jharial, described as a unique and ancient Yogini shrine, is located in which district of Odisha?",
+    "options": ["Bargarh", "Bolangir", "Sambalpur", "Subarnapur"],
+    "answer": 1,
+    "explanation": "Ranipur Jharial, a unique and ancient Yogini shrine, is located in Bolangir district of Odisha."
+  },
+  {
+    "question": "What was the central theme emphasized at the Odisha Conference of Youth 2025?",
+    "options": ["Youth entrepreneurship and skill development", "Youth-led climate action and innovation", "Youth participation in political governance", "Youth cultural exchange and heritage preservation"],
+    "answer": 1,
+    "explanation": "The Odisha Conference of Youth 2025 emphasized youth-led climate action and innovation."
+  },
+  {
+    "question": "How many individuals from Odisha were among the 1090 recipients of the President's medal, and specifically, how many of them received Gallantry Medals?",
+    "options": ["100 from Odisha, 50 Gallantry Medals", "22 from Odisha, 9 Gallantry Medals", "50 from Odisha, 20 Gallantry Medals", "10 from Odisha, 5 Gallantry Medals"],
+    "answer": 1,
+    "explanation": "22 individuals from Odisha were among the 1090 recipients of the President's medal, with 9 receiving Gallantry Medals."
+  },
+  {
+    "question": "In what categories were the President's Medals for Distinguished Service and Meritorious Service awarded to individuals from Odisha?",
+    "options": ["Sports and Arts", "Education and Science", "Police officers, fire service personnel, civil defence, and correctional staff", "Healthcare and Agriculture"],
+    "answer": 2,
+    "explanation": "The President's Medals were awarded to police officers, fire service personnel, civil defence, and correctional staff from Odisha."
+  },
+  {
+    "question": "How many coaching positions for Odisha have been sanctioned by the Union Ministry of Youth Affairs and Sports, and how many of these coaches have been appointed under the Khelo India Scheme?",
+    "options": ["25 sanctioned, 15 under Khelo India", "31 sanctioned, 22 under Khelo India", "40 sanctioned, 30 under Khelo India", "20 sanctioned, 10 under Khelo India"],
+    "answer": 1,
+    "explanation": "The Union Ministry of Youth Affairs and Sports sanctioned 31 coaching positions for Odisha, with 22 appointed under the Khelo India Scheme."
+  },
+  {
+    "question": "In addition to the Khelo India appointments, how many additional coaches have been deployed in Odisha under various Sports Authority of India (SAI) schemes?",
+    "options": ["10 coaches", "15 coaches", "19 coaches", "25 coaches"],
+    "answer": 2,
+    "explanation": "19 additional coaches have been deployed in Odisha under various Sports Authority of India (SAI) schemes."
+  },
+  {
+    "question": "What significant project did the Odisha Government approve for Sambalpur city, and what is its estimated expenditure?",
+    "options": [
+      "A new airport project with an expenditure of Rs 500 crore.",
+      "A mega drinking water project with an expenditure of Rs 382 crore.",
+      "A smart city development project with an expenditure of Rs 750 crore.",
+      "An industrial park project with an expenditure of Rs 250 crore."
+    ],
+    "answer": 1,
+    "explanation": "The Odisha Government approved a mega drinking water project for Sambalpur city with an expenditure of Rs 382 crore."
+  },
+  {
+    "question": "Which type of entity has been assigned the work for the Sambalpur mega drinking water project?",
+    "options": ["A government-owned corporation from Odisha", "An international consortium", "A private entity from Thane in Maharashtra", "A public-private partnership from Bengaluru"],
+    "answer": 2,
+    "explanation": "A private entity from Thane in Maharashtra has been assigned the work for the Sambalpur mega drinking water project."
+  },
+  {
+    "question": "What is the projected population of Sambalpur city by the year 2043?",
+    "options": ["5 lakh", "6 lakh", "7 lakh", "8 lakh"],
+    "answer": 2,
+    "explanation": "The projected population of Sambalpur city by 2043 is 7 lakh."
+  },
+  {
+    "question": "Under which guideline organization will the construction work for the Sambalpur drinking water project proceed, and when is it scheduled to be completed?",
+    "options": [
+      "World Health Organization (WHO) guidelines; December 2026",
+      "Central Public Health and Environmental Engineering Organisation (CPHEEO) guidelines; August 31, 2027",
+      "Bureau of Indian Standards (BIS) guidelines; January 2028",
+      "National Green Tribunal (NGT) guidelines; July 2027"
+    ],
+    "answer": 1,
+    "explanation": "The construction work for the Sambalpur drinking water project will proceed under CPHEEO guidelines and is scheduled for completion by August 31, 2027."
+  },
+  {
+    "question": "Where was the World Athletics Continental Tour Bronze meet held in Odisha, and how many players from how many countries participated?",
+    "options": [
+      "Barabati Stadium; 150 players from 15 countries",
+      "Kalinga Stadium; 225 players from 19 countries",
+      "East Coast Railway Stadium; 300 players from 20 countries",
+      "Birsa Munda Athletics Stadium; 180 players from 12 countries"
+    ],
+    "answer": 1,
+    "explanation": "The \"World Athletics Continental Tour Bronze meet at Kalinga Stadium\" involved \"225 players from 19 countries\"."
+  },
+  {
+    "question": "When was the World Athletics Continental Tour established, and what are its four levels?",
+    "options": [
+      "2015; platinum, gold, silver, bronze",
+      "2018; diamond, gold, silver, bronze",
+      "2020; gold, silver, bronze, challenger",
+      "2022; premier, elite, pro, amateur"
+    ],
+    "answer": 2,
+    "explanation": "The World Athletics Continental Tour \"was established in 2020 and has four levels – gold, silver, bronze and challenger\"."
+  },
+  {
+    "question": "At the World Athletics Continental Tour Bronze meet, who clinched the gold medal in the Men’s 200m Run, and what was his timing?",
+    "options": [
+      "Muhammad Azeem Bin; 20.85 seconds",
+      "Waberi Igueh Houssein; 21.05 seconds",
+      "Animesh Kujur; 20.77 seconds",
+      "Rumesh Tharanga; 20.90 seconds"
+    ],
+    "answer": 2,
+    "explanation": "\"Sprinter Animesh Kujur clinched Gold in Men’s 200m Run by clocking 20.77 seconds\"."
+  },
+  {
+    "question": "At the World Athletics Continental Tour Bronze meet, who won the gold medal in the Women’s 100m Hurdles, and from which state was the gold medalist in Javelin throw?",
+    "options": [
+      "Annu Rani; Odisha",
+      "Pragyan Prasanti Sahu; Uttar Pradesh",
+      "Hima Das; Haryana",
+      "Dutee Chand; Karnataka"
+    ],
+    "answer": 1,
+    "explanation": "\"Pragyan Prasanti Sahu got the gold medal in the Women’s 100m Hurdles with a timing of 13.74 seconds. Javelin thrower Annu Rani from Uttar Pradesh got the gold with a throw of 62.01 metre\"."
+  },
+  {
+    "question": "Who were the top performers in the Men's 5000m run, Javelin throw, and 100m run at the World Athletics Continental Tour Bronze meet, and what countries did they represent?",
+    "options": [
+      "5000m: Kenya, Javelin: Pakistan, 100m: Indonesia",
+      "5000m: Ethiopia, Javelin: India, 100m: Thailand",
+      "5000m: Waberi Igueh Houssein (Djibouti), Javelin: Rumesh Tharanga (Sri Lanka), 100m: Muhammad Azeem Bin (Malaysia)",
+      "5000m: Uganda, Javelin: China, 100m: Vietnam"
+    ],
+    "answer": 2,
+    "explanation": "For Men's events, \"5000m run: Tops - Waberi Igueh Houssein (Djibouti)\", \"Javelin throw: Tops - Rumesh Tharanga (Sri Lanka) (86.50m)\", and \"100m run: Tops - Muhammad Azeem Bin (Malaysia)\"."
+  },
+  {
+    "question": "To boost marine biotechnology and sustainable coastal development, what ambitious initiative did the Chief Minister launch, and which government department is behind it?",
+    "options": [
+      "Odisha Coastal Development Project (OCDP); Department of Fisheries",
+      "Odisha Blue Economy Initiative (OBEI); Department of Environment",
+      "Odisha Marine Biotechnology Research & Innovation Corridor (OMBRIC); Department of Science & Technology, Govt of Odisha",
+      "Odisha Marine Resources Management (OMRM); Department of Oceanography"
+    ],
+    "answer": 2,
+    "explanation": "\"CM launched the Odisha Marine Biotechnology Research & Innovation Corridor (OMBRIC), an ambitious initiative by the Department of Science & Technology, Govt of Odisha\"."
+  },
+  {
+    "question": "Which two government entities signed an MoU for R&D collaboration related to the Odisha Marine Biotechnology Research & Innovation Corridor (OMBRIC)?",
+    "options": [
+      "Ministry of Fisheries and Department of Science & Technology, Govt of Odisha",
+      "Department of Science & Technology, Govt of Odisha, and the National Institute of Ocean Technology (NIOT), Ministry of Earth Sciences, Govt of India",
+      "Odisha State Pollution Control Board and National Centre for Coastal Research",
+      "Indian Council of Agricultural Research (ICAR) and Department of Biotechnology, Govt of India"
+    ],
+    "answer": 1,
+    "explanation": "\"An MoU for R&D collaboration was also signed at between the Department of Science & Technology, Govt of Odisha, and the National Institute of Ocean Technology (NIOT), Ministry of Earth Sciences, Govt of India\"."
+  },
+  {
+    "question": "Which educational institution has become a strategic partner for the Odisha Marine Biotechnology Research & Innovation Corridor (OMBRIC)?",
+    "options": [
+      "Indian Institute of Technology (IIT) Bhubaneswar",
+      "Utkal University",
+      "National Institute of Technology (NIT) Rourkela",
+      "Odisha University of Agriculture and Technology (OUAT)"
+    ],
+    "answer": 2,
+    "explanation": "\"National Institute of Technology (NIT) Rourkela has become a strategic partner\" for OMBRIC."
+  },
+  {
+    "question": "How many semiconductor projects were approved under the India Semiconductor Mission (ISM) for Odisha, and in which city will they be established?",
+    "options": [
+      "One project; Cuttack",
+      "Two projects; Bhubaneswar",
+      "Three projects; Rourkela",
+      "Four projects; Sambalpur"
+    ],
+    "answer": 1,
+    "explanation": "\"Two semiconductor projects under the India Semiconductor Mission (ISM)... will be established in Bhubaneswar\"."
+  },
+  {
+    "question": "Name the companies proposing the two semiconductor projects that will be established in Bhubaneswar, marking Odisha's first major foray into chip manufacturing.",
+    "options": [
+      "Intel and Samsung",
+      "SiCSem Pvt Ltd, 3D Glass Solutions Inc., Continental Device India Private Limited (CDIL), and Advanced System in Package (ASIP) Technologies",
+      "Micron Technology and TSMC",
+      "NVIDIA and Qualcomm"
+    ],
+    "answer": 1,
+    "explanation": "\"The projects—proposed by SiCSem Pvt Ltd and 3D Glass Solutions Inc., Continental Device India Private Limited (CDIL) and Advanced System in Package (ASIP) Technologies —will be established in Bhubaneswar\"."
+  },
+  {
+    "question": "What is the total investment outlay for the four nationwide semiconductor projects, including the two in Odisha?",
+    "options": [
+      "Rs 2,500 crore",
+      "Rs 3,800 crore",
+      "Rs 4,600 crore",
+      "Rs 5,200 crore"
+    ],
+    "answer": 2,
+    "explanation": "\"The two Odisha-based units are part of four projects approved nationwide, with a total investment outlay of Rs 4,600 crore\"."
+  },
+  {
+    "question": "When is World Organ Donation Day observed annually?",
+    "options": [
+      "July 15",
+      "August 13",
+      "September 5",
+      "October 1"
+    ],
+    "answer": 1,
+    "explanation": "\"Every year, World Organ Donation Day is marked on August 13\"."
+  },
+  {
+    "question": "At the World Organ Donation Day event, how many families of deceased donors were conferred the Suraj Puraskar, and what cash prize did they receive?",
+    "options": [
+      "15 families; ₹2 lakh each",
+      "20 families; ₹3 lakh each",
+      "25 families; ₹5 lakh each",
+      "30 families; ₹10 lakh each"
+    ],
+    "answer": 2,
+    "explanation": "\"At the event, 25 families of deceased donors were conferred the Suraj Puraskar along with a cash prize of ₹5 lakh each for their selfless act of saving lives through organ donation\"."
+  },
+  {
+    "question": "Who is the Health and Family Welfare Minister mentioned in the context of Organ Donation Day?",
+    "options": [
+      "Dr. Mansukh Mandaviya",
+      "Dr. Mukesh Mahaling",
+      "Dr. Harsh Vardhan",
+      "Dr. J.P. Nadda"
+    ],
+    "answer": 1,
+    "explanation": "The Health and Family Welfare Minister mentioned is \"Dr. Mukesh Mahaling\"."
+  },
+  {
+    "question": "How many hospitals in Odisha are currently registered for organ transplantation?",
+    "options": [
+      "10 hospitals",
+      "12 hospitals",
+      "14 hospitals",
+      "16 hospitals"
+    ],
+    "answer": 2,
+    "explanation": "\"The state currently has 14 hospitals registered for organ transplantation\"."
+  },
+  {
+    "question": "What is the primary aim of the MLALAD web portal, and what functionalities does it offer to MLAs and constituency residents?",
+    "options": [
+      "To facilitate online voter registration and election updates.",
+      "To make project execution more transparent, faster, and easier to monitor, offering MLAs tools for project management and residents project viewing.",
+      "To provide a platform for citizens to lodge grievances against MLAs.",
+      "To enable MLAs to manage their social media presence and public relations."
+    ],
+    "answer": 1,
+    "explanation": "The \"MLALAD web portal - aimed at making project execution more transparent, faster, and easier to monitor.\" It will \"serve as a single platform for MLAs to recommend projects, assess requirements... monitor execution, and track expenditure in real time. Constituency residents will also be able to view details of projects proposed by their MLAs, bringing greater transparency to the scheme\"."
+  },
+  {
+    "question": "When was the MLA Local Area Development Fund launched, and how has its per-constituency allocation changed from its inception to 2025–26?",
+    "options": [
+      "Launched in 1990–91, from ₹1 lakh to ₹1 crore.",
+      "Launched in 1997–98, from ₹5 lakh initially to ₹5 crore for 2025–26.",
+      "Launched in 2005–06, from ₹10 lakh to ₹2 crore.",
+      "Launched in 2010–11, from ₹20 lakh to ₹3 crore."
+    ],
+    "answer": 1,
+    "explanation": "\"Launched in 1997–98, the MLA Local Area Development Fund has seen its per-constituency allocation grow from ₹5 lakh initially to ₹3 crore in recent years. For 2025–26, each constituency will receive ₹5 crore\"."
+  },
+  {
+    "question": "What is the name of the campaign the Odisha Higher Education Department will launch in colleges and universities to prevent suicide proneness among students, and under which program is it initiated?",
+    "options": [
+      "'Mind Matters Campaign' under the 'Youth Connect' program",
+      "'SAFE Campaign' under the 'Shaktishree' program",
+      "'Mental Health Awareness Drive' under the 'EduCare' program",
+      "'Student Well-being Initiative' under the 'Empower Youth' program"
+    ],
+    "answer": 1,
+    "explanation": "\"The Odisha Higher Education Department will launch the ‘SAFE Campaign’ in colleges and universities across the state to prevent suicide proneness among students. The initiative, part of the Shaktishree program\"."
+  },
+  {
+    "question": "Which conference did AIIMS Bhubaneswar host in 2025, bringing together experts in plastic and aesthetic surgery?",
+    "options": [
+      "International Medical Congress",
+      "Aesthetic Surgery Conference 2025",
+      "Global Plastic Surgery Summit",
+      "Odisha Healthcare Innovation Meet"
+    ],
+    "answer": 1,
+    "explanation": "\"AIIMS Bhubaneswar hosted the Aesthetic Surgery Conference 2025, a landmark event that brought together leading national and international experts in plastic and aesthetic surgery\"."
+  },
+  {
+    "question": "What facility did the Odisha Cabinet approve at Biju Patnaik International Airport in Bhubaneswar, and what percentage of land subsidy was approved for it?",
+    "options": [
+      "A new cargo terminal; 25% land subsidy",
+      "A Maintenance, Repair, and Overhaul (MRO) facility; 40% land subsidy",
+      "An expanded passenger lounge; 10% land subsidy",
+      "A dedicated air traffic control tower; 30% land subsidy"
+    ],
+    "answer": 1,
+    "explanation": "\"The Odisha Cabinet has approved Maintenance, Repair, and Overhaul (MRO) facility at Biju Patnaik International Airport in Bhubaneswar. Odisha Cabinet approves 40% land subsidy\"."
+  },
+    {
+    "question": "What was the focus of the \"2 days National Entrepreneurship & AI Summit – TiECon Bhubaneswar 2025\"?",
+    "options": [
+      "Healthcare technology and medical advancements",
+      "Rural development and agricultural innovation",
+      "Entrepreneurship and Artificial Intelligence",
+      "Environmental conservation and sustainable practices"
+    ],
+    "answer": 2,
+    "explanation": "The event was the \"2 days National Entrepreneurship & AI Summit – TiECon Bhubaneswar 2025\"."
+  },
+  {
+    "question": "Which cities did CM Majhi announce plans to develop as new digital hubs and destinations for Global Capability Centres?",
+    "options": [
+      "Puri, Konark, Dhenkanal, and Angul",
+      "Cuttack, Rourkela, Sambalpur, and Berhampur",
+      "Balasore, Bhadrak, Jajpur, and Kendrapara",
+      "Koraput, Rayagada, Malkangiri, and Nabarangpur"
+    ],
+    "answer": 1,
+    "explanation": "CM Majhi announced the Odisha Govt’s plan to develop Cuttack, Rourkela, Sambalpur, and Berhampur as new digital hubs. (also Destination for Global Capability Centres)."
+  },
+  {
+    "question": "How much funding from the Odisha Urban Infrastructure Development Fund’s (OUIDF) resources was drawn for the LED Public Street Lighting Project, and in how many Urban Local Bodies (ULBs) across the state?",
+    "options": [
+      "₹100 crore in 50 ULBs",
+      "₹200 crore in 110 ULBs",
+      "₹300 crore in 75 ULBs",
+      "₹150 crore in 90 ULBs"
+    ],
+    "answer": 1,
+    "explanation": "₹200 crore from the Odisha Urban Infrastructure Development Fund’s (OUIDF) own resources—drawn for implementing the LED Public Street Lighting Project in 110 Urban Local Bodies (ULBs) across the state."
+  },
+  {
+    "question": "How many modern ‘Model Mandis’ did the Odisha Cabinet approve to build, categorizing them by size, and how many additional mandis are planned for upgrade?",
+    "options": [
+      "25 modern mandis (10 large, 10 medium, 5 small); 50 additional mandis",
+      "38 modern mandis (14 large, 17 medium, 7 small); 62 additional mandis",
+      "50 modern mandis (20 large, 20 medium, 10 small); 70 additional mandis",
+      "30 modern mandis (12 large, 10 medium, 8 small); 45 additional mandis"
+    ],
+    "answer": 1,
+    "explanation": "Odisha Cabinet Okays Rs 300-Crore Plan To Build 38 Modern ‘Model Mandis’. 14 large, 17 medium, and 7 small. Additional 62 mandis to be upgraded."
+  },
+  {
+    "question": "What is the name of the flagship initiative launched by the Ministry of Tribal Affairs, Government of India, and what is its aim?",
+    "options": [
+      "‘Van Dhan Yojana’; promoting tribal forest produce",
+      "‘PM-JANMAN’; improving basic amenities for PVTGs",
+      "‘Aadi Karmayogi Abhiyan’; strengthening delivery and impact of welfare schemes for tribal communities",
+      "‘Eklavya Model Residential Schools’; providing quality education to tribal students"
+    ],
+    "answer": 2,
+    "explanation": "The ‘Aadi Karmayogi Abhiyan’, a flagship initiative of the Ministry of Tribal Affairs, Government of India. The program is aimed at strengthening the delivery and impact of welfare schemes tailored for tribal communities at the grassroots level."
+  },
+  {
+    "question": "Who received the Shakti Award at News X's 'We Women Want Conclave’ for her social development work and women's empowerment efforts?",
+    "options": [
+      "Sudha Murty",
+      "Shaifalika Panda",
+      "Kiran Mazumdar-Shaw",
+      "Priyanka Chopra"
+    ],
+    "answer": 1,
+    "explanation": "Shaifalika Panda, CEO of Bansidhar & Ila Panda Foundation, received the Shakti Award at News X's 'We Women Want Conclave’ in New Delhi for her social development work, emphasizing women's empowerment."
+  },
+  {
+    "question": "What is the full form of PM-KUSUM, and what is its primary objective as a government scheme in India?",
+    "options": [
+      "Pradhan Mantri Krishi Urja Suraksha Utthan Mission; providing crop insurance to farmers.",
+      "Pradhan Mantri Kisan Urja Suraksha evam Utthaan Mahabhiyan; providing energy and water security to farmers and promoting renewable energy in agriculture.",
+      "Pradhan Mantri Khet Utpadan Suraksha Yojana; ensuring market access for agricultural produce.",
+      "Pradhan Mantri Kisan Udyog Samvardhan Mission; encouraging agro-industries."
+    ],
+    "answer": 1,
+    "explanation": "The full form of PM-KUSUM is Pradhan Mantri Kisan Urja Suraksha evam Utthaan Mahabhiyan. This is a government scheme in India aimed at providing energy and water security to farmers and promoting renewable energy in the agricultural sector."
+  },
+  {
+    "question": "Which foundation was conferred with the FICCI Special Appreciation Award 2025 as a “Socially Responsible Company for Promotion of Sports”?",
+    "options": [
+      "Reliance Foundation",
+      "Tata Trust",
+      "The Jindal Foundation of Jindal Steel",
+      "Adani Foundation"
+    ],
+    "answer": 2,
+    "explanation": "The Jindal Foundation of Jindal Steel, has been conferred with the prestigious FICCI (Federation of Indian Chambers of Commerce and Industry) Special Appreciation Award 2025 as a “Socially Responsible Company for Promotion of Sports.”"
+  },
+  {
+    "question": "By what years does Odisha plan to reorganize panchayats and restructure blocks to enhance local governance, and who is the current Panchayati Raj Minister?",
+    "options": [
+      "Panchayat reorganisation by 2026, block restructuring by 2028; Minister Deepak Kumar",
+      "Panchayat reorganisation by 2027, block restructuring by 2029; Minister Rabi Nayak",
+      "Panchayat reorganisation by 2025, block restructuring by 2027; Minister Suresh Das",
+      "Panchayat reorganisation by 2028, block restructuring by 2030; Minister Priya Singh"
+    ],
+    "answer": 1,
+    "explanation": "Odisha announces panchayat reorganisation by 2027 and block restructuring by 2029 to enhance local governance and scheme delivery. Panchayati Raj Minister Rabi Nayak."
+  },
+  {
+    "question": "For what purpose did the CM launch Rs 762 Cr for development projects in Koraput, and what other significant event occurred on Rakhi Purnima (August 9)?",
+    "options": [
+      "For tourism promotion; CM also launched a new railway line.",
+      "For infrastructure development; CM also inaugurated a new university.",
+      "For development projects; CM also disbursed Subhadra Yojana’s 3rd Installment and inaugurated a new building of Saheed Laxman Nayak Medical College & Hospital.",
+      "For agricultural modernization; CM also announced a new irrigation scheme."
+    ],
+    "answer": 2,
+    "explanation": "CM Launched Rs 762 Cr for Development Projects In Koraput, Disbursed Subhadra Yojana’s 3rd Installment on Rakhi Purnima (9 Aug). Also inaugurated a new building of the Saheed Laxman Nayak Medical College & Hospital in Koraput, expanding its capacity by 650 beds."
+  },
+  {
+    "question": "What services do Ayushman Arogya Mandirs provide across the state to ensure comprehensive healthcare in rural areas?",
+    "options": [
+      "Free ambulance services and emergency care.",
+      "Advanced surgical procedures and specialized consultations.",
+      "120 types of free medicines and 16 different diagnostic tests.",
+      "Dental care and eye examinations only."
+    ],
+    "answer": 2,
+    "explanation": "Ayushman Arogya Mandirs across the state provide 120 types of free medicines and conduct 16 different diagnostic tests to ensure comprehensive healthcare services in rural areas."
+  },
+  {
+    "question": "In the Asia U-20 Rugby 7s event held in Rajgir, Bihar, which country became the champion, while India Women secured a bronze medal?",
+    "options": [
+      "Japan",
+      "South Korea",
+      "China",
+      "Thailand"
+    ],
+    "answer": 2,
+    "explanation": "Asia U-20 Rugby 7s : India Women secured bronze medal held in Rajgir, Bihar. China Women became champion."
+  },
+  {
+    "question": "Which department of the Odisha government has directed all departments to ban the use of the term 'Harijan'?",
+    "options": [
+      "Department of General Administration",
+      "Department of Social Welfare",
+      "The ST and SC Development, Minority and Backwards Classes Welfare Department",
+      "Department of Law"
+    ],
+    "answer": 2,
+    "explanation": "The ST and SC Development, Minority and Backwards Classes Welfare Department of the Odisha government has directed all departments not to use the term Harijan."
+  },
+  {
+    "question": "Who has been appointed as the Vice Chancellor of Sikkim University?",
+    "options": [
+      "Professor R.K. Singh",
+      "Professor Santanu Kumar Swain",
+      "Professor Anita Sharma",
+      "Professor V.K. Das"
+    ],
+    "answer": 1,
+    "explanation": "Santanu Kumar Swain, a professor at Banaras Hindu University (BHU), has been appointed as the Vice Chancellor of Sikkim University."
+  },
+  {
+    "question": "Which organization is NOT a collaborator in establishing the 'Center for Species Survival: Asian Elephant' in Odisha?",
+    "options": ["IUCN Species Survival Commission", "Wildlife Trust of India", "World Wide Fund for Nature (WWF)", "Columbus Zoo and Aquarium"],
+    "answer": 2,
+    "explanation": "CM Majhi declared that the 'Center for Species Survival: Asian Elephant' will be established in collaboration with the IUCN Species Survival Commission, Wildlife Trust of India, and the Columbus Zoo and Aquarium."
+  },
+  {
+    "question": "Sambalpuri playwright, poet, and lyricist Binod Kumar Pasayat was born in which district of Odisha?",
+    "options": ["Cuttack", "Balangir", "Sambalpur", "Puri"],
+    "answer": 1,
+    "explanation": "Binod Kumar Pasayat was born on December 3, 1935, at Kusmel village in Balangir district."
+  },
+  {
+    "question": "What is the title of Binod Kumar Pasayat's iconic play?",
+    "options": ["‘Mui Nai Mare’", "‘Ama Gaon’", "‘Katha Kahuchi’", "‘Smruti Ra Chhaya’"],
+    "answer": 0,
+    "explanation": "His iconic play is titled ‘Mui Nai Mare’ (I Will Never Die)."
+  },
+  {
+    "question": "In which year did Binod Kumar Pasayat receive the Sarala Puraskar?",
+    "options": ["2019", "2010", "2008", "2005"],
+    "answer": 2,
+    "explanation": "He received the Sarala Puraskar in 2008."
+  },
+  {
+    "question": "What was the primary focus of the 4th Confederation of Indian Industries (CII) East India Summit 2025?",
+    "options": ["Promoting cultural exchange in Eastern India", "Discussing environmental policies for Eastern India", "Unlocking the vast economic potential of Eastern India", "Strengthening political ties in Eastern India"],
+    "answer": 2,
+    "explanation": "The summit focused on unlocking the vast economic potential of Eastern India."
+  },
+  {
+    "question": "What is the main aim of developing Guhaldiha village in Mayurbhanj district as an ‘Integrated Art and Craft Village’?",
+    "options": ["To attract international investors", "To establish a new industrial hub", "To showcase the region’s traditional craftsmanship and tribal culture", "To develop a modern residential area"],
+    "answer": 2,
+    "explanation": "This initiative is aimed at creating a vibrant platform to showcase the region’s traditional craftsmanship and tribal culture."
+  },
+  {
+    "question": "What is the planned capacity of the 2nd largest steel plant to be set up in Keonjhar, Odisha?",
+    "options": ["4 million tonnes per annum (MTPA)", "6 million tonnes per annum (MTPA)", "8 million tonnes per annum (MTPA)", "10 million tonnes per annum (MTPA)"],
+    "answer": 1,
+    "explanation": "The mega steel plant will come up in the Patna area of Keonjhar and will have a capacity of 6 million tonnes per annum (MTPA)."
+  },
+  {
+    "question": "Which two major steelmakers are collaborating to set up the 2nd largest steel plant in the Patna area of Keonjhar, Odisha?",
+    "options": ["Tata Steel and ArcelorMittal", "JSW Steel and Essar Steel", "POSCO and JSW Steel", "SAIL and Jindal Steel"],
+    "answer": 2,
+    "explanation": "Korean steel major POSCO and JSW Steel have collaborated to set up the plant."
+  },
+  {
+    "question": "From which location in Odisha was the Agni-5 intermediate-range ballistic missile successfully test-fired on August 20?",
+    "options": ["Balasore", "Puri", "Chandipur", "Gopalpur"],
+    "answer": 2,
+    "explanation": "The nuclear-capable Agni-5 intermediate-range ballistic missile was successfully test-fired on 20 August from the Integrated Test Range (ITR) in Odisha’s Chandipur."
+  },
+  {
+    "question": "What advanced missile technology, besides ICBM capability, does Agni-5 possess, allowing India to join an elite group of nations?",
+    "options": ["Stealth technology", "Hypersonic glide capability", "MIRV technology", "Anti-satellite capability"],
+    "answer": 2,
+    "explanation": "With Agni-5, India has joined an elite group of nations that possess ICBM capability with MIRV technology."
+  },
+  {
+    "question": "According to the provided classification, what is the range for a Medium-range ballistic missile?",
+    "options": ["Less than 1,000 km", "1,000-3,000 km", "3,000-5,500 km", "More than 5,500 km"],
+    "answer": 1,
+    "explanation": "Missile range classification lists Medium-range as 1,000-3,000 km."
+  },
+  {
+    "question": "What is another name for a Long-range ballistic missile, according to the provided classification?",
+    "options": ["Tactical ballistic missile", "Strategic or Intercontinental Ballistic Missile", "Operational ballistic missile", "Submarine-launched ballistic missile"],
+    "answer": 1,
+    "explanation": "Long-range missiles (more than 5,500 km) are also known as Strategic or Intercontinental Ballistic Missiles."
+  },
+  {
+    "question": "Which of the following statements is true about Surface-to-Surface Ballistic Missiles (SSBMs)?",
+    "options": ["They are powered by rockets throughout their entire trajectory.", "They can only carry conventional warheads.", "They follow an unpowered trajectory that arches upwards after initial rocket power.", "They are exclusively used for short-range targets."],
+    "answer": 2,
+    "explanation": "SSBMs are powered initially by a rocket, but then follow an unpowered trajectory that arches upwards before descending."
+  },
+  {
+    "question": "Which police district emerged as the top performer in Odisha during the 'Operation Garuda' special enforcement drive?",
+    "options": ["Khordha", "Cuttack", "Ganjam", "Puri"],
+    "answer": 2,
+    "explanation": "Ganjam police district emerged as the top performer in the state during the recently concluded Operation Garuda."
+  },
+  {
+    "question": "For what duration was 'Operation Garuda' carried out by the Odisha Police?",
+    "options": ["August 1 to 7", "August 1 to 16", "August 10 to 20", "August 15 to 30"],
+    "answer": 1,
+    "explanation": "Operation Garuda, a special enforcement drive, was carried out from August 1 to 16."
+  },
+  {
+    "question": "Deep Ranjan Bisoyee and Subhrajeet Maharana won how many medals (gold and bronze) in total at the Peru Para Badminton International 2025?",
+    "options": ["1 gold & 1 bronze", "1 gold & 2 bronze", "2 gold & 1 bronze", "3 gold"],
+    "answer": 1,
+    "explanation": "The duo recently won 3 medals (1 gold & 2 bronze) in the Peru Para Badminton International 2025."
+  },
+  {
+    "question": "Which Odisha pair bagged the men's doubles silver in the JE Wilson Ghana International Badminton tournament?",
+    "options": ["Deep Ranjan Bisoyee and Subhrajeet Maharana", "Ayush Pattanayk and Abinash Mohanty", "Rahul Pradhan and Lalatendu Sahoo", "Pushan Mahapatra and Nira Mallick"],
+    "answer": 1,
+    "explanation": "Odisha pair Ayush Pattanayk and Abinash Mohanty bagged the men's doubles silver in the JE Wilson Ghana International Badminton tournament."
+  },
+  {
+    "question": "Where was the JE Wilson Ghana International Badminton tournament held, where an Odisha pair won silver?",
+    "options": ["London", "Accra", "Lima", "Delhi"],
+    "answer": 1,
+    "explanation": "The tournament was held at Borteyman Sports Complex in Accra."
+  },
+  {
+    "question": "How many new Notified Area Councils (NACs) has the Odisha government issued a draft notification for?",
+    "options": ["12", "15", "21", "25"],
+    "answer": 2,
+    "explanation": "The state govt has issued a draft notification for the formation of 21 new Notified Area Councils (NACs) in Odisha."
+  },
+  {
+    "question": "In how many districts will the new Notified Area Councils (NACs) be formed in Odisha in the first phase?",
+    "options": ["5", "7", "9", "12"],
+    "answer": 1,
+    "explanation": "The new NACs will be formed in seven districts—Angul, Subarnapur, Balasore, Mayurbhanj, Rayagada, Sambalpur and Bhadrak."
+  },
+  {
+    "question": "How many municipalities does Odisha currently have, in addition to NACs and municipal corporations?",
+    "options": ["54", "6", "113", "70"],
+    "answer": 0,
+    "explanation": "At present, the state has 113 NACs, 54 municipalities and six municipal corporations."
+  },
+  {
+    "question": "What is the typical population range for urban local bodies classified as Notified Area Councils (NACs) in Odisha?",
+    "options": ["5,000 to 10,000", "12,000 to 40,000", "50,000 to 100,000", "Over 100,000"],
+    "answer": 1,
+    "explanation": "These urban local bodies (NACs) serve smaller urban centers with populations ranging from 12,000 to 40,000."
+  },
+  {
+    "question": "Where was the refurbished Indonesian gallery, highlighting maritime connections with Odisha, inaugurated?",
+    "options": ["Bhubaneswar", "Cuttack", "Puri", "Paradip"],
+    "answer": 1,
+    "explanation": "Indonesia’s Ambassador to India and Development Commissioner Anu Garg have inaugurated the refurbished Indonesian gallery at the Odisha State Maritime Museum in Cuttack city."
+  },
+  {
+    "question": "What do the artifacts in the refurbished Indonesian gallery at the Odisha State Maritime Museum highlight?",
+    "options": ["Modern trade routes between India and Indonesia", "Geological formations of the Indian Ocean", "Centuries-old maritime and cultural connections between Odisha and Indonesia", "Ancient shipbuilding techniques of Southeast Asia"],
+    "answer": 2,
+    "explanation": "The refurbished gallery houses precious artifacts highlighting centuries-old maritime and cultural connections between Odisha and Indonesia."
+  },
+  {
+    "question": "Who authored the book ‘Gunned Down – Murder of an Olympic Champion,’ which chronicles the life of Prithipal Singh?",
+    "options": ["Prithipal Singh himself", "Sundeep Misra", "Rahul Pradhan", "Binod Kumar Pasayat"],
+    "answer": 1,
+    "explanation": "Renowned sports journalist and author Sundeep Misra launched his fifth book, ‘Gunned Down – Murder of an Olympic Champion.’"
+  },
+  {
+    "question": "The book ‘Gunned Down – Murder of an Olympic Champion’ is about the life and unsolved murder of which Indian sports legend?",
+    "options": ["Dhyan Chand", "Milkha Singh", "Prithipal Singh", "Balbir Singh Sr."],
+    "answer": 2,
+    "explanation": "The book chronicles the remarkable life and unsolved murder of Indian hockey legend Prithipal Singh."
+  },
+  {
+    "question": "What was Indian hockey legend Prithipal Singh famously known as?",
+    "options": ["The Goal Machine", "The Penalty King", "The Wall", "The Captain Cool"],
+    "answer": 1,
+    "explanation": "Prithipal Singh was known as the ‘Penalty King’."
+  },
+  {
+    "question": "Which prestigious award was Prithipal Singh the first hockey player to receive?",
+    "options": ["Padma Shri", "Arjuna Award", "Dronacharya Award", "Rajiv Gandhi Khel Ratna"],
+    "answer": 1,
+    "explanation": "Prithipal was the first hockey player to receive the Arjuna Award."
+  },
+  {
+    "question": "In which year and by whom was Prithipal Singh tragically shot dead?",
+    "options": ["1975 by rivals", "1983 by his own students", "1968 by an unknown assailant", "1990 by a family member"],
+    "answer": 1,
+    "explanation": "Prithipal Singh’s life was cut short in 1983 when he was tragically shot dead by his own students at Punjab Agricultural University (PAU), Ludhiana."
+  },
+  {
+    "question": "Approximately how many women have become 'lakhpatis' through empowerment schemes like Subhadra, as highlighted in the 'Rising Odisha conclave'?",
+    "options": ["10 lakh", "17 lakh", "20 lakh", "25 lakh"],
+    "answer": 1,
+    "explanation": "17 lakh women have become lakhpatis through empowerment schemes like Subhadra."
+  },
+   {
+    "question": "Under which scheme did farmers benefit from an additional ₹800 per quintal of paddy, as mentioned in the 'Rising Odisha conclave'?",
+    "options": ["Krushak Kalyan Yojana", "Samruddha Kisan Yojana", "Biju Kisan Yojana", "Odisha Farmer Support Scheme"],
+    "answer": 1,
+    "explanation": "Farmers benefited from an additional ₹800 per quintal of paddy under the Samruddha Kisan Yojana."
+  },
+  {
+    "question": "Who secured the All-India Rank 1 in the NEET Postgraduate (PG) Examination from Odisha?",
+    "options": ["Champa Raspeda", "Leeza Majhi", "Nira Mallick", "Pushan Mahapatra"],
+    "answer": 3,
+    "explanation": "Pushan Mahapatra of Odisha secured the All-India Rank 1 in the NEET Postgraduate (PG) Examination."
+  },
+  {
+    "question": "Who became the first student from the Didayi, a Particularly Vulnerable Tribal Group (PVTG), to clear NEET-2025?",
+    "options": ["Leeza Majhi", "Nira Mallick", "Champa Raspeda", "Pushan Mahapatra"],
+    "answer": 2,
+    "explanation": "Champa Raspeda of Malkangiri became the first student from the Didayi, a Particularly Vulnerable Tribal Group (PVTG), to clear NEET-2025."
+  },
+  {
+    "question": "To which medical college did Champa Raspeda secure admission after clearing NEET-2025?",
+    "options": ["SCB Medical College, Cuttack", "AIIMS Bhubaneswar", "Fakir Mohan Medical College & Hospital, Balasore", "MKCG Medical College, Berhampur"],
+    "answer": 2,
+    "explanation": "Champa Raspeda secured admission into Fakir Mohan Medical College & Hospital, Balasore."
+  },
+  {
+    "question": "Leeza Majhi, daughter of an Odisha tribal farmer, cleared which examination to earn admission at Sundargarh Government Medical College and Hospital?",
+    "options": ["JEE Advanced", "NEET UG", "UPSC CSE", "OPSC"],
+    "answer": 1,
+    "explanation": "Leeza Majhi cleared the NEET UG and earned admission at the Sundargarh Government Medical College and Hospital."
+  },
+  {
+    "question": "Nira Mallick, an orphaned tribal student mentioned in the context of academic achievements, is from which district of Odisha?",
+    "options": ["Mayurbhanj", "Koraput", "Gajapati", "Kandhamal"],
+    "answer": 2,
+    "explanation": "Nira Mallick is an orphaned tribal from Gajapati's Dumiguda."
+  },
+  {
+    "question": "Which two districts from Odisha were ranked among the 100 most accident-prone districts in India by MoRTH?",
+    "options": ["Cuttack and Khordha", "Puri and Balasore", "Sundargarh and Ganjam", "Sambalpur and Keonjhar"],
+    "answer": 2,
+    "explanation": "Sundargarh and Ganjam districts have been ranked among the 100 most accident-prone districts in India."
+  },
+  {
+    "question": "What was Sundargarh's rank among the 100 most accident-prone districts in India?",
+    "options": ["84th", "90th", "75th", "95th"],
+    "answer": 0,
+    "explanation": "Sundargarh was ranked 84th in terms of road accidents and fatalities."
+  },
+  {
+    "question": "What is the name of the online portal launched by the Odisha government to promote innovation and participatory governance among employees?",
+    "options": ["Jan Bhagidari Portal", "Staff Suggestion Scheme", "Employee Idea Hub", "Governance Innovation Platform"],
+    "answer": 1,
+    "explanation": "The Odisha govt has rolled out the “Staff Suggestion Scheme,” an online portal where employees can share ideas to improve public service delivery and administration."
+  },
+  {
+    "question": "What is the total approved cost for the 110.875 km long Bhubaneswar Bypass road?",
+    "options": ["Rs 6,500.25 crore", "Rs 7,250.50 crore", "Rs 8,307.74 crore", "Rs 9,000.00 crore"],
+    "answer": 2,
+    "explanation": "The Cabinet Committee on Economic Affairs (CCEA) approved the 110.875 km long Bhubaneswar Bypass road at a total cost of Rs 8,307.74 crore."
+  },
+  {
+    "question": "Which committee approved the Bhubaneswar Bypass road project?",
+    "options": ["Cabinet Committee on Infrastructure", "Cabinet Committee on Economic Affairs (CCEA)", "State Level Steering Committee", "Ministry of Road Transport and Highways (MoRTH)"],
+    "answer": 1,
+    "explanation": "The Cabinet Committee on Economic Affairs (CCEA) approved the Bhubaneswar Bypass road."
+  },
+  {
+    "question": "Which department won the Second Prize for its innovative tableau on Urban Mobility and Last Mile Connectivity during the State-level Independence Day celebrations?",
+    "options": ["Transport Department", "Urban Development Authority", "Housing & Urban Development Department", "Public Works Department"],
+    "answer": 2,
+    "explanation": "The Housing & Urban Development Department has won the Second Prize for its innovative tableau on Urban Mobility and Last Mile Connectivity."
+  },
+  {
+    "question": "Who was appointed as the new Vice President of the Board of Secondary Education (BSE) after the previous VP's involvement in a question paper leak case?",
+    "options": ["Arun Kumar Panda", "Amulya Pradhan", "Lalatendu Sahoo", "Sundeep Misra"],
+    "answer": 1,
+    "explanation": "The Odisha govt appointed Amulya Pradhan as the new Vice President of the Board of Secondary Education (BSE)."
+  },
+  {
+    "question": "Under which state-pioneering scheme have direct flight services commenced between Bhubaneswar and Jharsuguda?",
+    "options": ["UDAN Scheme", "B-MAAN (Building and Management of Aviation Assets and Network) scheme", "Odisha Air Connect", "Regional Connectivity Scheme"],
+    "answer": 1,
+    "explanation": "Direct flight services between BBSR and Jharsuguda commenced under the state’s pioneering B-MAAN (Building and Management of Aviation Assets and Network) scheme."
+  },
+  {
+    "question": "What percentage of total users on the Odisha Yatri platform were women between October 2024 and July 2025?",
+    "options": ["45.21%", "50.00%", "57.44%", "62.15%"],
+    "answer": 2,
+    "explanation": "Data shows that women constitute 57.44% of total users on the Odisha Yatri platform between October 2024 and July 2025."
+  },
+  {
+    "question": "Odisha former MLA Karendra Majhi, who recently passed away, was elected to the Odisha Assembly in 2004 and 2009 from which constituency?",
+    "options": ["Kantamal", "Baliguda", "G. Udayagiri", "Phulbani"],
+    "answer": 2,
+    "explanation": "Karendra Majhi, who belonged to the Kutia Kondh tribe and was the first postgraduate from the community, was elected to the Odisha Assembly from the G. Udayagiri constituency in 2004 and 2009. He also authored three books in the Kui language."
+  },
+  {
+    "question": "Which state recently planned to introduce Seaplane and heli-taxi services?",
+    "options": ["Maharashtra", "Tamil Nadu", "Odisha", "Andhra Pradesh"],
+    "answer": 2,
+    "explanation": "Odisha has planned to introduce Seaplane and heli-taxi services. This was discussed during the Eastern Region Civil Aviation Ministers’ Conference held in Bhubaneswar on August 25, which was attended by Union Civil Aviation Minister Ram Mohan Naidu Kinjarapu."
+  },
+  {
+    "question": "What initiative will be launched to boost regional air connectivity in Odisha, and what specific program is aimed at tribal women?",
+    "options": [
+      "Introducing new international flights and a women-only airline.",
+      "Making 22 non-functional airstrips operational and launching a Cadet Pilot Programme for tribal women.",
+      "Building new airports in every district and offering free air travel to women.",
+      "Expanding helicopter tours and providing flight attendant training for tribal women."
+    ],
+    "answer": 1,
+    "explanation": "To boost regional air connectivity in Odisha, 22 non-functional airstrips in the state will soon be made operational. Additionally, a Cadet Pilot Programme specifically aimed at training tribal women will be launched."
+  },
+  {
+    "question": "Who is the Urban Development (H&UD) Minister in Odisha?",
+    "options": ["Ram Mohan Naidu Kinjarapu", "Suryabanshi Suraj", "Krushna Chandra Mahapatra", "Mohan Majhi"],
+    "answer": 2,
+    "explanation": "Krushna Chandra Mahapatra is identified as the Urban Development (H&UD) Minister in Odisha."
+  },
+  {
+    "question": "Which district police force recently launched \"Operation Anweshan,\" and what were its initial results?",
+    "options": [
+      "Balasore police, rescuing 50 missing individuals.",
+      "Ganjam police, rescuing 115 missing individuals over five days, including 26 girls, three boys, and 86 women.",
+      "Khurda police, recovering 86 missing women.",
+      "Sundargarh police, finding 26 missing girls."
+    ],
+    "answer": 1,
+    "explanation": "The Ganjam district police recently launched \"Operation Anweshan,\" successfully rescuing 115 missing individuals, which included 26 girls, three boys, and 86 women, over the past five days."
+  },
+  {
+    "question": "How many kilometers has Odisha's coastline been officially extended, and what ecological initiatives are planned along it?",
+    "options": [
+      "76 km, with general tree plantation.",
+      "96 km, with casuarinas to be planted.",
+      "106 km, with mangroves to be planted.",
+      "86 km, with mangroves and casuarinas to be planted along a 575-km coast (574.71 km)."
+    ],
+    "answer": 3,
+    "explanation": "Odisha’s coastline has been officially extended by 86 km. Plans are in place to plant mangroves and casuarinas along the 575-km (specifically 574.71 km) stretch of the coast."
+  },
+  {
+    "question": "How many small and marginal farmers in Odisha benefited from the CM-Kisan scheme, and how much assistance did each farmer receive in the recent installment?",
+    "options": [
+      "51.54 lakh farmers, each receiving Rs 4,000.",
+      "5.15 lakh farmers, each receiving Rs 2,000.",
+      "51.54 lakh farmers, each receiving Rs 2,000.",
+      "1.04 crore farmers, each receiving Rs 1,000."
+    ],
+    "answer": 2,
+    "explanation": "A total of 51,54,115 (approximately 51.54 lakh) small and marginal farmers in Odisha benefited from the CM-Kisan scheme, with each farmer receiving Rs 2,000 directly into their bank accounts. The scheme provides annual support of Rs 4,000 in two installments, and the latest installment brought the total assistance to Rs 1,041 crore, released on the eve of Nuakhai (August 28)."
+  },
+  {
+    "question": "What was the theme of the 2-day National Conference on the Welfare of SC and ST held in Bhubaneswar, and who inaugurated it?",
+    "options": [
+      "\"Empowering Marginalized Communities,\" inaugurated by the Chief Minister.",
+      "\"Role of Parliamentary and Legislative Committees in Welfare, Development and Empowerment of SCs and STs,\" inaugurated by Lok Sabha Speaker Om Birla.",
+      "\"Social Justice for All,\" inaugurated by the President of India.",
+      "\"Inclusive Growth for SC and ST,\" inaugurated by the Governor."
+    ],
+    "answer": 1,
+    "explanation": "The 2-day National Conference on the Welfare of SC and ST, held in Bhubaneswar from August 29-30, 2025, focused on the theme \"Role of Parliamentary and Legislative Committees in Welfare, Development and Empowerment of SCs and STs\" and was inaugurated by Lok Sabha Speaker Om Birla."
+  },
+  {
+    "question": "What makes the National Conference on the Welfare of SC and ST, held in Bhubaneswar, historically significant for Odisha?",
+    "options": [
+      "It was the first time such a conference was held in India.",
+      "It was the first time since 1994 that a national meeting of a parliamentary committee was organized in Odisha, and the first time outside Delhi.",
+      "It was the largest conference on tribal welfare ever held in Odisha.",
+      "It was attended by all state Chief Ministers."
+    ],
+    "answer": 1,
+    "explanation": "The conference marked a historical first for Odisha, as it was the first time since 1994 that a national meeting of a parliamentary committee was organized in the state, and the first time it was held outside Delhi."
+  },
+  {
+    "question": "Who is the Odia Language, Literature and Culture Minister, and what new facility was inaugurated at Utkal Sangeet Mahavidyalaya?",
+    "options": [
+      "Krushna Chandra Mahapatra, an e-learning center.",
+      "Suryabanshi Suraj, an Audio and Chroma Recording Studio.",
+      "Ram Mohan Naidu Kinjarapu, a new library.",
+      "Mohan Majhi, a virtual reality lab."
+    ],
+    "answer": 1,
+    "explanation": "Odia Language, Literature and Culture Minister Suryabanshi Suraj inaugurated an Audio and Chroma Recording Studio, also known as a green screen studio, at Utkal Sangeet Mahavidyalaya. This modern facility aims to benefit artistes and showcase Odisha’s cultural heritage."
+  },
+  {
+    "question": "What is the \"MMSY–Disaster Resilient Roads Scheme,\" and what are its funding and implementation details?",
+    "options": [
+      "A central government scheme to build 1000 km of national highways over two years, funded by the Union budget.",
+      "A state government initiative to upgrade 500 km of rural roads at an estimated cost of ₹1,000 crore, funded entirely by the State budget over five years (2025-26 to 2029-30).",
+      "A public-private partnership for urban road development, with mixed funding over three years.",
+      "A scheme to repair 500 km of existing roads using international aid over one year."
+    ],
+    "answer": 1,
+    "explanation": "The Odisha Government announced the \"MMSY–Disaster Resilient Roads Scheme\" to strengthen road connectivity in disaster-prone regions. It involves upgrading 500 km of rural roads at an estimated cost of ₹1,000 crore, to be implemented over five years (2025-26 to 2029-30) and funded entirely from the State budget."
+  },
+  {
+    "question": "Which helpline of Odisha’s Agriculture and Farmers’ Empowerment Department was praised by Nobel Laureate Prof. Michael Kremer and a team from the University of Chicago?",
+    "options": ["Odisha Kisan Call Center.", "Krushi Samrudhi Helpline (KSH).", "Farmer Assistance Service.", "Agricultural Advisory Helpline."],
+    "answer": 1,
+    "explanation": "Nobel Laureate Prof. Michael Kremer (economy), along with a 12-member team from the University of Chicago, praised the Krushi Samrudhi Helpline (KSH) of Odisha’s Agriculture and Farmers’ Empowerment Department (DA & FE)."
+  },
+  {
+    "question": "Which state-run company announced a massive investment plan in Odisha to achieve 'Maharatna' status by 2030, and what is the approximate amount of this investment?",
+    "options": [
+      "SAIL, investing Rs 20,000 crore.",
+      "NALCO, investing Rs 30,000 crore.",
+      "ONGC, investing Rs 40,000 crore.",
+      "NTPC, investing Rs 25,000 crore."
+    ],
+    "answer": 1,
+    "explanation": "Public sector giant NALCO, a state-run Navratna company, has unveiled a massive Rs 30,000 crore investment plan in Odisha over the next five years, aiming to secure 'Maharatna' status by 2030."
+  },
+  {
+    "question": "How much grant did Odisha receive as the first installment of the Fifteenth Finance Commission’s untied grant for rural local bodies for the financial year 2025-26?",
+    "options": ["Rs 150.50 crore.", "Rs 240.81 crore.", "Rs 300.00 crore.", "Rs 180.25 crore."],
+    "answer": 1,
+    "explanation": "Odisha received Rs 240.81 crore as the first installment of the Fifteenth Finance Commission’s untied grant for rural local bodies for the financial year 2025-26. The state was among three recipients, along with Mizoram and Tripura."
+  },
+  {
+    "question": "What is Ajit Kumar Mohanty's current role, and for how long has his tenure been extended?",
+    "options": [
+      "Secretary of the Department of Space, extended for one year.",
+      "Chairman of the Atomic Energy Commission (AEC) and Secretary of the Department of Atomic Energy (DAE), extended for six months.",
+      "Director of Bhabha Atomic Research Centre (BARC), extended for three months.",
+      "Advisor to the Prime Minister on Nuclear Energy, extended for two years."
+    ],
+    "answer": 1,
+    "explanation": "Noted physicist Ajit Kumar Mohanty received a six-month extension as Chairman of the Atomic Energy Commission (AEC) and Secretary of the Department of Atomic Energy (DAE), effective from October 11, 2025."
+  },
+  {
+    "question": "What institution is the Odisha government urging the Centre to establish a satellite unit of at Gopalpur in Ganjam, and what is its significance?",
+    "options": [
+      "Indian Institute of Management (IIM), for business education.",
+      "National Tribhuvan Sahkari University (TSU), the country’s lone cooperative institute focusing on management, finance, law, and rural development.",
+      "All India Institute of Medical Sciences (AIIMS), for medical education.",
+      "Indian Institute of Technology (IIT), for engineering and technology."
+    ],
+    "answer": 1,
+    "explanation": "The Odisha government urged the Centre to set up a satellite unit of the National Tribhuvan Sahkari University (TSU) at Gopalpur in Ganjam. The TSU is significant as the country’s first national-level cooperative institute, located in Gujarat, providing education, training, and research in management, finance, law, and rural development."
+  },
+  {
+    "question": "What is the ‘Ama Shasana’ initiative launched by CM Majhi, and what is its primary objective?",
+    "options": [
+      "A scheme for providing financial aid to farmers, aiming to boost agricultural production.",
+      "An initiative for transparent governance, seeking feedback from the public.",
+      "A program to promote tourism in Odisha, focusing on coastal areas.",
+      "A project for infrastructure development, aimed at building new roads and bridges."
+    ],
+    "answer": 1,
+    "explanation": "CM Majhi launched the ‘Ama Shasana’ initiative, which aims to achieve transparent governance by actively seeking feedback from the public."
+  },
+  {
+    "question": "Who has been appointed as India’s next High Commissioner to Canada, and what is his current diplomatic posting?",
+    "options": [
+      "Vijaya Kishore Rahatkar, currently Chairperson of NCW.",
+      "Dinesh K. Patnaik, currently India’s Ambassador to Spain.",
+      "Ajit Kumar Mohanty, currently Chairman of AEC.",
+      "Suryabanshi Suraj, currently Odia Language Minister."
+    ],
+    "answer": 1,
+    "explanation": "Senior diplomat Dinesh K. Patnaik, a native of Odisha, has been appointed as India’s next High Commissioner to Canada. He is currently serving as India’s Ambassador to Spain and will soon assume his new role in Ottawa."
+  },
+  {
+    "question": "What is 'Operation Prahar,' and which city in Odisha is it aimed at making drug-free?",
+    "options": [
+      "A scheme for wildlife protection, aimed at protecting tigers in Similipal.",
+      "An initiative for women's safety, aimed at making Cuttack safer.",
+      "An operation to make Bhubaneswar a drug-free city.",
+      "A disaster management exercise, aimed at coastal areas."
+    ],
+    "answer": 2,
+    "explanation": "The Odisha Government is set to launch ‘Operation Prahar’ with the goal of making Bhubaneswar a drug-free city."
+  },
+  {
+    "question": "According to the India Today Mood of the Nation poll, what was Odisha CM Mohan Majhi's rank among the most popular Chief Ministers?",
+    "options": ["First rank.", "Fifth rank.", "Eighth rank.", "Tenth rank."],
+    "answer": 2,
+    "explanation": "In the India Today Mood of the Nation poll, Odisha CM Mohan Majhi secured the eighth rank among the top 10 most popular Chief Ministers in the country."
+  },
+  {
+    "question": "How many new Notified Area Councils (NACs) and Municipalities did CM Majhi announce on Self-governance Day, and what are some examples of the new Municipalities in Ganjam district?",
+    "options": [
+      "10 NACs and 5 Municipalities; Cuttack.",
+      "16 NACs and 7 Municipalities; Bhanjanagar, Aska, Chatrapur, Kabisuryanagar, Polasara.",
+      "12 NACs and 6 Municipalities; Mayurbhanj.",
+      "15 NACs and 7 Municipalities; Kalahandi."
+    ],
+    "answer": 1,
+    "explanation": "On the occasion of Self-governance Day (August 31), CM Majhi announced 16 new Notified Area Councils (NACs) and 7 new Municipalities. Examples of new Municipalities in Ganjam district include Bhanjanagar, Aska, Chatrapur, Kabisuryanagar, and Polasara."
+  },
+  {
+    "question": "What new initiatives for public transport have been rolled out in Odisha, and what special concessions are offered?",
+    "options": [
+      "Introduction of metro rail and free travel for students.",
+      "Rollout of the National Common Mobility Card (NCMC) for Odisha, WhatsApp-based ticketing for Ama Bus, and special concessions on digital ticketing (10% for all commuters and 15% for women).",
+      "Expansion of taxi services and subsidized fares for senior citizens.",
+      "New inter-state bus services and discounts for frequent travelers."
+    ],
+    "answer": 1,
+    "explanation": "New public transport initiatives in Odisha include the rollout of the National Common Mobility Card (NCMC) for the state, WhatsApp-based ticketing for Ama Bus, and special concessions on digital ticketing, providing a 10% discount for all commuters and a 15% discount for women."
+  },
+  {
+    "question": "How many teachers from Odisha will be honored for the National Teachers’ Awards 2025, and who are they?",
+    "options": [
+      "One teacher: Basanta Kumar Rana.",
+      "Two teachers: Basanta Kumar Rana and Tarun Kumar Dash.",
+      "Three teachers: Basanta Kumar Rana, Tarun Kumar Dash, and one unnamed teacher.",
+      "Four teachers: Basanta Kumar Rana, Tarun Kumar Dash, and two unnamed teachers."
+    ],
+    "answer": 1,
+    "explanation": "Two teachers from Odisha, Basanta Kumar Rana (Government Upper Primary School, Kondel, Malkangiri) and Tarun Kumar Dash (PM Shri Kendriya Vidyalaya, Koraput), will be honored with the National Teachers’ Awards 2025."
+  },
+  {
+    "question": "What is the total number of awardees for the National Teachers’ Awards in India for 2025, and what cash prize do they receive?",
+    "options": [
+      "50 awardees, each receiving Rs 25,000.",
+      "45 awardees, each receiving Rs 50,000.",
+      "60 awardees, each receiving Rs 75,000.",
+      "40 awardees, each receiving Rs 1,00,000."
+    ],
+    "answer": 1,
+    "explanation": "Overall in India, 45 individuals will receive the National Teachers’ Awards 2025, each receiving a cash prize of Rs 50,000. The award ceremony will be held in New Delhi on Teachers’ Day, commemorating the birth anniversary of Dr. Sarvepalli Radhakrishnan."
+  },
+  {
+    "question": "Who received the Life-time Achievement award at the Biju Patnaik Sports Awards-2024, and for which sport?",
+    "options": [
+      "Animesh Kujur, for athletics.",
+      "Bijay Kumar Satpathy, for weightlifting.",
+      "Sushama Nanda, for volleyball.",
+      "Rakhal Kumar Sethy, for para fencing."
+    ],
+    "answer": 1,
+    "explanation": "Bijay Kumar Satpathy was honored with the Life-time Achievement award at the Biju Patnaik Sports Awards-2024 for his contributions to weightlifting, receiving a prize of Rs 4 Lakh. The awards were presented on National Sports Day, August 29."
+  },
+  {
+    "question": "Who was recognized for Outstanding Performance in Sports & Games at the Biju Patnaik Sports Awards-2024, and in which discipline?",
+    "options": [
+      "Bijay Kumar Satpathy, Weightlifting.",
+      "Animesh Kujur, Athletic (Sprinter).",
+      "Sushama Nanda, Volleyball.",
+      "Rakhal Kumar Sethy, Para fencing."
+    ],
+    "answer": 1,
+    "explanation": "Animesh Kujur was recognized for Outstanding Performance in Sports & Games in Athletic (Sprinter) at the Biju Patnaik Sports Awards-2024, receiving Rs 3 Lakh. He also created history by becoming the first-ever Indian male sprinter to qualify for the World Athletics Championship 2025 in Tokyo, Japan."
+  },
+  {
+    "question": "Who received the award for Excellence in Coaching at the Biju Patnaik Sports Awards-2024?",
+    "options": [
+      "Pradyumna Mishra",
+      "Bimal Ku. Raul",
+      "Sushama Nanda",
+      "Dr. Sudeep Satpathy"
+    ],
+    "answer": 2,
+    "explanation": "Sushama Nanda received the award for Excellence in Coaching at the Biju Patnaik Sports Awards-2024 for her work in Volleyball, along with a prize of Rs 2 Lakh."
+  },
+  {
+    "question": "Which individuals were felicitated with the Biju Patnaik Bravery Awards-2024?",
+    "options": [
+      "Bijay Kumar Satpathy and Animesh Kujur.",
+      "Sushama Nanda and Pradyumna Mishra.",
+      "Jiban Kumar Behera and Chittaranjan Pradhan.",
+      "Bimal Ku. Raul and Rakhal Kumar Sethy."
+    ],
+    "answer": 2,
+    "explanation": "Jiban Kumar Behera and Chittaranjan Pradhan were felicitated with the Biju Patnaik Bravery Awards-2024 on the occasion of National Sports Day, August 29."
+  },
+  {
+    "question": "Who became the first-ever Indian male sprinter to qualify for the World Athletics Championship 2025, and where will the event be held?",
+    "options": [
+      "Rakhal Kumar Sethy, in South Korea.",
+      "Animesh Kujur, in Tokyo, Japan.",
+      "Master Sattwik Swain, in India.",
+      "Bijay Kumar Satpathy, in Tokyo, Japan."
+    ],
+    "answer": 1,
+    "explanation": "Animesh Kujur created history by becoming the first-ever Indian male sprinter to qualify for the World Athletics Championship 2025, which is scheduled to be held in Tokyo, Japan from September 13 to 21."
+  },
+  {
+    "question": "Which Odia athlete was selected to represent India at the 2025 Para Fencing World Championship, and where is it scheduled to take place?",
+    "options": [
+      "Rakhal Kumar Sethy, in Tokyo, Japan.",
+      "Pujaswini Nayak, in South Korea.",
+      "Animesh Kujur, in India.",
+      "Master Sattwik Swain, in South Korea."
+    ],
+    "answer": 1,
+    "explanation": "Odisha’s international wheelchair fencer and national gold medalist, Pujaswini Nayak, has been selected to represent India at the prestigious 2025 Para Fencing World Championship scheduled to be held in South Korea from September 2 to 7."
+  },
+  {
+    "question": "Which Indian cities were ranked among the top seven safest for women in the National Annual Report and Index on Women’s Safety (NARI) 2025, and who is the Chairperson of the National Commission for Women (NCW)?",
+    "options": [
+      "Delhi, Kolkata, and Mumbai; Chairperson is Rekha Sharma.",
+      "Bhubaneswar, Mumbai, and Kohima; Chairperson is Vijaya Kishore Rahatkar.",
+      "Bengaluru, Chennai, and Hyderabad; Chairperson is Smriti Irani.",
+      "Jaipur, Patna, and Ranchi; Chairperson is Sangeeta Singh."
+    ],
+    "answer": 1,
+    "explanation": "Bhubaneswar was ranked among the top seven safest cities for women in India, according to the National Annual Report and Index on Women’s Safety (NARI) 2025. Other safest cities listed include Mumbai, Kohima, Visakhapatnam, Aizawl, Gangtok, and Itanagar. The Chairperson of the National Commission for Women (NCW) is Vijaya Kishore Rahatkar."
+  },
+  {
+    "question": "What is Odisha's status in E-mobility based on the number of e-buses, and which city tops the list in India?",
+    "options": [
+      "Odisha is 1st with 3564 e-buses; Mumbai tops the list.",
+      "Odisha has 450 e-buses, with New Delhi topping the list with 3564 e-buses.",
+      "Odisha is 5th with 450 e-buses; Maharashtra tops the list.",
+      "Odisha is 7th with 3564 e-buses; New Delhi tops the list."
+    ],
+    "answer": 1,
+    "explanation": "Odisha currently has 450 e-buses. New Delhi tops the list for E-mobility with 3564 e-buses, followed by Maharashtra."
+  },
+  {
+    "question": "The Taramakant region, situated at an elevation of 1,800 to 2,200 feet above sea level, has long been considered ideal for tea cultivation. In which district is it located?",
+    "options": [
+      "Sundargarh",
+      "Keonjhar",
+      "Kalahandi",
+      "Mayurbhanj"
+    ],
+    "answer": 2,
+    "explanation": "The Taramakant region, which is considered ideal for tea cultivation due to its elevation of 1,800 to 2,200 feet, is located in the Kalahandi district."
+  },
+  {
+    "question": "What are the main destinations for lemons exported from Angul district in Odisha, and from which specific village are they mainly shipped?",
+    "options": [
+      "Europe and Australia, from Chendipada village.",
+      "United States and United Kingdom, mainly from Ogi village under Chhendipada block.",
+      "Middle East and Southeast Asia, from Angul town.",
+      "Canada and Japan, from Talcher."
+    ],
+    "answer": 1,
+    "explanation": "Lemons from Angul district have been exported to the United States and the United Kingdom, with nearly one lakh pieces reportedly shipped in three phases, mainly from Ogi village under Chhendipada block."
+  },
+  {
+    "question": "Which traditional sweet delicacy from western Odisha is Union Education Minister Dharmendra Pradhan advocating for a Geographical Indication (GI) tag?",
+    "options": [
+      "Chhena Poda.",
+      "Rasagola.",
+      "Arisa Pitha.",
+      "Sarsatia."
+    ],
+    "answer": 3,
+    "explanation": "Union Education Minister Dharmendra Pradhan has called for a Geographical Indication (GI) tag for Sarsatia, a traditional sweet delicacy from western Odisha, particularly Sambalpur."
+  },
+  {
+    "question": "Which two new Vande Bharat train routes are specifically mentioned as 'Coming Soon' to Odisha?",
+    "options": [
+      "Puri–Howrah and Puri–Rourkela",
+      "Brahmapur–Tatanagar and Rourkela–Howrah Express",
+      "Tatanagar–Puri and Jeypore–Bhubaneswar",
+      "Bhubaneswar–Visakhapatnam Express and Raipur–Visakhapatnam Express"
+    ],
+    "answer": 2,
+    "explanation": "The source indicates that two new Vande Bharat trains, on the Tatanagar–Puri and Jeypore–Bhubaneswar routes, are 'Coming Soon' to Odisha."
+  },
+  {
+    "question": "According to the provided current affairs, which of the following temples is correctly paired with its district?",
+    "options": [
+      "Maa Patneswari - Sambalpur",
+      "Maa Samaleswari - Bolangir",
+      "Maa Manikeswari - Nuapada",
+      "Maa Bhairavi - Boudh"
+    ],
+    "answer": 3,
+    "explanation": "The source lists Maa Patneswari in Bolangir, Maa Samaleswari in Sambalpur, Maa Manikeswari in Kalahandi, Maa Bhairavi in Boudh, and Maa Raktambari in Nuapada."
+  },
+  {
+    "question": "What is Nuakhai, when is it usually celebrated, and what was its date in 2025?",
+    "options": [
+      "A harvest festival for wheat, celebrated a day before Diwali, on October 20.",
+      "An agrarian festival marking the harvest of the new rice paddy, usually celebrated a day after Ganesh Chaturthi, on August 28, 2025.",
+      "A spring festival, celebrated on the first day of Chaitra, on March 15.",
+      "A rain festival, celebrated in July, on July 10."
+    ],
+    "answer": 1,
+    "explanation": "Nuakhai is an agrarian festival that marks the harvest of the new rice paddy. It is usually celebrated a day after Ganesh Chaturthi, and its date in 2025 was August 28."
+  },
+  {
+    "question": "In which district of Odisha is the Garjan Khol waterfall located?",
+    "options": ["Keonjhar", "Deogarh", "Angul", "Sundargarh"],
+    "answer": 1,
+    "explanation": "The Garjan Khol waterfall is located in the Deogarh district of Odisha."
+  },
+  {
+    "question": "What is a chroma key studio, and how will its establishment at Utkal Sangeet Mahavidyalaya benefit Odisha's artistes and cultural heritage?",
+    "options": [
+      "A soundproof recording studio for traditional music, preserving folk songs.",
+      "A green screen studio that allows replacement of video backgrounds with digital scenes, benefiting artistes and showcasing Odisha’s cultural heritage globally.",
+      "A multimedia classroom for teaching digital art, enhancing modern artistic skills.",
+      "A film editing suite, improving post-production quality for Odia cinema."
+    ],
+    "answer": 1,
+    "explanation": "A chroma key studio, commonly known as a green screen studio, allows artists to replace the background of their videos with any digital scene. Its establishment at Utkal Sangeet Mahavidyalaya will greatly benefit Odisha's artistes and contribute towards showcasing the state’s glorious cultural heritage to the world."
+  },
+  {
+    "question": "Which organizations are associating to organize the 40th IATO annual convention in Puri?",
+    "options": [
+      "Ministry of Tourism and UNWTO",
+      "Odisha Tourism and the Indian Association of Tour Operators (IATO)",
+      "World Travel & Tourism Council and Incredible India",
+      "Federation of Hotel & Restaurant Associations of India and Odisha Tourism Development Corporation"
+    ],
+    "answer": 1,
+    "explanation": "Odisha Tourism, in association with the Indian Association of Tour Operators (IATO), is organizing the 40th IATO annual convention at Puri."
+  },
+  {
+    "question": "Who emerged as champions of the 15th Hockey India Junior Men National Championship 2025, and which team did they defeat?",
+    "options": [
+      "Haryana, defeating Odisha.",
+      "Odisha, defeating Haryana.",
+      "Punjab, defeating Jharkhand.",
+      "Jharkhand, defeating Punjab."
+    ],
+    "answer": 0,
+    "explanation": "Haryana emerged as the champions of the 15th Hockey India Junior Men National Championship 2025, defeating Odisha in the final match, which was held in Jalandhar, Punjab."
+  },
+  {
+    "question": "Who are the Brand Ambassadors for the Odisha Pro T20 League (OPTL) 2025, and name some of the franchise teams participating?",
+    "options": [
+      "Sachin Tendulkar and Sourav Ganguly; Bhubaneswar Blasters and Puri Panthers.",
+      "Brett Lee and Debashish Mohanty; Angul Fireballs, Cuttack Shields, Dhenkanal Dynamos, Puri Jaguars, Sambalpur Lions, and Sundargarh Royals.",
+      "Rahul Dravid and VVS Laxman; Odisha Titans and Ganjam Gladiators.",
+      "Adam Gilchrist and Anil Kumble; Koraput Kings and Balasore Bulls."
+    ],
+    "answer": 1,
+    "explanation": "Former Australian fast bowler Brett Lee and Odisha's former international cricketer Debashish Mohanty will serve as the Brand Ambassadors of the Odisha Pro T20 League (OPTL) 2025. Participating franchise teams include Angul Fireballs, Cuttack Shields, Dhenkanal Dynamos, Puri Jaguars, Sambalpur Lions, and Sundargarh Royals."
+  },
+  {
+    "question": "What is ‘Airawat,’ and what are its key features?",
+    "options": [
+      "A new drone for wildlife monitoring, with long-range cameras.",
+      "A special rescue truck for elephants in Angul, featuring a special lift and 1500 litres water holding capacity.",
+      "A mobile veterinary clinic for all animals, with advanced medical equipment.",
+      "A forest fire fighting vehicle, with a large water cannon."
+    ],
+    "answer": 1,
+    "explanation": "‘Airawat’ is a special rescue truck introduced by Odisha wildlife for elephant rescue operations in Angul. It is equipped with a special lift for elephants to get on and has a water holding capacity of 1500 litres."
+  },
+  {
+    "question": "Which organization conducted the maiden flight tests of the Integrated Air Defence Weapon System (IADWS) off the coast of Odisha?",
+    "options": [
+      "Indian Space Research Organisation (ISRO).",
+      "Defence Research and Development Organisation (DRDO).",
+      "Hindustan Aeronautics Limited (HAL).",
+      "Bharat Dynamics Limited (BDL)."
+    ],
+    "answer": 1,
+    "explanation": "The Defence Research and Development Organisation (DRDO) conducted the maiden flight tests of the Integrated Air Defence Weapon System (IADWS) off the coast of Odisha on August 23."
+  }
+
+];
+
+let questions = [], currentQuestion = 0, correctCount = 0, wrongCount = 0, selectedAnswers = [], timer, timeLeft = 30;
+
+function playSound(id) {
+    const audio = document.getElementById(id);
+    if(audio) { audio.currentTime = 0; audio.play(); }
+}
+
+function loadQuestion(index) {
+    clearInterval(timer);
+    timeLeft = 30;
+    let q = questions[index];
+    let html = `
+        <div class="d-flex justify-content-between mb-3">
+            <span>Question ${index+1} of ${questions.length}</span>
+            <span class="timer text-primary" id="timer">30s</span>
+        </div>
+        <h5>${q.question}</h5>
+        <div id="options" class="mt-3">
+            ${q.options.map((opt, i) => {
+                let btnClass = "btn-outline-secondary", disabled = "";
+                if (selectedAnswers[index] !== null) {
+                    if (i === q.answer) btnClass = "correct";
+                    else if (i === selectedAnswers[index] && selectedAnswers[index] !== q.answer) btnClass = "incorrect";
+                    disabled = "disabled";
+                }
+                return `<button class="btn ${btnClass} option-btn" id="option${i}" onclick="selectOption(${i})" ${disabled}>${opt}</button>`;
+            }).join('')}
+        </div>
+        <div class="explanation alert alert-info mt-2" id="explanation">${selectedAnswers[index]!==null? q.explanation : ''}</div>
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()" ${index===0? 'disabled':''}>Previous</button>
+            <button class="btn btn-secondary btn-sm" onclick="showSummary()">Finish Now</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()" ${index===questions.length-1? 'disabled':''}>Next</button>
+        </div>`;
+    document.getElementById('quiz-container').innerHTML = html;
+
+    if (selectedAnswers[index] === null) {
+        document.getElementById('explanation').style.display = "none";
+        startTimer();
+    } else {
+        document.getElementById('explanation').style.display = "block";
+        document.getElementById('timer').textContent = "--";
+    }
+    window.selectOption = selectOption;
+}
+
+function selectOption(optIdx) {
+    if (selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = optIdx;
+    let q = questions[currentQuestion];
+    if (optIdx === q.answer) { correctCount++; playSound('sound-correct'); }
+    else { wrongCount++; playSound('sound-wrong'); }
+    clearInterval(timer);
+    showExplanation();
+    for(let i=0; i<q.options.length; i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if(i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+        if(i === optIdx && optIdx !== q.answer){ btn.classList.remove('btn-outline-secondary'); btn.classList.add('incorrect'); }
+    }
+}
+
+function showExplanation() {
+    document.getElementById('explanation').style.display = "block";
+    document.getElementById('explanation').textContent = questions[currentQuestion].explanation;
+    document.getElementById('timer').textContent = "--";
+}
+
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(currentQuestion); } }
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(currentQuestion); } else { showSummary(); } }
+
+function startTimer() {
+    document.getElementById('timer').textContent = timeLeft + 's';
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 0) { clearInterval(timer); autoMark(); }
+    }, 1000);
+}
+
+function autoMark() {
+    if(selectedAnswers[currentQuestion] !== null) return;
+    selectedAnswers[currentQuestion] = -1;
+    wrongCount++;
+    playSound('sound-timeup');
+    let q = questions[currentQuestion];
+    for(let i=0;i<q.options.length;i++){
+        let btn = document.getElementById('option'+i);
+        btn.disabled = true;
+        if (i === q.answer) { btn.classList.remove('btn-outline-secondary'); btn.classList.add('correct'); }
+    }
+    showExplanation();
+}
+
+function showSummary() {
+    clearInterval(timer);
+    const total = questions.length;
+    const attempted = selectedAnswers.filter(a => a !== null && a !== -1).length;
+    const unattempted = total - attempted;
+    const percent = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+    let message = (percent > 70) ? "Good Job, You Are Very Close To Selection" : (percent >= 50) ? "Not Bad, But you need to work hard" : "Poor performance, You need to work very hard for selection";
+    
+    document.getElementById('quiz-container').innerHTML = `
+        <h3 class="text-center">Quiz Summary</h3>
+        <table class="table mt-4">
+            <tr><th>Total Questions</th><td>${total}</td></tr>
+            <tr><th>Attempted Questions</th><td>${attempted}</td></tr>
+            <tr><th>Correct Answers</th><td>${correctCount}</td></tr>
+            <tr><th>Wrong Answers</th><td>${wrongCount}</td></tr>
+            <tr><th>Unattempted</th><td>${unattempted}</td></tr>
+            <tr><th>Percentage (based on attempted)</th><td>${percent}%</td></tr>
+            <tr><th>Performance</th><td>${message}</td></tr>
+        </table>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="restartQuiz()">REATTEMPT</button>
+        </div>
+    `;
+}
+
+function restartQuiz() {
+    correctCount = 0; wrongCount = 0; currentQuestion = 0;
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    loadQuestion(currentQuestion);
+}
+
+// Jump to question on search box enter
+document.getElementById('searchQuestion').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        let num = parseInt(this.value);
+        if (!isNaN(num) && num >= 1 && num <= questions.length) {
+            currentQuestion = num - 1;
+            loadQuestion(currentQuestion);
+            this.value = '';
+        }
+    }
+});
+
+function startQuiz() {
+    questions = originalQuestions.slice();  // No shuffle
+    selectedAnswers = Array(questions.length).fill(null);
+    currentQuestion = 0; correctCount = 0; wrongCount = 0;
+    loadQuestion(currentQuestion);
+}
+startQuiz();
+
+window.nextQuestion = nextQuestion;
+window.prevQuestion = prevQuestion;
+window.showSummary = showSummary;
+</script>
+</body>
+</html>
+
